@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Законодательство / ГОСТы — СпецТрейлеры</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/components.css">
+</head>
+<body>
+<header class="header">
+  <div class="container header-inner">
+    <a class="logo" href="./">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 16h14l3-6h-7l-2 4H3v2Z" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="18" r="2" fill="currentColor"/><circle cx="17" cy="18" r="2" fill="currentColor"/></svg>
+      <span>СпецТрейлеры</span>
+    </a>
+    <nav class="nav">
+      <a href="./">Новости</a>
+      <a class="active" href="legislation.html">Законодательство / ГОСТы</a>
+      <a href="guides.html">Гайды и регламенты</a>
+      <a href="videos.html">Видео</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero container">
+  <h1>Законодательство / ГОСТы</h1>
+  <p class="sub">Законы, ПДД, ОСАГО, техосмотр, обслуживание, крепёж грузов, ГОСТ/ТР ТС — перечень и изменения</p>
+</section>
+
+<main class="container">
+  <div class="widget" style="margin-bottom:24px">
+    <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center">
+      <strong>Фильтры:</strong>
+      <div class="chips" id="law-chips"></div>
+      <input id="law-q" placeholder="Поиск (название, номер, ключевое слово)" style="flex:1; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--bg-elev); color:var(--text)">
+    </div>
+  </div>
+
+  <div class="card">
+    <table class="table" id="law-table">
+      <thead><tr><th>Тип</th><th>Номер/Идентификатор</th><th>Название</th><th>Дата</th><th>Ссылка</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container">Материалы собраны из открытых источников регуляторов и публикаций по ГОСТ/ТР ТС.</div>
+</footer>
+<script type="module" src="js/legislation.js"></script>
+</body>
+</html>

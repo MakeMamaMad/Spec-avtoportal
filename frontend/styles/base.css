@@ -1,0 +1,132 @@
+/* Сброс и базовая типографика */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+a{color:var(--text);text-decoration:none}
+a:hover{text-decoration:underline}
+img{max-width:100%;display:block}
+.container{max-width:var(--max);margin:0 auto;padding:0 var(--gap-4)}
+
+.header{
+  position:sticky; top:0; z-index:10;
+  backdrop-filter: blur(8px);
+  background: linear-gradient(180deg, rgba(238, 88, 18, 0.85) 40%, rgba(7, 11, 23, 0) 100%);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner{
+  display:flex;align-items:center;gap:var(--gap-4);
+  padding: var(--gap-3) 0;
+}
+.logo{
+  display:flex; align-items:center; gap:10px; font-weight:700;
+}
+.logo svg{width:28px;height:28px}
+.nav{margin-left:auto; display:flex; gap: var(--gap-3); flex-wrap:wrap}
+.nav a{padding:8px 12px;border-radius:10px;border:1px solid transparent}
+.nav a.active, .nav a:hover{border-color:var(--border);background:var(--bg-elev)}
+
+.hero{
+  padding: var(--gap-5) 0 var(--gap-4);
+}
+.hero h1{
+  font-family: var(--font-cond);
+  font-size: clamp(28px, 2.8vw, 44px);
+  line-height:1.1;margin:0 0 var(--gap-2) 0;
+}
+.hero .sub{color:var(--text-muted)}
+
+.grid{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-4);
+}
+@media (min-width: 960px){
+  .grid{ grid-template-columns: 1.8fr .9fr; }
+}
+
+/* Надёжная сетка для списка новостей */
+.list{
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important; /* 300 можно поменять */
+  gap: var(--gap-4) !important;
+  align-items: start !important;
+
+  /* если где-то включались CSS-колонки — обнуляем */
+  column-count: initial !important;
+  columns: initial !important;
+}
+
+/* Карточки не должны использовать float/absolute и ломать поток */
+.card{
+  display: block !important;
+  position: static !important;
+  float: none !important;
+  width: auto !important;
+  margin: 0 !important;
+  height: 100%;
+}
+
+/* Контент внутри карточки на всю высоту */
+.card .body{
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+
+.side{display:grid; gap: var(--gap-4); align-content: start}
+.widget{
+  border:1px solid var(--border); background: var(--bg-elev); border-radius: var(--radius); padding: var(--gap-3)
+}
+.widget h4{margin:0 0 8px 0}
+.chips{display:flex; gap:8px; flex-wrap:wrap}
+.chip{border:1px solid var(--border); padding:6px 10px; border-radius:999px; cursor:pointer; user-select:none}
+.chip.active, .chip:hover{background:var(--bg-soft)}
+
+.footer{border-top:1px solid var(--border); margin-top: var(--gap-6); padding: var(--gap-5) 0; color: var(--text-muted)}
+.footer .cols{display:grid; gap: var(--gap-4)}
+@media (min-width: 900px){ .footer .cols{ grid-template-columns: 1fr 1fr 1fr } }
+
+.table{width:100%; border-collapse: separate; border-spacing:0; border:1px solid var(--border); border-radius: var(--radius); overflow:hidden}
+.table th, .table td{ padding: 12px 14px; border-bottom:1px solid var(--border) }
+.table thead{ background: var(--bg-soft); color: var(--text-muted) }
+.table tr:last-child td{ border-bottom: none }
+
+.kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;font-size:12px;padding:2px 6px;border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;background:var(--bg-soft)}
+
+.notice{padding: 12px 14px; border:1px dashed var(--border); border-radius:10px; color: var(--text-muted)}
+#list {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+  gap: 16px !important;
+  align-items: start !important;
+  /* на случай, если где-то заданы колонны */
+  column-count: initial !important;
+  columns: initial !important;
+}
+
+/* КАРТОЧКИ — никаких float/absolute/позиционирования */
+#list .news {
+  display: block !important;
+  position: static !important;
+  float: none !important;
+  width: auto !important;
+  margin: 0 !important;
+  /* чтобы карточки не «ломались» в многостолбцовом режиме */
+  break-inside: avoid !important;
+}
+
+/* Снимаем возможные селекторы типа :nth-child(n+24) */
+#list .news:nth-child(n) {
+  display: block !important;
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
+}

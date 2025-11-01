@@ -1,0 +1,57 @@
+:root{
+  /* Цвета — индустриальная палитра */
+  --brand-ink: #0b1230;
+  --brand-steel: #1c2333;
+  --brand-accent: #ff6a00; /* safety orange */
+  --brand-accent-2: #2cb67d; /* tech green */
+  --bg: #0e1424;
+  --bg-soft: #141b2d;
+  --bg-elev: #192234;
+  --text: #e6e8ee;
+  --text-muted: #a6adbb;
+  --muted: #6b7280;
+  --border: #2a3348;
+  --good: #2cb67d;
+  --warn: #ffc447;
+  --bad:  #ff4d4f;
+
+  /* Светлая тема (перекрывается медиа-квери) */
+  --l-bg: #ffffff;
+  --l-bg-soft: #f7f8fb;
+  --l-bg-elev: #ffffff;
+  --l-text: #1b2430;
+  --l-text-muted: #4b5563;
+  --l-border: #e5e7eb;
+
+  /* Типографика */
+  --font-sans: "Golos Text", "Inter", "Roboto", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-cond: "Roboto Condensed", "Golos Text", "Inter", "Roboto", system-ui, sans-serif;
+
+  /* Модульная сетка */
+  --radius: 12px;
+  --gap-1: 6px;
+  --gap-2: 12px;
+  --gap-3: 16px;
+  --gap-4: 24px;
+  --gap-5: 32px;
+  --gap-6: 48px;
+  --shadow-1: 0 6px 24px rgba(0,0,0,.16);
+  --shadow-2: 0 10px 40px rgba(0,0,0,.24);
+
+  /* Карточки и бейджи */
+  --badge-bg: rgba(255, 106, 0, .1);
+  --badge-text: #ff6a00;
+
+  /* Ограничения ширины */
+  --max: 1200px;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: var(--l-bg);
+    --bg-soft: var(--l-bg-soft);
+    --bg-elev: var(--l-bg-elev);
+    --text: var(--l-text);
+    --text-muted: var(--l-text-muted);
+    --border: var(--l-border);
+  }
+}

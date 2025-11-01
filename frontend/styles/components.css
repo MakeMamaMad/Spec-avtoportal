@@ -1,0 +1,188 @@
+/* 📦 Нативные рекламные блоки */
+.ad-native {
+  border: 1px dashed var(--border);
+  background: linear-gradient(180deg, rgba(255,106,0,.08), transparent);
+  border-radius: var(--radius);
+  padding: var(--gap-3);
+}
+.ad-native h4 { margin: 0 0 6px 0; }
+
+/* 📍 Навигационные цепочки */
+.breadcrumbs {
+  display: flex;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.breadcrumbs a { color: var(--text-muted); }
+
+/* 📌 Метаданные */
+.meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-top: 8px;
+}
+.meta .dot {
+  width: 4px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 999px;
+}
+
+/* 📰 Статья */
+.article h1 {
+  font-family: var(--font-cond);
+  line-height: 1.1;
+  font-size: clamp(26px, 2.2vw, 38px);
+  margin: 0 0 var(--gap-2) 0;
+}
+.article .lead { color: var(--text-muted); font-size: 18px; }
+.article .content { margin-top: var(--gap-4); display: grid; gap: var(--gap-3); }
+.article .content h2 { margin: var(--gap-4) 0 var(--gap-2) 0; font-size: 22px; }
+.article .content p { margin: 0; }
+.article .content ul { margin: 0; padding-left: 18px; }
+
+/* 🔗 Шеринг */
+.share { display: flex; gap: 12px; align-items: center; }
+
+/* 🎥 Вертикальное видео (Shorts) */
+.card .media--vertical { aspect-ratio: 9 / 16; }
+
+/* 📰 Компактная новостная лента */
+#news-list { display: block; max-width: 800px; margin: 0 auto; }
+
+/* === Строчная запись новости (render.js: .news-row) === */
+.news-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s ease;
+  text-decoration: none !important;
+  color: inherit !important;
+}
+.news-row:last-child { border-bottom: none; }
+.news-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+  text-decoration: none !important;
+}
+
+/* Превью */
+.news-row .thumb {
+  display: none;
+  width: 140px;
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.news-row.has-thumb .thumb { display: block; }
+.news-row .thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Текстовая часть */
+.news-row .row-body { display: grid; gap: 6px; }
+.news-row .row-title { font-weight: 600; line-height: 1.3; text-decoration: none !important; color: inherit !important; }
+.news-row .row-meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; color: var(--text-muted); font-size: 14px; }
+.news-row .dot { width: 4px; height: 4px; background: var(--border); border-radius: 999px; display: inline-block; }
+.news-row .row-summary { margin: 0; color: var(--text-muted); }
+
+/* РЕЖЕМ длину и делаем плавный fade в .news-row */
+.news-row .row-title{
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;          /* стандарт */
+  -webkit-line-clamp: 2;  /* webkit */
+  max-height: calc(1.3em * 2);  /* фолбэк для Firefox */
+  overflow: hidden;
+}
+.news-row .row-summary{
+  position: relative;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: 4;                /* ← было 3 */
+  -webkit-line-clamp: 4;        /* ← было 3 */
+  max-height: calc(1.5em * 4);  /* ← было *3 */
+  overflow: hidden;
+}
+.news-row .row-summary::after{
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2em; /* было 1.75em — чуть выше для мягкого fade */
+  background: linear-gradient(to bottom, transparent 0%, var(--bg) 100%);
+  pointer-events: none;
+}
+
+/* Превью слева только если оно есть */
+@media (min-width: 720px) {
+  .news-row.has-thumb {
+    grid-template-columns: 140px 1fr;
+    align-items: start;
+  }
+}
+
+/* === Плиточные карточки (news.js: .list > .card) === */
+
+/* цвет подложки градиента — фон страницы */
+:root { --card-fade-bg: var(--bg); }
+
+/* 1) элементы в строке одной высоты */
+.list{ align-items: stretch !important; }
+
+/* 2) карточка — flex-колонка */
+.list .card{ display:flex !important; flex-direction:column; height:100%; }
+
+/* 3) контент тянется, мета у дна */
+.list .card .body{ display:flex; flex-direction:column; gap:var(--gap-2,12px); flex:1 1 auto; min-height:0; }
+.list .card .meta{ margin-top:auto; }
+
+/* 4) заголовок до 2 строк */
+.list .card h3{
+  margin:0;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  line-clamp:2; -webkit-line-clamp:2;
+  max-height:calc(1.3em * 2);
+  overflow:hidden;
+}
+
+/* 5) анонс до 5 строк + плавный fade (карточки чуть выше) */
+.list .card p{
+  position:relative;
+  margin:0;
+  line-height:1.5;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  line-clamp:5; -webkit-line-clamp:5;        /* ← было 4 */
+  max-height:calc(1.5em * 5);                /* ← было *4 */
+  overflow:hidden;
+}
+.list .card p::after{
+  content:"";
+  position:absolute;
+  left:0; right:0; bottom:0;
+  height:2.75em; /* было 2.25em — чуть выше под 5 строк */
+  background:linear-gradient(to bottom, transparent 0%, var(--card-fade-bg) 100%);
+  pointer-events:none;
+}
+
+/* 6) медиа стабильной высоты, если используется */
+.list .card .media img{
+  width:100%;
+  height:auto;
+  aspect-ratio:16/9;
+  object-fit:cover;
+  border-radius:var(--radius);
+  display:block;
+}
+
+/* страховка */
+.list > *{ height:100%; }

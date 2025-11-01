@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>СпецТрейлеры — Новости, ГОСТы и Гайды</title>
+  <meta name="description"
+    content="Новости прицепов/полуприцепов и грузовых авто. ГОСТы, ТР ТС, ПДД, ОСАГО, техосмотр. Практические гайды и регламенты.">
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Roboto+Condensed:wght@600;700&display=swap"
+    rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles/tokens.css" />
+  <link rel="stylesheet" href="styles/base.css?v=2" />
+  <link rel="stylesheet" href="styles/components.css?v=2" />
+
+  <link rel="icon" href="assets/logo.svg" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="СпецТрейлеры — Новости, ГОСТы и Гайды" />
+  <meta property="og:description" content="Лента новостей отрасли + база регламентов и практические руководства." />
+  <meta property="og:image" content="assets/og.png" />
+  <meta name="theme-color" content="#0b1230" />
+
+  <!-- Минимальные стили для листинга новостей и пагинации -->
+  <style>
+    /* карточка с медиа */
+    #news-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    #news-list .card {
+      display: grid;
+      grid-template-columns: 168px 1fr;
+      gap: 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    #news-list .card .media {
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f2f3f5;
+      aspect-ratio: 16 / 9;
+    }
+
+    #news-list .card .media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    #news-list .card .media .img-ph {
+      width: 100%;
+      height: 100%;
+    }
+
+    @media (max-width: 720px) {
+      #news-list .card {
+        grid-template-columns: 1fr;
+      }
+
+      #news-list .card .media {
+        height: 180px;
+      }
+    }
+
+    .card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .card:hover {
+      background: #fafafa;
+    }
+
+    .card .card-meta {
+      color: #6b7280;
+      font-size: 12px;
+      margin: 6px 0 8px;
+    }
+
+    #pager {
+      margin: 16px 0 24px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    #pager a,
+    #pager span {
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      text-decoration: none;
+      color: #111827;
+    }
+
+    #pager .active {
+      background: #111827;
+      color: #fff;
+      border-color: #111827;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <a class="logo" href="./">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3 16h14l3-6h-7l-2 4H3v2Z" stroke="currentColor" stroke-width="1.5" />
+          <circle cx="7" cy="18" r="2" fill="currentColor" />
+          <circle cx="17" cy="18" r="2" fill="currentColor" />
+        </svg>
+        <span>СпецТрейлеры</span>
+      </a>
+      <nav class="nav">
+        <a class="active" href="./">Новости</a>
+        <a href="legislation.html">Законодательство / ГОСТы</a>
+        <a href="guides.html">Гайды и регламенты</a>
+        <a href="videos.html">Видео</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero container">
+    <h1>Новости отрасли прицепов и грузовой техники</h1>
+    <p class="sub">Подрубрики: Выставки · Новые модели · Новые производители · Рынок · Уникальные факты · Производители
+      грузовиков/моторов · Дилеры</p>
+  </section>
+
+  <main class="container grid">
+    <!-- Лента новостей + пагинация -->
+    <section>
+      <div class="list" id="news-list"></div>
+      <nav id="pager" class="pager"></nav>
+    </section>
+
+    <aside class="side">
+      <div class="widget">
+        <h4>Фильтр по подрубрикам</h4>
+        <div class="chips" id="chips"></div>
+      </div>
+      <div class="widget">
+        <h4>Топ тем</h4>
+        <div id="top-tags" class="chips"></div>
+      </div>
+      <div class="widget">
+        <h4>Реклама (нативная)</h4>
+        <div class="ad-native" id="ad-spot">
+          <h4>Спецавтотехника — решения под вашу задачу</h4>
+          <p>Профессиональные надстройки и сервис. Без навязчивости.</p>
+        </div>
+      </div>
+      <div class="widget notice">
+        Нажмите <span class="kbd">/</span> для поиска. Нажмите на бейдж рубрики, чтобы отфильтровать ленту.
+      </div>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <div class="container cols">
+      <div>
+        <strong>О проекте</strong>
+        <p>Ежедневная выжимка отраслевых новостей, база нормативов и практические гайды для рынка прицепов/полуприцепов.
+        </p>
+      </div>
+      <div>
+        <strong>Источники</strong>
+        <p>Производители, дилеры, профильные СМИ, регуляторы, открытые видео-платформы. Мы уважаем robots.txt.</p>
+      </div>
+      <div>
+        <strong>Реклама</strong>
+        <p>Нативные блоки «Спецавтотехника» появятся после роста трафика. Без навязчивости — только релевантные кейсы.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Скрипты -->
+  <script type="module" src="js/main.js"></script>
+  <script defer src="js/news.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Гайды и регламенты — СпецТрейлеры</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/components.css">
+</head>
+<body>
+<header class="header">
+  <div class="container header-inner">
+    <a class="logo" href="./">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 16h14l3-6h-7l-2 4H3v2Z" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="18" r="2" fill="currentColor"/><circle cx="17" cy="18" r="2" fill="currentColor"/></svg>
+      <span>СпецТрейлеры</span>
+    </a>
+    <nav class="nav">
+      <a href="./">Новости</a>
+      <a href="legislation.html">Законодательство / ГОСТы</a>
+      <a class="active" href="guides.html">Гайды и регламенты</a>
+      <a href="videos.html">Видео</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero container">
+  <h1>Гайды и регламенты</h1>
+  <p class="sub">Практические руководства: подбор прицепа под задачу, обслуживание, тюнинг, FAQ</p>
+</section>
+
+<main class="container grid">
+  <section>
+    <div class="list" id="guides-list"></div>
+  </section>
+  <aside class="side">
+    <div class="widget">
+      <h4>Разделы</h4>
+      <div class="chips" id="guide-chips"></div>
+    </div>
+    <div class="widget notice">
+      Каждый гайд — оригинальный текст (без копипаста), адаптированный под российские реалии.
+    </div>
+  </aside>
+</main>
+
+<footer class="footer">
+  <div class="container cols">
+    <div><strong>Редполитика</strong><p>Минимум рекламного шума, максимум пользы. Ссылки на источники — обязательно.</p></div>
+    <div><strong>ОБНОВЛЕНИЯ</strong><p>Мы помечаем свежие правки бейджем «Обновлено» и датой.</p></div>
+    <div><strong>Контакты</strong><p>Рекламодателям и авторам — welcome.</p></div>
+  </div>
+</footer>
+<script type="module" src="js/guides.js"></script>
+</body>
+</html>
