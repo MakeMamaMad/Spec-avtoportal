@@ -1,6 +1,96 @@
 [
   {
     "source": "Za-rulem",
+    "title": "Стало известно, когда на самом деле российские автомобилисты меняют шины",
+    "link": "https://www.zr.ru/content/news/974294-stalo-izvestno-kogda-na-samom/",
+    "summary": "Авто Mail: почти треть россиян меняют шины при температуре ниже 7 градусов",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/yIRyOi8vqN5zMLMkjq-5gQ",
+    "published_at": "2025-11-02T12:29:25+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Эти машины россияне чаще всего хотят взять на вторичке",
+    "link": "https://www.zr.ru/content/news/974162-ehti-mashiny-rossiyane-chashche-vsego/",
+    "summary": "«Авито Авто»: на рынке б/у авто в кредит чаще всего хотят купить Lada Granta",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/fGj5mEp2gFgFI7ULGqIHBg",
+    "published_at": "2025-11-02T12:20:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Вариатор 2.0: мифы о ненадежности CVT уже не актуальны",
+    "link": "https://www.zr.ru/content/news/973857-variator-2.0-pochemu-starye-mi/",
+    "summary": "Роман Тимашов: Современные вариаторы ходят более 300 тысяч километров",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/D2kNlyWqdTTLobd93SGZGg",
+    "published_at": "2025-11-02T11:30:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Drom — Автоновости",
+    "title": "Mitsubishi Fuso экспериментирует с водородными грузовиками",
+    "link": "https://news.drom.ru/Mitsubishi-Fuso-101147.html",
+    "summary": "Компания Mitsubishi Fuso на проходящем в Токио международном автосалоне представила два экспериментальных водородных грузовика тяжелого класса, основой для них послужил серийный Super Great. Что интересно: они оснащены силовыми установками принципиально разного типа.",
+    "content_html": "Компания Mitsubishi Fuso на проходящем в Токио международном автосалоне представила два экспериментальных водородных грузовика тяжелого класса, основой для них послужил серийный Super Great. Что интересно: они оснащены силовыми установками принципиально разного типа.",
+    "image": null,
+    "published_at": "2025-11-02T11:22:11+00:00",
+    "domain": "news.drom.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "На АВТОВАЗе рассказали о сроках запуска нового бренда",
+    "link": "https://www.zr.ru/content/news/974265-na-avtovaze-rasskazali-o-sroka/",
+    "summary": "Максим Соколов: АВТОВАЗ запустит фургоны SKM, когда это будет наиболее выгодно",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/BvSSUVSF9g6SMPkI4r-UoA",
+    "published_at": "2025-11-02T11:00:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Названы самые надежные автомобильные моторы",
+    "link": "https://www.zr.ru/content/news/974210-nazvany-samye-nadezhnye-avtomob/",
+    "summary": "Портал TopSpeed перечислил шесть самых надежных автомобильных двигателей",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/eVWYfBPByrXzg3DojY2jKw",
+    "published_at": "2025-11-02T10:50:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "В Россию привезли компактный городской кроссовер Hyundai с приятной ценой",
+    "link": "https://www.zr.ru/content/news/974293-v-rossiyu-privezli-kompaktnyj-g/",
+    "summary": "В РФ стартовали продажи кроссоверов Hyundai Casper с ценой от 1,86 млн рублей",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/R4kAIf0xdIcNXg3oSkyfFA",
+    "published_at": "2025-11-02T10:15:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "«Немцы» рулят: названы самые популярные автомобили дороже 7 млн рублей",
+    "link": "https://www.zr.ru/content/news/974163-nemtsy-rulyat-nazvany-samye-p/",
+    "summary": "«Параллельные» дорогие «китайцы» перестали ввозиться в Россию",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/78PvSFoNYKOqPwvqdDr5-g",
+    "published_at": "2025-11-02T10:00:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Эти подержанные иномарки чаще всего везут в Россию: им не грозит утильсбор",
+    "link": "https://www.zr.ru/content/news/974160-ehti-poderzhannye-inomarki-chashche/",
+    "summary": "Названы самые популярные импортируемые иномарки с пробегом в 2025 году",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/286ooTEavesM-cWBDhzbSQ",
+    "published_at": "2025-11-02T10:00:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
     "title": "Учись, Китай! Вот как нужно делать семейные кроссоверы",
     "link": "https://www.zr.ru/content/articles/974218-uchis-kitaj-vot-kak-nuzhno-de/",
     "summary": "«За рулем» объяснил, почему салон Skoda Kodiaq лучше большинства китайских",
@@ -170,86 +260,6 @@
     "domain": "www.zr.ru"
   },
   {
-    "source": "Za-rulem",
-    "title": "Гибридный кроссовер, доказавший надежность в русские зимы, внезапно подорожал",
-    "link": "https://www.zr.ru/content/news/973749-gibridnyj-krossover-dokazavshi/",
-    "summary": "В России подорожал Exlantix ET и теперь стоит 6 730 000 рублей",
-    "content_html": null,
-    "image": "https://www.zr.ru/_ah/img/Q21ri7dOkAHsvDDp1qDlXw",
-    "published_at": "2025-11-02T04:20:00+00:00",
-    "domain": "www.zr.ru"
-  },
-  {
-    "source": "Za-rulem",
-    "title": "На УАЗе началась сборка новых внедорожников",
-    "link": "https://www.zr.ru/content/news/974255-na-uaze-nachalas-sborka-novykh/",
-    "summary": "Китайские автомобили: УАЗ собирает JAC T9 параллельно с идентичными Sollers ST9",
-    "content_html": null,
-    "image": "https://www.zr.ru/_ah/img/aaPMLq6PFc-HSZ7d2W7sDA",
-    "published_at": "2025-11-02T03:40:00+00:00",
-    "domain": "www.zr.ru"
-  },
-  {
-    "source": "Za-rulem",
-    "title": "Что водители чаще всего забывают сделать с машиной перед зимой",
-    "link": "https://www.zr.ru/content/news/974122-chto-voditeli-chashche-vsego-zabyva/",
-    "summary": "Эксперт Родионов перечислил частые ошибки водителей перед холодами",
-    "content_html": null,
-    "image": "https://www.zr.ru/_ah/img/-EaRmYuPQ3xn8s8H3oSB1Q",
-    "published_at": "2025-11-02T03:30:00+00:00",
-    "domain": "www.zr.ru"
-  },
-  {
-    "source": "Za-rulem",
-    "title": "На рынке появились надежные семейные авто из Японии: цена доступна",
-    "link": "https://www.zr.ru/content/news/974117-na-rynke-poyavilis-nadezhnye-se/",
-    "summary": "В РФ начались продажи Mitsubishi Xpander и Xpander Cross по цене от 2,26 млн рублей",
-    "content_html": null,
-    "image": "https://www.zr.ru/_ah/img/HsVs3oLe9BAD29bXySfaQw",
-    "published_at": "2025-11-02T03:20:00+00:00",
-    "domain": "www.zr.ru"
-  },
-  {
-    "source": "Za-rulem",
-    "title": "Зимой вы оцените эту функцию китайского кроссовера",
-    "link": "https://www.zr.ru/content/articles/973868-gac-gs3/",
-    "summary": "Названы важные особенности кроссовера GAC GS3 из парка «За рулем»",
-    "content_html": null,
-    "image": "https://www.zr.ru/_ah/img/OgQo-O7MaBFKs47ZqvIwiQ",
-    "published_at": "2025-11-02T03:00:00+00:00",
-    "domain": "www.zr.ru"
-  },
-  {
-    "source": "Za-rulem",
-    "title": "Стоимость кроссоверов Geely изменилась в РФ",
-    "link": "https://www.zr.ru/content/news/974116-stoimost-krossoverov-geely-iz/",
-    "summary": "В России четыре кроссовера Geely стали дороже на 30-220 тысяч рублей",
-    "content_html": null,
-    "image": "https://www.zr.ru/_ah/img/ikzlf1pI8i_aWgCS_v3szQ",
-    "published_at": "2025-11-01T17:15:00+00:00",
-    "domain": "www.zr.ru"
-  },
-  {
-    "source": "Za-rulem",
-    "title": "Покупка машины по слишком низкой цене может быть опасна",
-    "link": "https://www.zr.ru/content/news/974277-pokupka-mashiny-po-slishkom-nizk/",
-    "summary": "Автокриминалист Шелков перечислил 3 риска покупки авто по цене ниже рыночной",
-    "content_html": null,
-    "image": "https://www.zr.ru/_ah/img/CfmXD5uD44HOePLLc00RwA",
-    "published_at": "2025-11-01T15:15:00+00:00",
-    "domain": "www.zr.ru"
-  },
-  {
-    "source": "Za-rulem",
-    "title": "Эти бюджетные шины признаны опасными по результатам тестов",
-    "link": "https://www.zr.ru/content/news/974276-ehti-byudzhetnye-shiny-priznany-op/",
-    "summary": "Эксперты AutoBild назвали опасные модели всесезонных шин 2025 года",
-    "content_html": null,
-    "image": "https://www.zr.ru/_ah/img/yaK7dQ35Ry0qUKsQHTNa0Q",
-    "published_at": "2025-11-01T15:00:00+00:00",
-    "domain": "www.zr.ru"
-  },
-  {
     "source": "Drom — Автоновости",
     "title": "Без неожиданностей. Правительство окончательно утвердило новые ставки утильсбора",
     "link": "https://news.drom.ru/101146.html",
@@ -278,6 +288,16 @@
     "image": null,
     "published_at": "2025-11-01T12:35:31+00:00",
     "domain": "news.drom.ru"
+  },
+  {
+    "source": "LOGIRUS — Новости логистики",
+    "title": "Большая пересборка: производители теснят маркетплейсы на складском рынке",
+    "link": "https://logirus.ru/news/warehouses/bolshaya_peresborka_proizvoditeli_tesnyat_marketpleysy_na_skladskom_rynke.html",
+    "summary": "За девять месяцев доля e-commerce в сделках упала с 65% до 34%, а производители удвоили свое присутствие",
+    "content_html": "<p style=\"display:table; \"><b>DNS Retail: как сократить затраты на доставку по 150 тыс. SKU/ Логистика «в цифре»</b></p><p style=\"display:table; \"><b>Роботы на складе: помощники или транжиры?</b></p><p style=\"display:table; \"><b>Роботы на складе: как не потерять миллионы?</b></p><p style=\"display:table; \"><b>Логистика с Казахстаном: поиск «профи» на «ТрансРоссии» и гранд-финал</b></p>",
+    "image": "https://logirus.ru/upload/iblock/25d/kjvnxda2bc3ywi83sx9ysw2pmvw6zal4/sk_ma_1_11.jpg",
+    "published_at": "2025-11-01T12:05:00+00:00",
+    "domain": "logirus.ru"
   },
   {
     "source": "Drom — Автоновости",
@@ -330,14 +350,14 @@
     "domain": "news.drom.ru"
   },
   {
-    "source": "Drom — Автоновости",
-    "title": "Гамму электрической Honda N-One дополнят спортвариантом",
-    "link": "https://news.drom.ru/Honda-N-One-101138.html",
-    "summary": "Honda Motor в 2026 году запустит в серийное производство спортивный электрический кей-кар Super-One — это модифицированная версия недавно вышедшей на рынок Японии N-One e:. Прототип Super-One представили на проходящем в Токио международном автосалоне.",
-    "content_html": "Honda Motor в 2026 году запустит в серийное производство спортивный электрический кей-кар Super-One — это модифицированная версия недавно вышедшей на рынок Японии N-One e:. Прототип Super-One представили на проходящем в Токио международном автосалоне.",
-    "image": null,
-    "published_at": "2025-10-31T13:33:39+00:00",
-    "domain": "news.drom.ru"
+    "source": "LOGIRUS — Новости логистики",
+    "title": "«Логист ошибся, а штраф – ваш»: Контроль маркировки не переделегировать",
+    "link": "https://logirus.ru/news/warehouses/logist_oshibsya_a_shtraf_vash_kontrol_markirovki_ne_peredelegirovat.html",
+    "summary": "В случае проверок контролирующие органы адресуют претензии прежде всего владельцу товара",
+    "content_html": "<p style=\"display:table; \"><b>DNS Retail: как сократить затраты на доставку по 150 тыс. SKU/ Логистика «в цифре»</b></p><p style=\"display:table; \"><b>Роботы на складе: помощники или транжиры?</b></p><p style=\"display:table; \"><b>Роботы на складе: как не потерять миллионы?</b></p><p style=\"display:table; \"><b>Логистика с Казахстаном: поиск «профи» на «ТрансРоссии» и гранд-финал</b></p>",
+    "image": "https://logirus.ru/upload/iblock/279/o8npvrmbmh58whpceugdwinjgas2btre/che_zn_31_10.jpg",
+    "published_at": "2025-10-31T07:45:00+00:00",
+    "domain": "logirus.ru"
   },
   {
     "source": "grozovoy.ru",
@@ -370,6 +390,16 @@
     "domain": "www.vedomosti.ru"
   },
   {
+    "source": "LOGIRUS — Новости логистики",
+    "title": "Лот весом в 2 миллиона метров: на кону – вся складская империя Raven Russia",
+    "link": "https://logirus.ru/news/warehouses/lot_vesom_v_2_milliona_metrov_na_konu_vsya_skladskaya_imperiya_raven_russia.html",
+    "summary": "Потенциальный арендный доход в 20 млрд рублей в год делает этот лот самым привлекательным активом на рынке, но для его покупки нужны особые отношения с государством",
+    "content_html": "Потенциальный арендный доход в 20 млрд рублей в год делает этот лот самым привлекательным активом на рынке, но для его покупки нужны особые отношения с государством",
+    "image": "https://logirus.ru/upload/iblock/a95/79bwp8jv4u6rdb7dtmlko1uj00d28en8/pro_sk_29_10.jpg",
+    "published_at": "2025-10-29T14:30:00+00:00",
+    "domain": "logirus.ru"
+  },
+  {
     "source": "Ведомости — Транспорт",
     "title": "Контейнерные перевозки в России продолжают сокращаться",
     "link": "https://www.vedomosti.ru/business/articles/2025/10/29/1150597-konteinernie-perevozki-v-rossii-prodolzhayut-sokraschatsya",
@@ -378,6 +408,16 @@
     "image": "https://cdn.vdmsti.ru/image/2025/8e/e9f8/normal-ih.jpg",
     "published_at": "2025-10-28T21:11:19+00:00",
     "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "LOGIRUS — Новости логистики",
+    "title": "План «бумага»: чем умнее цепочка поставок, тем проще ее уничтожить",
+    "link": "https://logirus.ru/news/warehouses/plan_bumaga_chem_umnee_tsepochka_postavok_tem_proshche_ee_unichtozhit.html",
+    "summary": "Axenix порекомендовал бизнесу «прорепетировать план перехода на отгрузку по бумаге», который поможет спасти компанию в случае кибератаки",
+    "content_html": "Axenix порекомендовал бизнесу «прорепетировать план перехода на отгрузку по бумаге», который поможет спасти компанию в случае кибератаки",
+    "image": "https://logirus.ru/upload/iblock/5f3/yjo5mxlsqcj7ja46lfqz064zwof2qxwt/lo_ce_28_10.jpg",
+    "published_at": "2025-10-28T15:45:00+00:00",
+    "domain": "logirus.ru"
   },
   {
     "source": "Ведомости — Транспорт",
@@ -470,6 +510,16 @@
     "domain": "www.vedomosti.ru"
   },
   {
+    "source": "LOGIRUS — Новости логистики",
+    "title": "Финиш складского бума: в Казахстане начинается битва за клиента",
+    "link": "https://logirus.ru/news/warehouses/finish_skladskogo_buma_v_kazakhstane_nachinaetsya_bitva_za_klienta.html",
+    "summary": "Если раньше компании в Казахстане держали запасы 78 дней, то сейчас норма снизилась до 52 дней, а передовые игроки вышли на уровень от 14 до 20 дней",
+    "content_html": "Если раньше компании в Казахстане держали запасы 78 дней, то сейчас норма снизилась до 52 дней, а передовые игроки вышли на уровень от 14 до 20 дней",
+    "image": "https://logirus.ru/upload/iblock/c7d/ecv01kblagwxi2s43fsmgdmxgtrkvpr0/skl_ka_24_10.jpg",
+    "published_at": "2025-10-24T13:40:00+00:00",
+    "domain": "logirus.ru"
+  },
+  {
     "source": "Ведомости — Транспорт",
     "title": "«Ростех» планирует в 2026 году выпустить два самолета МС-21",
     "link": "https://www.vedomosti.ru/business/articles/2025/10/24/1149412-rosteh-planiruet-vipustit-dva-samoleta-ms-21",
@@ -520,6 +570,16 @@
     "domain": "www.vedomosti.ru"
   },
   {
+    "source": "LOGIRUS — Новости логистики",
+    "title": "Диван за 8 часов: мебельщики готовы платить по повышенному тарифу за круглосуточную работу логоператоров",
+    "link": "https://logirus.ru/news/warehouses/divan_za_8_chasov_mebelshchiki_gotovy_platit_po_povyshennomu_tarifu_za_kruglosutochnuyu_rabotu_logo.html",
+    "summary": "BRENDOSS использует собственный флот из 17 фур для межскладских перевозок и привлекает партнеров для последней мили в регионах",
+    "content_html": "BRENDOSS использует собственный флот из 17 фур для межскладских перевозок и привлекает партнеров для последней мили в регионах",
+    "image": "https://logirus.ru/upload/iblock/2f9/q22ts06lx2fbcnwpt3d5bywpm7uytf2u/do_me_22_10.jpg",
+    "published_at": "2025-10-22T15:45:00+00:00",
+    "domain": "logirus.ru"
+  },
+  {
     "source": "grozovoy.ru",
     "title": "Российский рынок рефрижераторов в 2025 году. Лёд тронулся?",
     "link": "http://gruzovoy.ru/news/industry/3076_rossiiskii_rinok_refrijeratorov_v_2025_gody_lyod_tronylsya.html",
@@ -540,6 +600,26 @@
     "domain": "gruzovoy.ru"
   },
   {
+    "source": "LOGIRUS — Новости логистики",
+    "title": "Российский light industrial ищет себя между ГОСТом и «гаражом»",
+    "link": "https://logirus.ru/news/warehouses/rossiyskiy_light_industrial_ishchet_sebya_mezhdu_gostom_i_garazhom.html",
+    "summary": "Сторонники стандартизации видят в этом шаге возможность для системного развития сегмента",
+    "content_html": "<p style=\"display:table; \"><b>DNS Retail: как сократить затраты на доставку по 150 тыс. SKU/ Логистика «в цифре»</b></p><p style=\"display:table; \"><b>Роботы на складе: помощники или транжиры?</b></p><p style=\"display:table; \"><b>Роботы на складе: как не потерять миллионы?</b></p><p style=\"display:table; \"><b>Логистика с Казахстаном: поиск «профи» на «ТрансРоссии» и гранд-финал</b></p>",
+    "image": "https://logirus.ru/upload/iblock/a0f/zijn0nce2ejbit0nlnll26nefsxrhgce/li_ind_21_10.jpg",
+    "published_at": "2025-10-21T06:50:00+00:00",
+    "domain": "logirus.ru"
+  },
+  {
+    "source": "LOGIRUS — Новости логистики",
+    "title": "Рынок складов сбавил обороты. Теперь главное – эффективность, а не метры",
+    "link": "https://logirus.ru/news/warehouses/rynok_skladov_sbavil_oboroty_teper_glavnoe_effektivnost_a_ne_metry.html",
+    "summary": "В случаях, когда экспозиция объекта затягивается, корректировка ставки может достигать 15%",
+    "content_html": "<p style=\"display:table; \"><b>DNS Retail: как сократить затраты на доставку по 150 тыс. SKU/ Логистика «в цифре»</b></p><p style=\"display:table; \"><b>Роботы на складе: помощники или транжиры?</b></p><p style=\"display:table; \"><b>Роботы на складе: как не потерять миллионы?</b></p><p style=\"display:table; \"><b>Логистика с Казахстаном: поиск «профи» на «ТрансРоссии» и гранд-финал</b></p>",
+    "image": "https://logirus.ru/upload/iblock/a70/cwbuxjduuqbtmd91325td55hvcga6cht/ri_skl_20_10.jpg",
+    "published_at": "2025-10-21T03:05:00+00:00",
+    "domain": "logirus.ru"
+  },
+  {
     "source": "Ведомости — Коммерческие авто",
     "title": "«Алмаз-Антей» до конца осени начнет выпуск полноприводных тяжелых грузовиков",
     "link": "https://www.vedomosti.ru/auto/articles/2025/10/21/1148415-almaz-antei-nachnet-vipusk-polnoprivodnih-tyazhelih-gruzovikov",
@@ -548,6 +628,16 @@
     "image": "https://cdn.vdmsti.ru/image/2025/85/1ejxnx/normal-1tim.jpg",
     "published_at": "2025-10-20T22:28:24+00:00",
     "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "LOGIRUS — Новости логистики",
+    "title": "Ставка на Чехов: ПЭК инвестирует в расширение",
+    "link": "https://logirus.ru/news/warehouses/stavka_na_chekhov_pek_investiruet_v_rasshirenie.html",
+    "summary": "Стоимость сделки эксперты оценивают в 230-353 млн рублей",
+    "content_html": "<p style=\"display:table; \"><b>DNS Retail: как сократить затраты на доставку по 150 тыс. SKU/ Логистика «в цифре»</b></p><p style=\"display:table; \"><b>Роботы на складе: помощники или транжиры?</b></p><p style=\"display:table; \"><b>Роботы на складе: как не потерять миллионы?</b></p><p style=\"display:table; \"><b>Логистика с Казахстаном: поиск «профи» на «ТрансРоссии» и гранд-финал</b></p>",
+    "image": "https://logirus.ru/upload/iblock/371/sd4ejtix61ldpb11dzurb8on0obj3unt/p_cgh_20_10.jpg",
+    "published_at": "2025-10-20T12:05:00+00:00",
+    "domain": "logirus.ru"
   },
   {
     "source": "grozovoy.ru",
@@ -610,6 +700,16 @@
     "domain": "www.vedomosti.ru"
   },
   {
+    "source": "LOGIRUS — Новости логистики",
+    "title": "Тройной рост: инвесторы штурмуют подмосковные трассы",
+    "link": "https://logirus.ru/news/warehouses/troynoy_rost_investory_shturmuyut_podmoskovnye_trassy.html",
+    "summary": "К 2027 году ожидается ввод более 620 тыс. кв. м складской недвижимости вдоль ключевых платных трасс Подмосковья",
+    "content_html": "<p style=\"display:table; \"><b>DNS Retail: как сократить затраты на доставку по 150 тыс. SKU/ Логистика «в цифре»</b></p><p style=\"display:table; \"><b>Роботы на складе: помощники или транжиры?</b></p><p style=\"display:table; \"><b>Роботы на складе: как не потерять миллионы?</b></p><p style=\"display:table; \"><b>Логистика с Казахстаном: поиск «профи» на «ТрансРоссии» и гранд-финал</b></p>",
+    "image": "https://logirus.ru/upload/iblock/444/afgyuxbys7fqb083xcrvqf42gi91f466/str_te_13_10.jpg",
+    "published_at": "2025-10-13T13:55:00+00:00",
+    "domain": "logirus.ru"
+  },
+  {
     "source": "Ведомости — Транспорт",
     "title": "В России ускорилось падение производства грузовых вагонов",
     "link": "https://www.vedomosti.ru/business/articles/2025/10/13/1146258-v-rossii-uskorilos-padenie-proizvodstva-gruzovih-vagonov",
@@ -628,6 +728,16 @@
     "image": "https://cdn.vdmsti.ru/image/2025/7u/1e1u40/normal-1sv9.png",
     "published_at": "2025-10-09T23:00:49+00:00",
     "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "LOGIRUS — Новости логистики",
+    "title": "Новая карта девелопмента: куда уйдут инвестиции под давлением налогов и госдолга",
+    "link": "https://logirus.ru/news/warehouses/novaya_karta_developmenta_kuda_uydut_investitsii_pod_davleniem_nalogov_i_gosdolga.html",
+    "summary": "Рост дефицита бюджета стимулирует увеличение объема гособлигаций на внутреннем рынке, что это повысит конкуренцию между государством и частным сектором за кредитные ресурсы",
+    "content_html": "Рост дефицита бюджета стимулирует увеличение объема гособлигаций на внутреннем рынке, что это повысит конкуренцию между государством и частным сектором за кредитные ресурсы",
+    "image": "https://logirus.ru/upload/iblock/2de/2b8qk4f6g5g2tshllxu6438445waqfes/in_s_9_10.jpg",
+    "published_at": "2025-10-09T11:15:00+00:00",
+    "domain": "logirus.ru"
   },
   {
     "source": "Ведомости — Транспорт",
@@ -678,5 +788,15 @@
     "image": "https://cdn.vdmsti.ru/image/2025/7r/1xztb/normal-2ip.jpg",
     "published_at": "2025-10-05T21:55:13+00:00",
     "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "LOGIRUS — Новости логистики",
+    "title": "Красота требует склад: B2B-маркетплейс корейской косметики создал логистический хаб на западе Подмосковья",
+    "link": "https://logirus.ru/news/warehouses/krasota_trebuet_sklad_b2b-marketpleys_koreyskoy_kosmetiki_sozdal_logisticheskiy_khab_na_zapade_podm.html",
+    "summary": "Стоимость сделки эксперты оценили в 25-35 млн рублей",
+    "content_html": "<p style=\"display:table; \"><b>DNS Retail: как сократить затраты на доставку по 150 тыс. SKU/ Логистика «в цифре»</b></p><p style=\"display:table; \"><b>Роботы на складе: помощники или транжиры?</b></p><p style=\"display:table; \"><b>Роботы на складе: как не потерять миллионы?</b></p><p style=\"display:table; \"><b>Логистика с Казахстаном: поиск «профи» на «ТрансРоссии» и гранд-финал</b></p>",
+    "image": "https://logirus.ru/upload/iblock/5a4/a7edlkbnjujbffn893qw1zq7g3tn8xo0/ko_sk_5_10.jpg",
+    "published_at": "2025-10-04T21:35:00+00:00",
+    "domain": "logirus.ru"
   }
 ]
