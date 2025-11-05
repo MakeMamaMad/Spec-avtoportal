@@ -9,6 +9,7 @@ on:
       - "aggregator/**"
       - "requirements.txt"
       - ".github/workflows/ingest.yml"
+      
 
 jobs:
   ingest:
@@ -44,3 +45,10 @@ jobs:
             frontend/data/news.json
             frontend/data/news_meta.json
           push_options: --force-with-lease
+      - name: Commit data changes
+        run: |
+           git config user.name "bot"
+           git config user.email "bot@users.noreply.github.com"
+           git add frontend/data/*.json || true
+           git commit -m "chore(data): update feeds" || echo "no changes"
+           git push

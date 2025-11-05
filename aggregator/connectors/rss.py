@@ -1,164 +1,140 @@
-import feedparser
-import requests
-from bs4 import BeautifulSoup
-from slugify import slugify
+# aggregator/connectors/rss.py
+from __future__ import annotations
+
 from datetime import datetime, timezone
-from typing import Any, Tuple, List, Dict
+from typing import Any, Dict, List, Tuple
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 
+import feedparser  # type: ignore
+import requests    # type: ignore
+from bs4 import BeautifulSoup  # type: ignore
+from slugify import slugify    # type: ignore
+
+from aggregator.pipeline.fullgrab import grab  # <-- важно
+
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-
-TRACK_PARAMS_PREFIXES = (
-    "utm_", "ga_", "gclid", "yclid", "fbclid", "mc_cid", "mc_eid", "ref", "ref_src"
-)
 DEFAULT_PORTS = {"http": "80", "https": "443"}
+TRACK_PARAMS_PREFIXES = ("utm_", "ga_", "gclid", "yclid", "fbclid", "mc_cid", "mc_eid", "ref", "ref_src")
 
-def _source_to_tuple(source: Any) -> Tuple[str, str]:
-    """Принимаем либо dict {'name','url'}, либо строку URL. Возвращаем (name, url)."""
-    if isinstance(source, dict):
-        return str(source.get("name") or "RSS").strip(), str(source.get("url") or "").strip()
-    return "RSS", str(source or "").strip()
-
-def _canonical_url(raw: str) -> str:
-    """
-    Приводим ссылку к стабильной форме:
-    - схему/хост к нижнему регистру
-    - выкидываем трекинг-параметры (utm_*, gclid, yclid, fbclid, ref, ...)
-    - сортируем query, убираем пустые
-    - убираем дефолтные порты (:80, :443)
-    - убираем конечный '/'
-    """
+def _normalize_url(raw: str) -> str:
+    """Обрезаем трекинг, дефолтные порты, конечный слэш; задаём https по умолчанию."""
     if not raw:
         return ""
-    try:
-        parts = urlsplit(raw)
-        scheme = (parts.scheme or "https").lower()
-        netloc = (parts.netloc or "").lower()
+    parts = urlsplit(raw)
+    scheme = (parts.scheme or "https").lower()
+    netloc = (parts.netloc or "").lower()
 
-        # убрать default ports
-        if ":" in netloc:
-            host, port = netloc.split(":", 1)
-            if port == DEFAULT_PORTS.get(scheme):
-                netloc = host
+    # Убираем default ports
+    if ":" in netloc:
+        host, port = netloc.split(":", 1)
+        if port == DEFAULT_PORTS.get(scheme):
+            netloc = host
 
-        # чистка query
-        q = []
-        for k, v in parse_qsl(parts.query, keep_blank_values=False):
-            lk = k.lower()
-            # вырезаем трекинг
-            if lk.startswith(TRACK_PARAMS_PREFIXES) or lk in TRACK_PARAMS_PREFIXES:
-                continue
-            q.append((k, v))
-        q.sort(key=lambda kv: kv[0])
-        query = urlencode(q, doseq=True)
+    # Чистим трекинг
+    q = []
+    for k, v in parse_qsl(parts.query, keep_blank_values=True):
+        if any(k.lower().startswith(pref) for pref in TRACK_PARAMS_PREFIXES):
+            continue
+        q.append((k, v))
+    query = urlencode(q, doseq=True)
 
-        # path без завершающего '/'
-        path = parts.path or ""
-        if path != "/" and path.endswith("/"):
-            path = path[:-1]
+    path = parts.path or "/"
+    if path.endswith("/") and path != "/":
+        path = path[:-1]
 
-        canon = urlunsplit((scheme, netloc, path, query, ""))
+    return urlunsplit((scheme, netloc, path, query, ""))
 
-        # унификация www → без www (чтобы http://www.site и https://site не плодили дубли)
-        if canon.startswith("http://www."):
-            canon = "http://" + canon[11:]
-        elif canon.startswith("https://www."):
-            canon = "https://" + canon[12:]
+def _rss_content_encoded(entry: Any) -> str | None:
+    # feedparser может класть <content:encoded> по-разному
+    if "content" in entry and isinstance(entry["content"], list) and entry["content"]:
+        first = entry["content"][0]
+        if isinstance(first, dict) and first.get("type", "").startswith("text"):
+            return first.get("value")
+    # иногда лежит как отдельное поле
+    for key in ("content:encoded", "encoded", "summary_detail"):
+        if key in entry:
+            val = entry[key]
+            if isinstance(val, dict):
+                return val.get("value")
+            if isinstance(val, str):
+                return val
+    return None
 
-        return canon
-    except Exception:
-        return raw.strip()
+def _summary_text(entry: Any) -> str:
+    s = entry.get("summary") or entry.get("description") or ""
+    return s
 
-def _entry_date(e) -> str:
-    try:
-        if getattr(e, "published_parsed", None):
-            return datetime(*e.published_parsed[:6], tzinfo=timezone.utc).isoformat()
-        if getattr(e, "updated_parsed", None):
-            return datetime(*e.updated_parsed[:6], tzinfo=timezone.utc).isoformat()
-    except Exception:
-        pass
-    return datetime.now(timezone.utc).isoformat()
+def _first_image_from_html(html: str, base_url: str) -> str | None:
+    soup = BeautifulSoup(html, "lxml")
+    # meta og/twitter
+    for tag, attrs in [("meta", {"property": "og:image"}), ("meta", {"name": "twitter:image"}), ("link", {"rel": "image_src"})]:
+        el = soup.find(tag, attrs=attrs)
+        if el:
+            src = el.get("content") or el.get("href")
+            if src:
+                return src
+    # первый <img> с учётом srcset/data-src
+    img = soup.find("img")
+    if img:
+        src = img.get("src") or img.get("data-src") or img.get("data-original") or img.get("data-lazy-src")
+        if not src and img.get("srcset"):
+            src = img.get("srcset").split(",")[0].split()[0]
+        return src
+    return None
 
-def _clean_text(html_str: str) -> str:
-    if not html_str:
-        return ""
-    return BeautifulSoup(html_str, "html.parser").get_text(" ", strip=True)
-
-def _to_paragraphs(html_str: str) -> str:
-    if not html_str:
-        return ""
-    soup = BeautifulSoup(html_str, "html.parser")
-    ps = [p.get_text(" ", strip=True) for p in soup.find_all("p")]
-    if ps:
-        return "".join(f"<p>{p}</p>" for p in ps if p)
-    text = soup.get_text("\n", strip=True)
-    parts = [p.strip() for p in text.split("\n") if p.strip()]
-    return "".join(f"<p>{p}</p>" for p in parts)
-
-def fetch_rss(source: Any) -> List[Dict]:
+def fetch_rss(name: str, url: str) -> List[Dict[str, Any]]:
     """
-    Сохраняем старое имя/контракт. Принимаем dict {'name','url'} ИЛИ строку URL.
-    Возвращаем список новостей (list[dict]).
+    Скачиваем RSS/Atom, нормализуем поля, вытаскиваем полноценный контент:
+      - если в RSS есть content:encoded и он «длинный» — используем его
+      - иначе идём на страницу статей (fullgrab.grab)
     """
-    name, url = _source_to_tuple(source)
-    if not url:
-        print(f"[WARN] RSS skip {name}: empty url")
-        return []
+    headers = {"User-Agent": USER_AGENT}
+    d = feedparser.parse(requests.get(url, headers=headers, timeout=20).content)
 
-    print(f"[INFO] RSS load: {name} ({url})")
-    feed = feedparser.parse(url)
-    entries = getattr(feed, "entries", [])
-    if not isinstance(entries, list):
-        print(f"[WARN] RSS entries is not list for {url}")
-        return []
-
-    items: List[Dict] = []
-    for e in entries:
+    items: List[Dict[str, Any]] = []
+    for raw in d.entries:
         try:
-            raw_link = (e.get("link") or e.get("id") or "").strip()
-            title = (e.get("title") or "").strip()
-            if not raw_link or not title:
-                continue
+            link = _normalize_url(raw.get("link", ""))
 
-            link = _canonical_url(raw_link)
+            # Базовые поля
+            title = (raw.get("title") or "").strip()
+            published = raw.get("published_parsed") or raw.get("updated_parsed") or None
+            dt = datetime(*published[:6], tzinfo=timezone.utc).isoformat() if published else None
+            guid = raw.get("id") or raw.get("guid") or link or title
+            slug = slugify(f"{name}-{guid}")[:80]
 
-            raw_html = (
-                e.get("content")[0].value if e.get("content") else
-                e.get("summary") or
-                e.get("description") or
-                ""
-            )
-            summary = _clean_text(raw_html)
-            if len(summary) > 600:
-                summary = summary[:600].rstrip() + "…"
+            # HTML из RSS: content:encoded > summary
+            html_from_rss = _rss_content_encoded(raw) or _summary_text(raw)
+            prefer_full = isinstance(html_from_rss, str) and len(html_from_rss) > 500 and "<p" in html_from_rss.lower()
 
-            # media:* миниатюра (если есть)
-            image = None
-            mthumb = e.get("media_thumbnail")
-            if isinstance(mthumb, list) and mthumb:
-                image = mthumb[0].get("url")
-            if not image:
-                mcont = e.get("media_content")
-                if isinstance(mcont, list) and mcont:
-                    image = mcont[0].get("url")
+            # Попытка получить сразу картинку из RSS-HTML (быстрее)
+            img_from_rss = _first_image_from_html(html_from_rss or "", link)
 
-            item = {
-                "id": slugify(link)[:32],  # id по каноническому URL
+            # Если нет «полного» контента — идём на страницу
+            if not prefer_full:
+                grabbed = grab(link)
+                content_html = (grabbed.html if grabbed else None) or html_from_rss or ""
+                image = (grabbed.lead_image if grabbed else None) or img_from_rss
+            else:
+                content_html = html_from_rss or ""
+                image = img_from_rss
+                # если картинка не нашлась — всё равно пробуем страницу (только за картинкой)
+                if not image:
+                    grabbed = grab(link)
+                    image = grabbed.lead_image if grabbed else None
+
+            item: Dict[str, Any] = {
+                "source": name,
+                "slug": slug,
                 "title": title,
-                "url": link,
-                "summary": summary,
-                "published_at": _entry_date(e),
-                "source": {"name": name, "url": url},
+                "link": link,
+                "published_at": dt,
+                "content_html": content_html,
             }
             if image:
                 item["image"] = image
 
-            content_html = _to_paragraphs(raw_html)
-            if content_html:
-                item["content_html"] = content_html
-
             items.append(item)
-
         except Exception as ex:
             print(f"[ERROR] RSS entry fail in {url}: {ex}")
 

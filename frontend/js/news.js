@@ -108,20 +108,17 @@ function newsCard(it) {
   desc = escapeHtml(desc);
 
   // картинка или плейсхолдер
-  const media = it.image
-    ? `<img src="${escapeHtml(it.image)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">`
-    : `<div class="img-ph" aria-hidden="true"></div>`;
+ // внутри генерации карточки
+const imgSrc = it.image || it.thumbnail || null;
+const media = imgSrc
+  ? `<img src="${escapeHtml(imgSrc)}" alt="" loading="lazy" referrerpolicy="no-referrer"
+          onerror="this.closest('.thumb')?.classList.add('noimg'); this.remove();">`
+  : '';
+const thumb = `
+  <div class="thumb ${imgSrc ? '' : 'noimg'}">
+    ${media || `<div class="thumb-ph"></div>`}
+  </div>`;
 
-  return `
-    <a class="card" href="${href}">
-      <div class="media">${media}</div>
-      <div class="body">
-        <h3>${title}</h3>
-        <div class="card-meta"><span>${srcName}</span>${dateStr ? `<span> • ${dateStr}</span>` : ''}</div>
-        ${desc ? `<p>${desc}</p>` : ``}
-      </div>
-    </a>
-  `;
 }
 
 function renderList(items, mount) {
