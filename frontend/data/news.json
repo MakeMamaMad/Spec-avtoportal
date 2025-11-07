@@ -1,6 +1,116 @@
 [
   {
     "source": "Za-rulem",
+    "title": "Россияне скупили рекордное количество машин с пробегом: какие брали чаще всего",
+    "link": "https://www.zr.ru/content/news/974402-rossiyane-skupili-rekordnoe-kol/",
+    "summary": "«Автостат»: в октябре в Россию ввезли рекордное число подержанных авто за 25 лет",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/DAxN3ceI2yOUeDbG52pPyg",
+    "published_at": "2025-11-07T09:15:06+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "В России в октбяре встали на учет 14 новых моделей транспорта",
+    "link": "https://www.zr.ru/content/news/974401-v-rossii-vpervye-prezentovali/",
+    "summary": "«Автостат»: в октябре на российском авторынке появилось 14 новых моделей",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/rWPEV44mE6BhkKq_ntJrbg",
+    "published_at": "2025-11-07T08:45:25+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Бренд года «За рулем» — открыта номинация «Автоэлектроника». Голосуем!",
+    "link": "https://www.zr.ru/content/news/974398-brend-goda-za-rulem-otkryt/",
+    "summary": "Определяем лучших производителей автомобильной электроники: радар-детекторов, видеорегистраторов, автосигнализаций",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/OZXrFP5nVs19fFKTyV_Viw",
+    "published_at": "2025-11-07T08:29:40+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Как отмена льготного утильсбора отразится на поставках Toyota в РФ",
+    "link": "https://www.zr.ru/content/news/974400-kak-otmena-lgotnogo-utilsbor/",
+    "summary": "Эксперт Мосеев: из-за нового утильсбора в Россию перестанут ввозить Toyota",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/Ah3_bJc4L0f5axLI52nG-A",
+    "published_at": "2025-11-07T08:15:58+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Сделайте это, поставив зимние шины на кроссовер — так они проживут дольше!",
+    "link": "https://www.zr.ru/content/news/974397-sdelajte-ehto-postaviv-zimnie/",
+    "summary": "Эксперт раскрыл способ продлить жизнь зимним шинам на полноприводном кроссовере",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/J4-RSiwyLONNNAYw9-Tf4w",
+    "published_at": "2025-11-07T07:21:57+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Drom — Автоновости",
+    "title": "АВТОВАЗ впервые продал ощутимое количество Lada Iskra",
+    "link": "https://news.drom.ru/Lada-Iskra-101182.html",
+    "summary": "В России по итогам октября на учет в ГАИ встали 637 новых Lada Iskra, об этом сообщил глава агентства «Автостат» Сергей Целиков.",
+    "content_html": "В России по итогам октября на учет в ГАИ встали 637 новых Lada Iskra, об этом сообщил глава агентства «Автостат» Сергей Целиков.",
+    "image": "https://s.auto.drom.ru/i24311/pubs/4/101182/gen340_4396576.jpg",
+    "published_at": "2025-11-07T07:19:09+00:00",
+    "domain": "news.drom.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Почему купить машину всё сложнее и что с «народным автомобилем»",
+    "link": "https://www.zr.ru/content/articles/974385-otkuda-rost-cen/",
+    "summary": "Стало понятно, как повышение утильсбора на самом деле изменит авторынок России",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/KqoaiAUzt35rGdqclxe4ow",
+    "published_at": "2025-11-07T07:00:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Drom — Автоновости",
+    "title": "Объявление дня: универсал Cadillac с 6,2-литровым компрессорным V8",
+    "link": "https://news.drom.ru/Cadillac-V8-101171.html",
+    "summary": "В Москве за 3,5 млн рублей на продажу выставлен универсал Cadillac CTS-V 2011 года выпуска.",
+    "content_html": null,
+    "image": "https://s.auto.drom.ru/i24311/pubs/4/101171/gen340_4396003.jpg",
+    "published_at": "2025-11-07T06:56:20+00:00",
+    "domain": "news.drom.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Выяснилось, как изменились цены на автомобили в октябре",
+    "link": "https://www.zr.ru/content/news/974396-vyyasnilos-kak-izmenilis-tsen/",
+    "summary": "Авто.ру Оценка: наши машины в октябре подорожали, китайские – подешевели",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/WBKD45b9Yzv1HU-VcaCs3w",
+    "published_at": "2025-11-07T06:54:29+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Drom — Автоновости",
+    "title": "Renault возродила оригинальный Twingo",
+    "link": "https://news.drom.ru/Renault-Twingo-101181.html",
+    "summary": "Renault представила готовый к производству городской электромобиль субкомпактного класса Twingo E-Tech.",
+    "content_html": null,
+    "image": "https://s.auto.drom.ru/i24311/pubs/4/101181/gen340_4396565.jpg",
+    "published_at": "2025-11-07T06:47:00+00:00",
+    "domain": "news.drom.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Новый российский внедорожник 2026 года — первое видео!",
+    "link": "https://www.zr.ru/content/news/974395-novyj-rossijskij-vnedorozhnik-2/",
+    "summary": "Внедорожник Sollers SUV проходит испытания на полигоне в Китае",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/0EGET9j20G9-WFy0OTLzHw",
+    "published_at": "2025-11-07T06:35:50+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
     "title": "«LADA Забота»: современный стандарт сервиса для отечественного бренда",
     "link": "https://www.zr.ru/content/articles/973893-lada-zabota-sovremennyj-sta/",
     "summary": "Послепродажное обслуживание давно стало устойчивым трендом в мировой автомобильной индустрии, задающим стандарты качества и заботы о клиенте.",
@@ -208,16 +318,6 @@
     "image": "https://www.zr.ru/_ah/img/xuVMYnR9f9pax-q2BQNCgQ",
     "published_at": "2025-11-06T13:45:09+00:00",
     "domain": "www.zr.ru"
-  },
-  {
-    "source": "Drom — Автоновости",
-    "title": "&amp;#8203;&amp;#8203;Объявление дня: универсал Cadillac с 6,2-литровым компрессорным V8",
-    "link": "https://news.drom.ru/Cadillac-V8-101171.html",
-    "summary": "В Москве за 3,5 млн рублей на продажу выставлен универсал Cadillac CTS-V 2011 года выпуска.",
-    "content_html": null,
-    "image": "https://s.auto.drom.ru/i24311/pubs/4/101171/gen340_4396003.jpg",
-    "published_at": "2025-11-06T13:39:19+00:00",
-    "domain": "news.drom.ru"
   },
   {
     "source": "Za-rulem",
