@@ -1,6 +1,96 @@
 [
   {
     "source": "Za-rulem",
+    "title": "Новый семейный японский кроссовер теперь можно купить в России: называем цену",
+    "link": "https://www.zr.ru/content/news/974415-novyj-semejnyj-yaponskij-krosso/",
+    "summary": "В РФ в продаже появились кроссоверы Toyota Harrier по цене от 3,1 млн рублей",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/rVJ4XTcWqjzi7BgKbFadBQ",
+    "published_at": "2025-11-08T06:15:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Audi представила новые версии своих самых популярных моделей: подробности",
+    "link": "https://www.zr.ru/content/news/974439-audi-predstavila-novye-versii/",
+    "summary": "Audi презентовала новые модификации A3, Q7 и RS Q8 2026 модельного года",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/kXSrChsJjQUGcZiJSvGTVg",
+    "published_at": "2025-11-08T06:12:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Популярный бренд представил комфортный и просторный семейный минивэн",
+    "link": "https://www.zr.ru/content/news/974438-populyarnyj-brend-predstavil-ko/",
+    "summary": "BYD анонсировала минивэн Xia 2026 с ценами от 2,35 млн рублей",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/dQGsNfMlh1YfzN80MnxQ0g",
+    "published_at": "2025-11-08T05:40:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Популярный кроссовер Hyundai вернулся в Россию: цена доступна",
+    "link": "https://www.zr.ru/content/news/974413-populyarnyj-krossover-hyundai-v/",
+    "summary": "В РФ в продаже появился кроссовер Hyundai ix35 по цене от 2,8 млн рублей",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/pBRiMFezkY3zAocJmz2uDg",
+    "published_at": "2025-11-08T05:25:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "В России создали собственный спорткар для соревнований по дрифту",
+    "link": "https://www.zr.ru/content/news/974435-v-rossii-sozdali-sobstvennyj-s/",
+    "summary": "Fresh X Racing представила дрифтовый спорткар FXZ34 за 26,9 млн рублей",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/Et_M_UrCCGbJ3r7f2jT3YQ",
+    "published_at": "2025-11-08T05:20:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Когда подешевеют авто с пробегом — прогноз «За рулем»",
+    "link": "https://www.zr.ru/content/articles/974404-kuda-idet-tsena/",
+    "summary": "Эксперт Зиновьев: Выбирая машину б/у, изучите цены новых моделей",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/XnZphFAlgeBO_KPaFL71wg",
+    "published_at": "2025-11-08T05:00:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Городскому «бюджетнику» Honda Elevate ADV подделали брутальность",
+    "link": "https://www.zr.ru/content/news/974328-gorodskomu-byudzhetniku-honda-el/",
+    "summary": "Обвес превращает обычный кроссовер Honda Elevate ADV в подобие внедорожника",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/_TUOEMi7aZbfu58Q0ls9Qw",
+    "published_at": "2025-11-08T04:20:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "«Китайцы» подобрались к топ-5 подержанных авто в РФ",
+    "link": "https://www.zr.ru/content/news/974331-kitajtsy-podobralis-k-top-5/",
+    "summary": "Автостат Инфо: на рынке авто с пробегом лидируют машины из России и Японии",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/SRZCiUZzwbW03oC6V58YPQ",
+    "published_at": "2025-11-08T03:40:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Спрос на новые китайские авто в России резко упал",
+    "link": "https://www.zr.ru/content/news/974412-spros-na-novye-kitajskie-avto/",
+    "summary": "«Автостат»: продажи новых китайских авто в России снизились на 27,3%",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/MyUmNmrPcqh8T6xjreJRXQ",
+    "published_at": "2025-11-08T03:35:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
     "title": "Китайский седан из парка «За рулем» — подсчитали расходы за полгода",
     "link": "https://www.zr.ru/content/articles/974427-hongqi-h5-iz-parka-za-rulem-otchet-video/",
     "summary": "Названы плюсы и минусы популярного бизнес-седана Hongqi H5 по итогам длительного теста",
