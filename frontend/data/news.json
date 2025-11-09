@@ -1,5 +1,126 @@
 [
   {
+    "id": "526eb059facf6bff",
+    "source": "Za-rulem",
+    "title": "Этих мест на дороге надо бояться уже сейчас — скользко!",
+    "link": "https://www.zr.ru/content/news/974410-ehtikh-mest-na-doroge-nado-boyat/",
+    "summary": "Эксперт «За рулем» рассказал, где дорожный лед появится в первую очередь",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/56d2n9NNugkB8KO64FFa4g",
+    "published_at": "2025-11-09T14:30:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "id": "a1f65075f13d69d8",
+    "source": "Za-rulem",
+    "title": "На рынок вышел достойный конкурент европейским премиальным седанам",
+    "link": "https://www.zr.ru/content/news/974461-na-rynok-vyshel-dostojnyj-konku/",
+    "summary": "Stelato начал принимать заказы на седан S9 в Китае с ценой от 3,6 млн рублей",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/qCsBuEZBw96_vMOdVwE8uw",
+    "published_at": "2025-11-09T12:40:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "id": "67041d1602271592",
+    "source": "Za-rulem",
+    "title": "Авторынок в октябре показал «взрывной рост»: все из-за утильсбора",
+    "link": "https://www.zr.ru/content/news/974431-avtorynok-v-oktyabre-pokazal-v/",
+    "summary": "АЕБ: по итогам 2025 года в России могут продать более 1,28 млн машин",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/j3X-Co3wXgCl5anPCInEKg",
+    "published_at": "2025-11-09T12:20:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "id": "2eca9d227fc7ccaf",
+    "source": "Za-rulem",
+    "title": "2300 км без дозаправки: гибридный кроссовер установил мировой рекорд Гиннесса",
+    "link": "https://www.zr.ru/content/news/974460-2300-km-bez-dozapravki-gibrid/",
+    "summary": "Компания FAW заявила, что ее Hongqi HS6 PHEV проехал 2327 км без дозаправки",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/DSPRCY-IK95OQTGlM25Ucw",
+    "published_at": "2025-11-09T12:00:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "id": "c48008950ecd55c4",
+    "source": "Drom — Автоновости",
+    "title": "Главные новости недели: рекорд по ввозу подержанных автомобилей и реальные продажи Lada Iskra",
+    "link": "https://news.drom.ru/Lada-Iskra-101190.html",
+    "summary": "В выходные Дром напоминает читателям о главных новостях подходящей к концу недели.",
+    "content_html": null,
+    "image": "https://s.auto.drom.ru/i24311/pubs/4/101190/gen340_4396812.jpg",
+    "published_at": "2025-11-09T11:52:58+00:00",
+    "domain": "news.drom.ru"
+  },
+  {
+    "id": "e32bfc2309a57268",
+    "source": "Za-rulem",
+    "title": "Nissan продает свою штаб-квартиру в Японии для того, чтобы остаться на плаву",
+    "link": "https://www.zr.ru/content/news/974462-nissan-prodaet-svoyu-shtab-kvart/",
+    "summary": "Nissan выставил на продажу штаб-квартиру в Йокогаме за 51,4 млрд рублей",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/x7fUUtxiqDyWqid7K_gw6A",
+    "published_at": "2025-11-09T11:40:12+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "id": "9e5982fd161c96cb",
+    "source": "Drom — Автоновости",
+    "title": "АВТОВАЗ впервые продал ощутимое количество Lada Iskra",
+    "link": "https://news.drom.ru/Lada-Iskra-101182.html",
+    "summary": "В России по итогам октября на учет в ГАИ встали 637 новых Lada Iskra, об этом сообщил глава агентства «Автостат» Сергей Целиков.",
+    "content_html": "В России по итогам октября на учет в ГАИ встали 637 новых Lada Iskra, об этом сообщил глава агентства «Автостат» Сергей Целиков.",
+    "image": "https://s.auto.drom.ru/i24311/pubs/4/101182/gen340_4396573.jpg",
+    "published_at": "2025-11-09T11:35:50+00:00",
+    "domain": "news.drom.ru"
+  },
+  {
+    "id": "1c282eea8c4ff85a",
+    "source": "Za-rulem",
+    "title": "Рыдали даже перекупы: таких тормозов вы еще не видели",
+    "link": "https://www.zr.ru/content/news/974409-rydali-dazhe-perekupy-takikh-to/",
+    "summary": "Немец купил поддержанный Mercedes GLE с деревянными тормозными колодками",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/onDdMRpxYQS_1a7KWfzygw",
+    "published_at": "2025-11-09T11:30:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "id": "513d19c863433fb2",
+    "source": "Za-rulem",
+    "title": "Популярный автобренд выпустил интересный электроскейтборд с рулем",
+    "link": "https://www.zr.ru/content/news/974459-populyarnyj-avtobrend-vypustil/",
+    "summary": "BYD представил электроскейтборд Fang Cheng Bao за 45 500 рублей",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/Dzdfga5NRBOYinHDsjkjSw",
+    "published_at": "2025-11-09T11:16:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "id": "a969857e8b3b9475",
+    "source": "Za-rulem",
+    "title": "Как заказать машину за границей и не остаться без денег?",
+    "link": "https://www.zr.ru/content/news/974448-kak-zakazat-mashinu-za-granitse/",
+    "summary": "Евгений Курбаков перечислил риски покупки автомобиля с пробегом на заказ",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/X6jh7J7Wa69IbZaPoYPykA",
+    "published_at": "2025-11-09T10:15:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "id": "e3b7d2db96433de5",
+    "source": "Za-rulem",
+    "title": "Сколько машин мощнее 160 л.с. было продано в РФ в этом году: ответ эксперта",
+    "link": "https://www.zr.ru/content/news/974430-skolko-mashin-moshchnee-160-l.s./",
+    "summary": "Эксперт Целиков: каждый третий проданный автомобиль в России — мощнее 160 л.с.",
+    "content_html": null,
+    "image": "https://www.zr.ru/_ah/img/Lb1-nzdB7V96BsP029KlRA",
+    "published_at": "2025-11-09T10:00:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
     "id": "133a35340a4cc2e9",
     "source": "Za-rulem",
     "title": "Стало известно, что будет, если везти в машине разнополых минипигов",
@@ -638,17 +759,6 @@
     "image": "https://www.zr.ru/_ah/img/J4-RSiwyLONNNAYw9-Tf4w",
     "published_at": "2025-11-07T07:21:57+00:00",
     "domain": "www.zr.ru"
-  },
-  {
-    "id": "9e5982fd161c96cb",
-    "source": "Drom — Автоновости",
-    "title": "АВТОВАЗ впервые продал ощутимое количество Lada Iskra",
-    "link": "https://news.drom.ru/Lada-Iskra-101182.html",
-    "summary": "В России по итогам октября на учет в ГАИ встали 637 новых Lada Iskra, об этом сообщил глава агентства «Автостат» Сергей Целиков.",
-    "content_html": "В России по итогам октября на учет в ГАИ встали 637 новых Lada Iskra, об этом сообщил глава агентства «Автостат» Сергей Целиков.",
-    "image": "https://s.auto.drom.ru/i24311/pubs/4/101182/gen340_4396576.jpg",
-    "published_at": "2025-11-07T07:19:09+00:00",
-    "domain": "news.drom.ru"
   },
   {
     "source": "Za-rulem",
