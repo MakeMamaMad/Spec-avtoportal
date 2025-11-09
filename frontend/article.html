@@ -1,35 +1,28 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Статья — СпецТрейлеры</title>
 
-  <!-- общие стили проекта -->
-  <link rel="stylesheet" href="styles/tokens.css"/>
-  <link rel="stylesheet" href="styles/base.css"/>
-  <link rel="stylesheet" href="styles/components.css"/>
+  <link rel="stylesheet" href="styles/tokens.css" />
+  <link rel="stylesheet" href="styles/base.css?v=2" />
+  <link rel="stylesheet" href="styles/components.css?v=2" />
 
   <style>
-    .article{max-width:920px;margin:24px auto;padding:0 16px}
-    .article h1{font-size:28px;line-height:1.2;margin:16px 0 6px}
-    .meta{color:#6b7280;font-size:14px;margin-bottom:12px}
-    .hero{margin:12px 0 18px;border-radius:12px;overflow:hidden;background:#f3f4f6}
-    .hero img{display:block;width:100%;height:auto}
-    .content{font-size:18px;line-height:1.6}
-    .content p{margin:0 0 1em}
-    /* кнопки */
-    .actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 6px}
-    .btn{display:inline-block;padding:10px 14px;border-radius:10px;text-decoration:none;
-         border:1px solid #e5e7eb;font-weight:500;user-select:none}
-    .btn:hover{background:#f3f4f6}
-    .btn-primary{background:#111827;color:#fff;border-color:#111827}
-    .btn-primary:hover{opacity:.92}
+    .article-header { margin: 16px 0 12px; display:flex; gap:12px; flex-wrap:wrap; }
+    .btn { display:inline-block; padding:10px 14px; border-radius:10px; border:1px solid #e5e7eb; text-decoration:none; color:#111827; background:#fff; }
+    .btn.primary { background:#111827; color:#fff; border-color:#111827; }
+    .article-meta { color:#6b7280; margin:6px 0 12px; font-size:14px; }
+    #hero { width:100%; height:auto; border-radius:12px; display:block; }
+    #article-content p { margin: 0 0 1em; }
+    #article-content img { max-width: 100%; height: auto; border-radius: 8px; margin: 12px 0; }
+    #article-content h2, #article-content h3 { margin: 1.2em 0 .6em; }
+    .article-footer { margin-top: 16px; display:flex; gap:12px; flex-wrap:wrap; }
   </style>
 </head>
 <body>
 
-  <!-- Хедер как на главной -->
   <header class="header">
     <div class="container header-inner">
       <a class="logo" href="./">
@@ -41,7 +34,7 @@
         <span>СпецТрейлеры</span>
       </a>
       <nav class="nav">
-        <a href="./index.html" class="active">Новости</a>
+        <a href="./">Новости</a>
         <a href="legislation.html">Законодательство / ГОСТы</a>
         <a href="guides.html">Гайды и регламенты</a>
         <a href="videos.html">Видео</a>
@@ -49,122 +42,73 @@
     </div>
   </header>
 
-  <main class="article">
-    <article id="host">
-      <h1 id="title"></h1>
-      <div class="meta" id="meta"></div>
-      <div class="hero" id="hero" style="display:none"></div>
-      <div class="content" id="content"></div>
-    </article>
+  <main class="container" style="max-width: 920px;">
+    <!-- Верхние кнопки -->
+    <div class="article-header">
+      <a class="btn" href="./">&larr; Вернуться к новостям</a>
+      <a class="btn primary" id="btn-source" href="#" target="_blank" rel="noopener">Читать в источнике</a>
+    </div>
 
-    <!-- Две кнопки — только внизу -->
-    <div class="actions">
-      <a id="backBtn" class="btn" href="./index.html">← Вернуться к новостям</a>
-      <a id="sourceBtn" class="btn btn-primary" href="#" target="_blank" rel="noopener">Читать в источнике</a>
+    <h1 id="title" style="margin: 6px 0 4px;">Загрузка…</h1>
+    <div class="article-meta" id="meta"></div>
+
+    <div id="hero-wrap" style="margin: 12px 0 18px;">
+      <img id="hero" src="" alt="" loading="eager" />
+    </div>
+
+    <div id="article-content"></div>
+
+    <!-- Нижние кнопки -->
+    <div class="article-footer">
+      <a class="btn" href="./">&larr; Вернуться к новостям</a>
+      <a class="btn primary" id="btn-source-bottom" href="#" target="_blank" rel="noopener">Читать в источнике</a>
     </div>
   </main>
 
   <script>
-  function escapeHtml(s=''){
-    return String(s)
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-  }
-  function fmtDateTime(input){
-    const d = new Date(input || Date.now());
-    if (isNaN(d.getTime())) return '';
-    const dd = String(d.getDate()).padStart(2,'0');
-    const mm = String(d.getMonth()+1).padStart(2,'0');
-    const yyyy = d.getFullYear();
-    const hh = String(d.getHours()).padStart(2,'0');
-    const mi = String(d.getMinutes()).padStart(2,'0');
-    return `${dd}.${mm}.${yyyy}, ${hh}:${mi}`;
-  }
-  function basePath(){
-    const p = location.pathname;
-    return p.endsWith('/') ? p : p.substring(0, p.lastIndexOf('/')+1);
-  }
-  async function fetchJSON(paths){
-    for (const p of paths){
-      try{
-        const res = await fetch(p+`?t=${Date.now()}`, {cache:'no-store'});
-        if (res.ok) return await res.json();
-      }catch(e){}
-    }
-    return null;
-  }
-  function possibleNewsPaths(){
-    const b = basePath();
-    return [`${b}data/news.json`,`data/news.json`,`/data/news.json`,`../data/news.json`];
-  }
+    (async function(){
+      const qs = (s, r=document)=>r.querySelector(s);
+      const params = new URLSearchParams(location.search);
+      const id = params.get('id');
 
-  (async function(){
-    // back-кнопка: если пришли со страницы ленты — вернёмся history.back()
-    const back = document.getElementById('backBtn');
-    try{
-      const ref = document.referrer;
-      if (ref && new URL(ref).origin === location.origin){
-        back.addEventListener('click', (e)=>{ e.preventDefault(); history.back(); });
+      // загрузим ленту
+      const data = await (await fetch('data/news.json?t='+Date.now())).json();
+      const item = data.find(x => x.id === id) || data[0] || {};
+
+      // Заголовок / мета
+      qs('#title').textContent = item.title || '(без заголовка)';
+      const metaPieces = [];
+      if (item.source) metaPieces.push(item.domain || item.source);
+      if (item.published_at) {
+        const d = new Date(item.published_at);
+        if (!isNaN(d)) metaPieces.push(d.toLocaleString());
       }
-    }catch(e){}
+      qs('#meta').textContent = metaPieces.join(' • ');
 
-    const url = new URL(location.href);
-    const id = url.searchParams.get('id');
-    const u  = url.searchParams.get('u'); // резерв — точный url новости
+      // Кнопки «Читать в источнике»
+      const srcUrl = item.link || '#';
+      qs('#btn-source').href = srcUrl;
+      qs('#btn-source-bottom').href = srcUrl;
 
-    const data = await fetchJSON(possibleNewsPaths());
-    if (!Array.isArray(data)) { document.getElementById('content').textContent = 'Не удалось загрузить новость'; return; }
+      // Картинка
+      if (item.image) {
+        const img = qs('#hero');
+        img.src = item.image;
+        img.alt = item.title || '';
+      } else {
+        const wrap = qs('#hero-wrap');
+        if (wrap) wrap.style.display = 'none';
+      }
 
-    let it = null;
-
-    // 1) точное совпадение по id (из файла)
-    if (id) it = data.find(x => x.id === id);
-
-    // 2) если не нашли — по ссылке (u), без query/hash
-    if (!it && u) {
-      try{
-        const U = new URL(u, location.href);
-        it = data.find(x => {
-          if (!x.link) return false;
-          const L = new URL(x.link, location.href);
-          return L.origin === U.origin && L.pathname === U.pathname;
-        });
-      }catch(e){}
-    }
-
-    // 3) финальный резерв — старый короткий hash ссылки
-    if (!it && id){
-      it = data.find(x => (x.link && btoa(unescape(encodeURIComponent(x.link))).slice(0,16) === id));
-    }
-
-    if (!it){ document.getElementById('content').textContent = 'Новость не найдена'; return; }
-
-    document.getElementById('title').textContent = it.title || '(без заголовка)';
-    const src = (it.source || it.domain || 'Источник');
-    const dt = fmtDateTime(it.published_at);
-    document.getElementById('meta').textContent = `${src}${dt? ' • '+dt : ''}`;
-
-    // картинка (если есть)
-    if (it.image){
-      const hero = document.getElementById('hero');
-      hero.style.display = 'block';
-      hero.innerHTML = `<img src="${it.image}" alt=""/>`;
-    }
-
-    // контент: html из парсера либо summary
-    const content = document.getElementById('content');
-    if (it.content_html){
-      content.innerHTML = it.content_html;
-    }else{
-      const p = escapeHtml(it.summary || '');
-      content.innerHTML = p ? `<p>${p}</p>` : `<p>(Описание отсутствует)</p>`;
-    }
-
-    // ссылка «Читать в источнике»
-    if (it.link){
-      document.getElementById('sourceBtn').href = it.link;
-    }
-  })();
+      // Полный текст контента
+      const mount = qs('#article-content');
+      if (item.content_html) {
+        mount.innerHTML = item.content_html;   // полноценная статья
+      } else {
+        const text = (item.summary || '').trim();
+        mount.innerHTML = text ? `<p>${text}</p>` : '<p>(Текст недоступен)</p>';
+      }
+    })();
   </script>
 </body>
 </html>
