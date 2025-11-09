@@ -18,7 +18,6 @@
     .hero img{display:block;width:100%;height:auto}
     .content{font-size:18px;line-height:1.6}
     .content p{margin:0 0 1em}
-
     /* кнопки */
     .actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 6px}
     .btn{display:inline-block;padding:10px 14px;border-radius:10px;text-decoration:none;
@@ -30,7 +29,7 @@
 </head>
 <body>
 
-  <!-- ХЕДЕР как на главной -->
+  <!-- Хедер как на главной -->
   <header class="header">
     <div class="container header-inner">
       <a class="logo" href="./">
@@ -58,7 +57,7 @@
       <div class="content" id="content"></div>
     </article>
 
-    <!-- ДВЕ КНОПКИ — только внизу -->
+    <!-- Две кнопки — только внизу -->
     <div class="actions">
       <a id="backBtn" class="btn" href="./index.html">← Вернуться к новостям</a>
       <a id="sourceBtn" class="btn btn-primary" href="#" target="_blank" rel="noopener">Читать в источнике</a>
@@ -109,14 +108,35 @@
       }
     }catch(e){}
 
-    const id = new URL(location.href).searchParams.get('id');
+    const url = new URL(location.href);
+    const id = url.searchParams.get('id');
+    const u  = url.searchParams.get('u'); // резерв — точный url новости
+
     const data = await fetchJSON(possibleNewsPaths());
     if (!Array.isArray(data)) { document.getElementById('content').textContent = 'Не удалось загрузить новость'; return; }
 
-    let it = data.find(x => x.id === id);
+    let it = null;
+
+    // 1) точное совпадение по id (из файла)
+    if (id) it = data.find(x => x.id === id);
+
+    // 2) если не нашли — по ссылке (u), без query/hash
+    if (!it && u) {
+      try{
+        const U = new URL(u, location.href);
+        it = data.find(x => {
+          if (!x.link) return false;
+          const L = new URL(x.link, location.href);
+          return L.origin === U.origin && L.pathname === U.pathname;
+        });
+      }catch(e){}
+    }
+
+    // 3) финальный резерв — старый короткий hash ссылки
     if (!it && id){
       it = data.find(x => (x.link && btoa(unescape(encodeURIComponent(x.link))).slice(0,16) === id));
     }
+
     if (!it){ document.getElementById('content').textContent = 'Новость не найдена'; return; }
 
     document.getElementById('title').textContent = it.title || '(без заголовка)';
@@ -124,11 +144,14 @@
     const dt = fmtDateTime(it.published_at);
     document.getElementById('meta').textContent = `${src}${dt? ' • '+dt : ''}`;
 
+    // картинка (если есть)
     if (it.image){
       const hero = document.getElementById('hero');
       hero.style.display = 'block';
       hero.innerHTML = `<img src="${it.image}" alt=""/>`;
     }
+
+    // контент: html из парсера либо summary
     const content = document.getElementById('content');
     if (it.content_html){
       content.innerHTML = it.content_html;

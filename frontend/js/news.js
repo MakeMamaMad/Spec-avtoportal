@@ -107,7 +107,7 @@ function normalizeItem(it){
 
 // ---- rendering ----
 function newsCard(it){
-  const href = `./article.html?id=${encodeURIComponent(it.id)}`;
+ const href = `./article.html?id=${encodeURIComponent(it.id)}&u=${encodeURIComponent(it.link||'')}`;
   const title = escapeHtml(it.title || '');
   const dateStr = fmtDateTime(it.published_at);
   const srcName = escapeHtml(it.source || (it.domain || 'Источник'));

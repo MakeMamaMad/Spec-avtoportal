@@ -22,10 +22,7 @@ ARCHIVE_LIMIT = 5000     # final cap stored in news.json
 TIMEOUT = 15
 
 # base domains (subdomains auto-allowed)
-ALLOWED_SCRAPE = {
-    "tass.ru", "motor.ru", "drom.ru", "vedomosti.ru", "logirus.ru"
-}
-
+ALLOWED_SCRAPE = None 
 # --------- IO utils ----------
 def load_yaml(path: Path) -> dict:
     if not path.exists():
