@@ -1,97 +1,36 @@
 <!doctype html>
 <html lang="ru">
-
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Новость — СпецТрейлеры</title>
-  <link rel="stylesheet" href="styles/tokens.css" />
-  <link rel="stylesheet" href="styles/base.css?v=2" />
-  <link rel="stylesheet" href="styles/components.css?v=2" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Статья — СпецТрейлеры</title>
+
+  <!-- общие стили проекта -->
+  <link rel="stylesheet" href="styles/tokens.css"/>
+  <link rel="stylesheet" href="styles/base.css"/>
+  <link rel="stylesheet" href="styles/components.css"/>
+
   <style>
-    .article {
-      max-width: 920px;
-      margin: 24px auto;
-      padding: 0 16px;
-    }
+    .article{max-width:920px;margin:24px auto;padding:0 16px}
+    .article h1{font-size:28px;line-height:1.2;margin:16px 0 6px}
+    .meta{color:#6b7280;font-size:14px;margin-bottom:12px}
+    .hero{margin:12px 0 18px;border-radius:12px;overflow:hidden;background:#f3f4f6}
+    .hero img{display:block;width:100%;height:auto}
+    .content{font-size:18px;line-height:1.6}
+    .content p{margin:0 0 1em}
 
-    .article h1 {
-      margin: 8px 0 12px;
-    }
-
-    .meta {
-      color: #6b7280;
-      font-size: 14px;
-      margin-bottom: 12px;
-    }
-
-    .cover {
-      border-radius: 12px;
-      overflow: hidden;
-      background: #f2f3f5;
-      margin: 12px 0 16px;
-      aspect-ratio: 16/9;
-    }
-
-    .cover img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .actions {
-      margin-top: 16px;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      display: inline-block;
-      padding: 10px 14px;
-      border-radius: 10px;
-      border: 1px solid #e5e7eb;
-      text-decoration: none;
-    }
-
-    .btn.primary {
-      background: #111827;
-      color: #fff;
-      border-color: #111827;
-    }
-
-    .desc {
-      margin: 12px 0 8px;
-      line-height: 1.6;
-    }
-
-    .desc p {
-      margin: 0 0 12px;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .btn {
-      display: inline-block;
-      padding: 10px 14px;
-      border-radius: 10px;
-      border: 1px solid #e5e7eb;
-      text-decoration: none;
-      background: #fff;
-    }
-
-    .btn.primary {
-      background: #111827;
-      color: #fff;
-      border-color: #111827;
-    }
+    /* кнопки */
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 6px}
+    .btn{display:inline-block;padding:10px 14px;border-radius:10px;text-decoration:none;
+         border:1px solid #e5e7eb;font-weight:500;user-select:none}
+    .btn:hover{background:#f3f4f6}
+    .btn-primary{background:#111827;color:#fff;border-color:#111827}
+    .btn-primary:hover{opacity:.92}
   </style>
 </head>
-
 <body>
+
+  <!-- ХЕДЕР как на главной -->
   <header class="header">
     <div class="container header-inner">
       <a class="logo" href="./">
@@ -103,7 +42,7 @@
         <span>СпецТрейлеры</span>
       </a>
       <nav class="nav">
-        <a href="./">Новости</a>
+        <a href="./index.html" class="active">Новости</a>
         <a href="legislation.html">Законодательство / ГОСТы</a>
         <a href="guides.html">Гайды и регламенты</a>
         <a href="videos.html">Видео</a>
@@ -111,11 +50,98 @@
     </div>
   </header>
 
-  <main class="article" id="article">
-    <!-- контент сюда отрисует article.js -->
+  <main class="article">
+    <article id="host">
+      <h1 id="title"></h1>
+      <div class="meta" id="meta"></div>
+      <div class="hero" id="hero" style="display:none"></div>
+      <div class="content" id="content"></div>
+    </article>
+
+    <!-- ДВЕ КНОПКИ — только внизу -->
+    <div class="actions">
+      <a id="backBtn" class="btn" href="./index.html">← Вернуться к новостям</a>
+      <a id="sourceBtn" class="btn btn-primary" href="#" target="_blank" rel="noopener">Читать в источнике</a>
+    </div>
   </main>
 
-  <script src="js/article.js" defer></script>
-</body>
+  <script>
+  function escapeHtml(s=''){
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function fmtDateTime(input){
+    const d = new Date(input || Date.now());
+    if (isNaN(d.getTime())) return '';
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const yyyy = d.getFullYear();
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mi = String(d.getMinutes()).padStart(2,'0');
+    return `${dd}.${mm}.${yyyy}, ${hh}:${mi}`;
+  }
+  function basePath(){
+    const p = location.pathname;
+    return p.endsWith('/') ? p : p.substring(0, p.lastIndexOf('/')+1);
+  }
+  async function fetchJSON(paths){
+    for (const p of paths){
+      try{
+        const res = await fetch(p+`?t=${Date.now()}`, {cache:'no-store'});
+        if (res.ok) return await res.json();
+      }catch(e){}
+    }
+    return null;
+  }
+  function possibleNewsPaths(){
+    const b = basePath();
+    return [`${b}data/news.json`,`data/news.json`,`/data/news.json`,`../data/news.json`];
+  }
 
+  (async function(){
+    // back-кнопка: если пришли со страницы ленты — вернёмся history.back()
+    const back = document.getElementById('backBtn');
+    try{
+      const ref = document.referrer;
+      if (ref && new URL(ref).origin === location.origin){
+        back.addEventListener('click', (e)=>{ e.preventDefault(); history.back(); });
+      }
+    }catch(e){}
+
+    const id = new URL(location.href).searchParams.get('id');
+    const data = await fetchJSON(possibleNewsPaths());
+    if (!Array.isArray(data)) { document.getElementById('content').textContent = 'Не удалось загрузить новость'; return; }
+
+    let it = data.find(x => x.id === id);
+    if (!it && id){
+      it = data.find(x => (x.link && btoa(unescape(encodeURIComponent(x.link))).slice(0,16) === id));
+    }
+    if (!it){ document.getElementById('content').textContent = 'Новость не найдена'; return; }
+
+    document.getElementById('title').textContent = it.title || '(без заголовка)';
+    const src = (it.source || it.domain || 'Источник');
+    const dt = fmtDateTime(it.published_at);
+    document.getElementById('meta').textContent = `${src}${dt? ' • '+dt : ''}`;
+
+    if (it.image){
+      const hero = document.getElementById('hero');
+      hero.style.display = 'block';
+      hero.innerHTML = `<img src="${it.image}" alt=""/>`;
+    }
+    const content = document.getElementById('content');
+    if (it.content_html){
+      content.innerHTML = it.content_html;
+    }else{
+      const p = escapeHtml(it.summary || '');
+      content.innerHTML = p ? `<p>${p}</p>` : `<p>(Описание отсутствует)</p>`;
+    }
+
+    // ссылка «Читать в источнике»
+    if (it.link){
+      document.getElementById('sourceBtn').href = it.link;
+    }
+  })();
+  </script>
+</body>
 </html>

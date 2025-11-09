@@ -12,21 +12,24 @@ import feedparser  # type: ignore
 import requests    # type: ignore
 import yaml        # type: ignore
 from bs4 import BeautifulSoup  # type: ignore
+import hashlib
 
-# --------- настройки ----------
-DAYS_BACK = 120          # окно по времени для свежей выборки
-PER_FEED_LIMIT = 300     # максимум элементов с одного источника
-GLOBAL_LIMIT = 5000      # общий срез свежих после объединения
-ARCHIVE_LIMIT = 5000     # сколько храним в news.json после слияния
+# --------- settings ----------
+DAYS_BACK = 120          # time window for fresh selection
+PER_FEED_LIMIT = 300     # per-feed cap
+GLOBAL_LIMIT = 5000      # fresh slice cap
+ARCHIVE_LIMIT = 5000     # final cap stored in news.json
 TIMEOUT = 15
 
-# базовые домены; субдомены разрешаем автоматически (news.drom.ru, m.tass.ru и т.п.)
+# base domains (subdomains auto-allowed)
 ALLOWED_SCRAPE = {
     "tass.ru", "motor.ru", "drom.ru", "vedomosti.ru", "logirus.ru"
 }
 
-# --------- утилиты ввода/вывода ----------
+# --------- IO utils ----------
 def load_yaml(path: Path) -> dict:
+    if not path.exists():
+        return {}
     with path.open("r", encoding="utf-8") as f:
         return yaml.safe_load(f) or {}
 
@@ -43,7 +46,7 @@ def load_existing_news(path: Path) -> list[dict]:
     except Exception:
         return []
 
-# --------- сетевые утилиты ----------
+# --------- network ----------
 def fetch_rss(url: str) -> feedparser.FeedParserDict:
     return feedparser.parse(url)
 
@@ -56,28 +59,21 @@ def fetch_page(url: str) -> str:
     return r.text
 
 def host_allowed(url_or_host: str) -> bool:
-    """разрешить как точный домен, так и *.домен из ALLOWED_SCRAPE"""
     host = url_or_host
     if "://" in url_or_host:
         host = urlparse(url_or_host).netloc
     host = (host or "").lower()
     return any(host == d or host.endswith("." + d) for d in ALLOWED_SCRAPE)
 
-# --------- парсинг HTML для картинки/контента ----------
+# --------- HTML scrape ----------
 def extract_content_from_html(html: str, page_url: str) -> Tuple[str | None, str | None]:
-    """
-    Возвращает (image_url, content_text), если удалось найти.
-    Ищем og:image / twitter:image / link[rel=image_src] / первый <img> (в т.ч. data-src).
-    Текст: meta description или первые 1–2 абзаца.
-    """
     soup = BeautifulSoup(html, "lxml")
 
     def _abs(u: str | None) -> str | None:
-        if not u:
-            return None
+        if not u: return None
         return urljoin(page_url, u.strip())
 
-    # 1) meta-изображения
+    # Meta images
     image = None
     meta_candidates = [
         ("meta", {"property": "og:image"}),
@@ -93,25 +89,25 @@ def extract_content_from_html(html: str, page_url: str) -> Tuple[str | None, str
             if image:
                 break
 
-    # 2) <link rel="image_src">
+    # <link rel="image_src">
     if not image:
         link_img = soup.find("link", rel=lambda v: v and "image_src" in v)
         if link_img and link_img.get("href"):
             image = _abs(link_img["href"])
 
-    # 3) первый валидный <img> (учитываем ленивые атрибуты)
+    # first <img> (including data-src)
     if not image:
         for img in soup.find_all("img"):
             src = (img.get("src") or img.get("data-src") or
                    img.get("data-original") or img.get("data-lazy-src"))
-            if not src:
+            if not src: 
                 continue
             src = _abs(src)
             if src and not src.startswith("data:") and not src.endswith(".svg"):
                 image = src
                 break
 
-    # Текст
+    # text: meta description or first paragraphs
     text = None
     desc = soup.find("meta", attrs={"name": "description"})
     if desc and desc.get("content"):
@@ -119,15 +115,13 @@ def extract_content_from_html(html: str, page_url: str) -> Tuple[str | None, str
     if not text:
         ps = [p.get_text(" ", strip=True) for p in soup.select("p")]
         text = " ".join(ps[:2]).strip() if ps else None
-
     if text:
         text = re.sub(r"\s+", " ", text).strip()
         if len(text) < 40:
             text = None
-
     return image, text
 
-# --------- нормализация и дедуп ----------
+# --------- normalize/dedupe ----------
 def _best_time(entry: dict) -> datetime:
     for key in ("published_parsed", "updated_parsed", "created_parsed"):
         t = entry.get(key)
@@ -138,13 +132,17 @@ def _best_time(entry: dict) -> datetime:
                 pass
     return datetime.now(tz=timezone.utc)
 
+def make_id(link: str, title: str) -> str:
+    base = (link or "").strip() or title.strip()
+    return hashlib.sha1(base.encode("utf-8", errors="ignore")).hexdigest()[:16]
+
 def norm_entry(entry: dict, source_name: str) -> dict:
     link = (entry.get("link") or "").strip()
     title = (entry.get("title") or "").strip() or "(без заголовка)"
     summary = (entry.get("summary") or entry.get("description") or "").strip()
     dt = _best_time(entry)
 
-    # изображения из RSS
+    # images from RSS
     image = None
     media = entry.get("media_content") or entry.get("media_thumbnail") or []
     if media and isinstance(media, list) and media[0].get("url"):
@@ -154,7 +152,7 @@ def norm_entry(entry: dict, source_name: str) -> dict:
         if enclosures and isinstance(enclosures, list) and enclosures[0].get("href"):
             image = enclosures[0]["href"]
 
-    # возможный HTML-контент из RSS
+    # possible HTML content from RSS
     content_html = None
     try:
         content_list = entry.get("content") or []
@@ -173,7 +171,7 @@ def norm_entry(entry: dict, source_name: str) -> dict:
 
     domain = urlparse(link).netloc or ""
 
-    # Догрузка со страницы (с учётом субдоменов)
+    # scrape page (allow subdomains)
     if link and host_allowed(domain):
         try:
             html = fetch_page(link)
@@ -186,6 +184,7 @@ def norm_entry(entry: dict, source_name: str) -> dict:
             pass
 
     return {
+        "id": make_id(link, title),
         "source": source_name,
         "title": title,
         "link": link,
@@ -197,7 +196,6 @@ def norm_entry(entry: dict, source_name: str) -> dict:
     }
 
 def dedupe(items: List[dict]) -> List[dict]:
-    """Дедуп приоритетно по link, иначе по (title.lower(), domain)."""
     seen_link = set()
     seen_title = set()
     out: List[dict] = []
@@ -216,13 +214,12 @@ def dedupe(items: List[dict]) -> List[dict]:
     return out
 
 def merge_and_trim(existing: list[dict], fresh: list[dict], limit: int) -> list[dict]:
-    """Объединяем архив со свежим, дедупим и сортируем по дате."""
     all_items = fresh + existing
     all_items = dedupe(all_items)
     all_items.sort(key=lambda x: x.get("published_at", ""), reverse=True)
     return all_items[:limit]
 
-# --------- сборка из sources.yml ----------
+# --------- aggregate ----------
 def aggregate(sources_cfg: List[dict]) -> List[dict]:
     since = datetime.now(tz=timezone.utc) - timedelta(days=DAYS_BACK)
     collected: List[dict] = []
@@ -252,10 +249,8 @@ def aggregate(sources_cfg: List[dict]) -> List[dict]:
 
     collected = dedupe(collected)
     collected.sort(key=lambda x: x.get("published_at", ""), reverse=True)
-
     if GLOBAL_LIMIT and len(collected) > GLOBAL_LIMIT:
         collected = collected[:GLOBAL_LIMIT]
-
     return collected
 
 def debug_stats(items: List[dict]) -> None:
@@ -296,7 +291,6 @@ def main() -> None:
     print(f"[DONE] saved {len(items)} items -> {out_news}")
     print(f"[DONE] meta  -> {out_meta}  updated_at={meta['updated_at']}")
 
-# --------- точка входа ----------
 if __name__ == "__main__":
     import sys, os, traceback
     try:
