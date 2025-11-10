@@ -1,9 +1,11 @@
+// Кандидаты путей к JSON, чтобы не ловить 404
 const NEWS_CANDIDATES = [
   'data/news.json',
   './data/news.json',
   './news.json',
   'specavto-portal/frontend/data/news.json'
 ];
+
 const BLOCKED = ['tass.ru','www.tass.ru','tass.com','tass'];
 
 const $ = (s,r=document)=>r.querySelector(s);
@@ -38,6 +40,30 @@ function isBlocked(it){
   const d = String(it?.domain||'').toLowerCase();
   const u = String(it?.url||'').toLowerCase();
   return BLOCKED.some(b => d.includes(b) || u.includes(b));
+}
+
+function pickImage(item){
+  const cand = item?.image || item?.cover || item?.img || (Array.isArray(item?.images) ? item.images[0] : '');
+  return (typeof cand === 'string' && cand.trim()) ? cand.trim() : '';
+}
+function placeholderFor(item){
+  const domain = (item?.domain || 'news').replace(/^https?:\/\//,'').split('/')[0];
+  const label = domain.length > 18 ? domain.slice(0,18)+'…' : domain;
+  const svg = `
+    <svg xmlns='http://www.w3.org/2000/svg' width='640' height='360'>
+      <defs>
+        <linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
+          <stop stop-color='#eff3f8' offset='0'/>
+          <stop stop-color='#e6ebf2' offset='1'/>
+        </linearGradient>
+      </defs>
+      <rect width='100%' height='100%' fill='url(#g)'/>
+      <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
+            font-family='Inter,system-ui,Segoe UI,Roboto,Arial' font-size='28' fill='#667085'>
+        ${label}
+      </text>
+    </svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 
 async function loadJSON(){
@@ -77,13 +103,19 @@ function render(item){
     nf.hidden = false; actions.hidden = false; post.innerHTML = ''; return;
   }
 
+  const img = pickImage(item);
+  const cover = img
+    ? `<div class="cover"><img src="${img}" loading="eager" decoding="async" referrerpolicy="no-referrer"
+         onerror="this.onerror=null;this.src='${placeholderFor(item)}'"></div>`
+    : ``;
+
   const html = `
     <h1 class="title">${item.title || ''}</h1>
     <div class="meta">
       ${item.domain ? `<span>${item.domain}</span>` : ``}
       ${item.date ? `<span>•</span><time>${fmtDate(item.date)}</time>` : ``}
     </div>
-    ${item.image ? `<div class="cover"><img src="${item.image}" alt=""></div>` : ``}
+    ${cover}
     ${item.summary ? `<p class="lead">${stripHTML(item.summary)}</p>` : ``}
   `;
   post.innerHTML = html;
@@ -91,16 +123,16 @@ function render(item){
 }
 
 async function main(){
-  // Мгновенный рендер из localStorage (если есть)
+  // 1) Мгновенный рендер из кеша (если есть)
   try {
     const raw = localStorage.getItem('currentArticle');
     if (raw) {
       const cached = JSON.parse(raw);
-      render(cached);               // показать СРАЗУ
+      render(cached);
     }
   } catch {}
 
-  // Параллельно подтянуть список и, если нужно, перерисовать актуальными
+  // 2) Параллельно подтягиваем свежие данные и, если нашли — перерисовываем
   const list = await loadJSON();
   const item = pickItem(list);
   if (item) render(item);
