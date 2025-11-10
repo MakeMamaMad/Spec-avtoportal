@@ -1,303 +1,181 @@
 # aggregator/main.py
 from __future__ import annotations
-
-import json
-import re
-from datetime import datetime, timedelta, timezone
+import json, sys, time
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
-from urllib.parse import urlparse, urljoin
+from typing import List, Dict, Any, Optional
+import requests, feedparser, yaml  # pip install requests feedparser pyyaml
 
-import feedparser  # type: ignore
-import requests    # type: ignore
-import yaml        # type: ignore
-from bs4 import BeautifulSoup  # type: ignore
-import hashlib
+VER = "safe-collector v2.1"
 
-# --------- settings ----------
-DAYS_BACK = 120          # time window for fresh selection
-PER_FEED_LIMIT = 300     # per-feed cap
-GLOBAL_LIMIT = 5000      # fresh slice cap
-ARCHIVE_LIMIT = 5000     # final cap stored in news.json
-TIMEOUT = 15
+ROOT = Path(__file__).resolve().parents[1]
+DATA_DIR = ROOT / "frontend" / "data"
+NEWS_JSON = DATA_DIR / "news.json"
+META_JSON = DATA_DIR / "news_meta.json"
+CFG_PATH = ROOT / "aggregator" / "sources.yml"
 
-# base domains (subdomains auto-allowed)
-ALLOWED_SCRAPE = None 
-# --------- IO utils ----------
-def load_yaml(path: Path) -> dict:
-    if not path.exists():
-        return {}
-    with path.open("r", encoding="utf-8") as f:
+UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+      "AppleWebKit/537.36 (KHTML, like Gecko) "
+      "Chrome/124.0 Safari/537.36")
+HTTP = requests.Session()
+HTTP.headers.update({"User-Agent": UA, "Accept": "*/*"})
+
+def log(k: str, msg: str) -> None:
+    print(f"[{k}] {msg}")
+
+def load_cfg() -> Dict[str, Any]:
+    with CFG_PATH.open("r", encoding="utf-8") as f:
         return yaml.safe_load(f) or {}
 
-def write_json(path: Path, data: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-def load_existing_news(path: Path) -> list[dict]:
-    if not path.exists():
-        return []
+def fetch_rss(url: str):
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        r = HTTP.get(url, timeout=(10, 20))
+        r.raise_for_status()
+        return feedparser.parse(r.content)
+    except Exception as e:
+        log("ERR", f"fetch {url}: {e.__class__.__name__}: {e}")
+        return None
+
+def to_iso(dt_struct) -> Optional[str]:
+    if not dt_struct:
+        return None
+    try:
+        ts = time.mktime(dt_struct)
+        return datetime.fromtimestamp(ts, tz=timezone.utc).isoformat()
     except Exception:
-        return []
+        return None
 
-# --------- network ----------
-def fetch_rss(url: str) -> feedparser.FeedParserDict:
-    return feedparser.parse(url)
+def first_image(entry) -> Optional[str]:
+    media = entry.get("media_content")
+    if isinstance(media, list) and media:
+        url = media[0].get("url")
+        if url: return url
+    for link in entry.get("links", []) or []:
+        if link.get("rel") == "enclosure" and str(link.get("type","")).startswith(("image/","img/")):
+            if link.get("href"): return link["href"]
+    thumbs = entry.get("media_thumbnail")
+    if isinstance(thumbs, list) and thumbs:
+        url = thumbs[0].get("url")
+        if url: return url
+    if entry.get("image") and isinstance(entry["image"], dict):
+        if entry["image"].get("href"): return entry["image"]["href"]
+    return None
 
-def fetch_page(url: str) -> str:
-    r = requests.get(url, timeout=TIMEOUT, headers={
-        "User-Agent": "Mozilla/5.0 (Aggregator; +https://example.local)"
-    })
-    r.raise_for_status()
-    r.encoding = r.apparent_encoding or "utf-8"
-    return r.text
-
-def host_allowed(url_or_host: str) -> bool:
-    host = url_or_host
-    if "://" in url_or_host:
-        host = urlparse(url_or_host).netloc
-    host = (host or "").lower()
-    return any(host == d or host.endswith("." + d) for d in ALLOWED_SCRAPE)
-
-# --------- HTML scrape ----------
-def extract_content_from_html(html: str, page_url: str) -> Tuple[str | None, str | None]:
-    soup = BeautifulSoup(html, "lxml")
-
-    def _abs(u: str | None) -> str | None:
-        if not u: return None
-        return urljoin(page_url, u.strip())
-
-    # Meta images
-    image = None
-    meta_candidates = [
-        ("meta", {"property": "og:image"}),
-        ("meta", {"property": "og:image:secure_url"}),
-        ("meta", {"name": "og:image"}),
-        ("meta", {"name": "twitter:image"}),
-        ("meta", {"name": "twitter:image:src"}),
-    ]
-    for tag, attrs in meta_candidates:
-        node = soup.find(tag, attrs=attrs)
-        if node and node.get("content"):
-            image = _abs(node.get("content"))
-            if image:
-                break
-
-    # <link rel="image_src">
-    if not image:
-        link_img = soup.find("link", rel=lambda v: v and "image_src" in v)
-        if link_img and link_img.get("href"):
-            image = _abs(link_img["href"])
-
-    # first <img> (including data-src)
-    if not image:
-        for img in soup.find_all("img"):
-            src = (img.get("src") or img.get("data-src") or
-                   img.get("data-original") or img.get("data-lazy-src"))
-            if not src: 
-                continue
-            src = _abs(src)
-            if src and not src.startswith("data:") and not src.endswith(".svg"):
-                image = src
-                break
-
-    # text: meta description or first paragraphs
-    text = None
-    desc = soup.find("meta", attrs={"name": "description"})
-    if desc and desc.get("content"):
-        text = desc["content"].strip()
-    if not text:
-        ps = [p.get_text(" ", strip=True) for p in soup.select("p")]
-        text = " ".join(ps[:2]).strip() if ps else None
-    if text:
-        text = re.sub(r"\s+", " ", text).strip()
-        if len(text) < 40:
-            text = None
-    return image, text
-
-# --------- normalize/dedupe ----------
-def _best_time(entry: dict) -> datetime:
-    for key in ("published_parsed", "updated_parsed", "created_parsed"):
-        t = entry.get(key)
-        if t:
-            try:
-                return datetime(*t[:6], tzinfo=timezone.utc)
-            except Exception:
-                pass
-    return datetime.now(tz=timezone.utc)
-
-def make_id(link: str, title: str) -> str:
-    base = (link or "").strip() or title.strip()
-    return hashlib.sha1(base.encode("utf-8", errors="ignore")).hexdigest()[:16]
-
-def norm_entry(entry: dict, source_name: str) -> dict:
-    link = (entry.get("link") or "").strip()
+def normalize(entry, src_name: str) -> Dict[str, Any]:
     title = (entry.get("title") or "").strip() or "(без заголовка)"
-    summary = (entry.get("summary") or entry.get("description") or "").strip()
-    dt = _best_time(entry)
-
-    # images from RSS
-    image = None
-    media = entry.get("media_content") or entry.get("media_thumbnail") or []
-    if media and isinstance(media, list) and media[0].get("url"):
-        image = media[0]["url"]
-    if not image:
-        enclosures = entry.get("enclosures") or []
-        if enclosures and isinstance(enclosures, list) and enclosures[0].get("href"):
-            image = enclosures[0]["href"]
-
-    # possible HTML content from RSS
-    content_html = None
+    link = entry.get("link") or ""
+    summary = (entry.get("summary") or "").strip()
+    contents = entry.get("content") or []
+    if not summary and isinstance(contents, list) and contents:
+        summary = (contents[0].get("value") or "").strip()
+    published = to_iso(entry.get("published_parsed")) or to_iso(entry.get("updated_parsed"))
+    img = first_image(entry)
+    domain = ""
     try:
-        content_list = entry.get("content") or []
-        if content_list and isinstance(content_list, list):
-            val = content_list[0].get("value")
-            if val and len(val) > 120:
-                content_html = val.strip()
+        from urllib.parse import urlparse
+        domain = urlparse(link).netloc
     except Exception:
         pass
-    if not content_html:
-        sd = entry.get("summary_detail") or {}
-        if str(sd.get("type", "")).startswith("text/html") and sd.get("value"):
-            v = sd["value"].strip()
-            if len(v) > 120:
-                content_html = v
-
-    domain = urlparse(link).netloc or ""
-
-    # scrape page (allow subdomains)
-    if link and host_allowed(domain):
-        try:
-            html = fetch_page(link)
-            img_from_page, content_from_page = extract_content_from_html(html, link)
-            if (not content_html) and content_from_page and len(content_from_page) > 120:
-                content_html = content_from_page
-            if (not image) and img_from_page:
-                image = img_from_page
-        except Exception:
-            pass
-
     return {
-        "id": make_id(link, title),
-        "source": source_name,
+        "source": src_name,
         "title": title,
         "link": link,
         "summary": summary,
-        "content_html": content_html,
-        "image": image,
-        "published_at": dt.isoformat(),
+        "image": img,
+        "published_at": published,
         "domain": domain,
     }
 
-def dedupe(items: List[dict]) -> List[dict]:
-    seen_link = set()
-    seen_title = set()
-    out: List[dict] = []
-    for it in items:
-        link = (it.get("link") or "").strip()
-        key2 = ((it.get("title") or "").strip().lower(), it.get("domain") or "")
-        if link and link in seen_link:
+def collect(sources_cfg: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    items: List[Dict[str, Any]] = []
+    for src in sources_cfg or []:
+        name = src.get("name") or "source"
+        url = src.get("url") or src.get("link") or ""
+        if not url:
+            log("ERR", f"{name}: empty url")
             continue
-        if not link and key2 in seen_title:
-            continue
-        out.append(it)
-        if link:
-            seen_link.add(link)
+        fp = fetch_rss(url)
+        entries = []
+        if fp and getattr(fp, "entries", None):
+            entries = list(fp.entries)  # гарантированно список
         else:
-            seen_title.add(key2)
+            log("ERR", f"{name}: entries empty")
+        got = 0
+        for e in entries:
+            try:
+                items.append(normalize(e, name))
+                got += 1
+            except Exception as ex:
+                log("ERR", f"{name}: normalize error: {ex}")
+        log("OK", f"{name}: +{got}")
+    return items
+
+def read_existing() -> List[Dict[str, Any]]:
+    try:
+        if NEWS_JSON.exists():
+            return json.loads(NEWS_JSON.read_text("utf-8"))
+    except Exception:
+        pass
+    return []
+
+def dedup_by_link(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    seen, out = set(), []
+    for it in items:
+        key = it.get("link") or it.get("title")
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        out.append(it)
     return out
 
-def merge_and_trim(existing: list[dict], fresh: list[dict], limit: int) -> list[dict]:
-    all_items = fresh + existing
-    all_items = dedupe(all_items)
-    all_items.sort(key=lambda x: x.get("published_at", ""), reverse=True)
-    return all_items[:limit]
-
-# --------- aggregate ----------
-def aggregate(sources_cfg: List[dict]) -> List[dict]:
-    since = datetime.now(tz=timezone.utc) - timedelta(days=DAYS_BACK)
-    collected: List[dict] = []
-
-    for s in sources_cfg:
-        name = s.get("name") or s.get("title") or "Источник"
-        url = s.get("url") or s.get("link")
-        if not url:
-            continue
+def sort_by_date(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def key(it):
+        val = it.get("published_at")
         try:
-            feed = fetch_rss(url)
-            entries = feed.entries or []
-            batch: List[dict] = []
-            for e in entries[:PER_FEED_LIMIT]:
-                it = norm_entry(e, name)
-                try:
-                    dt = datetime.fromisoformat(it["published_at"])
-                except Exception:
-                    dt = datetime.now(tz=timezone.utc)
-                if dt < since:
-                    continue
-                batch.append(it)
-            collected.extend(batch)
-            print(f"[OK] {name}: +{len(batch)}")
-        except Exception as ex:
-            print(f"[ERR] {name}: {ex}")
+            return datetime.fromisoformat(val.replace("Z","+00:00")) if val else datetime.min.replace(tzinfo=timezone.utc)
+        except Exception:
+            return datetime.min.replace(tzinfo=timezone.utc)
+    return sorted(items, key=key, reverse=True)
 
-    collected = dedupe(collected)
-    collected.sort(key=lambda x: x.get("published_at", ""), reverse=True)
-    if GLOBAL_LIMIT and len(collected) > GLOBAL_LIMIT:
-        collected = collected[:GLOBAL_LIMIT]
-    return collected
+def save(items: List[Dict[str, Any]]) -> None:
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    NEWS_JSON.write_text(json.dumps(items, ensure_ascii=False, indent=2), "utf-8")
+    META_JSON.write_text(
+        json.dumps({"updated_at": datetime.now(timezone.utc).isoformat(), "count": len(items)}, ensure_ascii=False, indent=2),
+        "utf-8",
+    )
 
-def debug_stats(items: List[dict]) -> None:
-    by_domain: Dict[str, int] = {}
-    for it in items:
-        d = it.get("domain") or ""
-        by_domain[d] = by_domain.get(d, 0) + 1
-    top = sorted(by_domain.items(), key=lambda kv: kv[1], reverse=True)[:10]
-    print("[STATS] total:", len(items), "| top domains:", ", ".join(f"{d}:{n}" for d, n in top))
+def stats(items: List[Dict[str, Any]]) -> None:
+    from collections import Counter
+    c = Counter(it.get("domain") for it in items if it.get("domain"))
+    if not c:
+        log("STATS", "total: 0")
+        return
+    top_domain, top_count = c.most_common(1)[0]
+    log("STATS", f"total: {len(items)} | top domains: {top_domain}:{top_count}")
 
-# --------- main ----------
 def main() -> None:
-    here = Path(__file__).resolve().parent
-    root = here.parent
-
-    out_news = root / "frontend" / "data" / "news.json"
-    out_meta = root / "frontend" / "data" / "news_meta.json"
-
-    cfg = load_yaml(here / "sources.yml")
-    sources = cfg.get("sources", [])
-
+    print("[BOOT] starting aggregator")
+    print(f"[BOOT] version: {VER}")
+    print(f"[BOOT] python: {sys.version.split()[0]}")
+    print(f"[BOOT] cwd  = {ROOT}")
+    cfg = load_cfg()
+    sources = cfg.get("sources") or []
     print(f"[RUN] sources: {len(sources)}")
-    fresh = aggregate(sources)
-    print(f"[INFO] fresh after aggregate: {len(fresh)}")
-
-    existing = load_existing_news(out_news)
-    print(f"[INFO] existing in file: {len(existing)}")
-
-    items = merge_and_trim(existing, fresh, ARCHIVE_LIMIT)
-    print(f"[INFO] merged total (<= {ARCHIVE_LIMIT}): {len(items)}")
-
-    debug_stats(items)
-
-    write_json(out_news, items)
-    meta = {"updated_at": datetime.now(tz=timezone.utc).isoformat(), "count": len(items)}
-    write_json(out_meta, meta)
-
-    print(f"[DONE] saved {len(items)} items -> {out_news}")
-    print(f"[DONE] meta  -> {out_meta}  updated_at={meta['updated_at']}")
+    fresh = collect(sources)
+    log("INFO", f"fresh after aggregate: {len(fresh)}")
+    existing = read_existing()
+    log("INFO", f"existing in file: {len(existing)}")
+    merged = dedup_by_link(fresh + existing)
+    merged = sort_by_date(merged)
+    if len(merged) > 5000:
+        merged = merged[:5000]
+    log("INFO", f"merged total (<= 5000): {len(merged)}")
+    stats(merged)
+    save(merged)
+    log("DONE", f"saved {len(merged)} items -> {NEWS_JSON}")
+    log("DONE", f"meta  -> {META_JSON}")
+    print("[BOOT] done")
 
 if __name__ == "__main__":
-    import sys, os, traceback
-    try:
-        print("[BOOT] starting aggregator")
-        print("[BOOT] python:", sys.version)
-        print("[BOOT] exe   :", sys.executable)
-        print("[BOOT] cwd   :", os.getcwd())
-        main()
-        print("[BOOT] done")
-    except Exception as e:
-        print("[ERR] unhandled:", e)
-        traceback.print_exc()
-        raise
+    main()
