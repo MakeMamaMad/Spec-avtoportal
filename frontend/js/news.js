@@ -1,13 +1,18 @@
 // ---------- Константы и состояние ----------
 const PAGE_SIZE = 18;
-const NEWS_CANDIDATES = [
-  'data/news.json',                        // обычный случай: /Spec-avtoportal/data/news.json
-  './data/news.json',                      // относительный к текущей странице
-  './news.json',                           // вдруг положили рядом
-  'specavto-portal/frontend/data/news.json'// если артефакт публикуется без "среза" до корня
-];
-const BLOCKED = ['tass.ru', 'www.tass.ru', 'tass.com', 'tass']; // «злой» список
 
+// Несколько кандидатов путей к JSON — чтобы не ловить 404 на GitHub Pages
+const NEWS_CANDIDATES = [
+  'data/news.json',
+  './data/news.json',
+  './news.json',
+  'specavto-portal/frontend/data/news.json'
+];
+
+// Жёсткий фильтр источника TASS
+const BLOCKED = ['tass.ru', 'www.tass.ru', 'tass.com', 'tass'];
+
+// Глобальное состояние
 const STATE = { all: [], page: 1 };
 
 // ---------- Утилиты ----------
@@ -78,8 +83,34 @@ function isBlocked(item){
   return BLOCKED.some(b => d.includes(b) || u.includes(b));
 }
 
+function pickImage(item){
+  const cand = item?.image || item?.cover || item?.img || (Array.isArray(item?.images) ? item.images[0] : '');
+  return (typeof cand === 'string' && cand.trim()) ? cand.trim() : '';
+}
+
+function placeholderFor(item){
+  const domain = (item?.domain || 'news').replace(/^https?:\/\//,'').split('/')[0];
+  const label = domain.length > 18 ? domain.slice(0,18)+'…' : domain;
+  const svg = `
+    <svg xmlns='http://www.w3.org/2000/svg' width='640' height='360'>
+      <defs>
+        <linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
+          <stop stop-color='#eff3f8' offset='0'/>
+          <stop stop-color='#e6ebf2' offset='1'/>
+        </linearGradient>
+      </defs>
+      <rect width='100%' height='100%' fill='url(#g)'/>
+      <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
+            font-family='Inter,system-ui,Segoe UI,Roboto,Arial' font-size='28' fill='#667085'>
+        ${label}
+      </text>
+    </svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
 function cardHTML(item, idx){
-  const hasImage = !!item.image;
+  const img = pickImage(item);
+  const hasImage = !!img;
   const meta = `
     <div class="meta">
       ${item.domain ? `<span>${item.domain}</span>` : ``}
@@ -90,7 +121,10 @@ function cardHTML(item, idx){
 
   return `
   <article class="card ${hasImage ? 'has-image':''}">
-    ${hasImage ? `<div class="cover"><img loading="lazy" src="${item.image}" alt=""></div>` : ``}
+    ${hasImage
+      ? `<div class="cover"><img loading="lazy" decoding="async" referrerpolicy="no-referrer"
+           src="${img}" onerror="this.onerror=null;this.src='${placeholderFor(item)}'"></div>`
+      : ``}
     ${meta}
     <h3 class="title"><a class="go-article" data-idx="${idx}" href="${articleHref}">${item.title || ''}</a></h3>
     ${sum ? `<p class="summary">${sum}</p>` : ``}
@@ -113,9 +147,7 @@ async function loadJSON(){
 async function loadAll(){
   let items = await loadJSON();
   items = Array.isArray(items) ? items : [];
-  // фильтруем TASS по домену и url
-  items = items.filter(x => !isBlocked(x));
-  // сортировка
+  items = items.filter(x => !isBlocked(x));   // вырезаем TASS
   items.sort(byDateDesc);
   return items;
 }
@@ -127,7 +159,7 @@ function renderPage(){
 
   grid.innerHTML = slice.map((n,i)=>cardHTML(n, start+i)).join('');
 
-  // сохранить выбранную новость
+  // сохраняем выбранную новость для мгновенного открытия статьи
   $$('.go-article', grid).forEach(a=>{
     a.addEventListener('click', (e)=>{
       const idx = Number(e.currentTarget.getAttribute('data-idx'));
