@@ -1,18 +1,24 @@
-const NEWS_URL = 'data/news.json';
-const BLOCKED = ['tass.ru', 'www.tass.ru'];
+const NEWS_CANDIDATES = [
+  'data/news.json',
+  './data/news.json',
+  './news.json',
+  'specavto-portal/frontend/data/news.json'
+];
+const BLOCKED = ['tass.ru','www.tass.ru','tass.com','tass'];
 
-const $ = (sel, root = document) => root.querySelector(sel);
+const $ = (s,r=document)=>r.querySelector(s);
 
-function fmtDate(iso) {
-  const d = new Date(iso || Date.now());
+function fmtDate(iso){
+  const d = new Date(iso||Date.now());
   if (Number.isNaN(+d)) return '';
-  const p = (n) => String(n).padStart(2,'0');
+  const p = n=> String(n).padStart(2,'0');
   return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}, ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
+function stripHTML(s=''){ const el=document.createElement('div'); el.innerHTML=s; return (el.textContent||'').trim(); }
 
-function ensureScaffold(){
+function ensure(){
   const post = $('#post') || (()=>{ const n=document.createElement('main'); n.id='post'; document.body.appendChild(n); return n; })();
-  const nf   = $('#nf')   || (()=>{ const n=document.createElement('div'); n.id='nf'; n.hidden=true; n.textContent='Новость не найдена'; document.body.appendChild(n); return n; })();
+  const nf   = $('#nf')   || (()=>{ const n=document.createElement('div');  n.id='nf'; n.hidden=true; n.textContent='Новость не найдена'; document.body.appendChild(n); return n; })();
   const actions = $('#bottom-actions') || (()=>{ const n=document.createElement('div'); n.id='bottom-actions'; n.hidden=true; n.innerHTML='<a href="index.html">← Вернуться к ленте</a>'; document.body.appendChild(n); return n; })();
 
   if (!$('#__article_inline_styles')) {
@@ -23,84 +29,70 @@ function ensureScaffold(){
       .cover img{width:100%;height:auto;display:block}
       .lead{font-size:18px;line-height:1.6;margin:16px 0 8px;display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden}
     `.trim();
-    const style = document.createElement('style');
-    style.id = '__article_inline_styles';
-    style.textContent = css;
-    document.head.appendChild(style);
+    const st=document.createElement('style'); st.id='__article_inline_styles'; st.textContent=css; document.head.appendChild(st);
   }
-
-  return { post, nf, actions };
+  return {post,nf,actions};
 }
 
 function isBlocked(it){
-  const d = (it?.domain || '').toLowerCase();
-  const u = (it?.url || '').toLowerCase();
+  const d = String(it?.domain||'').toLowerCase();
+  const u = String(it?.url||'').toLowerCase();
   return BLOCKED.some(b => d.includes(b) || u.includes(b));
 }
 
-async function loadAll(){
-  const res = await fetch(NEWS_URL, { cache: 'no-store' });
-  if (!res.ok) return [];
-  try { return await res.json(); } catch { return []; }
+async function loadJSON(){
+  for (const url of NEWS_CANDIDATES){
+    try{
+      const res = await fetch(url, { cache: 'no-store' });
+      if (res.ok) return await res.json();
+    }catch{}
+  }
+  return [];
 }
 
-function getIdFromURL(){
+function getId(){
   const url = new URL(location.href);
-  return url.searchParams.get('id') || null;
+  return url.searchParams.get('id');
 }
 
 function pickItem(list){
-  // 1) по ?id=
-  const id = getIdFromURL();
-  if (id != null) {
-    const idx = Number.isFinite(+id) ? +id : null;
-    if (idx != null && list[idx]) return list[idx];
-    // пробуем найти по полю id, если оно есть
+  const id = getId();
+  if (id != null){
+    const n = Number(id);
+    if (Number.isFinite(n) && list[n]) return list[n];
     const byId = list.find(x => String(x.id) === String(id));
     if (byId) return byId;
   }
-
-  // 2) из localStorage — записывается при клике в ленте
-  try {
+  try{
     const raw = localStorage.getItem('currentArticle');
     if (raw) return JSON.parse(raw);
-  } catch {}
-
+  }catch{}
   return null;
 }
 
 function render(item){
-  const { post, nf, actions } = ensureScaffold();
+  const {post,nf,actions} = ensure();
 
-  if (!item || isBlocked(item)) {
-    nf.hidden = false;
-    actions.hidden = false;
-    post.innerHTML = '';
-    return;
+  if (!item || isBlocked(item)){
+    nf.hidden = false; actions.hidden = false; post.innerHTML = ''; return;
   }
 
-  const dateStr = item.date ? fmtDate(item.date) : '';
-  const meta = `
-    <div class="meta">
-      ${item.domain ? `<span>${item.domain}</span>` : ``}
-      ${dateStr ? `<span>•</span><time>${dateStr}</time>` : ``}
-    </div>
-  `;
   const html = `
     <h1 class="title">${item.title || ''}</h1>
-    ${meta}
+    <div class="meta">
+      ${item.domain ? `<span>${item.domain}</span>` : ``}
+      ${item.date ? `<span>•</span><time>${fmtDate(item.date)}</time>` : ``}
+    </div>
     ${item.image ? `<div class="cover"><img src="${item.image}" alt=""></div>` : ``}
-    ${item.summary ? `<p class="lead">${item.summary}</p>` : ``}
+    ${item.summary ? `<p class="lead">${stripHTML(item.summary)}</p>` : ``}
   `;
-
   post.innerHTML = html;
   actions.hidden = false;
 }
 
 async function main(){
-  const list = await loadAll();
+  const list = await loadJSON();
   const item = pickItem(list);
   render(item);
 }
-
 document.addEventListener('DOMContentLoaded', main);
