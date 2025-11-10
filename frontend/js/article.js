@@ -1,67 +1,160 @@
-// frontend/js/article.js
+/* Рендер одной статьи. Ожидает query:
+   - id: стабильный id (из news.js/main.js)
+   - u : исходная ссылка (urlencoded)
+   - from: номер страницы ленты (для возврата)
+*/
 
-function hashId(s=''){ let h=0; for(let i=0;i<s.length;i++) h=((h<<5)-h+s.charCodeAt(i))|0; return 'n'+Math.abs(h).toString(36); }
-function fmtDateTime(d){ const dd=String(d.getDate()).padStart(2,'0'); const mm=String(d.getMonth()+1).padStart(2,'0'); const yyyy=d.getFullYear(); const hh=String(d.getHours()).padStart(2,'0'); const mi=String(d.getMinutes()).padStart(2,'0'); return `${dd}.${mm}.${yyyy}, ${hh}:${mi}`; }
-function escapeHtml(s=''){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+(function () {
+  'use strict';
 
-function normalizeItem(it){
-  const link = it.link || it.url || '#';
-  const dateStr = it.published_at || it.published || it.updated_at || it.created_at || it.date || it.pubDate;
-  let domain = it.domain;
-  if (!domain && link && link !== '#'){ try{ domain = new URL(link).hostname; }catch(_){ domain=''; } }
-  return {
-    id: hashId(link),
-    title: it.title || '(без заголовка)',
-    source: it.source || it.site || domain || 'Источник',
-    link,
-    summary: (it.summary || it.description || '').trim(),
-    content_html: it.content_html || null,
-    image: it.image || it.thumbnail || null,
-    date: dateStr ? new Date(dateStr) : new Date(),
-    domain
-  };
-}
+  const $ = (s, r = document) => r.querySelector(s);
 
-function toParagraphs(text){
-  if (!text) return '';
-  let t = text.replace(/\r/g,'').replace(/\n{3,}/g,'\n\n').trim();
-  const looksHTML = /<\/?[a-z][\s\S]*>/i.test(t);
-  if (looksHTML) return t; // сервер уже положил html
-  const parts = t.split(/\n\n+/).map(p=>p.trim()).filter(Boolean);
-  return parts.map(p=>`<p>${escapeHtml(p)}</p>`).join('');
-}
+  // ---------- url params ----------
+  const params = new URLSearchParams(location.search);
+  const idParam = params.get('id') || '';
+  const srcUrl = (() => {
+    try { return decodeURIComponent(params.get('u') || ''); } catch { return ''; }
+  })();
+  const fromPage = params.get('from');
 
-async function loadNews(){
-  const res = await fetch('data/news.json?v='+Date.now(), {cache:'no-store'});
-  if (!res.ok) throw new Error('Не удалось загрузить news.json');
-  const raw = await res.json();
-  return raw.map(normalizeItem);
-}
+  // назначим ссылку «назад»
+  const backBtn = $('#backBtn');
+  if (fromPage) {
+    const u = new URL('index.html', location.href);
+    u.searchParams.set('page', fromPage);
+    backBtn.href = u.toString();
+  }
 
-async function init(){
-  const mount = document.getElementById('article');
-  const u = new URL(window.location.href);
-  const id = u.searchParams.get('id');
-  if (!id){ mount.innerHTML = '<p>Не указан id новости.</p>'; return; }
+  // кнопка «Читать в источнике»
+  const srcBtn = $('#srcBtn');
+  if (srcUrl) srcBtn.href = srcUrl;
 
-  const items = await loadNews();
-  const item = items.find(x => x.id === id) || items.find(x => decodeURIComponent(id) === x.link);
-  if (!item){ mount.innerHTML = '<p>Новость не найдена.</p>'; return; }
+  // ---------- загрузка данных ----------
+  async function loadJson(path) {
+    const resp = await fetch(path, { cache: 'no-store' });
+    if (!resp.ok) throw new Error('fetch failed ' + path);
+    return await resp.json();
+  }
 
-  const bodyHtml = item.content_html ? item.content_html : toParagraphs(item.summary);
+  function normalizeItems(list) {
+    const out = [];
+    for (const it of list || []) {
+      if (!it) continue;
+      const date = it.published_at || it.date || it.publishedAt;
+      const d = date ? new Date(date) : null;
+      out.push({
+        _id: it._id || makeId(it),
+        title: it.title || '',
+        link: it.link || '',
+        domain: it.domain || (it.link ? new URL(it.link).hostname : ''),
+        date: d ? d.toISOString() : '',
+        image: it.image || null,
+        summary: it.summary || '',
+        content_html: it.content_html || it.content || ''
+      });
+    }
+    return out;
+  }
 
-  mount.innerHTML = `
-    <h1>${escapeHtml(item.title)}</h1>
-    <div class="meta"><span>${escapeHtml(item.source)}</span><span> • ${fmtDateTime(item.date)}</span></div>
-    <div class="cover">${item.image ? `<img src="${item.image}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ``}</div>
-    <div class="desc">${bodyHtml || ''}</div>
-    <div class="actions">
-      <a class="btn" href="./">← Вернуться к новостям</a>
-      <a class="btn primary" href="${item.link}" target="_blank" rel="noopener">Читать в источнике</a>
-    </div>
-  `;
-}
-document.addEventListener('DOMContentLoaded', ()=>{ init().catch(err=>{
-  const mount=document.getElementById('article');
-  mount.innerHTML=`<p>Ошибка: ${escapeHtml(err.message)}</p>`;
-}); });
+  // тот же FNV хэш, что и в news.js
+  function makeId(item) {
+    const base = (item.link || '') + '|' + (item.title || '') + '|' + (+new Date(item.published_at || item.date || '') || 0);
+    let h = 2166136261 >>> 0;
+    for (let i = 0; i < base.length; i++) {
+      h ^= base.charCodeAt(i);
+      h = Math.imul(h, 16777619) >>> 0;
+    }
+    return h.toString(16);
+  }
+
+  function pickItem(all) {
+    if (idParam) {
+      const found = all.find(n => n._id === idParam);
+      if (found) return found;
+    }
+    if (srcUrl) {
+      const found = all.find(n => n.link === srcUrl);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  function sanitize(html) {
+    // Простой ограниченный беллист: убираем <script>, on* атрибуты и iframes.
+    const tpl = document.createElement('template');
+    tpl.innerHTML = html || '';
+    const bad = ['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'EMBED'];
+    const walker = document.createTreeWalker(tpl.content, NodeFilter.SHOW_ELEMENT, null);
+    let node;
+    while ((node = walker.nextNode())) {
+      if (bad.includes(node.tagName)) {
+        node.remove();
+        continue;
+      }
+      // вычистим on* обработчики
+      [...node.attributes].forEach(a => {
+        if (/^on/i.test(a.name)) node.removeAttribute(a.name);
+      });
+      // изображения: загружаем «лениво»
+      if (node.tagName === 'IMG' && !node.hasAttribute('loading')) {
+        node.setAttribute('loading', 'lazy');
+      }
+    }
+    return tpl.innerHTML;
+  }
+
+  function fmtDate(d) {
+    if (!d) return '';
+    try {
+      const dd = new Date(d);
+      const pad = n => String(n).padStart(2, '0');
+      return `${pad(dd.getDate())}.${pad(dd.getMonth()+1)}.${dd.getFullYear()}, ${pad(dd.getHours())}:${pad(dd.getMinutes())}`;
+    } catch { return ''; }
+  }
+
+  function render(item) {
+    const post = $('#post');
+    const nf = $('#nf');
+    const actions = $('#bottom-actions');
+
+    if (!item) {
+      nf.hidden = false;
+      actions.hidden = false; // оставить «назад»
+      return;
+    }
+
+    const dateStr = fmtDate(item.date);
+
+    const html = `
+      <h1 class="title">${item.title || ''}</h1>
+      <div class="meta">
+        ${item.domain ? `<span>${item.domain}</span>` : ''}
+        ${dateStr ? `<span>•</span><time>${dateStr}</time>` : ''}
+      </div>
+
+      ${item.image ? `
+      <div class="cover">
+        <img src="${item.image}" loading="eager" alt="">
+      </div>` : ''}
+
+      <div class="content">${sanitize(item.content_html || item.summary || '')}</div>
+    `;
+    post.innerHTML = html;
+
+    // показать нижние кнопки
+    actions.hidden = false;
+  }
+
+  async function main() {
+    try {
+      const data = await loadJson('data/news.json');
+      const all = normalizeItems(data);
+      render(pickItem(all));
+    } catch (e) {
+      console.error(e);
+      render(null);
+    }
+  }
+
+  main();
+})();
