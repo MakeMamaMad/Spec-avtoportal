@@ -1,13 +1,4 @@
-// Кандидаты путей к JSON, чтобы не ловить 404
-const NEWS_CANDIDATES = [
-  'data/news.json',
-  './data/news.json',
-  './news.json',
-  'specavto-portal/frontend/data/news.json'
-];
-
 const BLOCKED = ['tass.ru','www.tass.ru','tass.com','tass'];
-
 const $ = (s,r=document)=>r.querySelector(s);
 
 function fmtDate(iso){
@@ -37,8 +28,8 @@ function ensure(){
 }
 
 function isBlocked(it){
-  const d = String(it?.domain||'').toLowerCase();
-  const u = String(it?.url||'').toLowerCase();
+  const d = String(it?.domain||'').toLowerCase().trim();
+  const u = String(it?.url||'').toLowerCase().trim();
   return BLOCKED.some(b => d.includes(b) || u.includes(b));
 }
 
@@ -51,49 +42,14 @@ function placeholderFor(item){
   const label = domain.length > 18 ? domain.slice(0,18)+'…' : domain;
   const svg = `
     <svg xmlns='http://www.w3.org/2000/svg' width='640' height='360'>
-      <defs>
-        <linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
-          <stop stop-color='#eff3f8' offset='0'/>
-          <stop stop-color='#e6ebf2' offset='1'/>
-        </linearGradient>
-      </defs>
+      <defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
+        <stop stop-color='#eff3f8' offset='0'/><stop stop-color='#e6ebf2' offset='1'/>
+      </linearGradient></defs>
       <rect width='100%' height='100%' fill='url(#g)'/>
       <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
-            font-family='Inter,system-ui,Segoe UI,Roboto,Arial' font-size='28' fill='#667085'>
-        ${label}
-      </text>
+            font-family='Inter,system-ui,Segoe UI,Roboto,Arial' font-size='28' fill='#667085'>${label}</text>
     </svg>`;
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-}
-
-async function loadJSON(){
-  for (const url of NEWS_CANDIDATES){
-    try{
-      const res = await fetch(url, { cache: 'no-store' });
-      if (res.ok) return await res.json();
-    }catch{}
-  }
-  return [];
-}
-
-function getId(){
-  const url = new URL(location.href);
-  return url.searchParams.get('id');
-}
-
-function pickItem(list){
-  const id = getId();
-  if (id != null){
-    const n = Number(id);
-    if (Number.isFinite(n) && list[n]) return list[n];
-    const byId = list.find(x => String(x.id) === String(id));
-    if (byId) return byId;
-  }
-  try{
-    const raw = localStorage.getItem('currentArticle');
-    if (raw) return JSON.parse(raw);
-  }catch{}
-  return null;
 }
 
 function render(item){
@@ -122,19 +78,34 @@ function render(item){
   actions.hidden = false;
 }
 
-async function main(){
-  // 1) Мгновенный рендер из кеша (если есть)
-  try {
-    const raw = localStorage.getItem('currentArticle');
-    if (raw) {
-      const cached = JSON.parse(raw);
-      render(cached);
-    }
-  } catch {}
+function getId(){
+  const url = new URL(location.href);
+  return url.searchParams.get('id');
+}
 
-  // 2) Параллельно подтягиваем свежие данные и, если нашли — перерисовываем
-  const list = await loadJSON();
-  const item = pickItem(list);
-  if (item) render(item);
+function pickFromLocal(){
+  try{
+    const raw = localStorage.getItem('currentArticle');
+    if (raw) return JSON.parse(raw);
+  }catch{}
+  return null;
+}
+
+async function main(){
+  // мгновенный рендер из кеша
+  const cached = pickFromLocal();
+  if (cached) render(cached);
+
+  // если открыли страницу без клика — пробуем достать из window.__ALL_NEWS__
+  if (!cached && Array.isArray(window.__ALL_NEWS__)) {
+    const id = getId();
+    const n = Number(id);
+    const list = window.__ALL_NEWS__;
+    if (Number.isFinite(n) && list[n]) render(list[n]);
+    else {
+      const byId = list.find(x => String(x.id) === String(id));
+      if (byId) render(byId);
+    }
+  }
 }
 document.addEventListener('DOMContentLoaded', main);
