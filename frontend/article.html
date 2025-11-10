@@ -1,54 +1,29 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Статья — СпецТрейлеры</title>
-  <link rel="icon" href="favicon.ico" />
-  <style>
-    :root{--txt:#0f172a;--muted:#64748b;--bg:#ffffff;--chip:#f1f5f9}
-    html,body{margin:0;padding:0;background:#fafafa;color:var(--txt);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
-    .container{max-width:1050px;margin:24px auto;padding:0 16px}
-    header.nav{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-    header.nav a.logo{display:inline-flex;align-items:center;font-weight:700;color:var(--txt);text-decoration:none}
-    article.post{background:var(--bg);border-radius:18px;box-shadow:0 2px 14px rgba(0,0,0,.06);padding:22px}
-    h1.title{margin:0 0 8px;font-size:36px;line-height:1.2}
-    .meta{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:14px;margin-bottom:14px;flex-wrap:wrap}
-    .cover{width:100%;aspect-ratio:16/9;background:#f1f5f9;border-radius:12px;overflow:hidden;margin:6px 0 18px}
-    .cover img{width:100%;height:100%;object-fit:cover;display:block}
-    .content{font-size:18px;line-height:1.7;color:#0b1220}
-    .content img{max-width:100%;height:auto;border-radius:10px}
-    .content p{margin:0 0 1em}
-    .actions{display:flex;gap:12px;margin:22px 0 4px;flex-wrap:wrap}
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 14px;border-radius:12px;border:1px solid #e2e8f0;background:#fff;color:#0f172a;text-decoration:none;cursor:pointer}
-    .btn.primary{background:#0f172a;color:#fff;border-color:#0f172a}
-    .chip{display:inline-flex;align-items:center;background:var(--chip);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
-    .not-found{padding:22px;border-radius:14px;background:#fff;border:1px dashed #e2e8f0}
-  </style>
+  <title>Статья</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <div class="container">
-    <header class="nav">
+  <!-- СКОПИРУЙ из index.html свой реальный header -->
+  <header class="site-header">
+    <nav class="container">
       <a class="logo" href="index.html">СпецТрейлеры</a>
-      <span class="chip">Статья</span>
-    </header>
+      <ul class="menu">
+        <li><a class="active" href="index.html">Новости</a></li>
+        <li><a href="#">Законодательство / ГОСТы</a></li>
+        <li><a href="#">Гайды и регламенты</a></li>
+        <li><a href="#">Видео</a></li>
+      </ul>
+    </nav>
+  </header>
 
-    <article class="post" id="post">
-      <!-- сюда рендерит article.js -->
-      <div class="not-found" id="nf" hidden>
-        <h2 style="margin:0 0 6px">Статья не найдена</h2>
-        <p style="margin:0 0 14px;color:var(--muted)">Попробуйте вернуться на главную страницу.</p>
-        <a class="btn" href="index.html">← Вернуться к новостям</a>
-      </div>
-    </article>
+  <main id="post"></main>
+  <div id="nf" hidden>Новость не найдена</div>
+  <div id="bottom-actions" hidden><a href="index.html">← Вернуться к ленте</a></div>
 
-    <!-- Кнопки ТОЛЬКО СНИЗУ -->
-    <div class="actions" id="bottom-actions" hidden>
-      <a id="backBtn" class="btn" href="index.html">← Вернуться к новостям</a>
-      <a id="srcBtn" class="btn primary" href="#" target="_blank" rel="noopener">Читать в источнике</a>
-    </div>
-  </div>
-
-  <script src="js/article.js?v=2"></script>
+  <script src="js/article.js?v=4"></script>
 </body>
 </html>
