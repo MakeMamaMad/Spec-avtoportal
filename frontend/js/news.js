@@ -1,211 +1,189 @@
-/* frontend/js/news.js
- * Рендер ленты новостей (карточки на главной) + пагинация.
- * Ожидает, что STATE.all уже заполнен в main.js и отсортирован по дате.
- */
+// ---------- Константы и состояние ----------
+const PAGE_SIZE = 18;
+const NEWS_URL = 'data/news.json'; // относительный путь для GitHub Pages
+const BLOCKED = ['tass.ru', 'www.tass.ru']; // жёсткий фильтр TASS
 
-(function () {
-  'use strict';
+const STATE = {
+  all: [],
+  page: 1,
+};
 
-  // ---------- helpers ----------
-  const $ = (sel, root = document) => root.querySelector(sel);
-  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+// ---------- Утилиты ----------
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+const byDateDesc = (a, b) => (new Date(b.date || 0)) - (new Date(a.date || 0));
 
-  function ensureContainer() {
-    // Нужны контейнеры:
-    //   <div id="news-grid"></div>
-    //   <div id="paginator"></div>
-    // Если их нет — создадим в <main> или <body>.
-    let grid = $('#news-grid');
-    if (!grid) {
-      const host = $('main') || document.body;
-      grid = document.createElement('div');
-      grid.id = 'news-grid';
-      host.appendChild(grid);
-    }
-
-    let pager = $('#paginator');
-    if (!pager) {
-      pager = document.createElement('div');
-      pager.id = 'paginator';
-      grid.after(pager);
-    }
-    return { grid, pager };
+function ensureContainers() {
+  let grid = $('#news-list') || $('#news-grid');
+  if (!grid) {
+    grid = document.createElement('div');
+    grid.id = 'news-list';
+    document.body.appendChild(grid);
   }
+  grid.classList.add('news-grid');
 
-  function fmtDate(d) {
-    try {
-      const dd = new Date(d);
-      const pad = (n) => String(n).padStart(2, '0');
-      return `${pad(dd.getDate())}.${pad(dd.getMonth() + 1)}.${dd.getFullYear()}, ${pad(dd.getHours())}:${pad(dd.getMinutes())}`;
-    } catch {
-      return '';
-    }
+  let pager = $('#pager') || $('#paginator');
+  if (!pager) {
+    pager = document.createElement('nav');
+    pager.id = 'pager';
+    document.body.appendChild(pager);
   }
+  pager.classList.add('pager');
 
-  // Простой стабильный id по ссылке/заголовку/дате — чтобы article.html?id=...
-  function makeId(item) {
-    const base = (item.link || '') + '|' + (item.title || '') + '|' + (+item.date || 0);
-    let h = 2166136261 >>> 0;
-    for (let i = 0; i < base.length; i++) {
-      h ^= base.charCodeAt(i);
-      h = Math.imul(h, 16777619) >>> 0;
-    }
-    return h.toString(16);
-  }
-
-  function getPageParam() {
-    try { return parseInt(new URLSearchParams(location.search).get('page') || STATE.page || 1, 10); }
-    catch { return STATE.page || 1; }
-  }
-
-  function setPageParam(page) {
-    const url = new URL(location.href);
-    url.searchParams.set('page', page);
-    history.replaceState(null, '', url);
-  }
-
-  // ---------- карточка ----------
-  function cardHTML(item) {
-    const id = item._id || makeId(item);
-    item._id = id;
-
-    // аккуратно берём картинку — если её нет, делаем скелет-превью
-    const hasImg = !!item.image;
-    const imgBlock = hasImg
-      ? `<div class="card__thumb"><img loading="lazy" src="${item.image}" alt=""></div>`
-      : `<div class="card__thumb card__thumb--empty" aria-hidden="true"></div>`;
-
-    const src = item.domain ? item.domain : (item.link ? new URL(item.link).hostname : '');
-
-    // ссылка на нашу статью (в article.html мы сможем вычитать по id/u)
-    const u = encodeURIComponent(item.link || '');
-    const href = `article.html?id=${id}&u=${u}${STATE.page ? `&from=${STATE.page}` : ''}`;
-
-    const dateStr = fmtDate(item.date);
-
-    return `
-      <article class="card">
-        <a class="card__wrap" href="${href}">
-          ${imgBlock}
-          <div class="card__body">
-            <div class="card__meta">
-              <span class="card__domain">${src}</span>
-              ${dateStr ? `<span class="card__dot">•</span><time>${dateStr}</time>` : ''}
-            </div>
-            <h3 class="card__title">${item.title || ''}</h3>
-            ${item.summary ? `<p class="card__desc">${item.summary}</p>` : ''}
-          </div>
-        </a>
-      </article>
-    `;
-  }
-
-  // ---------- пагинация ----------
-  function buildPager(total, per, page) {
-    const pages = Math.max(1, Math.ceil(total / per));
-    if (pages <= 1) return '';
-
-    const makeBtn = (p, text = String(p), isActive = false, disabled = false) =>
-      `<button class="pager__btn${isActive ? ' is-active' : ''}" data-page="${p}" ${disabled ? 'disabled' : ''}>${text}</button>`;
-
-    let html = '';
-    html += makeBtn(Math.max(1, page - 1), '«', false, page <= 1);
-
-    // Показываем «окно» из номеров (примерно до 10)
-    const span = 4;
-    const start = Math.max(1, page - span);
-    const end = Math.min(pages, page + span);
-
-    for (let p = start; p <= end; p++) {
-      html += makeBtn(p, String(p), p === page, false);
-    }
-
-    html += makeBtn(Math.min(pages, page + 1), '»', false, page >= pages);
-    return html;
-  }
-
-  function bindPager(grid, pager) {
-    pager.addEventListener('click', (e) => {
-      const btn = e.target.closest('.pager__btn');
-      if (!btn) return;
-      const p = parseInt(btn.dataset.page, 10);
-      if (!isNaN(p)) {
-        STATE.page = p;
-        setPageParam(p);
-        paint(); // перерисуем
-        // небольшой скролл к началу
-        grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // инъекция минимальных стилей, если их нет
+  if (!$('#__news_inline_styles')) {
+    const css = `
+      .news-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin:16px 0 24px}
+      .card{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+      .card .cover{width:100%;height:140px;border-radius:12px;overflow:hidden;background:#f2f4f7;display:flex;align-items:center;justify-content:center}
+      .card .cover img{width:100%;height:100%;object-fit:cover;display:block}
+      .meta{color:#6b7280;font-size:12px;display:flex;gap:6px;align-items:center}
+      .title{font-size:16px;line-height:1.25;font-weight:700;margin:0}
+      .summary{color:#374151;font-size:14px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+      .pager{display:flex;gap:8px;margin:28px 0 8px;flex-wrap:wrap;justify-content:center}
+      .pager .btn{padding:8px 12px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;cursor:pointer}
+      .pager .btn[disabled]{opacity:.5;cursor:not-allowed}
+      .pager .num{padding:8px 10px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;min-width:36px;text-align:center}
+      .pager .num.active{background:#111827;color:#fff;border-color:#111827}
+      @media (prefers-color-scheme: dark){
+        .card{background:#111318;border:1px solid #222}
+        .meta{color:#9aa0a6}
+        .summary{color:#cbd5e1}
+        .pager .btn,.pager .num{background:#111318;border-color:#222;color:#e5e7eb}
+        .pager .num.active{background:#2563eb;border-color:#2563eb}
       }
-    });
+    `.trim();
+    const style = document.createElement('style');
+    style.id = '__news_inline_styles';
+    style.textContent = css;
+    document.head.appendChild(style);
   }
 
-  // ---------- публичный рендер ----------
-  window.paint = function paint() {
-    const { grid, pager } = ensureContainer();
+  return { grid, pager };
+}
 
-    const all = Array.isArray(STATE.all) ? STATE.all : [];
-    const per = STATE.per || 24;
-    const page = Math.max(1, getPageParam());
+function fmtDate(iso) {
+  const d = new Date(iso || Date.now());
+  if (Number.isNaN(+d)) return '';
+  const p = (n) => String(n).padStart(2, '0');
+  return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}, ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
 
-    const total = all.length;
-    const from = (page - 1) * per;
-    const to = Math.min(total, from + per);
-    const slice = all.slice(from, to);
+function stripHTML(s='') {
+  const el = document.createElement('div');
+  el.innerHTML = s;
+  return (el.textContent || '').trim();
+}
 
-    // карточки
-    grid.innerHTML = slice.map(cardHTML).join('');
+function safeSummary(item){
+  // пытаемся взять summary/description/lead, потом fallback на первые строки текста
+  const cand = item.summary || item.description || item.lead || item.text || '';
+  return stripHTML(cand);
+}
 
-    // пагинация
-    pager.className = 'pager';
-    pager.innerHTML = buildPager(total, per, page);
-
-    // вешаем обработчики
-    bindPager(grid, pager);
-  };
-
-  // ----- базовые стили (минимум), чтобы скелет выглядел прилично -----
-  const css = `
-  #news-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(260px, 1fr));
-    gap: 24px;
-  }
-  @media (min-width: 980px) {
-    #news-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-  .card {
-    border-radius: 16px;
-    background: #fff;
-    box-shadow: 0 2px 12px rgba(0,0,0,.06);
-    overflow: hidden;
-  }
-  .card__wrap { display:block; color:inherit; text-decoration:none; }
-  .card__thumb {
-    width: 100%;
-    aspect-ratio: 16/9;
-    background: #f2f3f5;
-    overflow: hidden;
-  }
-  .card__thumb--empty {
-    background: linear-gradient(180deg, #f4f4f4, #eceff3);
-  }
-  .card__thumb img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-  }
-  .card__body { padding: 14px 16px 18px; }
-  .card__meta { color:#6b7280; font-size:12px; display:flex; gap:6px; align-items:center; margin-bottom:8px; }
-  .card__dot { opacity:.6; }
-  .card__title { font-size:18px; line-height:1.25; margin:0 0 8px; }
-  .card__desc { margin:0; color:#374151; font-size:14px; line-height:1.4; max-height:3.9em; overflow:hidden; }
-  .pager { display:flex; gap:8px; margin:28px 0 8px; flex-wrap:wrap; }
-  .pager__btn {
-    border:1px solid #e5e7eb; background:#fff; border-radius:10px;
-    padding:8px 12px; cursor:pointer; min-width:40px;
-  }
-  .pager__btn.is-active { background:#111827; color:#fff; border-color:#111827; }
-  .pager__btn:disabled { opacity:.35; cursor:not-allowed; }
+function cardHTML(item, idx){
+  const cover = item.image ? `<div class="cover"><img src="${item.image}" alt=""></div>` : `<div class="cover"></div>`;
+  const meta = `
+    <div class="meta">
+      ${item.domain ? `<span>${item.domain}</span>` : ``}
+      ${item.date ? `<span>•</span><time>${fmtDate(item.date)}</time>` : ``}
+    </div>
   `;
-  const style = document.createElement('style');
-  style.textContent = css;
-  document.head.appendChild(style);
-})();
+  const sum = safeSummary(item);
+
+  // Сохраняем выбранную новость в localStorage, чтобы статья смогла её получить в любом случае
+  const articleHref = `article.html?id=${encodeURIComponent(item.id ?? idx)}`;
+  return `
+  <article class="card">
+    ${cover}
+    ${meta}
+    <h3 class="title"><a class="go-article" data-idx="${idx}" href="${articleHref}">${item.title || ''}</a></h3>
+    ${sum ? `<p class="summary">${sum}</p>` : ``}
+  </article>`;
+}
+
+// ---------- Загрузка и рендер ----------
+async function loadAll(){
+  const res = await fetch(NEWS_URL, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`Failed to load ${NEWS_URL}: ${res.status}`);
+  let items = await res.json();
+
+  // Жёсткий фильтр TASS по домену и URL
+  items = (Array.isArray(items) ? items : []).filter(n => {
+    const d = (n?.domain || '').toLowerCase();
+    const u = (n?.url || '').toLowerCase();
+    return !BLOCKED.some(b => d.includes(b) || u.includes(b));
+  });
+
+  // сортировка по дате
+  items.sort(byDateDesc);
+  return items;
+}
+
+function renderPage(){
+  const { grid, pager } = ensureContainers();
+  const start = (STATE.page - 1) * PAGE_SIZE;
+  const slice = STATE.all.slice(start, start + PAGE_SIZE);
+
+  // сетка
+  grid.innerHTML = slice.map((n, i) => cardHTML(n, start + i)).join('');
+
+  // обработчик клика — кладём выбранную новость в localStorage (на всякий случай)
+  $$('.go-article', grid).forEach(a => {
+    a.addEventListener('click', (e) => {
+      const idx = Number(e.currentTarget.getAttribute('data-idx'));
+      const item = STATE.all[idx];
+      try { localStorage.setItem('currentArticle', JSON.stringify(item)); } catch {}
+    });
+  });
+
+  // пагинация
+  const total = Math.max(1, Math.ceil(STATE.all.length / PAGE_SIZE));
+  const btn = (label, go, disabled) =>
+    `<button class="btn" ${disabled ? 'disabled' : ''} data-go="${go}">${label}</button>`;
+  let nums = '';
+  for(let i=1;i<=total;i++){
+    nums += `<button class="num ${i===STATE.page?'active':''}" data-page="${i}">${i}</button>`;
+    if (i>=10 && i<total-1) { // не распухать список
+      nums += `<span class="num" disabled>…</span><button class="num" data-page="${total}">${total}</button>`;
+      break;
+    }
+  }
+  pager.innerHTML = [
+    btn('«', 1, STATE.page===1),
+    btn('‹', STATE.page-1, STATE.page===1),
+    nums,
+    btn('›', STATE.page+1, STATE.page===total),
+    btn('»', total, STATE.page===total),
+  ].join('');
+
+  pager.onclick = (e)=>{
+    const go = e.target.getAttribute('data-go');
+    const pg = e.target.getAttribute('data-page');
+    if (go) {
+      STATE.page = Math.max(1, Math.min(Number(go), Math.ceil(STATE.all.length/PAGE_SIZE)));
+      renderPage();
+    } else if (pg) {
+      STATE.page = Number(pg);
+      renderPage();
+    }
+  };
+}
+
+async function main(){
+  try{
+    STATE.all = await loadAll();
+    // восстановление страницы из query ?page=
+    const url = new URL(location.href);
+    const qp = Number(url.searchParams.get('page') || '1');
+    if (qp > 0) STATE.page = qp;
+    renderPage();
+  }catch(err){
+    console.error(err);
+    const { grid } = ensureContainers();
+    grid.innerHTML = `<div style="padding:16px">Не удалось загрузить новости.</div>`;
+  }
+}
+
+// Старт
+document.addEventListener('DOMContentLoaded', main);
