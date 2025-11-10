@@ -1,160 +1,106 @@
-/* Рендер одной статьи. Ожидает query:
-   - id: стабильный id (из news.js/main.js)
-   - u : исходная ссылка (urlencoded)
-   - from: номер страницы ленты (для возврата)
-*/
+const NEWS_URL = 'data/news.json';
+const BLOCKED = ['tass.ru', 'www.tass.ru'];
 
-(function () {
-  'use strict';
+const $ = (sel, root = document) => root.querySelector(sel);
 
-  const $ = (s, r = document) => r.querySelector(s);
+function fmtDate(iso) {
+  const d = new Date(iso || Date.now());
+  if (Number.isNaN(+d)) return '';
+  const p = (n) => String(n).padStart(2,'0');
+  return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}, ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
 
-  // ---------- url params ----------
-  const params = new URLSearchParams(location.search);
-  const idParam = params.get('id') || '';
-  const srcUrl = (() => {
-    try { return decodeURIComponent(params.get('u') || ''); } catch { return ''; }
-  })();
-  const fromPage = params.get('from');
+function ensureScaffold(){
+  const post = $('#post') || (()=>{ const n=document.createElement('main'); n.id='post'; document.body.appendChild(n); return n; })();
+  const nf   = $('#nf')   || (()=>{ const n=document.createElement('div'); n.id='nf'; n.hidden=true; n.textContent='Новость не найдена'; document.body.appendChild(n); return n; })();
+  const actions = $('#bottom-actions') || (()=>{ const n=document.createElement('div'); n.id='bottom-actions'; n.hidden=true; n.innerHTML='<a href="index.html">← Вернуться к ленте</a>'; document.body.appendChild(n); return n; })();
 
-  // назначим ссылку «назад»
-  const backBtn = $('#backBtn');
-  if (fromPage) {
-    const u = new URL('index.html', location.href);
-    u.searchParams.set('page', fromPage);
-    backBtn.href = u.toString();
+  if (!$('#__article_inline_styles')) {
+    const css = `
+      .title{font-size:28px;line-height:1.2;margin:0 0 6px;font-weight:800}
+      .meta{color:#6b7280;font-size:13px;display:flex;gap:6px;align-items:center;margin-bottom:10px}
+      .cover{margin:12px 0 14px;border-radius:14px;overflow:hidden;background:#f2f4f7}
+      .cover img{width:100%;height:auto;display:block}
+      .lead{font-size:18px;line-height:1.6;margin:16px 0 8px;display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden}
+    `.trim();
+    const style = document.createElement('style');
+    style.id = '__article_inline_styles';
+    style.textContent = css;
+    document.head.appendChild(style);
   }
 
-  // кнопка «Читать в источнике»
-  const srcBtn = $('#srcBtn');
-  if (srcUrl) srcBtn.href = srcUrl;
+  return { post, nf, actions };
+}
 
-  // ---------- загрузка данных ----------
-  async function loadJson(path) {
-    const resp = await fetch(path, { cache: 'no-store' });
-    if (!resp.ok) throw new Error('fetch failed ' + path);
-    return await resp.json();
+function isBlocked(it){
+  const d = (it?.domain || '').toLowerCase();
+  const u = (it?.url || '').toLowerCase();
+  return BLOCKED.some(b => d.includes(b) || u.includes(b));
+}
+
+async function loadAll(){
+  const res = await fetch(NEWS_URL, { cache: 'no-store' });
+  if (!res.ok) return [];
+  try { return await res.json(); } catch { return []; }
+}
+
+function getIdFromURL(){
+  const url = new URL(location.href);
+  return url.searchParams.get('id') || null;
+}
+
+function pickItem(list){
+  // 1) по ?id=
+  const id = getIdFromURL();
+  if (id != null) {
+    const idx = Number.isFinite(+id) ? +id : null;
+    if (idx != null && list[idx]) return list[idx];
+    // пробуем найти по полю id, если оно есть
+    const byId = list.find(x => String(x.id) === String(id));
+    if (byId) return byId;
   }
 
-  function normalizeItems(list) {
-    const out = [];
-    for (const it of list || []) {
-      if (!it) continue;
-      const date = it.published_at || it.date || it.publishedAt;
-      const d = date ? new Date(date) : null;
-      out.push({
-        _id: it._id || makeId(it),
-        title: it.title || '',
-        link: it.link || '',
-        domain: it.domain || (it.link ? new URL(it.link).hostname : ''),
-        date: d ? d.toISOString() : '',
-        image: it.image || null,
-        summary: it.summary || '',
-        content_html: it.content_html || it.content || ''
-      });
-    }
-    return out;
-  }
+  // 2) из localStorage — записывается при клике в ленте
+  try {
+    const raw = localStorage.getItem('currentArticle');
+    if (raw) return JSON.parse(raw);
+  } catch {}
 
-  // тот же FNV хэш, что и в news.js
-  function makeId(item) {
-    const base = (item.link || '') + '|' + (item.title || '') + '|' + (+new Date(item.published_at || item.date || '') || 0);
-    let h = 2166136261 >>> 0;
-    for (let i = 0; i < base.length; i++) {
-      h ^= base.charCodeAt(i);
-      h = Math.imul(h, 16777619) >>> 0;
-    }
-    return h.toString(16);
-  }
+  return null;
+}
 
-  function pickItem(all) {
-    if (idParam) {
-      const found = all.find(n => n._id === idParam);
-      if (found) return found;
-    }
-    if (srcUrl) {
-      const found = all.find(n => n.link === srcUrl);
-      if (found) return found;
-    }
-    return null;
-  }
+function render(item){
+  const { post, nf, actions } = ensureScaffold();
 
-  function sanitize(html) {
-    // Простой ограниченный беллист: убираем <script>, on* атрибуты и iframes.
-    const tpl = document.createElement('template');
-    tpl.innerHTML = html || '';
-    const bad = ['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'EMBED'];
-    const walker = document.createTreeWalker(tpl.content, NodeFilter.SHOW_ELEMENT, null);
-    let node;
-    while ((node = walker.nextNode())) {
-      if (bad.includes(node.tagName)) {
-        node.remove();
-        continue;
-      }
-      // вычистим on* обработчики
-      [...node.attributes].forEach(a => {
-        if (/^on/i.test(a.name)) node.removeAttribute(a.name);
-      });
-      // изображения: загружаем «лениво»
-      if (node.tagName === 'IMG' && !node.hasAttribute('loading')) {
-        node.setAttribute('loading', 'lazy');
-      }
-    }
-    return tpl.innerHTML;
-  }
-
-  function fmtDate(d) {
-    if (!d) return '';
-    try {
-      const dd = new Date(d);
-      const pad = n => String(n).padStart(2, '0');
-      return `${pad(dd.getDate())}.${pad(dd.getMonth()+1)}.${dd.getFullYear()}, ${pad(dd.getHours())}:${pad(dd.getMinutes())}`;
-    } catch { return ''; }
-  }
-
-  function render(item) {
-    const post = $('#post');
-    const nf = $('#nf');
-    const actions = $('#bottom-actions');
-
-    if (!item) {
-      nf.hidden = false;
-      actions.hidden = false; // оставить «назад»
-      return;
-    }
-
-    const dateStr = fmtDate(item.date);
-
-    const html = `
-      <h1 class="title">${item.title || ''}</h1>
-      <div class="meta">
-        ${item.domain ? `<span>${item.domain}</span>` : ''}
-        ${dateStr ? `<span>•</span><time>${dateStr}</time>` : ''}
-      </div>
-
-      ${item.image ? `
-      <div class="cover">
-        <img src="${item.image}" loading="eager" alt="">
-      </div>` : ''}
-
-      <div class="content">${sanitize(item.content_html || item.summary || '')}</div>
-    `;
-    post.innerHTML = html;
-
-    // показать нижние кнопки
+  if (!item || isBlocked(item)) {
+    nf.hidden = false;
     actions.hidden = false;
+    post.innerHTML = '';
+    return;
   }
 
-  async function main() {
-    try {
-      const data = await loadJson('data/news.json');
-      const all = normalizeItems(data);
-      render(pickItem(all));
-    } catch (e) {
-      console.error(e);
-      render(null);
-    }
-  }
+  const dateStr = item.date ? fmtDate(item.date) : '';
+  const meta = `
+    <div class="meta">
+      ${item.domain ? `<span>${item.domain}</span>` : ``}
+      ${dateStr ? `<span>•</span><time>${dateStr}</time>` : ``}
+    </div>
+  `;
+  const html = `
+    <h1 class="title">${item.title || ''}</h1>
+    ${meta}
+    ${item.image ? `<div class="cover"><img src="${item.image}" alt=""></div>` : ``}
+    ${item.summary ? `<p class="lead">${item.summary}</p>` : ``}
+  `;
 
-  main();
-})();
+  post.innerHTML = html;
+  actions.hidden = false;
+}
+
+async function main(){
+  const list = await loadAll();
+  const item = pickItem(list);
+  render(item);
+}
+
+document.addEventListener('DOMContentLoaded', main);
