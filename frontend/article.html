@@ -4,110 +4,92 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Статья — СпецТрейлеры</title>
-
-  <link rel="stylesheet" href="styles/tokens.css" />
-  <link rel="stylesheet" href="styles/base.css?v=2" />
-  <link rel="stylesheet" href="styles/components.css?v=2" />
-
+  <link rel="stylesheet" href="styles.css" />
   <style>
-    .article-header { margin: 16px 0 12px; display:flex; gap:12px; flex-wrap:wrap; }
-    .btn { display:inline-block; padding:10px 14px; border-radius:10px; border:1px solid #e5e7eb; text-decoration:none; color:#111827; background:#fff; }
-    .btn.primary { background:#111827; color:#fff; border-color:#111827; }
-    .article-meta { color:#6b7280; margin:6px 0 12px; font-size:14px; }
-    #hero { width:100%; height:auto; border-radius:12px; display:block; }
-    #article-content p { margin: 0 0 1em; }
-    #article-content img { max-width: 100%; height: auto; border-radius: 8px; margin: 12px 0; }
-    #article-content h2, #article-content h3 { margin: 1.2em 0 .6em; }
-    .article-footer { margin-top: 16px; display:flex; gap:12px; flex-wrap:wrap; }
+    .container{max-width:980px;margin:0 auto;padding:24px}
+    .title{font:800 32px/1.2 system-ui;margin:6px 0 16px}
+    .meta{color:#6b7280;font:500 13px/1 system-ui;margin-bottom:16px}
+    .cover{border-radius:16px;overflow:hidden;background:#f3f5f7}
+    .cover img{width:100%;height:auto;display:block}
+    .content{font:17px/1.65 system-ui;color:#111827;margin:20px 0}
+    .actions{display:flex;gap:12px;margin:28px 0}
+    .btn{appearance:none;border:0;border-radius:10px;padding:10px 16px;font:600 14px/1 system-ui;cursor:pointer}
+    .btn--ghost{background:#f3f4f6}
+    .btn--primary{background:#111827;color:#fff}
+    /* скрываем ВЕРХНИЕ кнопки, если вдруг останутся в DOM */
+    .actions.top{display:none!important}
   </style>
 </head>
 <body>
+  <div class="container">
+    <header>
+      <a href="index.html" class="logo" style="text-decoration:none;color:#111827;font:700 18px system-ui">СпецТрейлеры</a>
+    </header>
 
-  <header class="header">
-    <div class="container header-inner">
-      <a class="logo" href="./">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M3 16h14l3-6h-7l-2 4H3v2Z" stroke="currentColor" stroke-width="1.5" />
-          <circle cx="7" cy="18" r="2" fill="currentColor" />
-          <circle cx="17" cy="18" r="2" fill="currentColor" />
-        </svg>
-        <span>СпецТрейлеры</span>
-      </a>
-      <nav class="nav">
-        <a href="./">Новости</a>
-        <a href="legislation.html">Законодательство / ГОСТы</a>
-        <a href="guides.html">Гайды и регламенты</a>
-        <a href="videos.html">Видео</a>
-      </nav>
+    <h1 id="title" class="title"></h1>
+    <div id="meta" class="meta"></div>
+
+    <figure class="cover" id="cover"></figure>
+
+    <div id="content" class="content"></div>
+
+    <!-- ЕДИНСТВЕННЫЙ блок действий – внизу -->
+    <div class="actions">
+      <a id="backBtn" class="btn btn--ghost" href="index.html">← Вернуться к новостям</a>
+      <a id="sourceBtn" class="btn btn--primary" target="_blank" rel="noopener">Читать в источнике</a>
     </div>
-  </header>
-
-  <main class="container" style="max-width: 920px;">
-    <!-- Верхние кнопки -->
-    <div class="article-header">
-      <a class="btn" href="./">&larr; Вернуться к новостям</a>
-      <a class="btn primary" id="btn-source" href="#" target="_blank" rel="noopener">Читать в источнике</a>
-    </div>
-
-    <h1 id="title" style="margin: 6px 0 4px;">Загрузка…</h1>
-    <div class="article-meta" id="meta"></div>
-
-    <div id="hero-wrap" style="margin: 12px 0 18px;">
-      <img id="hero" src="" alt="" loading="eager" />
-    </div>
-
-    <div id="article-content"></div>
-
-    <!-- Нижние кнопки -->
-    <div class="article-footer">
-      <a class="btn" href="./">&larr; Вернуться к новостям</a>
-      <a class="btn primary" id="btn-source-bottom" href="#" target="_blank" rel="noopener">Читать в источнике</a>
-    </div>
-  </main>
+  </div>
 
   <script>
-    (async function(){
-      const qs = (s, r=document)=>r.querySelector(s);
-      const params = new URLSearchParams(location.search);
+    const q = (s, r=document)=>r.querySelector(s);
+    const params = new URLSearchParams(location.search);
+    const byId = (id)=>q('#'+id);
+
+    // грузим список локально (как и на главной)
+    async function loadNews() {
+      const resp = await fetch('./data/news.json', {cache:'no-store'});
+      return await resp.json();
+    }
+
+    function pickImage(n) {
+      return n.image || n.img || (Array.isArray(n.images) ? n.images[0] : '') || '';
+    }
+
+    function renderArticle(n){
+      byId('title').textContent = n.title || '';
+      byId('meta').textContent  = [n.domain || n.source, n.published_at].filter(Boolean).join(' • ');
+
+      const img = pickImage(n);
+      byId('cover').innerHTML = img ? `<img src="${img}" alt="" loading="lazy">` : '';
+
+      // контент: сначала полный, иначе summary
+      const html = (n.content_html && n.content_html.trim()) ||
+                   (n.summary && `<p>${n.summary}</p>`) || '';
+      byId('content').innerHTML = html;
+
+      // кнопка "источник"
+      const u = n.link || params.get('u') || '';
+      const sourceBtn = byId('sourceBtn');
+      if (u) { sourceBtn.href = u; }
+      else { sourceBtn.style.display = 'none'; }
+    }
+
+    (async function init(){
       const id = params.get('id');
+      const u = params.get('u');
+      const list = await loadNews();
+      let item = null;
 
-      // загрузим ленту
-      const data = await (await fetch('data/news.json?t='+Date.now())).json();
-      const item = data.find(x => x.id === id) || data[0] || {};
+      if (id) item = list.find(n => (n.id || '') === id);
+      if (!item && u) item = list.find(n => (n.link || '') === decodeURIComponent(u));
 
-      // Заголовок / мета
-      qs('#title').textContent = item.title || '(без заголовка)';
-      const metaPieces = [];
-      if (item.source) metaPieces.push(item.domain || item.source);
-      if (item.published_at) {
-        const d = new Date(item.published_at);
-        if (!isNaN(d)) metaPieces.push(d.toLocaleString());
+      if (!item) {
+        byId('title').textContent = 'Статья не найдена';
+        byId('content').innerHTML = '<p>Попробуйте вернуться на главную страницу.</p>';
+        byId('sourceBtn').style.display = 'none';
+        return;
       }
-      qs('#meta').textContent = metaPieces.join(' • ');
-
-      // Кнопки «Читать в источнике»
-      const srcUrl = item.link || '#';
-      qs('#btn-source').href = srcUrl;
-      qs('#btn-source-bottom').href = srcUrl;
-
-      // Картинка
-      if (item.image) {
-        const img = qs('#hero');
-        img.src = item.image;
-        img.alt = item.title || '';
-      } else {
-        const wrap = qs('#hero-wrap');
-        if (wrap) wrap.style.display = 'none';
-      }
-
-      // Полный текст контента
-      const mount = qs('#article-content');
-      if (item.content_html) {
-        mount.innerHTML = item.content_html;   // полноценная статья
-      } else {
-        const text = (item.summary || '').trim();
-        mount.innerHTML = text ? `<p>${text}</p>` : '<p>(Текст недоступен)</p>';
-      }
+      renderArticle(item);
     })();
   </script>
 </body>
