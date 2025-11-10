@@ -91,8 +91,18 @@ function render(item){
 }
 
 async function main(){
+  // Мгновенный рендер из localStorage (если есть)
+  try {
+    const raw = localStorage.getItem('currentArticle');
+    if (raw) {
+      const cached = JSON.parse(raw);
+      render(cached);               // показать СРАЗУ
+    }
+  } catch {}
+
+  // Параллельно подтянуть список и, если нужно, перерисовать актуальными
   const list = await loadJSON();
   const item = pickItem(list);
-  render(item);
+  if (item) render(item);
 }
 document.addEventListener('DOMContentLoaded', main);
