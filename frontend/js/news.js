@@ -1,4 +1,20 @@
 // ---------- helpers ----------
+// ---- base path & cache-busting ----
+const APP_VERSION = '2025-11-10-12-35'; // просто поменяйте строку при следующем деплое
+// Если сайт открыт на GitHub Pages, путь будет /Spec-avtoportal
+const GH_BASE = location.pathname.includes('/Spec-avtoportal') ? '/Spec-avtoportal' : '';
+const DATA_URL = `${GH_BASE}/data/news.json`;
+const META_URL = `${GH_BASE}/data/news_meta.json`;
+
+// обёртка для fetch JSON + cache-busting
+async function fetchJSON(url) {
+  const r = await fetch(`${url}?v=${APP_VERSION}`, { cache: 'no-store' });
+  if (!r.ok) throw new Error(`HTTP ${r.status} @ ${url}`);
+  return r.json();
+}
+
+
+
 const $ = (sel, root = document) => root.querySelector(sel);
 
 const fmtDate = (iso) =>
