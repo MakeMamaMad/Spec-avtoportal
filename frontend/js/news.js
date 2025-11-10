@@ -1,18 +1,6 @@
 // ---------- Константы и состояние ----------
 const PAGE_SIZE = 18;
-
-// Несколько кандидатов путей к JSON — чтобы не ловить 404 на GitHub Pages
-const NEWS_CANDIDATES = [
-  'data/news.json',
-  './data/news.json',
-  './news.json',
-  'specavto-portal/frontend/data/news.json'
-];
-
-// Жёсткий фильтр источника TASS
-const BLOCKED = ['tass.ru', 'www.tass.ru', 'tass.com', 'tass'];
-
-// Глобальное состояние
+const BLOCKED = ['tass.ru', 'www.tass.ru', 'tass.com', 'tass']; // «злой» список
 const STATE = { all: [], page: 1 };
 
 // ---------- Утилиты ----------
@@ -67,10 +55,7 @@ function fmtDate(iso){
   return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}, ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 
-function stripHTML(s=''){
-  const el = document.createElement('div'); el.innerHTML = s;
-  return (el.textContent || '').trim();
-}
+function stripHTML(s=''){ const el=document.createElement('div'); el.innerHTML=s; return (el.textContent||'').trim(); }
 
 function getSummary(item){
   const cand = item.summary || item.description || item.lead || item.text || '';
@@ -78,8 +63,8 @@ function getSummary(item){
 }
 
 function isBlocked(item){
-  const d = String(item?.domain||'').toLowerCase();
-  const u = String(item?.url||'').toLowerCase();
+  const d = String(item?.domain||'').toLowerCase().trim();
+  const u = String(item?.url||'').toLowerCase().trim();
   return BLOCKED.some(b => d.includes(b) || u.includes(b));
 }
 
@@ -93,17 +78,12 @@ function placeholderFor(item){
   const label = domain.length > 18 ? domain.slice(0,18)+'…' : domain;
   const svg = `
     <svg xmlns='http://www.w3.org/2000/svg' width='640' height='360'>
-      <defs>
-        <linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
-          <stop stop-color='#eff3f8' offset='0'/>
-          <stop stop-color='#e6ebf2' offset='1'/>
-        </linearGradient>
-      </defs>
+      <defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
+        <stop stop-color='#eff3f8' offset='0'/><stop stop-color='#e6ebf2' offset='1'/>
+      </linearGradient></defs>
       <rect width='100%' height='100%' fill='url(#g)'/>
       <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
-            font-family='Inter,system-ui,Segoe UI,Roboto,Arial' font-size='28' fill='#667085'>
-        ${label}
-      </text>
+            font-family='Inter,system-ui,Segoe UI,Roboto,Arial' font-size='28' fill='#667085'>${label}</text>
     </svg>`;
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
@@ -131,27 +111,7 @@ function cardHTML(item, idx){
   </article>`;
 }
 
-// ---------- Загрузка и рендер ----------
-async function loadJSON(){
-  let lastErr;
-  for (const url of NEWS_CANDIDATES){
-    try{
-      const res = await fetch(url, { cache: 'no-store' });
-      if (res.ok) return await res.json();
-      lastErr = `HTTP ${res.status} @ ${url}`;
-    }catch(e){ lastErr = e?.message || String(e); }
-  }
-  throw new Error(`Не удалось загрузить news.json (${lastErr})`);
-}
-
-async function loadAll(){
-  let items = await loadJSON();
-  items = Array.isArray(items) ? items : [];
-  items = items.filter(x => !isBlocked(x));   // вырезаем TASS
-  items.sort(byDateDesc);
-  return items;
-}
-
+// ---------- Рендер ----------
 function renderPage(){
   const {grid, pager} = ensureContainers();
   const start = (STATE.page-1)*PAGE_SIZE;
@@ -194,18 +154,31 @@ function renderPage(){
   };
 }
 
-async function main(){
+// ---------- ВАЖНО: глобальная paint(items) для main.js ----------
+window.paint = function paint(rawItems){
   try{
-    STATE.all = await loadAll();
+    let items = Array.isArray(rawItems) ? rawItems.slice() : [];
+    // вырезаем TASS
+    items = items.filter(x => !isBlocked(x));
+    // сортировка
+    items.sort(byDateDesc);
+    // сохраняем
+    STATE.all = items;
+    // первая страница — из query ?page=
     const url = new URL(location.href);
     const qp = Number(url.searchParams.get('page')||'1');
     if (qp>0) STATE.page = qp;
     renderPage();
   }catch(err){
-    console.error(err);
+    console.error('paint() failed:', err);
     const {grid} = ensureContainers();
-    grid.innerHTML = `<div style="padding:16px">Ошибка загрузки новостей. Проверьте наличие <code>data/news.json</code>.</div>`;
+    grid.innerHTML = `<div style="padding:16px">Ошибка рендера ленты.</div>`;
   }
-}
+};
 
-document.addEventListener('DOMContentLoaded', main);
+// на случай, если кто-то вызовет init без main.js
+document.addEventListener('DOMContentLoaded', ()=> {
+  if (!window.paint.initialized){
+    // ничего не делаем — ждём main.js, который вызовет paint(items)
+  }
+});
