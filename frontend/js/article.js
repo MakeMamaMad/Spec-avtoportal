@@ -1,3 +1,4 @@
+// specavto-portal/frontend/js/article.js
 const BLOCKED = ['tass.ru','www.tass.ru','tass.com','tass'];
 const $ = (s,r=document)=>r.querySelector(s);
 
@@ -8,17 +9,6 @@ function ensure(){
   const post = $('#post') || (()=>{ const n=document.createElement('main'); n.id='post'; document.body.appendChild(n); return n; })();
   const nf   = $('#nf')   || (()=>{ const n=document.createElement('div');  n.id='nf'; n.hidden=true; n.textContent='Новость не найдена'; document.body.appendChild(n); return n; })();
   const actions = $('#bottom-actions') || (()=>{ const n=document.createElement('div'); n.id='bottom-actions'; n.hidden=true; n.innerHTML='<a href="index.html">← Вернуться к ленте</a>'; document.body.appendChild(n); return n; })();
-
-  if (!$('#__article_inline_styles')) {
-    const css = `
-      .title{font-size:28px;line-height:1.2;margin:0 0 6px;font-weight:800}
-      .meta{color:#6b7280;font-size:13px;display:flex;gap:6px;align-items:center;margin-bottom:10px}
-      .cover{margin:12px 0 14px;border-radius:14px;overflow:hidden;background:#f2f4f7}
-      .cover img{width:100%;height:auto;display:block}
-      .lead{font-size:18px;line-height:1.6;margin:16px 0 8px;display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden}
-    `;
-    const st=document.createElement('style'); st.id='__article_inline_styles'; st.textContent=css; document.head.appendChild(st);
-  }
   return {post,nf,actions};
 }
 
@@ -65,12 +55,12 @@ function render(item){
 function getId(){ const u=new URL(location.href); return u.searchParams.get('id'); }
 function pickFromLocal(){ try{ const raw=localStorage.getItem('currentArticle'); if(raw) return JSON.parse(raw); }catch{} return null; }
 
-async function main(){
-  // Мгновенный рендер из кеша
+document.addEventListener('DOMContentLoaded', () => {
+  // 1) Мгновенный рендер из кеша
   const cached = pickFromLocal();
   if (cached) render(cached);
 
-  // Попытка найти в __ALL_NEWS__ (который наполняет main.js на главной)
+  // 2) Если открыли по прямой ссылке — попробуем из окна главной (когда переходили со страницы ленты)
   if (!cached && Array.isArray(window.__ALL_NEWS__)) {
     const id = getId();
     const n = Number(id);
@@ -81,5 +71,4 @@ async function main(){
       if (byId) render(byId);
     }
   }
-}
-document.addEventListener('DOMContentLoaded', main);
+});
