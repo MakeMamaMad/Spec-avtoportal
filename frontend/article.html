@@ -64,13 +64,13 @@
     </div>
   </div>
 
-  <script src="js/article.js?v=10"></script>
-  <script>
-    // Жёсткий возврат в ленту без BFCache: сразу перезапуск скриптов
-    document.getElementById('back-to-feed')?.addEventListener('click', function (e) {
-      e.preventDefault();
-      location.replace('index.html?ts=' + Date.now());
-    });
-  </script>
+<script src="js/article.js?v=11"></script>
+<script>
+  document.getElementById('back-to-feed')?.addEventListener('click', function (e) {
+    e.preventDefault();
+    // Жёсткий переход без BFCache — сразу видим ленту
+    location.replace('index.html?ts=' + Date.now());
+  });
+</script>
 </body>
 </html>
