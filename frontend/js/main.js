@@ -84,8 +84,8 @@
         if (meta.updated_at !== lastUpdated) {
           lastUpdated = meta.updated_at;
           const data = await fetchJSONWithFallback([
-            '/data/news.json',
-            './data/news.json',
+            'data/news.json',
+            'data/news.json',
             'data/news.json'
           ]);
           if (Array.isArray(data)) {
@@ -113,8 +113,8 @@
     let data = [];
     try {
       data = await fetchJSONWithFallback([
-        '/data/news.json',
-        './data/news.json',
+        'data/news.json',
+        'data/news.json',
         'data/news.json'
       ]);
     } catch (e) {
