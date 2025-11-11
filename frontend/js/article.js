@@ -1,7 +1,9 @@
+// article.js v11 — быстрый рендер, правильная ссылка «Читать в источнике»
+
 const BLOCKED = ['tass.ru','www.tass.ru','tass.com','tass'];
 const $ = (s,r=document)=>r.querySelector(s);
 
-function fmtDate(iso){ const d=new Date(iso||Date.now()); if(Number.isNaN(+d))return''; const p=n=>String(n).padStart(2,'0'); return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}, ${p(d.getHours())}:${p(d.getMinutes())}`; }
+function fmtDate(iso){ const d=new Date(iso||Date.now()); if(Number.isNaN(+d))return''; const p=n=>String(n).padStart(2,'0'); return `${p(d.getDate())}.${p(d.getMonth()+1)}.${p(d.getHours())}:${p(d.getMinutes())}`.replace('..', '.'); }
 function stripHTML(s=''){ const el=document.createElement('div'); el.innerHTML=s; return (el.textContent||'').trim(); }
 
 function ensure(){
@@ -16,19 +18,30 @@ const isBlocked = (it)=> {
   const u=String(it?.url||'').toLowerCase().trim();
   return BLOCKED.some(b=>d.includes(b)||u.includes(b));
 };
+
 const pickImage = (it)=> {
   const cand=it?.image||it?.cover||it?.img||(Array.isArray(it?.images)?it.images[0]:'');
   return (typeof cand==='string' && cand.trim()) ? cand.trim() : '';
 };
+
 function placeholderFor(it){
   const domain=(it?.domain||'news').replace(/^https?:\/\//,'').split('/')[0];
   const label=domain.length>18?domain.slice(0,18)+'…':domain;
   const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='640' height='360'>
-    <defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'><stop stop-color='#eff3f8' offset='0'/><stop stop-color='#e6ebf2' offset='1'/></linearGradient></defs>
-    <rect width='100%' height='100%' fill='url(#g)'/>
-    <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Inter,system-ui,Segoe UI,Roboto,Arial' font-size='28' fill='#667085'>${label}</text>
-  </svg>`;
+    <rect width='100%' height='100%' fill='#eef2f7'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
+    font-family='Inter,system-ui,Segoe UI,Roboto,Arial' font-size='28' fill='#667085'>${label}</text></svg>`;
   return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+}
+
+// нормализуем URL источника: если без протокола — добавим домен
+function buildSourceUrl(item) {
+  let u = (item && item.url) ? String(item.url).trim() : '';
+  const d = (item && item.domain) ? String(item.domain).replace(/^https?:\/\//,'').split('/')[0] : '';
+  if (!u) return '';
+  if (/^https?:\/\//i.test(u)) return u;
+  if (u.startsWith('//')) return 'https:' + u;
+  if (d) return `https://${d}${u.startsWith('/') ? u : '/' + u}`;
+  return '';
 }
 
 function render(item){
@@ -51,12 +64,20 @@ function render(item){
 
   // Кнопки
   actions.hidden = false;
+
+  // Читать в источнике
   const readBtn = document.getElementById('read-source');
-  if (item.url) {
-    readBtn.href = item.url;
-    readBtn.hidden = false;
-  } else {
-    readBtn.hidden = true;
+  if (readBtn) {
+    const src = buildSourceUrl(item);
+    if (src) {
+      readBtn.href = src;
+      readBtn.target = '_blank';
+      readBtn.rel = 'noopener noreferrer';
+      readBtn.hidden = false;
+      readBtn.onclick = (e) => { e.stopPropagation(); }; // не мешаем другим обработчикам
+    } else {
+      readBtn.hidden = true;
+    }
   }
 }
 
@@ -64,18 +85,16 @@ function getId(){ const u=new URL(location.href); return u.searchParams.get('id'
 function pickFromLocal(){ try{ const raw=localStorage.getItem('currentArticle'); if(raw) return JSON.parse(raw); }catch{} return null; }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 1) Мгновенный рендер из кеша
   const cached = pickFromLocal();
   if (cached) render(cached);
 
-  // 2) Если открыли по прямой ссылке — попробуем из окна главной (когда переходили со страницы ленты)
   if (!cached && Array.isArray(window.__ALL_NEWS__)) {
     const id = getId();
     const n = Number(id);
     const list = window.__ALL_NEWS__;
     if (Number.isFinite(n) && list[n]) render(list[n]);
     else {
-      const byId = list.find(x => String(x.id) === String(id));
+      const byId = list.find(x => String(x?.id) === String(id));
       if (byId) render(byId);
     }
   }
