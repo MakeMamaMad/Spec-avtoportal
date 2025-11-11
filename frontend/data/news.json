@@ -1,5 +1,14 @@
 [
   {
+    "source": "Drom — Автоновости",
+    "title": "Объявление дня: Land Cruiser 80 за 2,5 млн рублей",
+    "link": "https://news.drom.ru/Land-Cruiser-80-101213.html",
+    "summary": "В Иркутске за 2,55 млн рублей продается Toyota Land Cruiser 80 1997 года выпуска.",
+    "image": null,
+    "published_at": "2025-11-11T15:01:12+00:00",
+    "domain": "news.drom.ru"
+  },
+  {
     "source": "Za-rulem",
     "title": "Бывший завод Toyota в Петербурге загрузят выпуском премиальных машин",
     "link": "https://www.zr.ru/content/news/974531-byvshij-zavod-toyota-v-peterbur/",
@@ -9,10 +18,19 @@
     "domain": "www.zr.ru"
   },
   {
+    "source": "Drom — Автоновости",
+    "title": "В Минпромторге не отказываются от цели нарастить выпуск Аурусов",
+    "link": "https://news.drom.ru/101212.html",
+    "summary": "В Минпромторге РФ считают, что задача по наращиванию выпуска Аурусов остается актуальной. Такой вывод следует из заявления замглавы ведомства Альберта Каримова казанской газете «Бизнес-Онлайн».",
+    "image": null,
+    "published_at": "2025-11-11T14:38:10+00:00",
+    "domain": "news.drom.ru"
+  },
+  {
     "source": "Za-rulem",
     "title": "Стало известно, насколько просели продажи китайских автомобилей",
     "link": "https://www.zr.ru/content/news/974529-rossiyane-stali-menshe-pokupat/",
-    "summary": "«Автостат»: за 10 месяцев 2025 г. в РФ продали 570 тыс. новых китайских авто",
+    "summary": "«Автостат»: за 10 месяцев 2025-го в РФ продали 570 тысяч новых китайских авто",
     "image": "https://www.zr.ru/_ah/img/cdW7Kq_bTjNF_dPUgyh6_g",
     "published_at": "2025-11-11T14:19:56+00:00",
     "domain": "www.zr.ru"
