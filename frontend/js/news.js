@@ -1,6 +1,6 @@
 // ---------- Константы и состояние ----------
 const PAGE_SIZE = 18;
-const BLOCKED = ['tass.ru', 'www.tass.ru', 'tass.com', 'tass']; // «злой» список
+const BLOCKED = ['tass.ru', 'www.tass.ru', 'tass.com', 'tass'];
 const STATE = { all: [], page: 1 };
 
 // ---------- Утилиты ----------
@@ -54,25 +54,21 @@ function fmtDate(iso){
   const p = n=> String(n).padStart(2,'0');
   return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}, ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
-
 function stripHTML(s=''){ const el=document.createElement('div'); el.innerHTML=s; return (el.textContent||'').trim(); }
 
 function getSummary(item){
   const cand = item.summary || item.description || item.lead || item.text || '';
   return stripHTML(cand);
 }
-
 function isBlocked(item){
   const d = String(item?.domain||'').toLowerCase().trim();
   const u = String(item?.url||'').toLowerCase().trim();
   return BLOCKED.some(b => d.includes(b) || u.includes(b));
 }
-
 function pickImage(item){
   const cand = item?.image || item?.cover || item?.img || (Array.isArray(item?.images) ? item.images[0] : '');
   return (typeof cand === 'string' && cand.trim()) ? cand.trim() : '';
 }
-
 function placeholderFor(item){
   const domain = (item?.domain || 'news').replace(/^https?:\/\//,'').split('/')[0];
   const label = domain.length > 18 ? domain.slice(0,18)+'…' : domain;
@@ -111,7 +107,6 @@ function cardHTML(item, idx){
   </article>`;
 }
 
-// ---------- Рендер ----------
 function renderPage(){
   const {grid, pager} = ensureContainers();
   const start = (STATE.page-1)*PAGE_SIZE;
@@ -119,7 +114,6 @@ function renderPage(){
 
   grid.innerHTML = slice.map((n,i)=>cardHTML(n, start+i)).join('');
 
-  // сохраняем выбранную новость для мгновенного открытия статьи
   $$('.go-article', grid).forEach(a=>{
     a.addEventListener('click', (e)=>{
       const idx = Number(e.currentTarget.getAttribute('data-idx'));
@@ -154,22 +148,24 @@ function renderPage(){
   };
 }
 
-// ---------- ВАЖНО: глобальная paint(items) для main.js ----------
-window.paint = function paint(rawItems){
-window.paint = window.paint || paint;
+// ---------- paint(items) — вызывает main.js ----------
+function paint(rawItems){
+  let items = Array.isArray(rawItems) ? rawItems.slice() : [];
+  items = items.filter(x => !isBlocked(x)); // вырезаем TASS
+  items.sort(byDateDesc);
 
-// Если main.js уже успел положить данные до объявления paint — обработаем их сейчас
-if (Array.isArray(window.__pendingNews)) {
-  try {
-    paint(window.__pendingNews);
-  } finally {
-    window.__pendingNews = null;
-  }
+  STATE.all = items;
+  const url = new URL(location.href);
+  const qp = Number(url.searchParams.get('page')||'1');
+  if (qp>0) STATE.page = qp;
+  renderPage();
 }
 
-// на случай, если кто-то вызовет init без main.js
-document.addEventListener('DOMContentLoaded', ()=> {
-  if (!window.paint.initialized){
-    // ничего не делаем — ждём main.js, который вызовет paint(items)
-  }
-});
+// глобально
+window.paint = paint;
+
+// Если main.js уже успел положить данные — обработаем
+if (Array.isArray(window.__pendingNews)) {
+  try { paint(window.__pendingNews); }
+  finally { window.__pendingNews = null; }
+}
