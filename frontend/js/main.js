@@ -12,6 +12,15 @@
     per: 24,     // карточек на странице
     page: 1      // текущая страница
   };
+  window.__ALL_NEWS__ = Array.isArray(items) ? items : [];
+
+// Если paint уже объявлен — рисуем сразу, иначе сложим в буфер
+if (typeof window.paint === 'function') {
+  window.paint(window.__ALL_NEWS__);
+} else {
+  console.warn('paint() is not defined yet (news.js not loaded?)');
+  window.__pendingNews = window.__ALL_NEWS__;
+}
 
   // ---------- Утилиты ----------
   function getParam(name) {
