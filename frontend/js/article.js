@@ -1,4 +1,3 @@
-// specavto-portal/frontend/js/article.js
 const BLOCKED = ['tass.ru','www.tass.ru','tass.com','tass'];
 const $ = (s,r=document)=>r.querySelector(s);
 
@@ -49,7 +48,16 @@ function render(item){
     ${cover}
     ${item.summary?`<p class="lead">${stripHTML(item.summary)}</p>`:''}
   `;
+
+  // Кнопки
   actions.hidden = false;
+  const readBtn = document.getElementById('read-source');
+  if (item.url) {
+    readBtn.href = item.url;
+    readBtn.hidden = false;
+  } else {
+    readBtn.hidden = true;
+  }
 }
 
 function getId(){ const u=new URL(location.href); return u.searchParams.get('id'); }
