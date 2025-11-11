@@ -10,11 +10,19 @@ const byDateDesc = (a,b)=> (new Date(b?.date||0)) - (new Date(a?.date||0));
 
 function ensureContainers(){
   let grid = $('#news-list') || $('#news-grid');
-  if (!grid){ grid = document.createElement('div'); grid.id='news-list'; document.body.appendChild(grid); }
+  if (!grid){
+    grid = document.createElement('div');
+    grid.id = 'news-list';
+    document.body.appendChild(grid);
+  }
   grid.classList.add('news-grid');
 
   let pager = $('#pager') || $('#paginator');
-  if (!pager){ pager = document.createElement('nav'); pager.id='pager'; document.body.appendChild(pager); }
+  if (!pager){
+    pager = document.createElement('nav');
+    pager.id = 'pager';
+    document.body.appendChild(pager);
+  }
   pager.classList.add('pager');
 
   if (!$('#__news_inline_styles')) {
@@ -39,8 +47,11 @@ function ensureContainers(){
         .pager .num.active{background:#2563eb;border-color:#2563eb}
       }`;
     const st = document.createElement('style');
-    st.id='__news_inline_styles'; st.textContent = css; document.head.appendChild(st);
+    st.id='__news_inline_styles';
+    st.textContent = css;
+    document.head.appendChild(st);
   }
+  console.log('[news.js] containers:', {gridId: grid.id, pagerId: pager.id});
   return {grid,pager};
 }
 
@@ -52,7 +63,7 @@ const fmtDate = (iso) => {
   const p=n=>String(n).padStart(2,'0');
   return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}, ${p(d.getHours())}:${p(d.getMinutes())}`;
 };
-const getSummary = (it) => stripHTML(it.summary || it.description || it.lead || it.text || '');
+const getSummary = (it) => stripHTML(it?.summary || it?.description || it?.lead || it?.text || '');
 const isBlocked  = (it) => {
   const d=String(it?.domain||'').toLowerCase().trim();
   const u=String(it?.url||'').toLowerCase().trim();
@@ -76,15 +87,15 @@ function placeholderFor(it){
 function cardHTML(item, idx){
   const img = pickImage(item);
   const hasImage = !!img;
-  const meta = `<div class="meta">${item.domain?`<span>${item.domain}</span>`:''}${item.date?`<span>•</span><time>${fmtDate(item.date)}</time>`:''}</div>`;
+  const meta = `<div class="meta">${item?.domain?`<span>${item.domain}</span>`:''}${item?.date?`<span>•</span><time>${fmtDate(item.date)}</time>`:''}</div>`;
   const sum = getSummary(item);
-  const href = `article.html?id=${encodeURIComponent(item.id ?? idx)}`;
+  const href = `article.html?id=${encodeURIComponent(item?.id ?? idx)}`;
 
   return `<article class="card ${hasImage?'has-image':''}">
     ${hasImage?`<div class="cover"><img loading="lazy" decoding="async" referrerpolicy="no-referrer" src="${img}"
       onerror="this.onerror=null;this.src='${placeholderFor(item)}'"></div>`:''}
     ${meta}
-    <h3 class="title"><a class="go-article" data-idx="${idx}" href="${href}">${item.title||''}</a></h3>
+    <h3 class="title"><a class="go-article" data-idx="${idx}" href="${href}">${item?.title||''}</a></h3>
     ${sum?`<p class="summary">${sum}</p>`:''}
   </article>`;
 }
@@ -94,6 +105,7 @@ function renderPage(){
   const start=(STATE.page-1)*PAGE_SIZE;
   const slice=STATE.all.slice(start,start+PAGE_SIZE);
 
+  console.log('[news.js] renderPage()', {page: STATE.page, total: STATE.all.length, pageSize: PAGE_SIZE, slice: slice.length});
   grid.innerHTML = slice.map((n,i)=>cardHTML(n,start+i)).join('');
 
   $$('.go-article',grid).forEach(a=>{
@@ -104,27 +116,39 @@ function renderPage(){
     });
   });
 
-  const total=Math.max(1,Math.ceil(STATE.all.length/PAGE_SIZE));
+  const totalPages=Math.max(1,Math.ceil(STATE.all.length/PAGE_SIZE));
   const btn=(label,go,dis)=>`<button class="btn" ${dis?'disabled':''} data-go="${go}">${label}</button>`;
   let nums='';
-  for(let i=1;i<=total;i++){
+  for(let i=1;i<=totalPages;i++){
     nums+=`<button class="num ${i===STATE.page?'active':''}" data-page="${i}">${i}</button>`;
-    if(i>=10&&i<total-1){ nums+=`<span class="num" disabled>…</span><button class="num" data-page="${total}">${total}</button>`; break; }
+    if(i>=10&&i<totalPages-1){ nums+=`<span class="num" disabled>…</span><button class="num" data-page="${totalPages}">${totalPages}</button>`; break; }
   }
-  pager.innerHTML=[btn('«',1,STATE.page===1),btn('‹',STATE.page-1,STATE.page===1),nums,btn('›',STATE.page+1,STATE.page===total),btn('»',total,STATE.page===total)].join('');
+  pager.innerHTML=[btn('«',1,STATE.page===1),btn('‹',STATE.page-1,STATE.page===1),nums,btn('›',STATE.page+1,STATE.page===totalPages),btn('»',totalPages,STATE.page===totalPages)].join('');
   pager.onclick=(e)=>{
     const go=e.target.getAttribute('data-go'); const pg=e.target.getAttribute('data-page');
-    if(go){ STATE.page=Math.max(1,Math.min(Number(go),total)); renderPage(); }
+    if(go){ STATE.page=Math.max(1,Math.min(Number(go),totalPages)); renderPage(); }
     else if(pg){ STATE.page=Number(pg); renderPage(); }
   };
 }
 
 // -------- paint(items) — вызывает main.js --------
 function paint(rawItems){
-  let items = Array.isArray(rawItems) ? rawItems.slice() : [];
-  items = items.filter(x=>!isBlocked(x)); // вырезаем TASS
-  items.sort(byDateDesc);
-  STATE.all = items;
+  const received = Array.isArray(rawItems) ? rawItems : (rawItems && Array.isArray(rawItems.items)) ? rawItems.items : [];
+  console.log('[news.js] paint(): received', received.length);
+
+  // Фильтрация TASS
+  let filtered = received.filter(x => !isBlocked(x));
+  console.log('[news.js] after TASS filter:', filtered.length);
+
+  // Если вдруг отфильтровалось всё (неожиданно) — рендерим без фильтра, чтобы лента не пустела
+  if (received.length > 0 && filtered.length === 0) {
+    console.warn('[news.js] FILTER REMOVED EVERYTHING — rendering without filter temporarily');
+    filtered = received.slice();
+  }
+
+  // Сортировка и рендер
+  filtered.sort(byDateDesc);
+  STATE.all = filtered;
 
   const url=new URL(location.href);
   const qp=Number(url.searchParams.get('page')||'1');
@@ -133,7 +157,7 @@ function paint(rawItems){
   renderPage();
 }
 
-// Глобально и обработка буфера
+// Глобально + обработка буфера
 window.paint = paint;
 if (Array.isArray(window.__pendingNews)) {
   try { paint(window.__pendingNews); }
