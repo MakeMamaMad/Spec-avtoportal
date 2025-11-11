@@ -4,22 +4,50 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Статья</title>
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Roboto+Condensed:wght@600;700&display=swap"
+    rel="stylesheet" />
 
-  <!-- ВАЖНО: скопируйте сюда ТОЧНО те же <link rel="stylesheet">, что стоят в index.html -->
-  <!-- Например:
-  <link rel="stylesheet" href="css/normalize.css">
-  <link rel="stylesheet" href="css/main.css">
-  -->
+  <link rel="stylesheet" href="styles/tokens.css" />
+  <link rel="stylesheet" href="styles/base.css?v=2" />
+  <link rel="stylesheet" href="styles/components.css?v=2" />
+
+  <link rel="icon" href="assets/logo.svg" />
+
+  <!-- Небольшой страхующий стиль на случай, если внешние CSS не подцепятся -->
+  <style>
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:#fff;color:#0f172a}
+    .container{max-width:1200px;margin:0 auto;padding:24px}
+    .title{font-size:28px;line-height:1.25;font-weight:800;margin:0 0 6px}
+    .meta{color:#64748b;font-size:13px;display:flex;gap:6px;align-items:center;margin:8px 0 12px}
+    .cover{margin:12px 0 14px;border-radius:14px;overflow:hidden;background:#f2f4f7}
+    .cover img{width:100%;height:auto;display:block}
+    .lead{font-size:18px;line-height:1.6;margin:16px 0 8px}
+    .actions{margin:16px 0 8px}
+    .btn{display:inline-block;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;text-decoration:none;color:#111827;background:#fff}
+  </style>
 </head>
 <body>
-  <!-- ВАЖНО: скопируйте сюда ТОЧНО тот же <header>...</header>, что в index.html -->
-  <!-- Пример: -->
-  <!-- <header class="site-header"> ... </header> -->
+  <!-- ВАЖНО: сюда вставьте ТОЧНО такой же <header> ... </header>, как в index.html. Пример: -->
+  <!-- <header>...</header> -->
 
-  <main id="post"></main>
-  <div id="nf" hidden>Новость не найдена</div>
-  <div id="bottom-actions" hidden><a href="index.html">← Вернуться к ленте</a></div>
+  <div class="container">
+    <main id="post"></main>
+    <div id="nf" hidden>Новость не найдена</div>
+    <div id="bottom-actions" class="actions" hidden>
+      <a id="back-to-feed" class="btn" href="index.html">← Вернуться к ленте</a>
+    </div>
+  </div>
 
-  <script src="js/article.js?v=5"></script>
+  <script src="js/article.js?v=9"></script>
+  <script>
+    // Жёсткий возврат с «перебитием» кэша, чтобы исключить пустую страницу при редком гонке загрузки
+    document.getElementById('back-to-feed')?.addEventListener('click', function (e) {
+      e.preventDefault();
+      location.href = 'index.html?v=9';
+    });
+  </script>
 </body>
 </html>
