@@ -156,25 +156,16 @@ function renderPage(){
 
 // ---------- ВАЖНО: глобальная paint(items) для main.js ----------
 window.paint = function paint(rawItems){
-  try{
-    let items = Array.isArray(rawItems) ? rawItems.slice() : [];
-    // вырезаем TASS
-    items = items.filter(x => !isBlocked(x));
-    // сортировка
-    items.sort(byDateDesc);
-    // сохраняем
-    STATE.all = items;
-    // первая страница — из query ?page=
-    const url = new URL(location.href);
-    const qp = Number(url.searchParams.get('page')||'1');
-    if (qp>0) STATE.page = qp;
-    renderPage();
-  }catch(err){
-    console.error('paint() failed:', err);
-    const {grid} = ensureContainers();
-    grid.innerHTML = `<div style="padding:16px">Ошибка рендера ленты.</div>`;
+window.paint = window.paint || paint;
+
+// Если main.js уже успел положить данные до объявления paint — обработаем их сейчас
+if (Array.isArray(window.__pendingNews)) {
+  try {
+    paint(window.__pendingNews);
+  } finally {
+    window.__pendingNews = null;
   }
-};
+}
 
 // на случай, если кто-то вызовет init без main.js
 document.addEventListener('DOMContentLoaded', ()=> {
