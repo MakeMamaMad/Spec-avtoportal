@@ -1,9 +1,9 @@
-// article.js v11 — быстрый рендер, правильная ссылка «Читать в источнике»
+// article.js v12 — правильная ссылка «Читать в источнике»
 
 const BLOCKED = ['tass.ru','www.tass.ru','tass.com','tass'];
 const $ = (s,r=document)=>r.querySelector(s);
 
-function fmtDate(iso){ const d=new Date(iso||Date.now()); if(Number.isNaN(+d))return''; const p=n=>String(n).padStart(2,'0'); return `${p(d.getDate())}.${p(d.getMonth()+1)}.${p(d.getHours())}:${p(d.getMinutes())}`.replace('..', '.'); }
+function fmtDate(iso){ const d=new Date(iso||Date.now()); if(Number.isNaN(+d))return''; const p=n=>String(n).padStart(2,'0'); return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}, ${p(d.getHours())}:${p(d.getMinutes())}`; }
 function stripHTML(s=''){ const el=document.createElement('div'); el.innerHTML=s; return (el.textContent||'').trim(); }
 
 function ensure(){
@@ -18,12 +18,10 @@ const isBlocked = (it)=> {
   const u=String(it?.url||'').toLowerCase().trim();
   return BLOCKED.some(b=>d.includes(b)||u.includes(b));
 };
-
 const pickImage = (it)=> {
   const cand=it?.image||it?.cover||it?.img||(Array.isArray(it?.images)?it.images[0]:'');
   return (typeof cand==='string' && cand.trim()) ? cand.trim() : '';
 };
-
 function placeholderFor(it){
   const domain=(it?.domain||'news').replace(/^https?:\/\//,'').split('/')[0];
   const label=domain.length>18?domain.slice(0,18)+'…':domain;
@@ -33,16 +31,43 @@ function placeholderFor(it){
   return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
 }
 
-// нормализуем URL источника: если без протокола — добавим домен
+/* === НОВОЕ: «умный» поиск исходного URL === */
+function pickSourceField(item){
+  const candidates = [
+    item?.url, item?.link, item?.href, item?.source,
+    item?.source_url, item?.origin_url, item?.original_url, item?.canonical
+  ];
+  return candidates.find(v => typeof v === 'string' && v.trim());
+}
 function buildSourceUrl(item) {
-  let u = (item && item.url) ? String(item.url).trim() : '';
-  const d = (item && item.domain) ? String(item.domain).replace(/^https?:\/\//,'').split('/')[0] : '';
-  if (!u) return '';
+  const raw = pickSourceField(item);
+  const domain = (item?.domain || '').replace(/^https?:\/\//,'').split('/')[0];
+
+  if (!raw) return '';
+
+  const u = String(raw).trim();
+
+  // локальные ссылки на нашу же страницу — игнорируем
+  if (/^(\.?\/)?article\.html(\?|#|$)/i.test(u)) return '';
+
+  // абсолютный URL
   if (/^https?:\/\//i.test(u)) return u;
+
+  // протокол-относительный
   if (u.startsWith('//')) return 'https:' + u;
-  if (d) return `https://${d}${u.startsWith('/') ? u : '/' + u}`;
+
+  // относительный путь -> приклеиваем домен
+  if (u.startsWith('/')) {
+    if (domain) return `https://${domain}${u}`;
+    return '';
+  }
+
+  // прочие случаи — если есть домен, считаем относительным к домену
+  if (domain) return `https://${domain}/${u}`;
+
   return '';
 }
+/* === КОНЕЦ НОВОГО === */
 
 function render(item){
   const {post,nf,actions}=ensure();
@@ -62,10 +87,9 @@ function render(item){
     ${item.summary?`<p class="lead">${stripHTML(item.summary)}</p>`:''}
   `;
 
-  // Кнопки
   actions.hidden = false;
 
-  // Читать в источнике
+  // «Читать в источнике»
   const readBtn = document.getElementById('read-source');
   if (readBtn) {
     const src = buildSourceUrl(item);
@@ -74,7 +98,6 @@ function render(item){
       readBtn.target = '_blank';
       readBtn.rel = 'noopener noreferrer';
       readBtn.hidden = false;
-      readBtn.onclick = (e) => { e.stopPropagation(); }; // не мешаем другим обработчикам
     } else {
       readBtn.hidden = true;
     }
