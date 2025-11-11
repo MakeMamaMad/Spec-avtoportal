@@ -141,6 +141,34 @@
       startLivePoll();
     }
   }
+  // Загрузка данных и передача их в paint()
+
+async function loadNews() {
+  const url = 'data/news.json';               // ВАЖНО: без ведущего слеша
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
+  const raw = await res.json();
+
+  // Унификация формата
+  const arr = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.items)) ? raw.items : [];
+  console.log('NEWS LOADED (main.js):', arr.length);
+
+  // Сохраняем в глобал — для article.js и на всякий случай
+  window.__ALL_NEWS__ = arr;
+
+  // Если paint уже есть — рисуем, иначе буферизуем
+  if (typeof window.paint === 'function') {
+    console.log('main.js → calling paint(arr)');
+    window.paint(arr);
+  } else {
+    console.warn('paint() is not defined yet (news.js not loaded?) — buffering');
+    window.__pendingNews = arr;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadNews().catch(err => console.error(err));
+});
 
   document.addEventListener('DOMContentLoaded', boot);
 })();
