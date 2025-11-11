@@ -2,16 +2,16 @@ name: Deploy Pages
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write         # важно
-  id-token: write      # важно
+  pages: write
+  id-token: write
 
 concurrency:
-  group: "pages"       # все запуски в одну очередь
+  group: "pages"
   cancel-in-progress: true
 
 jobs:
@@ -24,16 +24,24 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      # Сборка статики сайта
-      - name: Build site
+      # Определяем, где лежит сайт: ./frontend, ./specavto-portal/frontend или корень
+      - name: Detect site dir
+        id: detect
         run: |
-          mkdir -p _site
-          rsync -av specavto-portal/frontend/ _site/
+          if [ -d "frontend" ]; then
+            echo "SITE_DIR=frontend" >> $GITHUB_ENV
+          elif [ -d "specavto-portal/frontend" ]; then
+            echo "SITE_DIR=specavto-portal/frontend" >> $GITHUB_ENV
+          else
+            echo "SITE_DIR=." >> $GITHUB_ENV
+          fi
+          echo "Using SITE_DIR=$SITE_DIR"
 
+      # Готовим минимальный артефакт для Pages без rsync
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: ${{ env.SITE_DIR }}
 
   deploy:
     needs: build
