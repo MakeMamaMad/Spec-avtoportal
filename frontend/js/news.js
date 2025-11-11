@@ -1,28 +1,20 @@
-// ---------- Константы / состояние ----------
+// news.js v11 — отрисовка ленты, фильтр TASS, устойчивость к гонкам/BFCache
+
 const PAGE_SIZE = 18;
 const BLOCKED = ['tass.ru', 'www.tass.ru', 'tass.com', 'tass'];
 const STATE = { all: [], page: 1 };
 
-// ---------- Утилиты ----------
 const $  = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
 const byDateDesc = (a,b)=> (new Date(b?.date||0)) - (new Date(a?.date||0));
 
 function ensureContainers(){
   let grid = $('#news-list') || $('#news-grid');
-  if (!grid){
-    grid = document.createElement('div');
-    grid.id = 'news-list';
-    document.body.appendChild(grid);
-  }
+  if (!grid){ grid = document.createElement('div'); grid.id='news-list'; document.body.appendChild(grid); }
   grid.classList.add('news-grid');
 
   let pager = $('#pager') || $('#paginator');
-  if (!pager){
-    pager = document.createElement('nav');
-    pager.id = 'pager';
-    document.body.appendChild(pager);
-  }
+  if (!pager){ pager = document.createElement('nav'); pager.id='pager'; document.body.appendChild(pager); }
   pager.classList.add('pager');
 
   if (!$('#__news_inline_styles')) {
@@ -40,29 +32,14 @@ function ensureContainers(){
       .pager .btn[disabled]{opacity:.5;cursor:not-allowed}
       .pager .num{padding:8px 10px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;min-width:36px;text-align:center}
       .pager .num.active{background:#111827;color:#fff;border-color:#111827}
-      @media (prefers-color-scheme: dark){
-        .card{background:#111318;border:1px solid #222}
-        .meta{color:#9aa0a6}.summary{color:#cbd5e1}
-        .pager .btn,.pager .num{background:#111318;border-color:#222;color:#e5e7eb}
-        .pager .num.active{background:#2563eb;border-color:#2563eb}
-      }`;
-    const st = document.createElement('style');
-    st.id='__news_inline_styles';
-    st.textContent = css;
-    document.head.appendChild(st);
+    `;
+    const st = document.createElement('style'); st.id='__news_inline_styles'; st.textContent=css; document.head.appendChild(st);
   }
-  console.log('[news.js] containers:', {gridId: grid.id, pagerId: pager.id});
   return {grid,pager};
 }
 
-const stripHTML = (s='') => {
-  const el=document.createElement('div'); el.innerHTML=s; return (el.textContent||'').trim();
-};
-const fmtDate = (iso) => {
-  const d=new Date(iso||Date.now()); if (Number.isNaN(+d)) return '';
-  const p=n=>String(n).padStart(2,'0');
-  return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}, ${p(d.getHours())}:${p(d.getMinutes())}`;
-};
+const stripHTML = (s='') => { const el=document.createElement('div'); el.innerHTML=s; return (el.textContent||'').trim(); };
+const fmtDate = (iso) => { const d=new Date(iso||Date.now()); if(Number.isNaN(+d))return''; const p=n=>String(n).padStart(2,'0'); return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}, ${p(d.getHours())}:${p(d.getMinutes())}`; };
 const getSummary = (it) => stripHTML(it?.summary || it?.description || it?.lead || it?.text || '');
 const isBlocked  = (it) => {
   const d=String(it?.domain||'').toLowerCase().trim();
@@ -77,10 +54,8 @@ function placeholderFor(it){
   const domain=(it?.domain||'news').replace(/^https?:\/\//,'').split('/')[0];
   const label=domain.length>18?domain.slice(0,18)+'…':domain;
   const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='640' height='360'>
-    <defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'><stop stop-color='#eff3f8' offset='0'/><stop stop-color='#e6ebf2' offset='1'/></linearGradient></defs>
-    <rect width='100%' height='100%' fill='url(#g)'/>
-    <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Inter,system-ui,Segoe UI,Roboto,Arial' font-size='28' fill='#667085'>${label}</text>
-  </svg>`;
+    <rect width='100%' height='100%' fill='#eef2f7'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
+    font-family='Inter,system-ui,Segoe UI,Roboto,Arial' font-size='28' fill='#667085'>${label}</text></svg>`;
   return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
 }
 
@@ -105,7 +80,6 @@ function renderPage(){
   const start=(STATE.page-1)*PAGE_SIZE;
   const slice=STATE.all.slice(start,start+PAGE_SIZE);
 
-  console.log('[news.js] renderPage()', {page: STATE.page, total: STATE.all.length, pageSize: PAGE_SIZE, slice: slice.length});
   grid.innerHTML = slice.map((n,i)=>cardHTML(n,start+i)).join('');
 
   $$('.go-article',grid).forEach(a=>{
@@ -131,35 +105,34 @@ function renderPage(){
   };
 }
 
-// -------- paint(items) — вызывает main.js --------
 function paint(rawItems){
   const received = Array.isArray(rawItems) ? rawItems : (rawItems && Array.isArray(rawItems.items)) ? rawItems.items : [];
-  console.log('[news.js] paint(): received', received.length);
-
-  // Фильтрация TASS
   let filtered = received.filter(x => !isBlocked(x));
-  console.log('[news.js] after TASS filter:', filtered.length);
-
-  // Если вдруг отфильтровалось всё (неожиданно) — рендерим без фильтра, чтобы лента не пустела
-  if (received.length > 0 && filtered.length === 0) {
-    console.warn('[news.js] FILTER REMOVED EVERYTHING — rendering without filter temporarily');
-    filtered = received.slice();
-  }
-
-  // Сортировка и рендер
+  if (received.length > 0 && filtered.length === 0) filtered = received.slice(); // не оставляем пусто
   filtered.sort(byDateDesc);
-  STATE.all = filtered;
 
-  const url=new URL(location.href);
-  const qp=Number(url.searchParams.get('page')||'1');
+  STATE.all = filtered;
+  const qp=Number(new URL(location.href).searchParams.get('page')||'1');
   if(qp>0) STATE.page=qp;
 
   renderPage();
 }
 
-// Глобально + обработка буфера
+// глобально + ловим буфер/возвраты
 window.paint = paint;
+
+// если main.js успел сложить данные раньше
 if (Array.isArray(window.__pendingNews)) {
   try { paint(window.__pendingNews); }
   finally { window.__pendingNews = null; }
+} else if (Array.isArray(window.__ALL_NEWS__)) {
+  // если вернулись по BFCache, перерисуем имеющееся
+  paint(window.__ALL_NEWS__);
 }
+
+// на случай возврата из BFCache без перезапуска js
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted && Array.isArray(window.__ALL_NEWS__)) {
+    paint(window.__ALL_NEWS__);
+  }
+});
