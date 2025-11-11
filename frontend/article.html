@@ -4,19 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Статья</title>
-  
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Roboto+Condensed:wght@600;700&display=swap"
-    rel="stylesheet" />
 
-  <link rel="stylesheet" href="styles/tokens.css" />
-  <link rel="stylesheet" href="styles/base.css?v=2" />
-  <link rel="stylesheet" href="styles/components.css?v=2" />
-
-  <link rel="icon" href="assets/logo.svg" />
-
-  <!-- Небольшой страхующий стиль на случай, если внешние CSS не подцепятся -->
+  <!-- Страхующие базовые стили (не мешают твоим) -->
   <style>
     body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:#fff;color:#0f172a}
     .container{max-width:1200px;margin:0 auto;padding:24px}
@@ -25,28 +14,62 @@
     .cover{margin:12px 0 14px;border-radius:14px;overflow:hidden;background:#f2f4f7}
     .cover img{width:100%;height:auto;display:block}
     .lead{font-size:18px;line-height:1.6;margin:16px 0 8px}
-    .actions{margin:16px 0 8px}
+    .actions{margin:16px 0 8px;display:flex;gap:10px;flex-wrap:wrap}
     .btn{display:inline-block;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;text-decoration:none;color:#111827;background:#fff}
   </style>
+
+  <script>
+    // 1) Подтягиваем с главной ВСЕ <link rel="stylesheet">,
+    // 2) и сам <header> (точно такой же, как на index.html).
+    (async () => {
+      try {
+        const res = await fetch('index.html', { cache: 'no-store' });
+        const html = await res.text();
+        const doc  = new DOMParser().parseFromString(html, 'text/html');
+
+        // Переносим стили с главной, если вдруг не подключены
+        doc.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && ![...document.querySelectorAll('link[rel="stylesheet"]')]
+              .some(l => l.getAttribute('href') === href)) {
+            const clone = link.cloneNode(true);
+            document.head.appendChild(clone);
+          }
+        });
+
+        // Вставляем header из главной
+        const h = doc.querySelector('header');
+        if (h) {
+          const placeholder = document.getElementById('header-placeholder');
+          placeholder.replaceWith(h);
+        }
+      } catch (e) {
+        console.warn('Header/CSS copy failed:', e);
+      }
+    })();
+  </script>
 </head>
 <body>
-  <!-- ВАЖНО: сюда вставьте ТОЧНО такой же <header> ... </header>, как в index.html. Пример: -->
-  <!-- <header>...</header> -->
+  <!-- сюда «прилетит» точный header из index.html -->
+  <header id="header-placeholder"></header>
 
   <div class="container">
     <main id="post"></main>
     <div id="nf" hidden>Новость не найдена</div>
+
     <div id="bottom-actions" class="actions" hidden>
       <a id="back-to-feed" class="btn" href="index.html">← Вернуться к ленте</a>
+      <!-- сюда динамически добавлю «Читать в источнике» -->
+      <a id="read-source" class="btn" href="#" target="_blank" rel="noopener" hidden>Читать в источнике ↗</a>
     </div>
   </div>
 
-  <script src="js/article.js?v=9"></script>
+  <script src="js/article.js?v=10"></script>
   <script>
-    // Жёсткий возврат с «перебитием» кэша, чтобы исключить пустую страницу при редком гонке загрузки
+    // Жёсткий возврат в ленту без BFCache: сразу перезапуск скриптов
     document.getElementById('back-to-feed')?.addEventListener('click', function (e) {
       e.preventDefault();
-      location.href = 'index.html?v=9';
+      location.replace('index.html?ts=' + Date.now());
     });
   </script>
 </body>
