@@ -1,4 +1,4 @@
-// ---------- Константы и состояние ----------
+// ---------- Константы / состояние ----------
 const PAGE_SIZE = 18;
 const BLOCKED = ['tass.ru', 'www.tass.ru', 'tass.com', 'tass'];
 const STATE = { all: [], page: 1 };
@@ -34,137 +34,107 @@ function ensureContainers(){
       .pager .num.active{background:#111827;color:#fff;border-color:#111827}
       @media (prefers-color-scheme: dark){
         .card{background:#111318;border:1px solid #222}
-        .meta{color:#9aa0a6}
-        .summary{color:#cbd5e1}
+        .meta{color:#9aa0a6}.summary{color:#cbd5e1}
         .pager .btn,.pager .num{background:#111318;border-color:#222;color:#e5e7eb}
         .pager .num.active{background:#2563eb;border-color:#2563eb}
-      }
-    `.trim();
-    const style = document.createElement('style');
-    style.id='__news_inline_styles';
-    style.textContent = css;
-    document.head.appendChild(style);
+      }`;
+    const st = document.createElement('style');
+    st.id='__news_inline_styles'; st.textContent = css; document.head.appendChild(st);
   }
-  return {grid, pager};
+  return {grid,pager};
 }
 
-function fmtDate(iso){
-  const d = new Date(iso||Date.now());
-  if (Number.isNaN(+d)) return '';
-  const p = n=> String(n).padStart(2,'0');
+const stripHTML = (s='') => {
+  const el=document.createElement('div'); el.innerHTML=s; return (el.textContent||'').trim();
+};
+const fmtDate = (iso) => {
+  const d=new Date(iso||Date.now()); if (Number.isNaN(+d)) return '';
+  const p=n=>String(n).padStart(2,'0');
   return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}, ${p(d.getHours())}:${p(d.getMinutes())}`;
-}
-function stripHTML(s=''){ const el=document.createElement('div'); el.innerHTML=s; return (el.textContent||'').trim(); }
-
-function getSummary(item){
-  const cand = item.summary || item.description || item.lead || item.text || '';
-  return stripHTML(cand);
-}
-function isBlocked(item){
-  const d = String(item?.domain||'').toLowerCase().trim();
-  const u = String(item?.url||'').toLowerCase().trim();
-  return BLOCKED.some(b => d.includes(b) || u.includes(b));
-}
-function pickImage(item){
-  const cand = item?.image || item?.cover || item?.img || (Array.isArray(item?.images) ? item.images[0] : '');
-  return (typeof cand === 'string' && cand.trim()) ? cand.trim() : '';
-}
-function placeholderFor(item){
-  const domain = (item?.domain || 'news').replace(/^https?:\/\//,'').split('/')[0];
-  const label = domain.length > 18 ? domain.slice(0,18)+'…' : domain;
-  const svg = `
-    <svg xmlns='http://www.w3.org/2000/svg' width='640' height='360'>
-      <defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
-        <stop stop-color='#eff3f8' offset='0'/><stop stop-color='#e6ebf2' offset='1'/>
-      </linearGradient></defs>
-      <rect width='100%' height='100%' fill='url(#g)'/>
-      <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
-            font-family='Inter,system-ui,Segoe UI,Roboto,Arial' font-size='28' fill='#667085'>${label}</text>
-    </svg>`;
-  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+};
+const getSummary = (it) => stripHTML(it.summary || it.description || it.lead || it.text || '');
+const isBlocked  = (it) => {
+  const d=String(it?.domain||'').toLowerCase().trim();
+  const u=String(it?.url||'').toLowerCase().trim();
+  return BLOCKED.some(b=>d.includes(b)||u.includes(b));
+};
+const pickImage = (it) => {
+  const cand = it?.image || it?.cover || it?.img || (Array.isArray(it?.images) ? it.images[0] : '');
+  return (typeof cand==='string' && cand.trim()) ? cand.trim() : '';
+};
+function placeholderFor(it){
+  const domain=(it?.domain||'news').replace(/^https?:\/\//,'').split('/')[0];
+  const label=domain.length>18?domain.slice(0,18)+'…':domain;
+  const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='640' height='360'>
+    <defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'><stop stop-color='#eff3f8' offset='0'/><stop stop-color='#e6ebf2' offset='1'/></linearGradient></defs>
+    <rect width='100%' height='100%' fill='url(#g)'/>
+    <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Inter,system-ui,Segoe UI,Roboto,Arial' font-size='28' fill='#667085'>${label}</text>
+  </svg>`;
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
 }
 
 function cardHTML(item, idx){
   const img = pickImage(item);
   const hasImage = !!img;
-  const meta = `
-    <div class="meta">
-      ${item.domain ? `<span>${item.domain}</span>` : ``}
-      ${item.date ? `<span>•</span><time>${fmtDate(item.date)}</time>` : ``}
-    </div>`;
+  const meta = `<div class="meta">${item.domain?`<span>${item.domain}</span>`:''}${item.date?`<span>•</span><time>${fmtDate(item.date)}</time>`:''}</div>`;
   const sum = getSummary(item);
-  const articleHref = `article.html?id=${encodeURIComponent(item.id ?? idx)}`;
+  const href = `article.html?id=${encodeURIComponent(item.id ?? idx)}`;
 
-  return `
-  <article class="card ${hasImage ? 'has-image':''}">
-    ${hasImage
-      ? `<div class="cover"><img loading="lazy" decoding="async" referrerpolicy="no-referrer"
-           src="${img}" onerror="this.onerror=null;this.src='${placeholderFor(item)}'"></div>`
-      : ``}
+  return `<article class="card ${hasImage?'has-image':''}">
+    ${hasImage?`<div class="cover"><img loading="lazy" decoding="async" referrerpolicy="no-referrer" src="${img}"
+      onerror="this.onerror=null;this.src='${placeholderFor(item)}'"></div>`:''}
     ${meta}
-    <h3 class="title"><a class="go-article" data-idx="${idx}" href="${articleHref}">${item.title || ''}</a></h3>
-    ${sum ? `<p class="summary">${sum}</p>` : ``}
+    <h3 class="title"><a class="go-article" data-idx="${idx}" href="${href}">${item.title||''}</a></h3>
+    ${sum?`<p class="summary">${sum}</p>`:''}
   </article>`;
 }
 
 function renderPage(){
-  const {grid, pager} = ensureContainers();
-  const start = (STATE.page-1)*PAGE_SIZE;
-  const slice = STATE.all.slice(start, start+PAGE_SIZE);
+  const {grid,pager}=ensureContainers();
+  const start=(STATE.page-1)*PAGE_SIZE;
+  const slice=STATE.all.slice(start,start+PAGE_SIZE);
 
-  grid.innerHTML = slice.map((n,i)=>cardHTML(n, start+i)).join('');
+  grid.innerHTML = slice.map((n,i)=>cardHTML(n,start+i)).join('');
 
-  $$('.go-article', grid).forEach(a=>{
-    a.addEventListener('click', (e)=>{
-      const idx = Number(e.currentTarget.getAttribute('data-idx'));
-      const item = STATE.all[idx];
+  $$('.go-article',grid).forEach(a=>{
+    a.addEventListener('click',(e)=>{
+      const idx=Number(e.currentTarget.getAttribute('data-idx'));
+      const item=STATE.all[idx];
       try{ localStorage.setItem('currentArticle', JSON.stringify(item)); }catch{}
     });
   });
 
-  const total = Math.max(1, Math.ceil(STATE.all.length/PAGE_SIZE));
-  const btn = (label, go, dis)=> `<button class="btn" ${dis?'disabled':''} data-go="${go}">${label}</button>`;
-  let nums = '';
-  for (let i=1;i<=total;i++){
-    nums += `<button class="num ${i===STATE.page?'active':''}" data-page="${i}">${i}</button>`;
-    if (i>=10 && i<total-1){
-      nums += `<span class="num" disabled>…</span><button class="num" data-page="${total}">${total}</button>`;
-      break;
-    }
+  const total=Math.max(1,Math.ceil(STATE.all.length/PAGE_SIZE));
+  const btn=(label,go,dis)=>`<button class="btn" ${dis?'disabled':''} data-go="${go}">${label}</button>`;
+  let nums='';
+  for(let i=1;i<=total;i++){
+    nums+=`<button class="num ${i===STATE.page?'active':''}" data-page="${i}">${i}</button>`;
+    if(i>=10&&i<total-1){ nums+=`<span class="num" disabled>…</span><button class="num" data-page="${total}">${total}</button>`; break; }
   }
-  pager.innerHTML = [
-    btn('«', 1, STATE.page===1),
-    btn('‹', STATE.page-1, STATE.page===1),
-    nums,
-    btn('›', STATE.page+1, STATE.page===total),
-    btn('»', total, STATE.page===total),
-  ].join('');
-
-  pager.onclick = (e)=>{
-    const go = e.target.getAttribute('data-go');
-    const pg = e.target.getAttribute('data-page');
-    if (go){ STATE.page = Math.max(1, Math.min(Number(go), total)); renderPage(); }
-    else if (pg){ STATE.page = Number(pg); renderPage(); }
+  pager.innerHTML=[btn('«',1,STATE.page===1),btn('‹',STATE.page-1,STATE.page===1),nums,btn('›',STATE.page+1,STATE.page===total),btn('»',total,STATE.page===total)].join('');
+  pager.onclick=(e)=>{
+    const go=e.target.getAttribute('data-go'); const pg=e.target.getAttribute('data-page');
+    if(go){ STATE.page=Math.max(1,Math.min(Number(go),total)); renderPage(); }
+    else if(pg){ STATE.page=Number(pg); renderPage(); }
   };
 }
 
-// ---------- paint(items) — вызывает main.js ----------
+// -------- paint(items) — вызывает main.js --------
 function paint(rawItems){
   let items = Array.isArray(rawItems) ? rawItems.slice() : [];
-  items = items.filter(x => !isBlocked(x)); // вырезаем TASS
+  items = items.filter(x=>!isBlocked(x)); // вырезаем TASS
   items.sort(byDateDesc);
-
   STATE.all = items;
-  const url = new URL(location.href);
-  const qp = Number(url.searchParams.get('page')||'1');
-  if (qp>0) STATE.page = qp;
+
+  const url=new URL(location.href);
+  const qp=Number(url.searchParams.get('page')||'1');
+  if(qp>0) STATE.page=qp;
+
   renderPage();
 }
 
-// глобально
+// Глобально и обработка буфера
 window.paint = paint;
-
-// Если main.js уже успел положить данные — обработаем
 if (Array.isArray(window.__pendingNews)) {
   try { paint(window.__pendingNews); }
   finally { window.__pendingNews = null; }
