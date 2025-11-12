@@ -1,6 +1,96 @@
 [
   {
     "source": "Za-rulem",
+    "title": "Мошенники стали использовать ИИ для поддельных объявлений о продаже авто",
+    "link": "https://www.zr.ru/content/news/974541-moshenniki-stali-ispolzovat-i/",
+    "summary": "Эксперт Силаев: Мошенники используют ИИ для обмана с покупкой машин",
+    "image": "https://www.zr.ru/_ah/img/Cj6Dqse4szr54VvxmfEECQ",
+    "published_at": "2025-11-12T09:15:15+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Рама, японский движок, АКП, 4х4 — добротный внедорожник уже в РФ",
+    "link": "https://www.zr.ru/content/news/974540-rama-yaponskij-dvizhok-akp-4kh/",
+    "summary": "В Россию доставлена партия из 120 полноприводных пикапов Huanghai N7",
+    "image": "https://www.zr.ru/_ah/img/X1LhAZIpNj3dhPymNvAlLw",
+    "published_at": "2025-11-12T09:14:01+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Обрушение в Красногорске: как водителям получить компенсацию за разбитые машины",
+    "link": "https://www.zr.ru/content/news/974538-obrushenie-v-krasnogorske-kak/",
+    "summary": "Юрист рассказал, как действовать владельцам поврежденных в Красногорске машин",
+    "image": "https://www.zr.ru/_ah/img/NPpeAQc8Bmm7iAV7-OgbvA",
+    "published_at": "2025-11-12T09:03:17+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Минпромторг подтвердил сроки запуска Атома",
+    "link": "https://www.zr.ru/content/news/974536-minpromtorg-podtverdil-sroki-z/",
+    "summary": "Каримов: запуск производства электромобиля Атом произойдёт в обозначенные сроки",
+    "image": "https://www.zr.ru/_ah/img/UipjsUt3LF-0G1c6J7SvSg",
+    "published_at": "2025-11-12T08:49:26+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Выбрать удобный маршрут и сэкономить: новое обновление 2ГИС",
+    "link": "https://www.zr.ru/content/news/974539-vybrat-udobnyj-marshrut-i-sehko/",
+    "summary": "2ГИС начал показывать стоимость проезда на общественном транспорте",
+    "image": "https://www.zr.ru/_ah/img/oFuLu98UkhjZxsYkXFUpqw",
+    "published_at": "2025-11-12T08:45:27+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Drom — Автоновости",
+    "title": "Geely объявила российские цены на гибридный кроссовер",
+    "link": "https://news.drom.ru/Geely-101218.html",
+    "summary": "Geely объявила об официальном выводе на рынок РФ кроссовера EX5 EM-i, который имеет силовую установку типа «подзаряжаемый гибрид». Это первый официально поставляемый в РФ Джили с бензиново-электрическим двигателем.",
+    "image": null,
+    "published_at": "2025-11-12T08:13:57+00:00",
+    "domain": "news.drom.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Объявлены цены на кроссовер Geely EX5 EM-i для российского рынка",
+    "link": "https://www.zr.ru/content/news/974534-obyavleny-tseny-na-krossover-ge/",
+    "summary": "Цены на гибридный кроссовер Geely EX5 EM-i в РФ начинаются от 3 569 990 рублей",
+    "image": "https://www.zr.ru/_ah/img/S-06-JiVmis9P1mjnXqAYA",
+    "published_at": "2025-11-12T08:06:51+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "В этом сезоне арендовать велосипед в столице стало еще проще",
+    "link": "https://www.zr.ru/content/news/974524-v-ehtom-sezone-arendovat-velos/",
+    "summary": "Москвичи более 30 тыс. раз арендовали городские велосипеды через приложение «Метро Москвы»",
+    "image": "https://www.zr.ru/_ah/img/CW9IcXvqd6TLw3RC5VaYiA",
+    "published_at": "2025-11-12T07:00:00+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "grozovoy.ru",
+    "title": "СИМАЗ инвестировал более 750 млн рублей в запуск серийного производства новых автобусов",
+    "link": "http://gruzovoy.ru/news/industry/3088_simaz_investiroval_bolee_750_mln_ryblei_v_zapysk_seriinogo_proizvodstva_novih_avtobysov.html",
+    "summary": "«Симбирский автобусный завод» (СИМАЗ) приступил в Ульяновске к серийному производству новой низкопольной модели автобуса СИМАЗ-4282 в двух модификациях — среднего и большого классов. После выхода на проектную мощность предприятие сможет выпускать до 1 500 городских и туристических автобусов",
+    "image": "https://cdna.gruzovoy.ru/c/798f6d43c17526879e03d259e6518fd0.jpg",
+    "published_at": "2025-11-12T06:09:07+00:00",
+    "domain": "gruzovoy.ru"
+  },
+  {
+    "source": "Drom — Автоновости",
+    "title": "Владельцы легковых машин в России стали получать крупные штрафы из-за мошенничеств большегрузов",
+    "link": "https://news.drom.ru/101217.html",
+    "summary": "В России участились случаи, когда владельцы легковых автомобилей получают крупные и необоснованные штрафы от Ространснадзора по причине перевеса машины на несколько тонн или из-за превышения допустимых габаритов.",
+    "image": null,
+    "published_at": "2025-11-12T06:06:43+00:00",
+    "domain": "news.drom.ru"
+  },
+  {
+    "source": "Za-rulem",
     "title": "Эти машины с льготным утильсбором дилеры привезут после 1 декабря",
     "link": "https://www.zr.ru/content/news/974532-ehti-mashiny-s-lgotnym-utilsbo/",
     "summary": "Дилеры перечислили авто, которые привезут по льготной ставке после 1 декабря",
