@@ -1,10 +1,13 @@
 name: Ingest & Publish
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch: {}          # кнопка "Run workflow" в Actions
+  # при желании включи расписание (пример: каждые 30 минут 06–22 МСК)
+  # schedule:
+  #   - cron: "*/30 3-19 * * *"
 
 permissions:
-  contents: write
+  contents: write                # нужен коммит news.json
 
 jobs:
   ingest:
@@ -16,73 +19,79 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Basics / debug
-        run: |
-          set -x
-          uname -a
-          echo "Branch: $GITHUB_REF"
-          echo "Repo files:"
-          ls -la
-          echo "Tree (top 3 levels):"
-          find . -maxdepth 3 -type f | sort | sed -n '1,200p'
-
-      - name: Setup Python
+      - name: Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Python info
+      - name: Install deps (если есть)
         run: |
-          python -V
-          python -c "import sys,platform;print(sys.version);print(platform.platform())"
-
-      - name: Install deps if present
-        run: |
-          set -euxo pipefail
+          set -eux
           if [ -f "requirements.txt" ]; then pip install -r requirements.txt; fi
           if [ -f "aggregator/requirements.txt" ]; then pip install -r aggregator/requirements.txt; fi
-          pip show requests || true
+          pip install pyyaml jq || true
 
-      - name: Run feed builder (auto-detect)
-        id: run_builder
+      # Валидируем YAML — чтобы сборщик не падал "внутри"
+      - name: Validate aggregator/sources.yml
+        run: |
+          set -eux
+          if [ ! -f "aggregator/sources.yml" ]; then
+            echo "ERROR: aggregator/sources.yml not found" >&2
+            exit 1
+          fi
+          python - <<'PY'
+          import yaml, pathlib, sys
+          p = pathlib.Path('aggregator/sources.yml')
+          try:
+              data = yaml.safe_load(p.read_text(encoding='utf-8'))
+              assert isinstance(data, dict), "top-level must be a mapping"
+              print("YAML OK. Keys:", list(data.keys()))
+          except Exception as e:
+              print("YAML ERROR:", e)
+              sys.exit(1)
+          PY
+
+      # Запускаем ИМЕННО aggregator/main.py
+      - name: Run aggregator
         env:
-          # Если твоему скрипту нужны переменные - добавь сюда
           PYTHONUNBUFFERED: "1"
-          LOG_LEVEL: "DEBUG"
         run: |
           set -euxo pipefail
-          if [ -f "main.py" ]; then
-            echo ">>> Running: python main.py"
-            python main.py
-          elif [ -f "aggregator/main.py" ]; then
-            echo ">>> Running: python aggregator/main.py"
-            python aggregator/main.py
-          else
-            echo "ERROR: Не найден main.py ни в корне, ни в aggregator/" >&2
-            exit 2
+          # если твой скрипт поддерживает параметры вывода — используй их:
+          # python aggregator/main.py --sources aggregator/sources.yml --output frontend/data/news.json
+          python aggregator/main.py
+
+          # перенос результата в нужный путь, если скрипт кладёт файл не туда
+          if [ -f "frontend/data/news.json" ]; then
+            echo "frontend/data/news.json already exists"
+          elif [ -f "aggregator/out/news.json" ]; then
+            mkdir -p frontend/data
+            cp aggregator/out/news.json frontend/data/news.json
+          elif [ -f "data/news.json" ]; then
+            mkdir -p frontend/data
+            cp data/news.json frontend/data/news.json
+          elif [ -f "news.json" ]; then
+            mkdir -p frontend/data
+            cp news.json frontend/data/news.json
           fi
 
-      - name: Verify output
+          test -f frontend/data/news.json || { echo "ERROR: frontend/data/news.json not found"; exit 1; }
+
+      - name: Preview output
         run: |
-          set -euxo pipefail
-          if [ ! -f "frontend/data/news.json" ]; then
-            echo "ERROR: frontend/data/news.json не создан! Проверь путь вывода в скрипте." >&2
-            exit 3
-          fi
-          echo "news.json size (bytes):"
+          set -eux
           wc -c frontend/data/news.json || true
-          echo "First 1 item preview:"
-          (command -v jq >/dev/null && jq -c '.[0:1]' frontend/data/news.json) || head -c 500 frontend/data/news.json || true
+          if command -v jq >/dev/null; then
+            jq -c '.[0:3]' frontend/data/news.json || true
+          else
+            head -c 800 frontend/data/news.json || true
+          fi
 
       - name: Commit & push changes
         run: |
-          set -euxo pipefail
+          set -eux
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          if git diff --staged --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "chore: ingest feed → update frontend/data/news.json"
-            git push
-          fi
+          git diff --staged --quiet || git commit -m "chore: ingest feed → update frontend/data/news.json"
+          git push
