@@ -1,54 +1,88 @@
 name: Ingest & Publish
 
 on:
-  schedule:
-    - cron: "0 */3 * * *"    # каждые 3 часа (UTC)
-  workflow_dispatch:         # ручной запуск из Actions
-  push:
-    paths:
-      - "aggregator/**"
-      - "requirements.txt"
-      - ".github/workflows/ingest.yml"
-      
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
 
 jobs:
   ingest:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write        # важно для push через GITHUB_TOKEN
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Basics / debug
+        run: |
+          set -x
+          uname -a
+          echo "Branch: $GITHUB_REF"
+          echo "Repo files:"
+          ls -la
+          echo "Tree (top 3 levels):"
+          find . -maxdepth 3 -type f | sort | sed -n '1,200p'
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: pip
 
-      - name: Install deps
+      - name: Python info
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -V
+          python -c "import sys,platform;print(sys.version);print(platform.platform())"
 
-      - name: Run aggregator
-        working-directory: aggregator
-        run: python main.py
-
-      - name: Commit & push if changed
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore(news): update feeds [skip ci]"
-          file_pattern: |
-            frontend/data/news.json
-            frontend/data/news_meta.json
-          push_options: --force-with-lease
-      - name: Commit data changes
+      - name: Install deps if present
         run: |
-           git config user.name "bot"
-           git config user.email "bot@users.noreply.github.com"
-           git add frontend/data/*.json || true
-           git commit -m "chore(data): update feeds" || echo "no changes"
-           git push
+          set -euxo pipefail
+          if [ -f "requirements.txt" ]; then pip install -r requirements.txt; fi
+          if [ -f "aggregator/requirements.txt" ]; then pip install -r aggregator/requirements.txt; fi
+          pip show requests || true
+
+      - name: Run feed builder (auto-detect)
+        id: run_builder
+        env:
+          # Если твоему скрипту нужны переменные - добавь сюда
+          PYTHONUNBUFFERED: "1"
+          LOG_LEVEL: "DEBUG"
+        run: |
+          set -euxo pipefail
+          if [ -f "main.py" ]; then
+            echo ">>> Running: python main.py"
+            python main.py
+          elif [ -f "aggregator/main.py" ]; then
+            echo ">>> Running: python aggregator/main.py"
+            python aggregator/main.py
+          else
+            echo "ERROR: Не найден main.py ни в корне, ни в aggregator/" >&2
+            exit 2
+          fi
+
+      - name: Verify output
+        run: |
+          set -euxo pipefail
+          if [ ! -f "frontend/data/news.json" ]; then
+            echo "ERROR: frontend/data/news.json не создан! Проверь путь вывода в скрипте." >&2
+            exit 3
+          fi
+          echo "news.json size (bytes):"
+          wc -c frontend/data/news.json || true
+          echo "First 1 item preview:"
+          (command -v jq >/dev/null && jq -c '.[0:1]' frontend/data/news.json) || head -c 500 frontend/data/news.json || true
+
+      - name: Commit & push changes
+        run: |
+          set -euxo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: ingest feed → update frontend/data/news.json"
+            git push
+          fi
