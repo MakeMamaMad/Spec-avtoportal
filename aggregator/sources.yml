@@ -1,49 +1,46 @@
-# Примеры источников (дополните своими)
-# rss:
-#   - name: "Autosport"
-#     url: "https://autosport.com.ru/rss/all.xml"   # RSS-лента
-#     homepage: "https://autosport.com.ru/"          # ссылка на первоисточник
-#     full_content: true 
-
-#   - name: "LogNews"
-#     url: "https://lognews.ru/rss"
-#     homepage: "https://lognews.ru"
-#     full_content: true 
-
-#   - name: "Пресс-релизы производителя А"
-#     url: "https://www.faymonville.com/news-ru/rss"
-#     homepage: "https://www.faymonville.com/ru/news/"
-#     type: "manufacturer"
-#     full_content: true 
-
-# Список RSS-источников. Формат: массив словарей с name и url.
 sources:
-  - name: Drom — Автоновости
-    url: https://www.drom.ru/cached_files/xml/news.rss
-    full_content: true 
+  - name: "KRONE Trailer (EN)"
+    url: "https://www.krone-trailer.com/en/news/rss-feed"
+    lang: "en"
+    tags: ["manufacturer","semi-trailer"]
+    include_keywords: [] 
 
-  - name: Transport Topics
-    url: https://www.ttnews.com/categories/trailers-0
-    full_content: true 
+- name: "Transport Topics — Trailers (EN)"
+    url: "https://www.ttnews.com/categories/trailers-0"
+    lang: "en"
+    tags: ["media","trailers"]
+    include_keywords: ["trailer","semi-trailer","reefer","dry van","flatbed","lowboy","tank trailer","box trailer"]
 
-  - name: Ведомости — Коммерческие авто
-    url: https://www.vedomosti.ru/rss/rubric/auto/commercial_vehicles
-    full_content: true 
 
-  - name: Ведомости — Транспорт
-    url: https://www.vedomosti.ru/rss/rubric/business/transport
-    full_content: true 
+  - name: "Грузовик-Пресс (RU)"
+    url: "https://www.gruzovikpress.ru/"
+    lang: "ru"
+    tags: ["media","ru"]
+    include_keywords: ["полуприцеп","прицеп","низкорамн","самосвальн","трал","рефрижераторн","зерновоз","контейнеровоз"]
 
-  - name: LOGIRUS — Новости логистики
-    url: https://logirus.ru/news/10/rss/
-    full_content: true 
+ - name: "КомТранс/Коммерческий транспорт (RU)"
+    url: "https://xn--80atgfcnje.xn--90ais/news/"
+    lang: "ru"
+    tags: ["media","ru"]
+    include_keywords: ["полуприцеп","прицеп","низкорамн","трал","рефрижераторн","шторн","самосвальн"]
 
-  - name: grozovoy.ru
-    url: https://gruzovoy.ru/rss
-    full_content: true 
-  - name: Za-rulem
-    url: https://www.zr.ru/rss-news/
-    full_content: true 
+  - name: "Transinfo (BY) — тег Полуприцепы"
+    url: "https://news.transinfo.by/tags/%D0%9F%D0%BE%D0%BB%D1%83%D0%BF%D1%80%D0%B8%D1%86%D0%B5%D0%BF%D1%8B/"
+    lang: "ru"
+    tags: ["media","by","logistics"]
+    include_keywords: ["полуприцеп","прицеп","тент","шторн","контейнеровоз","самосвальн"]
+
+- name: "SpecMachinery (UA)"
+    url: "https://specmachinery.com.ua/news/itemlist"
+    lang: "uk"
+    tags: ["media","ua"]
+    include_keywords: ["напівпричіп","причіп","низькорамн","рефрижераторн","самоскидн","зерновоз","контейнеровоз"]
+    
+ - name: "Завод Спецавтотехника (BY)"
+    url: "https://www.satpricep.by/o-zavode/news/"
+    lang: "ru"
+    tags: ["manufacturer","by"]
+    include_keywords: ["полуприцеп","прицеп","самосвальн","низкорамн","бортов","контейнеровоз","цементовоз","цистерн"]
 
 
 youtube:
