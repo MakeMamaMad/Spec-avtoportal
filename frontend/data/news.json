@@ -1,12 +1,75 @@
 [
   {
     "source": "Za-rulem",
+    "title": "Dacia Bigster: большой кроссовер с расходами на уровне малолитражек",
+    "link": "https://www.zr.ru/content/news/974560-dacia-bigster-bolshoj-krossov/",
+    "summary": "ADAC: стоимость владения новым Bigster сравнима с малолитражками",
+    "image": "https://www.zr.ru/_ah/img/FSpRkCv-dE72YKZu0wfbWw",
+    "published_at": "2025-11-12T15:15:56+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Раскрыта доля автомобилей местной сборки на российском рынке: называем цифры",
+    "link": "https://www.zr.ru/content/news/974557-raskryta-dolya-avtomobilej-mest/",
+    "summary": "Эксперт Целиков: Более 50% машин на отечественном авторынке собраны в России",
+    "image": "https://www.zr.ru/_ah/img/JX8UQDgJfrCS5geJqE8loA",
+    "published_at": "2025-11-12T13:45:27+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "LOGIRUS — Новости логистики",
+    "title": "Рынок складов просит пощады: ставки падают, вакантность растет",
+    "link": "https://logirus.ru/news/warehouses/rynok_skladov_prosit_poshchady_stavki_padayut_vakantnost_rastet.html",
+    "summary": "Эксперты отмечают, что доля вакантных площадей по итогам 2025 года может вырасти в полтора раза",
+    "image": "https://logirus.ru/upload/iblock/2f2/hsluzs4gn0m4i42f7q33ns6lc7ipplcp/sk_r_12_11.jpg",
+    "published_at": "2025-11-12T13:30:00+00:00",
+    "domain": "logirus.ru"
+  },
+  {
+    "source": "Drom — Автоновости",
+    "title": "В Ульяновске развернут производство туристических автобусов",
+    "link": "https://news.drom.ru/101225.html",
+    "summary": "Расположенный в Ульяновске Симбирский автомобильный завод (СимАЗ) наладит на своих мощностях производство туристических автобусов китайской марки AsiaStar. Соглашение о сотрудничестве между СимАЗом и китайской Yangzhou Yaxing Motor Coach Сo. было подписано 11 ноября в Ульяновске, об этом сообщает Media73. Yangzhou Yaxing — это производитель автобусов AsiaStar.",
+    "image": null,
+    "published_at": "2025-11-12T13:15:49+00:00",
+    "domain": "news.drom.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Стоит как Веста: новый кроссовер Toyota снова доступен в России",
+    "link": "https://www.zr.ru/content/news/974555-stoit-kak-vesta-novyj-krossov/",
+    "summary": "В РФ возобновились продажи кроссоверов Toyota Raize по цене от 1,85 млн рублей",
+    "image": "https://www.zr.ru/_ah/img/CE57PcQFdj_xn01FbIKRWg",
+    "published_at": "2025-11-12T13:15:20+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
+    "title": "Хорошо знакомый корейский хэтчбек снова можно купить в РФ: совсем недорого",
+    "link": "https://www.zr.ru/content/news/974554-khorosho-znakomyj-korejskij-khehtch/",
+    "summary": "В России возобновили продажи хэтчбека Kia Picanto по цене от 1,6 млн рублей",
+    "image": "https://www.zr.ru/_ah/img/yx_oRjaf8xZFWGzHgCM2tw",
+    "published_at": "2025-11-12T12:45:21+00:00",
+    "domain": "www.zr.ru"
+  },
+  {
+    "source": "Za-rulem",
     "title": "Спрос на новые легковушки подскочит в ноябре: прогноз эксперта",
     "link": "https://www.zr.ru/content/news/974551-spros-na-novye-legkovushki-pods/",
     "summary": "Эксперт Корнев: Продажи новых легковых авто в ноябре могут вырасти до 145 тыс.",
     "image": "https://www.zr.ru/_ah/img/Zj5Z8rtTrXjqOck8C8Eb5w",
     "published_at": "2025-11-12T12:15:33+00:00",
     "domain": "www.zr.ru"
+  },
+  {
+    "source": "Drom — Автоновости",
+    "title": "Мишустин заявил, что в 2026-м в Москве могут запустить беспилотное такси",
+    "link": "https://news.drom.ru/101224.html",
+    "summary": "Уже в 2026 году в Москве может появиться беспилотное такси, заявил премьер-министр РФ Михаил Мишустин на форуме «Цифровые решения».",
+    "image": null,
+    "published_at": "2025-11-12T12:11:06+00:00",
+    "domain": "news.drom.ru"
   },
   {
     "source": "Za-rulem",
