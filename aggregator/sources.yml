@@ -1,46 +1,97 @@
 sources:
+  # -*- coding: utf-8 -*-
+
+rss:
   - name: "KRONE Trailer (EN)"
     url: "https://www.krone-trailer.com/en/news/rss-feed"
     lang: "en"
-    tags: ["manufacturer","semi-trailer"]
-    include_keywords: [] 
+    tags: ["manufacturer", "semi-trailer"]
+    include_keywords: []  # у KRONE можно без фильтра — это чисто про полуприцепы
 
-- name: "Transport Topics — Trailers (EN)"
+html:
+  - name: "Transport Topics — Trailers (EN)"
     url: "https://www.ttnews.com/categories/trailers-0"
     lang: "en"
-    tags: ["media","trailers"]
-    include_keywords: ["trailer","semi-trailer","reefer","dry van","flatbed","lowboy","tank trailer","box trailer"]
-
+    tags: ["media", "trailers"]
+    include_keywords:
+      - "trailer"
+      - "semi-trailer"
+      - "flatbed"
+      - "lowboy"
+      - "reefer"
+      - "tanker"
+      - "box trailer"
+      - "curtainsider"
+      - "tipper trailer"
 
   - name: "Грузовик-Пресс (RU)"
     url: "https://www.gruzovikpress.ru/"
     lang: "ru"
-    tags: ["media","ru"]
-    include_keywords: ["полуприцеп","прицеп","низкорамн","самосвальн","трал","рефрижераторн","зерновоз","контейнеровоз"]
+    tags: ["media", "ru"]
+    include_keywords:
+      - "полуприцеп"
+      - "прицеп"
+      - "низкорамн"
+      - "трал"
+      - "шторн"
+      - "тент"
+      - "рефрижераторн"
+      - "самосвальн"
+      - "контейнеровоз"
+      - "зерновоз"
+      - "цистерн"
+      - "лесовоз"
 
- - name: "КомТранс/Коммерческий транспорт (RU)"
+  - name: "КомТранс / новости (RU)"
     url: "https://xn--80atgfcnje.xn--90ais/news/"
     lang: "ru"
-    tags: ["media","ru"]
-    include_keywords: ["полуприцеп","прицеп","низкорамн","трал","рефрижераторн","шторн","самосвальн"]
+    tags: ["media", "ru"]
+    include_keywords:
+      - "полуприцеп"
+      - "прицеп"
+      - "низкорамн"
+      - "трал"
+      - "шторн"
+      - "рефрижераторн"
+      - "самосвальн"
+      - "контейнеровоз"
 
   - name: "Transinfo (BY) — тег Полуприцепы"
     url: "https://news.transinfo.by/tags/%D0%9F%D0%BE%D0%BB%D1%83%D0%BF%D1%80%D0%B8%D1%86%D0%B5%D0%BF%D1%8B/"
     lang: "ru"
-    tags: ["media","by","logistics"]
-    include_keywords: ["полуприцеп","прицеп","тент","шторн","контейнеровоз","самосвальн"]
+    tags: ["media", "by"]
+    include_keywords:
+      - "полуприцеп"
+      - "прицеп"
+      - "шторн"
+      - "контейнеровоз"
+      - "самосвальн"
 
-- name: "SpecMachinery (UA)"
+  - name: "SpecMachinery (UA)"
     url: "https://specmachinery.com.ua/news/itemlist"
     lang: "uk"
-    tags: ["media","ua"]
-    include_keywords: ["напівпричіп","причіп","низькорамн","рефрижераторн","самоскидн","зерновоз","контейнеровоз"]
-    
- - name: "Завод Спецавтотехника (BY)"
+    tags: ["media", "ua"]
+    include_keywords:
+      - "напівпричіп"
+      - "причіп"
+      - "низькорамн"
+      - "рефрижераторн"
+      - "самоскидн"
+      - "контейнеровоз"
+
+  - name: "Завод Спецавтотехника (BY)"
     url: "https://www.satpricep.by/o-zavode/news/"
     lang: "ru"
-    tags: ["manufacturer","by"]
-    include_keywords: ["полуприцеп","прицеп","самосвальн","низкорамн","бортов","контейнеровоз","цементовоз","цистерн"]
+    tags: ["manufacturer", "by"]
+    include_keywords:
+      - "полуприцеп"
+      - "прицеп"
+      - "самосвальн"
+      - "низкорамн"
+      - "бортов"
+      - "контейнеровоз"
+      - "цистерн"
+
 
 
 youtube:
