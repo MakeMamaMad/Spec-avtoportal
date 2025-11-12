@@ -58,7 +58,7 @@ jobs:
         run: |
           set -euxo pipefail
           # если твой скрипт поддерживает параметры вывода — используй их:
-          # python aggregator/main.py --sources aggregator/sources.yml --output frontend/data/news.json
+          python aggregator/main.py --sources aggregator/sources.yml --output frontend/data/news.json
           python aggregator/main.py
 
           # перенос результата в нужный путь, если скрипт кладёт файл не туда
