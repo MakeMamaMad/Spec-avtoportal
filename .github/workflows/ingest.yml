@@ -76,6 +76,20 @@ jobs:
           fi
 
           test -f frontend/data/news.json || { echo "ERROR: frontend/data/news.json not found"; exit 1; }
+          - name: Quick check KRONE RSS (diagnostics)
+              run: |
+                python - << 'PY'
+                import urllib.request, xml.etree.ElementTree as ET
+                url = "https://www.krone-trailer.com/en/news/rss-feed"
+                xml = urllib.request.urlopen(url, timeout=30).read()
+                root = ET.fromstring(xml)
+                items = root.findall('.//item')
+                print("KRONE items:", len(items))
+                for it in items[:3]:
+                    print("-", (it.findtext('title') or '').strip()[:120])
+                PY
+
+
 
       - name: Preview output
         run: |
