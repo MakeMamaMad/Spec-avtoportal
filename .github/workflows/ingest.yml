@@ -3,7 +3,7 @@ name: Ingest & Publish
 on:
   workflow_dispatch: {}
   # schedule:
-  #   - cron: "*/30 5-20 * * *"   # пример: каждые 30 мин с 08:00 до 23:59 МСК
+  #   - cron: "*/30 5-20 * * *"
 
 permissions:
   contents: write
@@ -49,22 +49,21 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          # Если aggregator/main.py ничего не соберёт — ок, следующий шаг сольёт RSS
           python aggregator/main.py --sources aggregator/sources.yml --output frontend/data/news.json || true
 
-      # ВСЕГДА мерджим ВСЕ RSS из sources.yml поверх текущего news.json
       - name: Merge aggregator output with ALL RSS in sources.yml
         shell: bash
         run: |
           set -eux
           python - <<'PY'
           import json, pathlib, urllib.request, urllib.parse, xml.etree.ElementTree as ET
-          import yaml, time, hashlib
+          import ssl, time, yaml, hashlib
+          from urllib.error import HTTPError, URLError
 
           OUT = pathlib.Path("frontend/data/news.json")
           SRC = pathlib.Path("aggregator/sources.yml")
 
-          # читаем то, что уже есть (от агрегатора)
+          # 1) читаем уже имеющийся news.json
           data = []
           if OUT.exists():
               try:
@@ -74,18 +73,63 @@ jobs:
 
           seen = set((it.get("url") or "").strip() for it in data if (it.get("url") or "").strip())
 
-          def fetch(url: str) -> bytes:
-              # нормальный UA — иначе многие RU-сайты отдают 404/403/502
-              req = urllib.request.Request(
-                  url,
-                  headers={
-                      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                                    "(KHTML, like Gecko) Chrome/124.0 Safari/537.36 NewsBot/1.0",
-                      "Accept": "application/rss+xml,application/xml;q=0.9,*/*;q=0.8",
-                  }
-              )
-              with urllib.request.urlopen(req, timeout=30) as r:
-                  return r.read()
+          UA_HEADERS = {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                            "(KHTML, like Gecko) Chrome/124.0 Safari/537.36 NewsBot/1.0",
+              "Accept": "application/rss+xml,application/xml;q=0.9,*/*;q=0.8",
+              "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+              "Referer": "https://www.google.com/",
+          }
+
+          ssl_ctx = ssl.create_default_context()
+          ssl_ctx.check_hostname = False
+          ssl_ctx.verify_mode = ssl.CERT_NONE
+
+          def _open(url: str):
+              req = urllib.request.Request(url, headers=UA_HEADERS)
+              return urllib.request.urlopen(req, timeout=30, context=ssl_ctx)
+
+          def fetch_with_variants(url: str, retries: int = 3, backoff: float = 1.5) -> bytes:
+              """
+              Пытается скачать URL с ретраями и перебором вариантов:
+              - https <-> http
+              - c/без www
+              - c/без завершающего /
+              """
+              def variants(u: str):
+                  parts = urllib.parse.urlparse(u)
+                  schemes = [parts.scheme] if parts.scheme else ["https"]
+                  if "https" in schemes and "http" not in schemes: schemes.append("http")
+                  hosts = [parts.netloc]
+                  if parts.netloc.startswith("www."):
+                      hosts.append(parts.netloc[4:])
+                  else:
+                      hosts.append("www." + parts.netloc)
+                  paths = [parts.path]
+                  if parts.path.endswith("/"):
+                      paths.append(parts.path[:-1] or "/")
+                  else:
+                      paths.append(parts.path + "/")
+                  for s in schemes:
+                      for h in hosts:
+                          for p in paths:
+                              yield urllib.parse.urlunparse((s, h, p, "", parts.query, parts.fragment))
+
+              last_err = None
+              tried = set()
+              for v in variants(url):
+                  if v in tried: continue
+                  tried.add(v)
+                  for attempt in range(1, retries + 1):
+                      try:
+                          with _open(v) as r:
+                              return r.read()
+                      except (HTTPError, URLError, ssl.SSLError) as e:
+                          last_err = e
+                          time.sleep(backoff ** attempt)
+                          continue
+              if last_err: raise last_err
+              raise RuntimeError("Failed to fetch RSS")
 
           def pass_keywords(text: str, kws):
               if not kws:
@@ -93,14 +137,14 @@ jobs:
               t = (text or "").lower()
               return any(k.lower() in t for k in kws)
 
-          def add_item(title, link, summary, pub, img):
+          def add_item(acc, title, link, summary, pub, img):
               link = (link or "").strip()
               if link and link in seen:
                   return
               if link:
                   seen.add(link)
               dom = urllib.parse.urlparse(link).netloc if link else ""
-              data.append({
+              acc.append({
                   "id": link or hashlib.md5((title+summary).encode("utf-8","ignore")).hexdigest(),
                   "title": title or "",
                   "url": link,
@@ -113,6 +157,7 @@ jobs:
           cfg = yaml.safe_load(SRC.read_text(encoding="utf-8"))
           feeds = cfg.get("rss") or []
 
+          appended = 0
           for f in feeds:
               url = (f.get("url") or "").strip()
               name = f.get("name") or url
@@ -120,7 +165,7 @@ jobs:
               if not url:
                   continue
               try:
-                  xml = fetch(url)
+                  xml = fetch_with_variants(url)
                   root = ET.fromstring(xml)
                   cnt = 0
                   for it in root.findall(".//item"):
@@ -135,13 +180,14 @@ jobs:
                       enc = it.find("enclosure")
                       if enc is not None and enc.get("url"):
                           img = enc.get("url")
-                      add_item(title, link, desc, pub, img)
+                      add_item(data, title, link, desc, pub, img)
                       cnt += 1
+                  appended += cnt
                   print(f"[RSS] {name}: {cnt}")
               except Exception as e:
                   print(f"[RSS] {name}: ERROR {e}")
 
-          # сортировка по дате (best-effort)
+          # сортировка (best-effort)
           def ts(x):
               s = x.get("date") or ""
               try:
@@ -150,10 +196,9 @@ jobs:
                   return 0
 
           data.sort(key=ts, reverse=True)
-
           OUT.parent.mkdir(parents=True, exist_ok=True)
           OUT.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-          print("Merged feed size:", len(data))
+          print("Merged feed size:", len(data), "| appended:", appended)
           PY
 
       - name: Preview output
@@ -176,5 +221,5 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git diff --staged --quiet || git commit -m "chore: ingest feed → merge aggregator output with RSS"
+          git diff --staged --quiet || git commit -m "chore: ingest feed → robust fetch with retries/variants"
           git push
