@@ -1,13 +1,10 @@
 name: Ingest & Publish
 
 on:
-  workflow_dispatch: {}          # кнопка "Run workflow" в Actions
-  # при желании включи расписание (пример: каждые 30 минут 06–22 МСК)
-  # schedule:
-  #   - cron: "*/30 3-19 * * *"
+  workflow_dispatch: {}
 
 permissions:
-  contents: write                # нужен коммит news.json
+  contents: write
 
 jobs:
   ingest:
@@ -19,89 +16,57 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Python 3.11
+      - name: Setup Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install deps (если есть)
+      - name: Install deps (if any)
+        shell: bash
         run: |
           set -eux
           if [ -f "requirements.txt" ]; then pip install -r requirements.txt; fi
           if [ -f "aggregator/requirements.txt" ]; then pip install -r aggregator/requirements.txt; fi
-          pip install pyyaml jq || true
+          pip install pyyaml >/dev/null 2>&1 || true
 
-      # Валидируем YAML — чтобы сборщик не падал "внутри"
-      - name: Validate aggregator/sources.yml
+      # Диагностика: убедимся, что в YAML действительно есть пункты в rss
+      - name: Quick YAML check (rss length)
+        shell: bash
         run: |
           set -eux
-          if [ ! -f "aggregator/sources.yml" ]; then
-            echo "ERROR: aggregator/sources.yml not found" >&2
-            exit 1
-          fi
           python - <<'PY'
-          import yaml, pathlib, sys
+          import yaml, pathlib
           p = pathlib.Path('aggregator/sources.yml')
-          try:
-              data = yaml.safe_load(p.read_text(encoding='utf-8'))
-              assert isinstance(data, dict), "top-level must be a mapping"
-              print("YAML OK. Keys:", list(data.keys()))
-          except Exception as e:
-              print("YAML ERROR:", e)
-              sys.exit(1)
+          data = yaml.safe_load(p.read_text(encoding='utf-8'))
+          rss = data.get('rss') or []
+          print('rss items:', len(rss))
+          if rss:
+              print('first rss url:', rss[0].get('url'))
           PY
 
-      # Запускаем ИМЕННО aggregator/main.py
+      # Запускаем ИМЕННО aggregator/main.py один раз и сразу в нужный output
       - name: Run aggregator
-        env:
-          PYTHONUNBUFFERED: "1"
+        shell: bash
         run: |
           set -euxo pipefail
-          # если твой скрипт поддерживает параметры вывода — используй их:
           python aggregator/main.py --sources aggregator/sources.yml --output frontend/data/news.json
-          python aggregator/main.py
-
-          # перенос результата в нужный путь, если скрипт кладёт файл не туда
-          if [ -f "frontend/data/news.json" ]; then
-            echo "frontend/data/news.json already exists"
-          elif [ -f "aggregator/out/news.json" ]; then
-            mkdir -p frontend/data
-            cp aggregator/out/news.json frontend/data/news.json
-          elif [ -f "data/news.json" ]; then
-            mkdir -p frontend/data
-            cp data/news.json frontend/data/news.json
-          elif [ -f "news.json" ]; then
-            mkdir -p frontend/data
-            cp news.json frontend/data/news.json
-          fi
-
-          test -f frontend/data/news.json || { echo "ERROR: frontend/data/news.json not found"; exit 1; }
-          - name: Quick check KRONE RSS (diagnostics)
-              run: |
-                python - << 'PY'
-                import urllib.request, xml.etree.ElementTree as ET
-                url = "https://www.krone-trailer.com/en/news/rss-feed"
-                xml = urllib.request.urlopen(url, timeout=30).read()
-                root = ET.fromstring(xml)
-                items = root.findall('.//item')
-                print("KRONE items:", len(items))
-                for it in items[:3]:
-                    print("-", (it.findtext('title') or '').strip()[:120])
-                PY
-
-
+          test -f frontend/data/news.json || { echo "ERROR: frontend/data/news.json not created"; exit 1; }
 
       - name: Preview output
+        shell: bash
         run: |
           set -eux
           wc -c frontend/data/news.json || true
-          if command -v jq >/dev/null; then
-            jq -c '.[0:3]' frontend/data/news.json || true
-          else
-            head -c 800 frontend/data/news.json || true
-          fi
+          python - <<'PY'
+          import json
+          arr = json.load(open('frontend/data/news.json','rb'))
+          print('items:', len(arr))
+          for it in arr[:3]:
+              print('-', (it.get('title') or '')[:120])
+          PY
 
       - name: Commit & push changes
+        shell: bash
         run: |
           set -eux
           git config user.name  "github-actions[bot]"
