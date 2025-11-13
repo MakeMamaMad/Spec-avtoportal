@@ -1,20 +1,21 @@
 rss:
-  # 1) KRONE Trailers — официальный RSS (WP)
-  - name: Krone Trailers (official)
-    url: https://www.krone-trailer.com/en/news/rss-feed/
+rss:
+  # 1) KRONE Trailers — официальный RSS
+  - name: "Krone Trailers (official)"
+    url: "https://www.krone-trailer.com/en/news/rss-feed/"
 
-  # 2) Wielton — официальный пресс-центр на Prowly (RSS)
-  - name: Wielton (press / prowly)
-    url: https://wielton.prowly.com/rss
+  # 2) Wielton — пресс-центр (prowly) с RSS
+  - name: "Wielton (press / prowly)"
+    url: "https://wielton.prowly.com/rss"
 
-  # 3) Global Trailer Magazine — общий лентный RSS (WP)
-  - name: Global Trailer Magazine (all feed)
-    url: https://www.globaltrailermag.com/feed/
+  # 3) Global Trailer Magazine — общий RSS (WP)
+  - name: "Global Trailer Magazine (all feed)"
+    url: "https://www.globaltrailermag.com/feed/"
 
 html:
-  # 4) Schmitz Cargobull — пресс-релизы (нет общего RSS)
-  - name: Schmitz Cargobull (press)
-    url: https://www.cargobull.com/en/press
+  # 4) Schmitz Cargobull — пресс
+  - name: "Schmitz Cargobull (press)"
+    url: "https://www.cargobull.com/en/press"
     list_selector: "main"
     item_selector: "a.card, a.teaser, article a"
     title_selector: ".card__title, .teaser__title, h2, h3"
@@ -24,9 +25,9 @@ html:
     image_selector: "img@src"
     include_keywords: ["trailer", "semi-trailer", "reefer", "box body", "tipper", "curtain", "chassis", "schmitz"]
 
-  # 5) Kögel Trailer — новости/пресс (нет RSS)
-  - name: Kögel Trailer (news & press)
-    url: https://www.koegel.com/en/news-press/
+  # 5) Kögel Trailer — новости/пресс
+  - name: "Kögel Trailer (news & press)"
+    url: "https://www.koegel.com/en/news-press/"
     list_selector: "main"
     item_selector: "article, .news-card, .c-news-teaser a"
     title_selector: "h2, h3, .news-card__title"
@@ -36,9 +37,9 @@ html:
     image_selector: "img@src"
     include_keywords: ["kögel", "trailer", "semi", "cool", "chassis", "platform", "tipper"]
 
-  # 6) Kässbohrer — newsroom (нет RSS)
-  - name: Kässbohrer (newsroom)
-    url: https://kaessbohrer.com/en/newsroom
+  # 6) Kässbohrer — newsroom
+  - name: "Kässbohrer (newsroom)"
+    url: "https://kaessbohrer.com/en/newsroom"
     list_selector: "main"
     item_selector: "article, .news-item, .blog-item, a.card"
     title_selector: "h2, h3, .title"
@@ -48,9 +49,9 @@ html:
     image_selector: "img@src"
     include_keywords: ["trailer", "semi-trailer", "low-bed", "reefer", "tanker", "tipper", "container"]
 
-  # 7) Kraker Trailers — блог/новости (нет RSS)
-  - name: Kraker Trailers (news/blog)
-    url: https://www.krakertrailers.eu/en/news/
+  # 7) Kraker Trailers — блог/новости
+  - name: "Kraker Trailers (news/blog)"
+    url: "https://www.krakertrailers.eu/en/news/"
     list_selector: "main"
     item_selector: "article, .news-item, .blog__list .blog__item, .grid a"
     title_selector: "h2, h3, .blog__title"
@@ -60,9 +61,9 @@ html:
     image_selector: "img@src"
     include_keywords: ["moving floor", "K-Force", "trailer", "semi"]
 
-  # 8) Global Trailer Magazine — раздел «Trailers» (на случай, если общий RSS шумит)
-  - name: Global Trailer (category: Trailers)
-    url: https://www.globaltrailermag.com/category/trailers/
+  # 8) Global Trailer — раздел «Trailers»
+  - name: "Global Trailer (category: Trailers)"
+    url: "https://www.globaltrailermag.com/category/trailers/"
     list_selector: "main"
     item_selector: "article, .post, .loop a"
     title_selector: "h2.entry-title, h3.entry-title, .post-title"
@@ -72,41 +73,6 @@ html:
     image_selector: "img@src"
     include_keywords: ["trailer", "semi", "reefer", "chassis", "tipper", "tanker", "curtain", "box", "low-loader"]
 
-#   - name: "Transinfo (BY) — тег Полуприцепы"
-#     url: "https://news.transinfo.by/tags/%D0%9F%D0%BE%D0%BB%D1%83%D0%BF%D1%80%D0%B8%D1%86%D0%B5%D0%BF%D1%8B/"
-#     lang: "ru"
-#     tags: ["media", "by"]
-#     include_keywords:
-#       - "полуприцеп"
-#       - "прицеп"
-#       - "шторн"
-#       - "контейнеровоз"
-#       - "самосвальн"
-
-#   - name: "SpecMachinery (UA)"
-#     url: "https://specmachinery.com.ua/news/itemlist"
-#     lang: "uk"
-#     tags: ["media", "ua"]
-#     include_keywords:
-#       - "напівпричіп"
-#       - "причіп"
-#       - "низькорамн"
-#       - "рефрижераторн"
-#       - "самоскидн"
-#       - "контейнеровоз"
-
-#   - name: "Завод Спецавтотехника (BY)"
-#     url: "https://www.satpricep.by/o-zavode/news/"
-#     lang: "ru"
-#     tags: ["manufacturer", "by"]
-#     include_keywords:
-#       - "полуприцеп"
-#       - "прицеп"
-#       - "самосвальн"
-#       - "низкорамн"
-#       - "бортов"
-#       - "контейнеровоз"
-#       - "цистерн"
 
 
 
