@@ -77,7 +77,7 @@ jobs:
 
           UA_HEADERS = {
               "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                            "(KHTML, like Gecko) Chrome/124.0 Safari/537.36 NewsBot/1.1",
+                            "(KHTML, like Gecko) Chrome/124.0 Safari/537.36 NewsBot/1.2",
               "Accept": "application/rss+xml,application/xml;q=0.9,*/*;q=0.8",
               "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
               "Referer": "https://www.google.com/",
@@ -138,15 +138,39 @@ jobs:
               t = (text or "").lower()
               return any(k.lower() in t for k in kws)
 
-          # --- Google News: получить URL издателя
-          def resolve_publisher_link(link: str, desc: str) -> str:
+          # --- google placeholder?
+          def is_google_placeholder(url: str) -> bool:
+              try:
+                  host = urllib.parse.urlparse(url).netloc
+              except Exception:
+                  return False
+              host = host.lower()
+              return ("news.google.com" in host) or ("gstatic" in host)
+
+          # --- распаковываем ссылку издателя из Google News
+          def resolve_publisher_link(link: str, desc_html: str, resolve_left: list) -> str:
               try:
                   host = urllib.parse.urlparse(link).netloc
               except Exception:
                   host = ""
               if "news.google.com" not in host:
                   return link
-              # 1) url= / u= в query
+
+              # 1) из <description> — берём первый <a href>, который не news.google.com
+              if desc_html:
+                  try:
+                      soup = BeautifulSoup(desc_html, "lxml")
+                  except Exception:
+                      soup = BeautifulSoup(desc_html, "html.parser")
+                  for a in soup.find_all("a", href=True):
+                      u = a["href"]
+                      try:
+                          if "news.google.com" not in urllib.parse.urlparse(u).netloc:
+                              return u
+                      except Exception:
+                          pass
+
+              # 2) пробуем распарсить url/u в query
               try:
                   qs = urllib.parse.parse_qs(urllib.parse.urlparse(link).query)
                   for key in ("url","u"):
@@ -156,17 +180,19 @@ jobs:
                               return u
               except Exception:
                   pass
-              # 2) первая внешняя ссылка из description
-              if desc:
-                  m = re.search(r'https?://[^\s"<>]+', desc)
-                  if m:
-                      u = m.group(0)
-                      try:
-                          if "news.google.com" not in urllib.parse.urlparse(u).netloc:
-                              return u
-                      except Exception:
-                          pass
-              # 3) fallback — оставляем как есть
+
+              # 3) если лимит не исчерпан — делаем GET и берём финальный Location
+              if resolve_left[0] > 0:
+                  try:
+                      req = urllib.request.Request(link, headers=HTML_HEADERS)
+                      with urllib.request.urlopen(req, timeout=15, context=ssl_ctx) as r:
+                          final = r.geturl()
+                          if "news.google.com" not in urllib.parse.urlparse(final).netloc:
+                              resolve_left[0] -= 1
+                              return final
+                  except Exception:
+                      pass
+
               return link
 
           def add_item(acc, title, link, summary, pub, img):
@@ -189,9 +215,10 @@ jobs:
           cfg = yaml.safe_load(SRC.read_text(encoding="utf-8"))
           feeds = cfg.get("rss") or []
 
-          # увеличили лимит «глубокой» подкачки HTML
-          MAX_HTML_SCRAPES = 200
+          MAX_HTML_SCRAPES = 300         # сколько страниц статьи открываем для og:image
           html_scraped = 0
+          RESOLVE_LIMIT = 150            # сколько google-ссылок разрешаем «раскрутить»
+          resolve_left = [RESOLVE_LIMIT]
 
           appended = 0
           for f in feeds:
@@ -228,8 +255,7 @@ jobs:
                       desc  = (it.findtext("description") or "").strip()
                       pub   = (it.findtext("pubDate") or "").strip()
 
-                      # резолвим реальную ссылку публикации, если это Google
-                      real_link = resolve_publisher_link(link, desc) or link
+                      real_link = resolve_publisher_link(link, desc, resolve_left) or link
 
                       text  = f"{title}\n{desc}"
                       if not pass_keywords(text, kws):
@@ -248,6 +274,10 @@ jobs:
                       if not img:
                           im = image_tag(it)
                           if im: img = im
+
+                      # отбрасываем «синие заглушки» от Google
+                      if img and is_google_placeholder(img):
+                          img = ""
 
                       if not img and real_link and html_scraped < MAX_HTML_SCRAPES:
                           try:
@@ -276,7 +306,7 @@ jobs:
           data.sort(key=ts, reverse=True)
           OUT.parent.mkdir(parents=True, exist_ok=True)
           OUT.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-          print("Merged feed size:", len(data), "| appended:", appended, "| html_scraped:", html_scraped)
+          print("Merged feed size:", len(data), "| appended:", appended, "| html_scraped:", html_scraped, "| resolved:", RESOLVE_LIMIT - resolve_left[0])
           PY
 
       - name: Preview output
@@ -285,13 +315,14 @@ jobs:
           set -eux
           wc -c frontend/data/news.json || true
           python - <<'PY'
-          import json
+          import json, urllib.parse
           arr=json.load(open('frontend/data/news.json','rb'))
           print('items:', len(arr))
           c_with_img=sum(1 for x in arr if x.get('image'))
           print('with images:', c_with_img)
-          for it in arr[:5]:
-            print('-', (it.get('title') or '')[:110], '| img:', (it.get('image') or '')[:80])
+          for it in arr[:10]:
+            host = urllib.parse.urlparse(it.get('url') or '').netloc
+            print('-', (it.get('title') or '')[:90], '| host:', host, '| img:', bool(it.get('image')))
           PY
 
       - name: Commit & push changes
@@ -301,5 +332,5 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git diff --staged --quiet || git commit -m "chore: resolve Google News to publisher + fetch og:image/thumbnail"
+          git diff --staged --quiet || git commit -m "feat: resolve Google links to publisher + drop google placeholders + stronger og:image"
           git push
