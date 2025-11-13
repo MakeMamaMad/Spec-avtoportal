@@ -3,7 +3,7 @@ name: Ingest & Publish
 on:
   workflow_dispatch: {}
   # schedule:
-  #   - cron: "*/30 5-20 * * *"
+  #   - cron: "*/30 5-20 * * *"   # пример: каждые 30 мин с 08:00 до 23:59 МСК
 
 permissions:
   contents: write
@@ -49,11 +49,11 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
+          # Если aggregator/main.py ничего не соберёт — ок, следующий шаг сольёт RSS
           python aggregator/main.py --sources aggregator/sources.yml --output frontend/data/news.json || true
-          # если он ничего не понимает — не страшно, следующий шаг всё равно сольёт RSS
 
-      # ⬇️ НОВЫЙ ШАГ: ВСЕГДА мерджим ВСЕ RSS из sources.yml в существующий news.json
-            - name: Merge aggregator output with ALL RSS in sources.yml
+      # ВСЕГДА мерджим ВСЕ RSS из sources.yml поверх текущего news.json
+      - name: Merge aggregator output with ALL RSS in sources.yml
         shell: bash
         run: |
           set -eux
@@ -64,7 +64,7 @@ jobs:
           OUT = pathlib.Path("frontend/data/news.json")
           SRC = pathlib.Path("aggregator/sources.yml")
 
-          # 1) читаем существующий news.json (оставляем то, что положил агрегатор)
+          # читаем то, что уже есть (от агрегатора)
           data = []
           if OUT.exists():
               try:
@@ -75,7 +75,7 @@ jobs:
           seen = set((it.get("url") or "").strip() for it in data if (it.get("url") or "").strip())
 
           def fetch(url: str) -> bytes:
-              # многие RU-сайты требуют нормальный User-Agent
+              # нормальный UA — иначе многие RU-сайты отдают 404/403/502
               req = urllib.request.Request(
                   url,
                   headers={
@@ -95,7 +95,6 @@ jobs:
 
           def add_item(title, link, summary, pub, img):
               link = (link or "").strip()
-              # дедуп по ссылке
               if link and link in seen:
                   return
               if link:
@@ -156,7 +155,6 @@ jobs:
           OUT.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
           print("Merged feed size:", len(data))
           PY
-
 
       - name: Preview output
         shell: bash
