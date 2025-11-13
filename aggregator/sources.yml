@@ -1,59 +1,76 @@
-
-
 rss:
-  - name: "KRONE Trailer (EN)"
-    url: "https://www.krone-trailer.com/en/news/rss-feed"
-    lang: "en"
-    tags: ["manufacturer", "semi-trailer"]
-    include_keywords: []  # у KRONE можно без фильтра — это чисто про полуприцепы
+  # 1) KRONE Trailers — официальный RSS (WP)
+  - name: Krone Trailers (official)
+    url: https://www.krone-trailer.com/en/news/rss-feed/
+
+  # 2) Wielton — официальный пресс-центр на Prowly (RSS)
+  - name: Wielton (press / prowly)
+    url: https://wielton.prowly.com/rss
+
+  # 3) Global Trailer Magazine — общий лентный RSS (WP)
+  - name: Global Trailer Magazine (all feed)
+    url: https://www.globaltrailermag.com/feed/
 
 html:
-  - name: "Transport Topics — Trailers (EN)"
-    url: "https://www.ttnews.com/categories/trailers-0"
-    lang: "en"
-    tags: ["media", "trailers"]
-    include_keywords:
-      - "trailer"
-      - "semi-trailer"
-      - "flatbed"
-      - "lowboy"
-      - "reefer"
-      - "tanker"
-      - "box trailer"
-      - "curtainsider"
-      - "tipper trailer"
+  # 4) Schmitz Cargobull — пресс-релизы (нет общего RSS)
+  - name: Schmitz Cargobull (press)
+    url: https://www.cargobull.com/en/press
+    list_selector: "main"
+    item_selector: "a.card, a.teaser, article a"
+    title_selector: ".card__title, .teaser__title, h2, h3"
+    link_selector: "@href"
+    summary_selector: ".card__text, .teaser__text, p"
+    date_selector: "time@datetime, time"
+    image_selector: "img@src"
+    include_keywords: ["trailer", "semi-trailer", "reefer", "box body", "tipper", "curtain", "chassis", "schmitz"]
 
-  - name: "Грузовик-Пресс (RU)"
-    url: "https://www.gruzovikpress.ru/"
-    lang: "ru"
-    tags: ["media", "ru"]
-    include_keywords:
-      - "полуприцеп"
-      - "прицеп"
-      - "низкорамн"
-      - "трал"
-      - "шторн"
-      - "тент"
-      - "рефрижераторн"
-      - "самосвальн"
-      - "контейнеровоз"
-      - "зерновоз"
-      - "цистерн"
-      - "лесовоз"
+  # 5) Kögel Trailer — новости/пресс (нет RSS)
+  - name: Kögel Trailer (news & press)
+    url: https://www.koegel.com/en/news-press/
+    list_selector: "main"
+    item_selector: "article, .news-card, .c-news-teaser a"
+    title_selector: "h2, h3, .news-card__title"
+    link_selector: "a@href"
+    summary_selector: "p, .news-card__text"
+    date_selector: "time@datetime, time"
+    image_selector: "img@src"
+    include_keywords: ["kögel", "trailer", "semi", "cool", "chassis", "platform", "tipper"]
 
-  - name: "КомТранс / новости (RU)"
-    url: "https://xn--80atgfcnje.xn--90ais/news/"
-    lang: "ru"
-    tags: ["media", "ru"]
-    include_keywords:
-      - "полуприцеп"
-      - "прицеп"
-      - "низкорамн"
-      - "трал"
-      - "шторн"
-      - "рефрижераторн"
-      - "самосвальн"
-      - "контейнеровоз"
+  # 6) Kässbohrer — newsroom (нет RSS)
+  - name: Kässbohrer (newsroom)
+    url: https://kaessbohrer.com/en/newsroom
+    list_selector: "main"
+    item_selector: "article, .news-item, .blog-item, a.card"
+    title_selector: "h2, h3, .title"
+    link_selector: "a@href"
+    summary_selector: "p, .excerpt, .summary"
+    date_selector: "time@datetime, time"
+    image_selector: "img@src"
+    include_keywords: ["trailer", "semi-trailer", "low-bed", "reefer", "tanker", "tipper", "container"]
+
+  # 7) Kraker Trailers — блог/новости (нет RSS)
+  - name: Kraker Trailers (news/blog)
+    url: https://www.krakertrailers.eu/en/news/
+    list_selector: "main"
+    item_selector: "article, .news-item, .blog__list .blog__item, .grid a"
+    title_selector: "h2, h3, .blog__title"
+    link_selector: "a@href"
+    summary_selector: "p, .blog__excerpt, .intro"
+    date_selector: "time@datetime, time"
+    image_selector: "img@src"
+    include_keywords: ["moving floor", "K-Force", "trailer", "semi"]
+
+  # 8) Global Trailer Magazine — раздел «Trailers» (на случай, если общий RSS шумит)
+  - name: Global Trailer (category: Trailers)
+    url: https://www.globaltrailermag.com/category/trailers/
+    list_selector: "main"
+    item_selector: "article, .post, .loop a"
+    title_selector: "h2.entry-title, h3.entry-title, .post-title"
+    link_selector: "a@href"
+    summary_selector: ".entry-content p, .excerpt, p"
+    date_selector: "time@datetime, time"
+    image_selector: "img@src"
+    include_keywords: ["trailer", "semi", "reefer", "chassis", "tipper", "tanker", "curtain", "box", "low-loader"]
 
 #   - name: "Transinfo (BY) — тег Полуприцепы"
 #     url: "https://news.transinfo.by/tags/%D0%9F%D0%BE%D0%BB%D1%83%D0%BF%D1%80%D0%B8%D1%86%D0%B5%D0%BF%D1%8B/"
