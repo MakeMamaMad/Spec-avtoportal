@@ -51,12 +51,12 @@ jobs:
           set -euxo pipefail
           python aggregator/main.py --sources aggregator/sources.yml --output frontend/data/news.json || true
 
-      - name: Merge aggregator output with ALL RSS in sources.yml (+image rescue)
+      - name: Merge aggregator output with ALL RSS in sources.yml (+strong image rescue)
         shell: bash
         run: |
           set -eux
           python - <<'PY'
-          import json, pathlib, time, ssl, re
+          import json, pathlib, time, ssl, re, math
           import urllib.request, urllib.parse
           from urllib.error import HTTPError, URLError
           import xml.etree.ElementTree as ET
@@ -65,6 +65,9 @@ jobs:
 
           OUT = pathlib.Path("frontend/data/news.json")
           SRC = pathlib.Path("aggregator/sources.yml")
+
+          LAST_RESORT_PLACEHOLDER = "https://placehold.co/1200x630?text=Spec%20Avtoportal"  # <- можешь заменить
+          ENABLE_PLACEHOLDER = True
 
           data = []
           if OUT.exists():
@@ -77,7 +80,7 @@ jobs:
 
           UA_HEADERS = {
               "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                            "(KHTML, like Gecko) Chrome/124.0 Safari/537.36 NewsBot/1.2",
+                            "(KHTML, like Gecko) Chrome/124.0 Safari/537.36 NewsBot/1.3",
               "Accept": "application/rss+xml,application/xml;q=0.9,*/*;q=0.8",
               "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
               "Referer": "https://www.google.com/",
@@ -109,45 +112,204 @@ jobs:
               if not maybe: return ""
               return urllib.parse.urljoin(base, maybe)
 
-          META_IMG_KEYS = [
-              ("property","og:image"),
-              ("name","og:image"),
-              ("name","twitter:image"),
-              ("property","twitter:image"),
-              ("itemprop","image"),
-          ]
+          # ---------- helpers for image parsing ----------
+          IMG_BAD_PAT = re.compile(
+              r"(sprite|logo|icon|favicon|placeholder|pixel|ads|banner|tracking|counter)\b", re.I
+          )
+          SIZE_IN_NAME = re.compile(r"(\d{2,5})[xX_](\d{2,5})")
 
-          def extract_meta_image(html: bytes, base: str) -> str:
+          def from_srcset(srcset: str):
+              """возвращает URL самого крупного кандидата из srcset"""
+              best = ("", 0)
+              for part in (srcset or "").split(","):
+                  s = part.strip()
+                  if not s: continue
+                  bits = s.split()
+                  url = bits[0]
+                  score = 0
+                  if len(bits) > 1:
+                      d = bits[1]
+                      if d.endswith("w"):
+                          try: score = int(d[:-1])
+                          except: pass
+                      elif d.endswith("x"):
+                          try: score = int(float(d[:-1]) * 1000)
+                          except: pass
+                  if score > best[1]:
+                      best = (url, score)
+              return best[0]
+
+          def parse_json_ld_images(soup, base):
+              imgs = []
+              for sc in soup.find_all("script", type="application/ld+json"):
+                  try:
+                      raw = sc.string or sc.get_text() or ""
+                      if not raw.strip():
+                          continue
+                      # многие сайты кладут несколько объектов в массив
+                      import json
+                      ld = json.loads(raw)
+                      def collect(obj):
+                          if isinstance(obj, dict):
+                              t = (obj.get("@type") or "").lower()
+                              if t in ("newsarticle","article","blogposting"):
+                                  # image может быть str / dict / list
+                                  cand = obj.get("image") or obj.get("thumbnailUrl")
+                                  if cand:
+                                      if isinstance(cand, str):
+                                          imgs.append(abs_url(base, cand))
+                                      elif isinstance(cand, dict):
+                                          u = cand.get("url") or cand.get("@id")
+                                          if u: imgs.append(abs_url(base, u))
+                                      elif isinstance(cand, list):
+                                          for el in cand:
+                                              if isinstance(el, str):
+                                                  imgs.append(abs_url(base, el))
+                                              elif isinstance(el, dict):
+                                                  u = el.get("url") or el.get("@id")
+                                                  if u: imgs.append(abs_url(base, u))
+                          if isinstance(obj, list):
+                              for x in obj: collect(x)
+                      collect(ld)
+                  except Exception:
+                      pass
+              return imgs
+
+          def extract_meta_image(soup, base):
+              # ог/твиттер/secure
+              keys = [
+                  ("property","og:image"),
+                  ("property","og:image:secure_url"),
+                  ("name","og:image"),
+                  ("name","twitter:image"),
+                  ("property","twitter:image"),
+                  ("itemprop","image"),
+              ]
+              urls = []
+              for attr, val in keys:
+                  for t in soup.find_all("meta", attrs={attr: val}):
+                      u = (t.get("content") or t.get("value") or "").strip()
+                      if u:
+                          urls.append(abs_url(base, u))
+              # <link rel=image_src>
+              for t in soup.find_all("link", rel=lambda v: v and "image_src" in [vv.lower() for vv in (v if isinstance(v, list) else [v])]):
+                  u = (t.get("href") or "").strip()
+                  if u: urls.append(abs_url(base, u))
+              return urls
+
+          def extract_inline_backgrounds(soup, base):
+              urls=[]
+              for tag in soup.find_all(style=True):
+                  st = tag.get("style") or ""
+                  m = re.search(r"background-image\s*:\s*url\(([^)]+)\)", st, re.I)
+                  if m:
+                      u = m.group(1).strip(" '\"")
+                      urls.append(abs_url(base, u))
+              return urls
+
+          def collect_img_candidates(soup, base):
+              cands=[]
+              # 1) <img> в статье/figure/по всему документу
+              def push(u, w=None, h=None, weight=0):
+                  if not u: return
+                  u = abs_url(base, u)
+                  cands.append({"url": u, "w": (int(w) if w and str(w).isdigit() else None),
+                                "h": (int(h) if h and str(h).isdigit() else None),
+                                "score": weight})
+              # основные контейнеры
+              scopes = []
+              for sel in ("article","main",".article",".post",".news",".entry",".content"):
+                  scopes += soup.select(sel)
+              scopes = scopes or [soup]  # если ничего не нашли — весь документ
+
+              for scope in scopes:
+                  for img in scope.find_all("img"):
+                      src = img.get("src") or ""
+                      if not src:
+                          for k in ("data-src","data-original","data-lazy-src"):
+                              if img.get(k):
+                                  src = img.get(k); break
+                      if not src and (img.get("srcset") or img.get("data-srcset")):
+                          src = from_srcset(img.get("srcset") or img.get("data-srcset"))
+                      if not src: continue
+                      w = img.get("width"); h = img.get("height")
+                      push(src, w, h, 5)
+
+              # фоновые
+              for u in extract_inline_backgrounds(soup, base):
+                  push(u, weight=3)
+
+              # AMP-изображения на самой странице
+              for amp in soup.find_all("amp-img"):
+                  u = amp.get("src") or ""
+                  if not u and (amp.get("srcset") or amp.get("data-srcset")):
+                      u = from_srcset(amp.get("srcset") or amp.get("data-srcset"))
+                  push(u, amp.get("width"), amp.get("height"), 6)
+
+              return cands
+
+          def score_candidate(c):
+              url = c["url"]
+              if IMG_BAD_PAT.search(url): return -9999
+              w = c.get("w"); h = c.get("h")
+              ratio = (float(w)/float(h)) if (w and h and h!=0) else None
+              base = c.get("score", 0)
+
+              # + очки за размер
+              if w and h:
+                  area = w*h
+                  base += min(area/60000, 20)  # до +20 за ~1200x600
+                  if 0.5 <= ratio <= 2.5:
+                      base += 3
+              else:
+                  # угадаем размер из имени файла
+                  m = SIZE_IN_NAME.search(url)
+                  if m:
+                      ww = int(m.group(1)); hh = int(m.group(2))
+                      area = ww*hh
+                      base += min(area/60000, 15)
+                      r = ww/float(hh) if hh else 1
+                      if 0.5 <= r <= 2.5: base += 2
+
+              # +2 за вероятный «крупный» файл по srcset-оценке
+              if " 2x" in url or " 3x" in url: base += 2
+
+              return base
+
+          def best_image_from_html(html: bytes, base: str) -> str:
               try:
                   soup = BeautifulSoup(html, "lxml")
               except Exception:
                   soup = BeautifulSoup(html, "html.parser")
-              for attr, val in META_IMG_KEYS:
-                  tag = soup.find("meta", attrs={attr: val})
-                  if tag and (tag.get("content") or tag.get("value")):
-                      img = tag.get("content") or tag.get("value")
-                      img = abs_url(base, img.strip())
-                      if img: return img
-              img_tag = soup.find("img", src=True)
-              if img_tag:
-                  return abs_url(base, img_tag["src"].strip())
-              return ""
 
-          def pass_keywords(text: str, kws):
-              if not kws: return True
-              t = (text or "").lower()
-              return any(k.lower() in t for k in kws)
+              # 1) metas / json-ld
+              meta_urls = extract_meta_image(soup, base)
+              jsonld_urls = parse_json_ld_images(soup, base)
 
-          # --- google placeholder?
+              # 2) обычные кандидаты
+              candidates = collect_img_candidates(soup, base)
+
+              # 3) сложим всё вместе
+              #   мета/JSON-LD получат повышенный стартовый вес
+              cands = [{"url": u, "w": None, "h": None, "score": 10} for u in meta_urls] + \
+                      [{"url": u, "w": None, "h": None, "score": 9} for u in jsonld_urls] + \
+                      candidates
+
+              # 4) отсортируем по скору
+              if not cands:
+                  return ""
+
+              cands.sort(key=score_candidate, reverse=True)
+              return cands[0]["url"]
+
+          # ---------- Google helpers ----------
           def is_google_placeholder(url: str) -> bool:
               try:
-                  host = urllib.parse.urlparse(url).netloc
+                  host = urllib.parse.urlparse(url).netloc.lower()
               except Exception:
                   return False
-              host = host.lower()
               return ("news.google.com" in host) or ("gstatic" in host)
 
-          # --- распаковываем ссылку издателя из Google News
           def resolve_publisher_link(link: str, desc_html: str, resolve_left: list) -> str:
               try:
                   host = urllib.parse.urlparse(link).netloc
@@ -156,7 +318,7 @@ jobs:
               if "news.google.com" not in host:
                   return link
 
-              # 1) из <description> — берём первый <a href>, который не news.google.com
+              # 1) из description: первый <a href> вне google
               if desc_html:
                   try:
                       soup = BeautifulSoup(desc_html, "lxml")
@@ -170,7 +332,7 @@ jobs:
                       except Exception:
                           pass
 
-              # 2) пробуем распарсить url/u в query
+              # 2) url=/u= в query
               try:
                   qs = urllib.parse.parse_qs(urllib.parse.urlparse(link).query)
                   for key in ("url","u"):
@@ -181,7 +343,7 @@ jobs:
               except Exception:
                   pass
 
-              # 3) если лимит не исчерпан — делаем GET и берём финальный Location
+              # 3) GET и взять финальный Location
               if resolve_left[0] > 0:
                   try:
                       req = urllib.request.Request(link, headers=HTML_HEADERS)
@@ -215,9 +377,11 @@ jobs:
           cfg = yaml.safe_load(SRC.read_text(encoding="utf-8"))
           feeds = cfg.get("rss") or []
 
-          MAX_HTML_SCRAPES = 300         # сколько страниц статьи открываем для og:image
+          MAX_HTML_SCRAPES = 300   # глубоких заходов на статью
+          MAX_AMP_FETCH = 120      # заходов на amp-страницы
           html_scraped = 0
-          RESOLVE_LIMIT = 150            # сколько google-ссылок разрешаем «раскрутить»
+          amp_scraped = 0
+          RESOLVE_LIMIT = 180
           resolve_left = [RESOLVE_LIMIT]
 
           appended = 0
@@ -258,9 +422,12 @@ jobs:
                       real_link = resolve_publisher_link(link, desc, resolve_left) or link
 
                       text  = f"{title}\n{desc}"
-                      if not pass_keywords(text, kws):
-                          continue
+                      if kws:
+                          t = text.lower()
+                          if not any(k.lower() in t for k in kws):
+                              continue
 
+                      # 1) картинки из RSS
                       img = ""
                       enc = it.find("enclosure")
                       if enc is not None and enc.get("url"):
@@ -275,19 +442,77 @@ jobs:
                           im = image_tag(it)
                           if im: img = im
 
-                      # отбрасываем «синие заглушки» от Google
                       if img and is_google_placeholder(img):
                           img = ""
 
-                      if not img and real_link and html_scraped < MAX_HTML_SCRAPES:
+                      # 2) идём в HTML статьи и вытаскиваем лучший кадр
+                      html = None
+                      if real_link and html_scraped < MAX_HTML_SCRAPES:
                           try:
                               html = fetch_with_retries(real_link, HTML_HEADERS, retries=2)
-                              img = extract_meta_image(html, real_link)
                               html_scraped += 1
+                              try:
+                                  soup = BeautifulSoup(html, "lxml")
+                              except Exception:
+                                  soup = BeautifulSoup(html, "html.parser")
+                              # amphtml?
+                              amp = soup.find("link", rel=lambda v: v and "amphtml" in [vv.lower() for vv in (v if isinstance(v, list) else [v])])
+                              amp_url = abs_url(real_link, amp.get("href")) if amp and amp.get("href") else ""
+                              # сначала пробуем «умный» выбор
+                              best = best_image_from_html(html, real_link)
+                              # если всё ещё пусто — пробуем AMP
+                              if not best and amp_url and amp_scraped < MAX_AMP_FETCH:
+                                  try:
+                                      amp_html = fetch_with_retries(amp_url, HTML_HEADERS, retries=1)
+                                      amp_scraped += 1
+                                      best = best_image_from_html(amp_html, amp_url)
+                                  except Exception:
+                                      pass
+                              if best and not is_google_placeholder(best):
+                                  img = best
                           except Exception:
                               pass
 
+                      # 3) last-resort: если всё ещё пусто — берём ПЕРВОЕ <img> на странице
+                      if not img and html:
+                          try:
+                              soup = BeautifulSoup(html, "lxml")
+                          except Exception:
+                              soup = BeautifulSoup(html, "html.parser")
+                          first_img = None
+                          for tag in soup.find_all("img"):
+                              src = tag.get("src") or tag.get("data-src") or tag.get("data-original") \
+                                    or from_srcset(tag.get("srcset") or tag.get("data-srcset") or "")
+                              if src:
+                                  u = abs_url(real_link, src)
+                                  if not is_google_placeholder(u):
+                                      first_img = u
+                                      break
+                          if first_img:
+                              img = first_img
+
+                      # 4) абсолютный fallback — плейсхолдер
+                      if not img and ENABLE_PLACEHOLDER:
+                          img = LAST_RESORT_PLACEHOLDER
+
                       img = abs_url(real_link, img)
+
+                      def add_item(acc, title, link, summary, pub, img):
+                          link = (link or "").strip()
+                          if link and link in seen:
+                              return
+                          if link:
+                              seen.add(link)
+                          dom = urllib.parse.urlparse(link).netloc if link else ""
+                          acc.append({
+                              "id": link or hashlib.md5((title+summary).encode("utf-8","ignore")).hexdigest(),
+                              "title": title or "",
+                              "url": link,
+                              "domain": dom,
+                              "summary": summary or "",
+                              "image": img or "",
+                              "date": pub or ""
+                          })
 
                       add_item(data, title, real_link, desc, pub, img)
                       cnt += 1
@@ -306,7 +531,9 @@ jobs:
           data.sort(key=ts, reverse=True)
           OUT.parent.mkdir(parents=True, exist_ok=True)
           OUT.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-          print("Merged feed size:", len(data), "| appended:", appended, "| html_scraped:", html_scraped, "| resolved:", RESOLVE_LIMIT - resolve_left[0])
+          print("Merged feed size:", len(data),
+                "| html_scraped:", html_scraped,
+                "| amp_scraped:", amp_scraped)
           PY
 
       - name: Preview output
@@ -317,12 +544,12 @@ jobs:
           python - <<'PY'
           import json, urllib.parse
           arr=json.load(open('frontend/data/news.json','rb'))
-          print('items:', len(arr))
-          c_with_img=sum(1 for x in arr if x.get('image'))
-          print('with images:', c_with_img)
-          for it in arr[:10]:
+          total=len(arr)
+          with_img=sum(1 for x in arr if x.get('image'))
+          print('items:', total, '| with images:', with_img, f'({with_img*100//max(total,1)}%)')
+          for it in arr[:12]:
             host = urllib.parse.urlparse(it.get('url') or '').netloc
-            print('-', (it.get('title') or '')[:90], '| host:', host, '| img:', bool(it.get('image')))
+            print('-', (it.get('title') or '')[:92], '| host:', host, '| img:', (it.get('image') or '')[:80])
           PY
 
       - name: Commit & push changes
@@ -332,5 +559,5 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git diff --staged --quiet || git commit -m "feat: resolve Google links to publisher + drop google placeholders + stronger og:image"
+          git diff --staged --quiet || git commit -m "feat(images): robust extractor (meta, json-ld, amp, img, lazy, last-resort) + placeholder"
           git push
