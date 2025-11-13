@@ -3,7 +3,7 @@ name: Ingest & Publish
 on:
   workflow_dispatch: {}
   # schedule:
-  #   - cron: "*/30 5-20 * * *"
+  #   - cron: "*/30 5-20 * * *"   # пример автообновления
 
 permissions:
   contents: write
@@ -29,7 +29,7 @@ jobs:
           set -eux
           if [ -f "requirements.txt" ]; then pip install -r requirements.txt; fi
           if [ -f "aggregator/requirements.txt" ]; then pip install -r aggregator/requirements.txt; fi
-          pip install pyyaml >/dev/null 2>&1 || true
+          pip install pyyaml beautifulsoup4 lxml >/dev/null 2>&1 || true
 
       - name: Quick YAML check (rss length)
         shell: bash
@@ -49,21 +49,25 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
+          # если агрегатор ничего не соберёт — ок, дальше сольём RSS
           python aggregator/main.py --sources aggregator/sources.yml --output frontend/data/news.json || true
 
-      - name: Merge aggregator output with ALL RSS in sources.yml
+      - name: Merge aggregator output with ALL RSS in sources.yml (+image rescue)
         shell: bash
         run: |
           set -eux
           python - <<'PY'
-          import json, pathlib, urllib.request, urllib.parse, xml.etree.ElementTree as ET
-          import ssl, time, yaml, hashlib
+          import json, pathlib, time, ssl, re
+          import urllib.request, urllib.parse
           from urllib.error import HTTPError, URLError
+          import xml.etree.ElementTree as ET
+          import yaml, hashlib
+          from bs4 import BeautifulSoup
 
           OUT = pathlib.Path("frontend/data/news.json")
           SRC = pathlib.Path("aggregator/sources.yml")
 
-          # 1) читаем уже имеющийся news.json
+          # ---- базовые данные
           data = []
           if OUT.exists():
               try:
@@ -81,59 +85,63 @@ jobs:
               "Referer": "https://www.google.com/",
           }
 
+          HTML_HEADERS = UA_HEADERS | {
+              "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+          }
+
           ssl_ctx = ssl.create_default_context()
           ssl_ctx.check_hostname = False
           ssl_ctx.verify_mode = ssl.CERT_NONE
 
-          def _open(url: str):
-              req = urllib.request.Request(url, headers=UA_HEADERS)
-              return urllib.request.urlopen(req, timeout=30, context=ssl_ctx)
+          def open_url(url: str, headers: dict, timeout: int = 30):
+              req = urllib.request.Request(url, headers=headers)
+              return urllib.request.urlopen(req, timeout=timeout, context=ssl_ctx)
 
-          def fetch_with_variants(url: str, retries: int = 3, backoff: float = 1.5) -> bytes:
-              """
-              Пытается скачать URL с ретраями и перебором вариантов:
-              - https <-> http
-              - c/без www
-              - c/без завершающего /
-              """
-              def variants(u: str):
-                  parts = urllib.parse.urlparse(u)
-                  schemes = [parts.scheme] if parts.scheme else ["https"]
-                  if "https" in schemes and "http" not in schemes: schemes.append("http")
-                  hosts = [parts.netloc]
-                  if parts.netloc.startswith("www."):
-                      hosts.append(parts.netloc[4:])
-                  else:
-                      hosts.append("www." + parts.netloc)
-                  paths = [parts.path]
-                  if parts.path.endswith("/"):
-                      paths.append(parts.path[:-1] or "/")
-                  else:
-                      paths.append(parts.path + "/")
-                  for s in schemes:
-                      for h in hosts:
-                          for p in paths:
-                              yield urllib.parse.urlunparse((s, h, p, "", parts.query, parts.fragment))
+          def fetch_with_retries(url: str, headers: dict, retries: int = 2, backoff: float = 1.7) -> bytes:
+              last = None
+              for i in range(retries + 1):
+                  try:
+                      with open_url(url, headers) as r:
+                          return r.read()
+                  except Exception as e:
+                      last = e
+                      time.sleep(backoff ** i)
+              raise last
 
-              last_err = None
-              tried = set()
-              for v in variants(url):
-                  if v in tried: continue
-                  tried.add(v)
-                  for attempt in range(1, retries + 1):
-                      try:
-                          with _open(v) as r:
-                              return r.read()
-                      except (HTTPError, URLError, ssl.SSLError) as e:
-                          last_err = e
-                          time.sleep(backoff ** attempt)
-                          continue
-              if last_err: raise last_err
-              raise RuntimeError("Failed to fetch RSS")
+          # --- нормализация абсолютного URL
+          def abs_url(base: str, maybe: str) -> str:
+              if not maybe: return ""
+              return urllib.parse.urljoin(base, maybe)
+
+          # --- парс картинок из HTML: og:image / twitter:image / itemprop=image
+          META_IMG_KEYS = [
+              ("property","og:image"),
+              ("name","og:image"),
+              ("name","twitter:image"),
+              ("property","twitter:image"),
+              ("itemprop","image"),
+          ]
+
+          def extract_meta_image(html: bytes, base: str) -> str:
+              try:
+                  soup = BeautifulSoup(html, "lxml")
+              except Exception:
+                  soup = BeautifulSoup(html, "html.parser")
+              # стандартные мета
+              for attr, val in META_IMG_KEYS:
+                  tag = soup.find("meta", attrs={attr: val})
+                  if tag and (tag.get("content") or tag.get("value")):
+                      img = tag.get("content") or tag.get("value")
+                      img = abs_url(base, img.strip())
+                      if img: return img
+              # fallback: первая картинка на странице
+              img_tag = soup.find("img", src=True)
+              if img_tag:
+                  return abs_url(base, img_tag["src"].strip())
+              return ""
 
           def pass_keywords(text: str, kws):
-              if not kws:
-                  return True
+              if not kws: return True
               t = (text or "").lower()
               return any(k.lower() in t for k in kws)
 
@@ -157,6 +165,10 @@ jobs:
           cfg = yaml.safe_load(SRC.read_text(encoding="utf-8"))
           feeds = cfg.get("rss") or []
 
+          # лимит «глубокой подкачки» HTML (за прогон), чтобы не долбить сайты
+          MAX_HTML_SCRAPES = 40
+          html_scraped = 0
+
           appended = 0
           for f in feeds:
               url = (f.get("url") or "").strip()
@@ -165,8 +177,16 @@ jobs:
               if not url:
                   continue
               try:
-                  xml = fetch_with_variants(url)
+                  xml = fetch_with_retries(url, UA_HEADERS)
                   root = ET.fromstring(xml)
+
+                  # media namespace может быть любым, используем wildcard
+                  def media_content(el):
+                      m = el.find(".//{*}content")
+                      if m is not None and m.get("url"):
+                          return m.get("url")
+                      return ""
+
                   cnt = 0
                   for it in root.findall(".//item"):
                       title = (it.findtext("title") or "").strip()
@@ -176,10 +196,31 @@ jobs:
                       text  = f"{title}\n{desc}"
                       if not pass_keywords(text, kws):
                           continue
+
                       img = ""
+                      # 1) enclosure
                       enc = it.find("enclosure")
                       if enc is not None and enc.get("url"):
                           img = enc.get("url")
+
+                      # 2) media:content
+                      if not img:
+                          mc = media_content(it)
+                          if mc:
+                              img = mc
+
+                      # 3) если Google News/другие не дали — подкачиваем HTML статьи и вытаскиваем og:image
+                      if not img and link and html_scraped < MAX_HTML_SCRAPES:
+                          try:
+                              html = fetch_with_retries(link, HTML_HEADERS, retries=2)
+                              img = extract_meta_image(html, link)
+                              html_scraped += 1
+                          except Exception:
+                              pass
+
+                      # нормализуем URL
+                      img = abs_url(link, img)
+
                       add_item(data, title, link, desc, pub, img)
                       cnt += 1
                   appended += cnt
@@ -187,7 +228,7 @@ jobs:
               except Exception as e:
                   print(f"[RSS] {name}: ERROR {e}")
 
-          # сортировка (best-effort)
+          # сортировка
           def ts(x):
               s = x.get("date") or ""
               try:
@@ -198,7 +239,7 @@ jobs:
           data.sort(key=ts, reverse=True)
           OUT.parent.mkdir(parents=True, exist_ok=True)
           OUT.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-          print("Merged feed size:", len(data), "| appended:", appended)
+          print("Merged feed size:", len(data), "| appended:", appended, "| html_scraped:", html_scraped)
           PY
 
       - name: Preview output
@@ -211,7 +252,7 @@ jobs:
           arr=json.load(open('frontend/data/news.json','rb'))
           print('items:', len(arr))
           for it in arr[:5]:
-              print('-', (it.get('title') or '')[:120])
+              print('-', (it.get('title') or '')[:120], '| img:', bool(it.get('image')))
           PY
 
       - name: Commit & push changes
@@ -221,5 +262,5 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git diff --staged --quiet || git commit -m "chore: ingest feed → robust fetch with retries/variants"
+          git diff --staged --quiet || git commit -m "chore: ingest + fetch og:image for Google News items"
           git push
