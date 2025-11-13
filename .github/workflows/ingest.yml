@@ -3,7 +3,7 @@ name: Ingest & Publish
 on:
   workflow_dispatch: {}
   # schedule:
-  #   - cron: "*/30 5-20 * * *"   # пример автообновления
+  #   - cron: "*/30 5-20 * * *"
 
 permissions:
   contents: write
@@ -49,7 +49,6 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          # если агрегатор ничего не соберёт — ок, дальше сольём RSS
           python aggregator/main.py --sources aggregator/sources.yml --output frontend/data/news.json || true
 
       - name: Merge aggregator output with ALL RSS in sources.yml (+image rescue)
@@ -67,7 +66,6 @@ jobs:
           OUT = pathlib.Path("frontend/data/news.json")
           SRC = pathlib.Path("aggregator/sources.yml")
 
-          # ---- базовые данные
           data = []
           if OUT.exists():
               try:
@@ -79,12 +77,11 @@ jobs:
 
           UA_HEADERS = {
               "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                            "(KHTML, like Gecko) Chrome/124.0 Safari/537.36 NewsBot/1.0",
+                            "(KHTML, like Gecko) Chrome/124.0 Safari/537.36 NewsBot/1.1",
               "Accept": "application/rss+xml,application/xml;q=0.9,*/*;q=0.8",
               "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
               "Referer": "https://www.google.com/",
           }
-
           HTML_HEADERS = UA_HEADERS | {
               "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
           }
@@ -108,12 +105,10 @@ jobs:
                       time.sleep(backoff ** i)
               raise last
 
-          # --- нормализация абсолютного URL
           def abs_url(base: str, maybe: str) -> str:
               if not maybe: return ""
               return urllib.parse.urljoin(base, maybe)
 
-          # --- парс картинок из HTML: og:image / twitter:image / itemprop=image
           META_IMG_KEYS = [
               ("property","og:image"),
               ("name","og:image"),
@@ -127,14 +122,12 @@ jobs:
                   soup = BeautifulSoup(html, "lxml")
               except Exception:
                   soup = BeautifulSoup(html, "html.parser")
-              # стандартные мета
               for attr, val in META_IMG_KEYS:
                   tag = soup.find("meta", attrs={attr: val})
                   if tag and (tag.get("content") or tag.get("value")):
                       img = tag.get("content") or tag.get("value")
                       img = abs_url(base, img.strip())
                       if img: return img
-              # fallback: первая картинка на странице
               img_tag = soup.find("img", src=True)
               if img_tag:
                   return abs_url(base, img_tag["src"].strip())
@@ -144,6 +137,37 @@ jobs:
               if not kws: return True
               t = (text or "").lower()
               return any(k.lower() in t for k in kws)
+
+          # --- Google News: получить URL издателя
+          def resolve_publisher_link(link: str, desc: str) -> str:
+              try:
+                  host = urllib.parse.urlparse(link).netloc
+              except Exception:
+                  host = ""
+              if "news.google.com" not in host:
+                  return link
+              # 1) url= / u= в query
+              try:
+                  qs = urllib.parse.parse_qs(urllib.parse.urlparse(link).query)
+                  for key in ("url","u"):
+                      if key in qs and qs[key]:
+                          u = qs[key][0]
+                          if "news.google.com" not in urllib.parse.urlparse(u).netloc:
+                              return u
+              except Exception:
+                  pass
+              # 2) первая внешняя ссылка из description
+              if desc:
+                  m = re.search(r'https?://[^\s"<>]+', desc)
+                  if m:
+                      u = m.group(0)
+                      try:
+                          if "news.google.com" not in urllib.parse.urlparse(u).netloc:
+                              return u
+                      except Exception:
+                          pass
+              # 3) fallback — оставляем как есть
+              return link
 
           def add_item(acc, title, link, summary, pub, img):
               link = (link or "").strip()
@@ -165,8 +189,8 @@ jobs:
           cfg = yaml.safe_load(SRC.read_text(encoding="utf-8"))
           feeds = cfg.get("rss") or []
 
-          # лимит «глубокой подкачки» HTML (за прогон), чтобы не долбить сайты
-          MAX_HTML_SCRAPES = 40
+          # увеличили лимит «глубокой» подкачки HTML
+          MAX_HTML_SCRAPES = 200
           html_scraped = 0
 
           appended = 0
@@ -180,11 +204,21 @@ jobs:
                   xml = fetch_with_retries(url, UA_HEADERS)
                   root = ET.fromstring(xml)
 
-                  # media namespace может быть любым, используем wildcard
                   def media_content(el):
                       m = el.find(".//{*}content")
                       if m is not None and m.get("url"):
                           return m.get("url")
+                      return ""
+                  def media_thumbnail(el):
+                      m = el.find(".//{*}thumbnail")
+                      if m is not None and m.get("url"):
+                          return m.get("url")
+                      return ""
+                  def image_tag(el):
+                      m = el.find("image")
+                      if m is not None:
+                          u = m.findtext("url")
+                          if u: return u
                       return ""
 
                   cnt = 0
@@ -193,42 +227,45 @@ jobs:
                       link  = (it.findtext("link")  or "").strip()
                       desc  = (it.findtext("description") or "").strip()
                       pub   = (it.findtext("pubDate") or "").strip()
+
+                      # резолвим реальную ссылку публикации, если это Google
+                      real_link = resolve_publisher_link(link, desc) or link
+
                       text  = f"{title}\n{desc}"
                       if not pass_keywords(text, kws):
                           continue
 
                       img = ""
-                      # 1) enclosure
                       enc = it.find("enclosure")
                       if enc is not None and enc.get("url"):
                           img = enc.get("url")
-
-                      # 2) media:content
                       if not img:
                           mc = media_content(it)
-                          if mc:
-                              img = mc
+                          if mc: img = mc
+                      if not img:
+                          tn = media_thumbnail(it)
+                          if tn: img = tn
+                      if not img:
+                          im = image_tag(it)
+                          if im: img = im
 
-                      # 3) если Google News/другие не дали — подкачиваем HTML статьи и вытаскиваем og:image
-                      if not img and link and html_scraped < MAX_HTML_SCRAPES:
+                      if not img and real_link and html_scraped < MAX_HTML_SCRAPES:
                           try:
-                              html = fetch_with_retries(link, HTML_HEADERS, retries=2)
-                              img = extract_meta_image(html, link)
+                              html = fetch_with_retries(real_link, HTML_HEADERS, retries=2)
+                              img = extract_meta_image(html, real_link)
                               html_scraped += 1
                           except Exception:
                               pass
 
-                      # нормализуем URL
-                      img = abs_url(link, img)
+                      img = abs_url(real_link, img)
 
-                      add_item(data, title, link, desc, pub, img)
+                      add_item(data, title, real_link, desc, pub, img)
                       cnt += 1
                   appended += cnt
                   print(f"[RSS] {name}: {cnt}")
               except Exception as e:
                   print(f"[RSS] {name}: ERROR {e}")
 
-          # сортировка
           def ts(x):
               s = x.get("date") or ""
               try:
@@ -251,8 +288,10 @@ jobs:
           import json
           arr=json.load(open('frontend/data/news.json','rb'))
           print('items:', len(arr))
+          c_with_img=sum(1 for x in arr if x.get('image'))
+          print('with images:', c_with_img)
           for it in arr[:5]:
-              print('-', (it.get('title') or '')[:120], '| img:', bool(it.get('image')))
+            print('-', (it.get('title') or '')[:110], '| img:', (it.get('image') or '')[:80])
           PY
 
       - name: Commit & push changes
@@ -262,5 +301,5 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git diff --staged --quiet || git commit -m "chore: ingest + fetch og:image for Google News items"
+          git diff --staged --quiet || git commit -m "chore: resolve Google News to publisher + fetch og:image/thumbnail"
           git push
