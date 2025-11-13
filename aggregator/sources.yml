@@ -1,77 +1,144 @@
 rss:
-rss:
-  # 1) KRONE Trailers — официальный RSS
-  - name: "Krone Trailers (official)"
-    url: "https://www.krone-trailer.com/en/news/rss-feed/"
+  # Drom.ru — новости
+  - name: "Drom.ru (Новости)"
+    url: "https://news.drom.ru/rss/"
+    lang: "ru"
+    tags: ["auto", "trucks", "trailers"]
+    include_keywords:
+      - "полуприцеп"
+      - "прицеп"
+      - "низкорам"
+      - "шторн"
+      - "рефрижератор"
+      - "самосвальн"
+      - "трал"
+      - "бортов"
+      - "контейнеровоз"
+      - "тентован"
+      - "цистерн"
+      - "седельн"
+      - "полуприцепы"
 
-  # 2) Wielton — пресс-центр (prowly) с RSS
-  - name: "Wielton (press / prowly)"
-    url: "https://wielton.prowly.com/rss"
+  # За рулём — RSS
+  - name: "За рулём (Все новости)"
+    url: "https://www.zr.ru/rss/"
+    lang: "ru"
+    tags: ["auto", "industry"]
+    include_keywords:
+      - "полуприцеп"
+      - "прицеп"
+      - "низкорам"
+      - "шторн"
+      - "рефрижератор"
+      - "самосвальн"
+      - "трал"
+      - "бортов"
+      - "контейнеровоз"
+      - "тентован"
+      - "цистерн"
+      - "седельн"
+      - "полуприцепы"
 
-  # 3) Global Trailer Magazine — общий RSS (WP)
-  - name: "Global Trailer Magazine (all feed)"
-    url: "https://www.globaltrailermag.com/feed/"
+  # Motor.ru — общий RSS
+  - name: "Motor.ru (Все)"
+    url: "https://motor.ru/rss/all"
+    lang: "ru"
+    tags: ["auto"]
+    include_keywords:
+      - "полуприцеп"
+      - "прицеп"
+      - "низкорам"
+      - "шторн"
+      - "рефрижератор"
+      - "самосвальн"
+      - "трал"
+      - "бортов"
+      - "контейнеровоз"
+      - "тентован"
+      - "цистерн"
+      - "седельн"
+      - "полуприцепы"
 
-html:
-  # 4) Schmitz Cargobull — пресс
-  - name: "Schmitz Cargobull (press)"
-    url: "https://www.cargobull.com/en/press"
-    list_selector: "main"
-    item_selector: "a.card, a.teaser, article a"
-    title_selector: ".card__title, .teaser__title, h2, h3"
-    link_selector: "@href"
-    summary_selector: ".card__text, .teaser__text, p"
-    date_selector: "time@datetime, time"
-    image_selector: "img@src"
-    include_keywords: ["trailer", "semi-trailer", "reefer", "box body", "tipper", "curtain", "chassis", "schmitz"]
+  # Autoreview — общий RSS
+  - name: "Авторевю (Все)"
+    url: "https://autoreview.ru/rss/all"
+    lang: "ru"
+    tags: ["auto"]
+    include_keywords:
+      - "полуприцеп"
+      - "прицеп"
+      - "низкорам"
+      - "шторн"
+      - "рефрижератор"
+      - "самосвальн"
+      - "трал"
+      - "бортов"
+      - "контейнеровоз"
+      - "тентован"
+      - "цистерн"
+      - "седельн"
+      - "полуприцепы"
 
-  # 5) Kögel Trailer — новости/пресс
-  - name: "Kögel Trailer (news & press)"
-    url: "https://www.koegel.com/en/news-press/"
-    list_selector: "main"
-    item_selector: "article, .news-card, .c-news-teaser a"
-    title_selector: "h2, h3, .news-card__title"
-    link_selector: "a@href"
-    summary_selector: "p, .news-card__text"
-    date_selector: "time@datetime, time"
-    image_selector: "img@src"
-    include_keywords: ["kögel", "trailer", "semi", "cool", "chassis", "platform", "tipper"]
+  # Autonews — RSS
+  - name: "Автоньюс (Лента)"
+    url: "https://www.autonews.ru/autonews/rss.xml"
+    lang: "ru"
+    tags: ["auto", "business"]
+    include_keywords:
+      - "полуприцеп"
+      - "прицеп"
+      - "низкорам"
+      - "шторн"
+      - "рефрижератор"
+      - "самосвальн"
+      - "трал"
+      - "бортов"
+      - "контейнеровоз"
+      - "тентован"
+      - "цистерн"
+      - "седельн"
+      - "полуприцепы"
 
-  # 6) Kässbohrer — newsroom
-  - name: "Kässbohrer (newsroom)"
-    url: "https://kaessbohrer.com/en/newsroom"
-    list_selector: "main"
-    item_selector: "article, .news-item, .blog-item, a.card"
-    title_selector: "h2, h3, .title"
-    link_selector: "a@href"
-    summary_selector: "p, .excerpt, .summary"
-    date_selector: "time@datetime, time"
-    image_selector: "img@src"
-    include_keywords: ["trailer", "semi-trailer", "low-bed", "reefer", "tanker", "tipper", "container"]
+  # Kolesa.ru — RSS
+  - name: "Колёса.ру (RSS)"
+    url: "https://www.kolesa.ru/rss/"
+    lang: "ru"
+    tags: ["auto"]
+    include_keywords:
+      - "полуприцеп"
+      - "прицеп"
+      - "низкорам"
+      - "шторн"
+      - "рефрижератор"
+      - "самосвальн"
+      - "трал"
+      - "бортов"
+      - "контейнеровоз"
+      - "тентован"
+      - "цистерн"
+      - "седельн"
+      - "полуприцепы"
 
-  # 7) Kraker Trailers — блог/новости
-  - name: "Kraker Trailers (news/blog)"
-    url: "https://www.krakertrailers.eu/en/news/"
-    list_selector: "main"
-    item_selector: "article, .news-item, .blog__list .blog__item, .grid a"
-    title_selector: "h2, h3, .blog__title"
-    link_selector: "a@href"
-    summary_selector: "p, .blog__excerpt, .intro"
-    date_selector: "time@datetime, time"
-    image_selector: "img@src"
-    include_keywords: ["moving floor", "K-Force", "trailer", "semi"]
+  # Грузовик-Пресс — профильное издание по грузовой теме
+  - name: "Грузовик-Пресс (Новости)"
+    url: "https://gruzovikpress.ru/rss"
+    lang: "ru"
+    tags: ["trucks", "trailers", "industry"]
+    include_keywords:
+      - "полуприцеп"
+      - "прицеп"
+      - "низкорам"
+      - "шторн"
+      - "рефрижератор"
+      - "самосвальн"
+      - "трал"
+      - "бортов"
+      - "контейнеровоз"
+      - "тентован"
+      - "цистерн"
+      - "седельн"
+      - "полуприцепы"
 
-  # 8) Global Trailer — раздел «Trailers»
-  - name: "Global Trailer (category: Trailers)"
-    url: "https://www.globaltrailermag.com/category/trailers/"
-    list_selector: "main"
-    item_selector: "article, .post, .loop a"
-    title_selector: "h2.entry-title, h3.entry-title, .post-title"
-    link_selector: "a@href"
-    summary_selector: ".entry-content p, .excerpt, p"
-    date_selector: "time@datetime, time"
-    image_selector: "img@src"
-    include_keywords: ["trailer", "semi", "reefer", "chassis", "tipper", "tanker", "curtain", "box", "low-loader"]
 
 
 
