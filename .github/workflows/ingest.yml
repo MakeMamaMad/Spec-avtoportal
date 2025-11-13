@@ -2,9 +2,8 @@ name: Ingest & Publish
 
 on:
   workflow_dispatch: {}
-  # при желании можно включить расписание:
   # schedule:
-  #   - cron: "*/30 5-20 * * *"   # каждые 30 минут с 08:00 до 23:59 МСК
+  #   - cron: "*/30 5-20 * * *"
 
 permissions:
   contents: write
@@ -46,15 +45,15 @@ jobs:
               print('first rss url:', rss[0].get('url'))
           PY
 
-      - name: Run aggregator
+      - name: Run aggregator (keep whatever it produces)
         shell: bash
         run: |
           set -euxo pipefail
-          # если aggregator/main.py вернёт пусто — не падаем, дальше сработает fallback
           python aggregator/main.py --sources aggregator/sources.yml --output frontend/data/news.json || true
+          # если он ничего не понимает — не страшно, следующий шаг всё равно сольёт RSS
 
-      # >>> ВОТ ТОТ САМЫЙ НОВЫЙ FALLBACK <<<
-      - name: If empty → build feed from ALL RSS in sources.yml (fallback)
+      # ⬇️ НОВЫЙ ШАГ: ВСЕГДА мерджим ВСЕ RSS из sources.yml в существующий news.json
+      - name: Merge aggregator output with ALL RSS in sources.yml
         shell: bash
         run: |
           set -eux
@@ -65,38 +64,39 @@ jobs:
           OUT = pathlib.Path("frontend/data/news.json")
           SRC = pathlib.Path("aggregator/sources.yml")
 
-          # если агрегатор уже создал непустой файл — выходим
+          # читаем текущий news.json (то, что положил агрегатор — пусть остаётся)
           data = []
           if OUT.exists():
               try:
                   data = json.loads(OUT.read_text(encoding="utf-8"))
               except Exception:
                   data = []
-          if data:
-              print("Feed already has", len(data), "items — skip RSS fallback")
-              raise SystemExit(0)
+
+          # множество уже имеющихся ссылок — чтобы не плодить дубли
+          seen = set()
+          for it in data:
+              u = (it.get("url") or "").strip()
+              if u:
+                  seen.add(u)
 
           cfg = yaml.safe_load(SRC.read_text(encoding="utf-8"))
           feeds = cfg.get("rss") or []
-          if not feeds:
-              print("No RSS in sources.yml — nothing to fallback")
-              OUT.parent.mkdir(parents=True, exist_ok=True)
-              OUT.write_text("[]", encoding="utf-8")
-              raise SystemExit(0)
-
-          items, seen = [], set()
 
           def add_item(title, link, summary, pub, img):
-              key = link or title
-              if not key:
-                  key = hashlib.md5((title+summary).encode("utf-8","ignore")).hexdigest()
-              if key in seen:
+              link = (link or "").strip()
+              if link and link in seen:
                   return
-              seen.add(key)
+              if link:
+                  seen.add(link)
               dom = urllib.parse.urlparse(link).netloc if link else ""
-              items.append({
-                  "id": key, "title": title or "", "url": link or "",
-                  "domain": dom, "summary": summary or "", "image": img or "", "date": pub or ""
+              data.append({
+                  "id": link or hashlib.md5((title+summary).encode("utf-8","ignore")).hexdigest(),
+                  "title": title or "",
+                  "url": link,
+                  "domain": dom,
+                  "summary": summary or "",
+                  "image": img or "",
+                  "date": pub or ""
               })
 
           for f in feeds:
@@ -123,6 +123,7 @@ jobs:
               except Exception as e:
                   print(f"[RSS] {name}: ERROR {e}")
 
+          # сортировка по дате (best-effort)
           def ts(x):
               s = x.get("date") or ""
               try:
@@ -130,11 +131,11 @@ jobs:
               except Exception:
                   return 0
 
-          items.sort(key=ts, reverse=True)
+          data.sort(key=ts, reverse=True)
 
           OUT.parent.mkdir(parents=True, exist_ok=True)
-          OUT.write_text(json.dumps(items, ensure_ascii=False), encoding="utf-8")
-          print("Fallback wrote", len(items), "items from", len(feeds), "feeds")
+          OUT.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+          print("Merged feed size:", len(data))
           PY
 
       - name: Preview output
@@ -146,7 +147,7 @@ jobs:
           import json
           arr=json.load(open('frontend/data/news.json','rb'))
           print('items:', len(arr))
-          for it in arr[:3]:
+          for it in arr[:5]:
               print('-', (it.get('title') or '')[:120])
           PY
 
@@ -157,5 +158,5 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git diff --staged --quiet || git commit -m "chore: ingest feed → update frontend/data/news.json"
+          git diff --staged --quiet || git commit -m "chore: ingest feed → merge aggregator output with RSS"
           git push
