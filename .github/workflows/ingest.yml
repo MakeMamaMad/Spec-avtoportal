@@ -1,129 +1,91 @@
-name: Ingest & Publish
+- name: If empty → build feed from ALL RSS in sources.yml (fallback)
+  shell: bash
+  run: |
+    set -eux
+    python - <<'PY'
+    import json, pathlib, urllib.request, urllib.parse, xml.etree.ElementTree as ET
+    import yaml, time, hashlib
 
-on:
-  workflow_dispatch: {}
+    OUT = pathlib.Path("frontend/data/news.json")
+    SRC = pathlib.Path("aggregator/sources.yml")
 
-permissions:
-  contents: write
+    # Если агрегатор уже создал непустой файл — ничего не делаем
+    data = []
+    if OUT.exists():
+        try:
+            data = json.loads(OUT.read_text(encoding="utf-8"))
+        except Exception:
+            data = []
+    if data:
+        print("Feed already has", len(data), "items — skip RSS fallback")
+        raise SystemExit(0)
 
-jobs:
-  ingest:
-    runs-on: ubuntu-latest
+    cfg = yaml.safe_load(SRC.read_text(encoding="utf-8"))
+    feeds = cfg.get("rss") or []
+    if not feeds:
+        print("No RSS in sources.yml — nothing to fallback")
+        OUT.parent.mkdir(parents=True, exist_ok=True)
+        OUT.write_text("[]", encoding="utf-8")
+        raise SystemExit(0)
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    items = []
+    seen = set()
 
-      - name: Setup Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+    def add_item(title, link, summary, pub, img):
+        # дедуп по URL (или title)
+        key = link or title
+        if not key: 
+            key = hashlib.md5((title+summary).encode("utf-8", "ignore")).hexdigest()
+        if key in seen: 
+            return
+        seen.add(key)
+        dom = urllib.parse.urlparse(link).netloc if link else ""
+        items.append({
+            "id": key,
+            "title": title or "",
+            "url": link or "",
+            "domain": dom,
+            "summary": summary or "",
+            "image": img or "",
+            "date": pub or ""
+        })
 
-      - name: Install deps (if any)
-        shell: bash
-        run: |
-          set -eux
-          if [ -f "requirements.txt" ]; then pip install -r requirements.txt; fi
-          if [ -f "aggregator/requirements.txt" ]; then pip install -r aggregator/requirements.txt; fi
-          pip install pyyaml >/dev/null 2>&1 || true
+    for f in feeds:
+        url = (f.get("url") or "").strip()
+        name = f.get("name") or url
+        if not url:
+            continue
+        try:
+            xml = urllib.request.urlopen(url, timeout=30).read()
+            root = ET.fromstring(xml)
+            cnt = 0
+            for it in root.findall(".//item"):
+                title = (it.findtext("title") or "").strip()
+                link  = (it.findtext("link")  or "").strip()
+                desc  = (it.findtext("description") or "").strip()
+                pub   = (it.findtext("pubDate") or "").strip()
+                img = ""
+                enc = it.find("enclosure")
+                if enc is not None and enc.get("url"):
+                    img = enc.get("url")
+                add_item(title, link, desc, pub, img)
+                cnt += 1
+            print(f"[RSS] {name}: {cnt}")
+        except Exception as e:
+            print(f"[RSS] {name}: ERROR {e}")
 
-      - name: Quick YAML check (rss length)
-        shell: bash
-        run: |
-          set -eux
-          python - <<'PY'
-          import yaml, pathlib
-          p = pathlib.Path('aggregator/sources.yml')
-          data = yaml.safe_load(p.read_text(encoding='utf-8'))
-          rss = data.get('rss') or []
-          print('rss items:', len(rss))
-          if rss:
-              print('first rss url:', rss[0].get('url'))
-          PY
+    # небольшой порядок: свежие вверх по pubDate/дате в тексте
+    def ts(x):
+        s = x.get("date") or ""
+        # best-effort —распарсить RFC822; если не вышло — 0
+        try:
+            return time.mktime(time.strptime(s[:25], "%a, %d %b %Y %H:%M:%S"))
+        except Exception:
+            return 0
 
-      # Запускаем ТВОЙ агрегатор, сразу с явными параметрами
-      - name: Run aggregator
-        shell: bash
-        run: |
-          set -euxo pipefail
-          python aggregator/main.py --sources aggregator/sources.yml --output frontend/data/news.json || true
-          # не падаем, даже если он вернул 1 — дальше сделаем фоллбек при пустом массиве
+    items.sort(key=ts, reverse=True)
 
-      # Fallback: если агрегатор отдал пусто или файл не создан — собрать feed из RSS KRONE
-      - name: If empty → build feed from KRONE (fallback)
-        shell: bash
-        run: |
-          set -eux
-          python - <<'PY'
-          import json, pathlib, urllib.request, urllib.parse, xml.etree.ElementTree as ET
-
-          out = pathlib.Path("frontend/data/news.json")
-          data = []
-          if out.exists():
-            try:
-              data = json.loads(out.read_text(encoding="utf-8"))
-            except Exception:
-              data = []
-          if data:
-            print("Feed already has", len(data), "items — skip fallback")
-            raise SystemExit(0)
-
-          url = "https://www.krone-trailer.com/en/news/rss-feed"
-          xml = urllib.request.urlopen(url, timeout=30).read()
-          root = ET.fromstring(xml)
-
-          def first(node, tag):
-            el = node.find(tag)
-            return (el.text or "").strip() if el is not None and el.text else ""
-
-          items = []
-          for it in root.findall(".//item")[:50]:
-            title = first(it, "title")
-            link  = first(it, "link")
-            desc  = first(it, "description")
-            pub   = first(it, "pubDate")
-            img = ""
-            enc = it.find("enclosure")
-            if enc is not None and enc.get("url"):
-              img = enc.get("url")
-            import urllib.parse as UP
-            dom = UP.urlparse(link).netloc
-            items.append({
-              "id": link or title,
-              "title": title,
-              "url": link,
-              "domain": dom,
-              "summary": desc,
-              "image": img,
-              "date": pub
-            })
-
-          out.parent.mkdir(parents=True, exist_ok=True)
-          out.write_text(json.dumps(items, ensure_ascii=False), encoding="utf-8")
-          print("Fallback wrote", len(items), "items")
-          PY
-
-      - name: Preview output
-        shell: bash
-        run: |
-          set -eux
-          wc -c frontend/data/news.json || true
-          python - <<'PY'
-          import json
-          arr = json.load(open('frontend/data/news.json','rb'))
-          print('items:', len(arr))
-          for it in arr[:3]:
-              print('-', (it.get('title') or '')[:120])
-          PY
-
-      - name: Commit & push changes
-        shell: bash
-        run: |
-          set -eux
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git diff --staged --quiet || git commit -m "chore: ingest feed → update frontend/data/news.json"
-          git push
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    OUT.write_text(json.dumps(items, ensure_ascii=False), encoding="utf-8")
+    print("Fallback wrote", len(items), "items from", len(feeds), "feeds")
+    PY
