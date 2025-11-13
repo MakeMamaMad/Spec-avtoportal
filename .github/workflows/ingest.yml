@@ -53,7 +53,7 @@ jobs:
           # если он ничего не понимает — не страшно, следующий шаг всё равно сольёт RSS
 
       # ⬇️ НОВЫЙ ШАГ: ВСЕГДА мерджим ВСЕ RSS из sources.yml в существующий news.json
-      - name: Merge aggregator output with ALL RSS in sources.yml
+            - name: Merge aggregator output with ALL RSS in sources.yml
         shell: bash
         run: |
           set -eux
@@ -64,7 +64,7 @@ jobs:
           OUT = pathlib.Path("frontend/data/news.json")
           SRC = pathlib.Path("aggregator/sources.yml")
 
-          # читаем текущий news.json (то, что положил агрегатор — пусть остаётся)
+          # 1) читаем существующий news.json (оставляем то, что положил агрегатор)
           data = []
           if OUT.exists():
               try:
@@ -72,18 +72,30 @@ jobs:
               except Exception:
                   data = []
 
-          # множество уже имеющихся ссылок — чтобы не плодить дубли
-          seen = set()
-          for it in data:
-              u = (it.get("url") or "").strip()
-              if u:
-                  seen.add(u)
+          seen = set((it.get("url") or "").strip() for it in data if (it.get("url") or "").strip())
 
-          cfg = yaml.safe_load(SRC.read_text(encoding="utf-8"))
-          feeds = cfg.get("rss") or []
+          def fetch(url: str) -> bytes:
+              # многие RU-сайты требуют нормальный User-Agent
+              req = urllib.request.Request(
+                  url,
+                  headers={
+                      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                                    "(KHTML, like Gecko) Chrome/124.0 Safari/537.36 NewsBot/1.0",
+                      "Accept": "application/rss+xml,application/xml;q=0.9,*/*;q=0.8",
+                  }
+              )
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  return r.read()
+
+          def pass_keywords(text: str, kws):
+              if not kws:
+                  return True
+              t = (text or "").lower()
+              return any(k.lower() in t for k in kws)
 
           def add_item(title, link, summary, pub, img):
               link = (link or "").strip()
+              # дедуп по ссылке
               if link and link in seen:
                   return
               if link:
@@ -99,13 +111,17 @@ jobs:
                   "date": pub or ""
               })
 
+          cfg = yaml.safe_load(SRC.read_text(encoding="utf-8"))
+          feeds = cfg.get("rss") or []
+
           for f in feeds:
               url = (f.get("url") or "").strip()
               name = f.get("name") or url
+              kws  = f.get("include_keywords") or []
               if not url:
                   continue
               try:
-                  xml = urllib.request.urlopen(url, timeout=30).read()
+                  xml = fetch(url)
                   root = ET.fromstring(xml)
                   cnt = 0
                   for it in root.findall(".//item"):
@@ -113,6 +129,9 @@ jobs:
                       link  = (it.findtext("link")  or "").strip()
                       desc  = (it.findtext("description") or "").strip()
                       pub   = (it.findtext("pubDate") or "").strip()
+                      text  = f"{title}\n{desc}"
+                      if not pass_keywords(text, kws):
+                          continue
                       img = ""
                       enc = it.find("enclosure")
                       if enc is not None and enc.get("url"):
@@ -137,6 +156,7 @@ jobs:
           OUT.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
           print("Merged feed size:", len(data))
           PY
+
 
       - name: Preview output
         shell: bash
