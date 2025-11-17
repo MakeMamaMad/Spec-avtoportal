@@ -1,12 +1,19 @@
-name: Ingest & Publish
-
 on:
   workflow_dispatch: {}
-  # schedule:
-  #   - cron: "*/30 5-20 * * *"
+  schedule:
+    # раз в 30 минут с 05:00 до 20:59 UTC
+    - cron: "*/30 5-20 * * *"
+  # запускать при изменении источников/самого workflow
+  push:
+    paths:
+      - aggregator/sources.yml
+      - .github/workflows/ingest.yml
 
-permissions:
-  contents: write
+# чтобы не было параллельных гонок одной и той же сборки
+concurrency:
+  group: ingest
+  cancel-in-progress: false
+
 
 jobs:
   ingest:
