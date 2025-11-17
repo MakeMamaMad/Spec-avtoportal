@@ -1,29 +1,17 @@
 // main.js v11 — грузит новости, вызывает paint(), устойчив к BFCache/гонкам
 
 async function loadNews() {
-  const url = 'data/news.json';
-  try {
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
-    const raw = await res.json();
+const NEWS_JSON_URL = (window.fixPath ? window.fixPath('/frontend/data/news.json')
+                                      : 'frontend/data/news.json');
 
-    const arr = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.items)) ? raw.items : [];
-    console.log('NEWS LOADED (main.js):', arr.length);
+fetch(NEWS_JSON_URL)
+  .then(r => r.json())
+  .then(arr => {
+    console.log('NEWS LOADED (main.js):', Array.isArray(arr) ? arr.length : 0);
+    // ... дальше твой код отрисовки
+  })
+  .catch(err => console.error('load news.json failed', err));
 
-    // кладём в глобал для article.js и повторной отрисовки
-    window.__ALL_NEWS__ = arr;
-
-    if (typeof window.paint === 'function') {
-      console.log('main.js → calling paint(arr)');
-      window.paint(arr);
-    } else {
-      console.warn('paint() is not defined yet (news.js not loaded?) — buffering');
-      window.__pendingNews = arr;
-    }
-  } catch (e) {
-    console.error('loadNews() failed:', e);
-  }
-}
 
 // стандартный запуск
 document.addEventListener('DOMContentLoaded', () => {
