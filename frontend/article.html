@@ -17,6 +17,39 @@
     .actions{margin:16px 0 8px;display:flex;gap:10px;flex-wrap:wrap}
     .btn{display:inline-block;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;text-decoration:none;color:#111827;background:#fff}
   </style>
+  <!-- Fix absolute /urls on GitHub Pages project site -->
+<script>
+(function() {
+  // Работать только на *.github.io
+  if (!location.hostname.endsWith('github.io')) return;
+
+  // Имя репо: /Spec-avtoportal/...  -> 'Spec-avtoportal'
+  var repo = location.pathname.split('/')[1] || '';
+  if (!repo) return;
+  var prefix = '/' + repo;
+
+  function fixUrl(u) {
+    // Чиним только абсолютные пути вида "/something"
+    return (typeof u === 'string' && u.startsWith('/')) ? (prefix + u) : u;
+  }
+
+  // Прогоняем <link>, <script>, <img> — сразу (до загрузки стилей)
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('link[href]').forEach(function(el){
+      el.href = fixUrl(el.getAttribute('href'));
+    });
+    document.querySelectorAll('script[src]').forEach(function(el){
+      el.src = fixUrl(el.getAttribute('src'));
+    });
+    document.querySelectorAll('img[src]').forEach(function(el){
+      el.src = fixUrl(el.getAttribute('src'));
+    });
+  });
+
+  // Хелпер для JS (fetch и т.п.)
+  window.fixPath = function(p){ return fixUrl(p); };
+})();
+</script>
 
   <script>
     // 1) Подтягиваем с главной ВСЕ <link rel="stylesheet">,
