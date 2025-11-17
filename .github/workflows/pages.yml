@@ -1,12 +1,18 @@
-# .github/workflows/pages.yml
 name: Deploy Pages
 
 on:
+  # вручную
+  workflow_dispatch:
+  # при изменениях в статике/скриптах/данных
   push:
     branches: [ main ]
-  workflow_dispatch:
-  schedule:
-    - cron: "*/30 * * * *"   # подстраховка: прогон деплоя раз в 30 минут
+    paths:
+      - 'index.html'
+      - 'article.html'
+      - '*.js'
+      - 'css/**'
+      - 'frontend/**'
+      - '.github/workflows/pages.yml'
 
 permissions:
   contents: read
@@ -14,7 +20,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: true
 
 jobs:
@@ -23,20 +29,38 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # Ничего билдить не надо — это статический сайт.
-      # Главное — упаковать ВЕСЬ корень репозитория как артефакт.
+      - name: Build static bundle
+        run: |
+          set -eux
+          rm -rf dist
+          mkdir -p dist
+
+          # Кладем весь репозиторий в dist, исключая .git и .github
+          rsync -av --delete \
+            --exclude '.git' \
+            --exclude '.github' \
+            ./ dist/
+
+          # Гарантируем, что данные есть в артефакте
+          mkdir -p dist/frontend/data
+          if [ -d frontend/data ]; then
+            rsync -av frontend/data/ dist/frontend/data/
+          fi
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "."            # кладём всё: html, css, js, frontend/data
+          path: dist
 
   deploy:
-    runs-on: ubuntu-latest
     needs: build
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v4
