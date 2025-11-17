@@ -1,34 +1,121 @@
-- name: Commit & push changes (with rebase & retries)
-  env:
-    BRANCH: main
-  run: |
-    set -euo pipefail
+name: Ingest & Publish
 
-    git config user.name  "github-actions[bot]"
-    git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+on:
+  workflow_dispatch:
+  schedule:
+    # Запуск каждые 30 минут (поменяй при необходимости)
+    - cron: "*/30 * * * *"
 
-    if git diff --quiet; then
-      echo "No changes to commit."
-      exit 0
-    fi
+permissions:
+  contents: write
 
-    git add -A
-    git commit -m "chore: update data [skip ci]" || exit 0
+# Не допускаем одновременных запусков — иначе гонки при push
+concurrency:
+  group: ingest
+  cancel-in-progress: true
 
-    for i in 1 2 3; do
-      echo "Attempt $i: fetch + rebase + push"
-      git fetch origin "$BRANCH"
-      if ! git rebase "origin/$BRANCH"; then
-        git rebase --abort || true
-        git pull --rebase origin "$BRANCH"
-      fi
-      if git push origin HEAD:"$BRANCH"; then
-        echo "Pushed successfully."
-        exit 0
-      fi
-      echo "Push failed, retrying in $((i*5))s..."
-      sleep $((i*5))
-    done
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
 
-    echo "Push still failing, using --force-with-lease"
-    git push --force-with-lease origin HEAD:"$BRANCH"
+    steps:
+      - name: Checkout repo (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps if present
+        run: |
+          set -eux
+          if [ -f "aggregator/requirements.txt" ]; then
+            pip install -r aggregator/requirements.txt
+          fi
+          # Базовые зависимости на всякий
+          pip install --disable-pip-version-check -q pyyaml || true
+
+      - name: Quick YAML check (aggregator/sources.yml)
+        run: |
+          python - <<'PY'
+          import pathlib, sys, yaml
+          p = pathlib.Path('aggregator/sources.yml')
+          if not p.exists():
+              print("sources.yml not found", file=sys.stderr); sys.exit(1)
+          data = yaml.safe_load(p.read_text(encoding='utf-8'))
+          if not isinstance(data, list):
+              print("sources.yml must be a list", file=sys.stderr); sys.exit(1)
+          rss_count = 0
+          for it in data:
+              if isinstance(it, dict) and (it.get('type','rss') == 'rss'):
+                  rss_count += 1
+          print(f"rss items: {rss_count}")
+          for it in data:
+              if isinstance(it, dict) and (it.get('type','rss') == 'rss') and it.get('url'):
+                  print("first rss url:", it['url'])
+                  break
+          PY
+
+      - name: Run aggregator
+        run: |
+          set -euxo pipefail
+          # Твой запуск агрегатора — оставь как есть, если он так и работает
+          python aggregator/main.py \
+            --sources aggregator/sources.yml \
+            --output  frontend/data/news.json
+          # Если main.py поддерживает meta — раскомментируй строку ниже:
+          # --meta frontend/data/news_meta.json
+
+      - name: Preview output
+        run: |
+          set -eux
+          wc -c frontend/data/news.json || true
+          python - <<'PY'
+          import json, pathlib
+          p = pathlib.Path('frontend/data/news.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          print("items:", len(data))
+          for item in data[:5]:
+              print("-", (item.get("title") or "")[:120])
+          PY
+
+      - name: Commit & push changes (with rebase & retries)
+        env:
+          BRANCH: main
+        run: |
+          set -euo pipefail
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # нет изменений — выходим
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git add -A
+          git commit -m "chore: update frontend/data/news.json [skip ci]" || exit 0
+
+          # 3 попытки: fetch -> rebase -> push
+          for i in 1 2 3; do
+            echo "Attempt $i: fetch + rebase + push"
+            git fetch origin "$BRANCH"
+            if ! git rebase "origin/$BRANCH"; then
+              git rebase --abort || true
+              git pull --rebase origin "$BRANCH"
+            fi
+            if git push origin HEAD:"$BRANCH"; then
+              echo "Pushed successfully."
+              exit 0
+            fi
+            echo "Push failed, retrying in $((i*5))s..."
+            sleep $((i*5))
+          done
+
+          echo "Push still failing, using --force-with-lease"
+          git push --force-with-lease origin HEAD:"$BRANCH"
