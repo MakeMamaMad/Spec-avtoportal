@@ -1,18 +1,34 @@
-# в .github/workflows/pages.yml
+name: Deploy Pages
+
 on:
+  # вручную
+  workflow_dispatch: {}
+  # авто-деплой при коммите в main именно по файлам сайта
+  push:
+    branches: [ main ]
+    paths:
+      - 'index.html'
+      - 'article.html'
+      - 'frontend/**'
+      - 'assets/**'
+      - 'css/**'
+      - 'js/**'
+      - '.github/workflows/pages.yml'
+  # запасной триггер — после завершения ingest
   workflow_run:
     workflows: ["Ingest & Publish"]
     types: [completed]
 
-
+# права для pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# один деплой за раз
 concurrency:
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -21,27 +37,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      # Определяем, где лежит сайт: ./frontend, ./specavto-portal/frontend или корень
-      - name: Detect site dir
-        id: detect
-        run: |
-          if [ -d "frontend" ]; then
-            echo "SITE_DIR=frontend" >> $GITHUB_ENV
-          elif [ -d "specavto-portal/frontend" ]; then
-            echo "SITE_DIR=specavto-portal/frontend" >> $GITHUB_ENV
-          else
-            echo "SITE_DIR=." >> $GITHUB_ENV
-          fi
-          echo "Using SITE_DIR=$SITE_DIR"
-
-      # Готовим минимальный артефакт для Pages без rsync
-      - name: Upload artifact
+      # Если у тебя билд-фаза отсутствует, просто упакуем текущий репозиторий.
+      # Если есть сборка (npm build и т.п.), вставь её тут и меняй path ниже на папку билда.
+      - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ env.SITE_DIR }}
+          path: .         # 🔴 ВАЖНО: корень репо; включает frontend/data/news.json
 
   deploy:
     needs: build
