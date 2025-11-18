@@ -1,7 +1,10 @@
+# aggregator/sources.yml — все источники в одном СПИСКЕ.
+# Важно: каждая запись начинается с "- " в первой колонке.
 
+# RSS-источники новостей
 - id: trailer-press
   enabled: true          # включить источник
-  kind: rss              # тип источника (rss / atom / api — в проекте используется rss)
+  kind: rss              # тип источника (rss / youtube / vk / api и т.п.)
   title: "Новости прицепов и полуприцепов — Trailer-Press"
   url: "https://example.com/rss/trailers.xml"
   tags:
@@ -17,26 +20,21 @@
     - рынок
     - аналитика
 
-# при необходимости позже добавишь сюда ещё источники по тому же шаблону:
-# - id: ...
-#   enabled: true
-#   kind: rss
-#   title: "Человекочитаемое имя"
-#   url: "https://адрес/rss"
-#   tags:
-#     - тег1
-#     - тег2
+# YouTube-каналы для раздела «Видео».
+# youtube БОЛЬШЕ не отдельный ключ на верхнем уровне — это обычный элемент списка.
+- id: youtube
+  enabled: true
+  kind: youtube
+  channels:
+    - channel_id: "UC0SAWzOPY-BiS5NVv3vdTFw"
+      name: "ы"
+    - channel_id: "UCDU7Dh9zymMryM43US9bCJQ"
+      name: "i"
 
-
-
-
-
-
-youtube:
-  - channel_id: "UC0SAWzOPY-BiS5NVv3vdTFw"
-    name: "ы"
-  - channel_id: "UCDU7Dh9zymMryM43US9bCJQ"
-    name: "i"
-vk:
-  - domain: "specavto_official"  # https://vk.com/specavto_official
-    name: "СпецАвто"
+# Группы/сообщества VK
+- id: vk
+  enabled: true
+  kind: vk
+  groups:
+    - domain: "specavto_official"  # https://vk.com/specavto_official
+      name: "СпецАвто"
