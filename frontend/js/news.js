@@ -1,116 +1,151 @@
-// news.js  (v12)
+// news.js — универсальная лента новостей для «СпецТрейлеры»
+// Поддерживает и data/news_meta.json, и data/news.json,
+// не падает, если структура JSON немного отличается.
 
-const FEED_URL = 'frontend/data/news.json';
-const BLOCKED = ['tass.ru', 'www.tass.ru', 'tass.com', 'tass'];
+'use strict';
 
-const $ = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+// Возможные пути к данным — что-то одно у тебя точно есть.
+const DATA_PATHS = [
+  './data/news_meta.json',
+  './data/news.json'
+];
 
-function stripHTML(s = '') {
-  const el = document.createElement('div');
-  el.innerHTML = s;
-  return (el.textContent || '').trim();
-}
+// Удобный короткий селектор
+const $ = (sel, root = document) => root.querySelector(sel);
+
+// Форматирование даты "DD.MM.YYYY, HH:MM"
 function fmtDate(iso) {
-  const d = new Date(iso || Date.now());
+  if (!iso) return '';
+  const d = new Date(iso);
   if (Number.isNaN(+d)) return '';
   const p = n => String(n).padStart(2, '0');
   return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()}, ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
-function hostname(u = '') {
-  try { return new URL(u).hostname; } catch { return ''; }
-}
-function pickImage(it) {
-  if (!it) return '';
-  const cand = it.image || it.cover || it.img || (Array.isArray(it.images) ? it.images[0] : '');
-  return (typeof cand === 'string' && cand.trim()) ? cand.trim() : '';
-}
-function placeholderFor(it) {
-  const domain = (it?.domain || 'news').replace(/^https?:\/\//, '').split('/')[0];
-  const label = domain.length > 18 ? domain.slice(0, 18) + '…' : domain;
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='640' height='360'>
-    <rect width='100%' height='100%' fill='#eef2f7'/>
-    <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
-      font-family='Inter,system-ui,Segoe UI,Roboto,Arial' font-size='28' fill='#667085'>${label}</text>
-  </svg>`;
-  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-}
-function isBlocked(it) {
-  const d = String(it?.domain || '').toLowerCase().trim();
-  const u = String(it?.url || '').toLowerCase().trim();
-  return BLOCKED.some(b => d.includes(b) || u.includes(b));
-}
 
-function cardTemplate(it, idx) {
-  const img = pickImage(it);
-  const domain = it.domain || hostname(it.url) || '';
-  const date = it.date ? fmtDate(it.date) : '';
-  const lead = it.summary ? stripHTML(it.summary) : '';
-
-  const cover = img
-    ? `<img class="card__img" src="${img}" loading="lazy" decoding="async" referrerpolicy="no-referrer"
-         onerror="this.onerror=null;this.src='${placeholderFor(it)}'">`
-    : `<img class="card__img" src="${placeholderFor(it)}" alt="">`;
-
-  return `
-  <article class="card" data-index="${idx}">
-    <div class="card__cover">${cover}</div>
-    <div class="card__body">
-      <h3 class="card__title">${stripHTML(it.title || '')}</h3>
-      <div class="card__meta">
-        ${domain ? `<span>${domain}</span>` : ''}
-        ${date ? `<span>•</span><time>${date}</time>` : ''}
-      </div>
-      ${lead ? `<p class="card__lead">${lead}</p>` : ''}
-    </div>
-  </article>`;
-}
-
-function paint(arr) {
-  const mount = $('#feed') || document.body;
-  if (!Array.isArray(arr) || !arr.length) {
-    mount.innerHTML = '<p style="opacity:.6">Лента пуста.</p>';
-    return;
-  }
-  const html = arr.map(cardTemplate).join('');
-  mount.innerHTML = html;
-
-  // клик по карточке => article.html
-  $$('.card', mount).forEach(el => {
-    el.addEventListener('click', () => {
-      const idx = Number(el.dataset.index || -1);
-      if (!Number.isFinite(idx) || !arr[idx]) return;
-      try { localStorage.setItem('currentArticle', JSON.stringify(arr[idx])); } catch {}
-      location.href = `article.html?id=${idx}`;
-    });
-  });
-}
-
-async function loadFeed() {
-  const url = `${FEED_URL}?t=${Date.now()}`; // no-cache
-  const res = await fetch(url, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
-
-(async () => {
-  try {
-    const raw = await loadFeed();
-    // фильтруем заблокированные
-    const items = (Array.isArray(raw) ? raw : []).filter(x => !isBlocked(x));
-    window.__ALL_NEWS__ = items;
-    console.log('NEWS LOADED (main.js):', items.length);
-    paint(items);
-  } catch (e) {
-    console.error('load feed failed:', e);
-    paint([]);
-  }
-
-  // восстановление из BFCache
-  window.addEventListener('pageshow', ev => {
-    if (ev.persisted && Array.isArray(window.__ALL_NEWS__)) {
-      console.debug('pageshow (persisted) → restore feed');
-      paint(window.__ALL_NEWS__);
+// Достаём значение по нескольким возможным ключам
+// keys: ['title', 'headline', 'data.title'] и т.п.
+function pickField(obj, keys, fallback = '') {
+  for (const key of keys) {
+    const parts = key.split('.');
+    let cur = obj;
+    for (const part of parts) {
+      if (cur && Object.prototype.hasOwnProperty.call(cur, part)) {
+        cur = cur[part];
+      } else {
+        cur = undefined;
+        break;
+      }
     }
+    if (cur !== undefined && cur !== null) return cur;
+  }
+  return fallback;
+}
+
+// Грузим JSON: пробуем несколько файлов, пока один не сработает
+async function loadNewsData() {
+  let lastError = null;
+
+  for (const path of DATA_PATHS) {
+    try {
+      const res = await fetch(path, { cache: 'no-store' });
+      if (!res.ok) {
+        lastError = new Error(`${path}: HTTP ${res.status}`);
+        continue;
+      }
+      return await res.json();
+    } catch (err) {
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error('Не удалось загрузить данные новостей');
+}
+
+// Приводим сырые данные к единому виду
+function normalizeItems(raw) {
+  const list = Array.isArray(raw) ? raw : (raw?.items || raw?.news || []);
+
+  return list.map((item, idx) => {
+    const title = pickField(item, ['title', 'headline'], 'Без заголовка');
+    const summary = pickField(item, ['summary', 'description', 'lead'], '');
+    const category = pickField(item, ['category', 'rubric'], '');
+    const source = pickField(item, ['source', 'source.name', 'source_title'], '');
+    const published = pickField(item, ['published_at', 'pubDate', 'date'], '');
+    const image = pickField(item, ['image_url', 'image', 'enclosure.url'], '');
+    const url = pickField(item, ['url', 'link'], '');
+
+    return {
+      idx,          // индекс в массиве — будем передавать в article.html
+      raw: item,    // оригинальный объект (на всякий случай)
+      title,
+      summary,
+      category,
+      source,
+      published,
+      image,
+      url
+    };
   });
-})();
+}
+
+// Создаём DOM карточки новости
+function createCard(item) {
+  const article = document.createElement('article');
+  article.className = 'news-card';
+
+  const linkHref = `article.html?idx=${encodeURIComponent(item.idx)}`;
+
+  article.innerHTML = `
+    <a class="news-card__link" href="${linkHref}">
+      ${
+        item.image
+          ? `<div class="news-card__image-wrap">
+               <img src="${item.image}" alt="">
+             </div>`
+          : ''
+      }
+      <div class="news-card__body">
+        <div class="news-card__meta">
+          ${item.category ? `<span class="news-card__badge">${item.category}</span>` : ''}
+          ${item.published ? `<time class="news-card__date">${fmtDate(item.published)}</time>` : ''}
+        </div>
+        <h2 class="news-card__title">${item.title}</h2>
+        ${item.summary ? `<p class="news-card__summary">${item.summary}</p>` : ''}
+        ${item.source ? `<div class="news-card__source">Источник: ${item.source}</div>` : ''}
+      </div>
+    </a>
+  `;
+
+  return article;
+}
+
+// Точка входа
+async function initNews() {
+  const listEl = $('#news-list');
+  const errorEl = $('#news-error');
+
+  // Если на странице нет контейнера — просто выходим (например, это не главная)
+  if (!listEl) return;
+
+  try {
+    const data = await loadNewsData();
+    const items = normalizeItems(data);
+
+    if (!items.length) {
+      if (errorEl) errorEl.textContent = 'Пока нет новостей.';
+      return;
+    }
+
+    items.forEach(item => {
+      listEl.appendChild(createCard(item));
+    });
+  } catch (err) {
+    console.error('Ошибка при загрузке новостей:', err);
+    if (errorEl) {
+      errorEl.textContent =
+        'Ошибка при загрузке новостей. Проверь, что в папке data лежит news_meta.json или news.json.';
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initNews);
