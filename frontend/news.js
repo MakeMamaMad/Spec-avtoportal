@@ -1,6 +1,56 @@
 // frontend/news.js
 
-const NEWS_URLS = ["./data/news_meta.json", "./data/news.json"];
+const NEWS_URL = "./data/news.json";
+const META_URL = "./data/news_meta.json"; // если файла нет — просто проигнорируем
+
+const newsListEl = document.getElementById("news-list");
+const emptyEl = document.getElementById("news-empty");
+const errorEl = document.getElementById("news-error");
+const searchInput = document.getElementById("search-input");
+const tagSelect = document.getElementById("tag-select");
+const topTopicsEl = document.getElementById("top-topics");
+const footerYearEl = document.getElementById("footer-year");
+
+if (footerYearEl) {
+  footerYearEl.textContent = new Date().getFullYear();
+}
+
+// Более-менее универсальный парсер — подстраиваемся под разные форматы JSON
+function normalizeNews(raw) {
+  if (!raw) return [];
+  let items = Array.isArray(raw) ? raw : raw.items || raw.news || raw.data || [];
+  if (!Array.isArray(items)) return [];
+
+  return items.map((item, index) => {
+    const title =
+      item.title ||
+      item.headline ||
+      item.name ||
+      `Новость #${index + 1}`;
+
+    const url = item.url || item.link || null;
+    const source = item.source || item.source_name || "";
+    const tags = item.tags || item.rubrics || item.categories || [];
+    const dt =
+      item.published_at ||
+      item.pub_date ||
+      item.date ||
+      item.datetime ||
+      null;
+    const snippet =
+      item.snippet || item.summary || item.description || "";
+
+    return {
+      _index: index,
+      title,
+      url,
+      source,
+      tags: Array.isArray(tags) ? tags : typeof tags === "string" ? [tags] : [],
+      published_at: dt,
+      snippet,
+    };
+  });
+}
 
 function formatDate(iso) {
   if (!iso) return "";
@@ -10,265 +60,190 @@ function formatDate(iso) {
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const yyyy = d.getFullYear();
   const hh = String(d.getHours()).padStart(2, "0");
-  const min = String(d.getMinutes()).padStart(2, "0");
-  return `${dd}.${mm}.${yyyy}, ${hh}:${min}`;
+  const mi = String(d.getMinutes()).padStart(2, "0");
+  return `${dd}.${mm}.${yyyy}, ${hh}:${mi}`;
 }
 
-function pick(obj, keys, fallback = "") {
-  for (const key of keys) {
-    const v = obj?.[key];
-    if (v !== undefined && v !== null && String(v).trim() !== "") {
-      return v;
+function setVisible(el, visible) {
+  if (!el) return;
+  el.classList.toggle("hidden", !visible);
+}
+
+function renderNews(items) {
+  newsListEl.innerHTML = "";
+
+  if (!items.length) {
+    setVisible(emptyEl, true);
+    return;
+  }
+  setVisible(emptyEl, false);
+
+  for (const item of items) {
+    const card = document.createElement("article");
+    card.className = "news-card";
+    card.dataset.index = String(item._index);
+
+    const titleEl = document.createElement("h2");
+    titleEl.className = "news-title";
+    titleEl.textContent = item.title;
+
+    const metaEl = document.createElement("div");
+    metaEl.className = "news-meta";
+
+    if (item.source) {
+      const s = document.createElement("span");
+      s.className = "news-source";
+      s.textContent = item.source;
+      metaEl.appendChild(s);
+    }
+
+    if (item.published_at) {
+      const d = document.createElement("span");
+      d.className = "news-date";
+      d.textContent = formatDate(item.published_at);
+      metaEl.appendChild(d);
+    }
+
+    const tagsEl = document.createElement("div");
+    tagsEl.className = "news-tags";
+
+    if (item.tags && item.tags.length) {
+      item.tags.slice(0, 4).forEach((tag, idx) => {
+        const span = document.createElement("span");
+        span.className = "tag" + (idx === 0 ? " tag-primary" : "");
+        span.textContent = tag;
+        tagsEl.appendChild(span);
+      });
+    }
+
+    const snippetEl = document.createElement("p");
+    snippetEl.className = "news-snippet";
+    snippetEl.textContent = item.snippet;
+
+    card.appendChild(titleEl);
+    card.appendChild(metaEl);
+    if (item.tags && item.tags.length) card.appendChild(tagsEl);
+    if (item.snippet) card.appendChild(snippetEl);
+
+    card.addEventListener("click", () => {
+      // переходим на страницу статьи по индексу
+      const url = new URL("./article.html", window.location.href);
+      url.searchParams.set("index", String(item._index));
+      window.location.href = url.toString();
+    });
+
+    newsListEl.appendChild(card);
+  }
+}
+
+function collectTags(items) {
+  const set = new Set();
+  for (const n of items) {
+    if (n.tags) {
+      for (const t of n.tags) {
+        if (t) set.add(String(t));
+      }
     }
   }
-  return fallback;
+  return [...set].sort();
 }
 
-function normalizeList(raw) {
-  const list = Array.isArray(raw)
-    ? raw
-    : Array.isArray(raw?.items)
-    ? raw.items
-    : Array.isArray(raw?.news)
-    ? raw.news
-    : [];
+function renderTagFilter(tags) {
+  if (!tagSelect) return;
+  tagSelect.innerHTML = "";
+  const any = document.createElement("option");
+  any.value = "";
+  any.textContent = "Все";
+  tagSelect.appendChild(any);
 
-  return list.map((item, idx) => {
-    const title = pick(item, ["title", "headline", "name"], "Без названия");
-    const summary = pick(
-      item,
-      ["summary", "description", "lead", "snippet", "text"],
-      ""
-    );
-    const date = pick(item, ["published_at", "pub_date", "date", "timestamp"], "");
-    const source = pick(item, ["source", "source_name", "feed", "site"], "");
-    const url = pick(item, ["url", "link", "source_url"], "");
-    const image = pick(
-      item,
-      ["image", "image_url", "thumbnail", "cover", "picture"],
-      ""
-    );
+  for (const tag of tags) {
+    const opt = document.createElement("option");
+    opt.value = tag;
+    opt.textContent = tag;
+    tagSelect.appendChild(opt);
+  }
+}
 
-    let tags = [];
-    if (Array.isArray(item.tags)) {
-      tags = item.tags;
-    } else if (typeof item.category === "string") {
-      tags = item.category.split(/[;,/]/).map((t) => t.trim()).filter(Boolean);
-    }
-
-    return {
-      idx,
-      raw: item,
-      title,
-      summary,
-      date,
-      source,
-      url,
-      image,
-      tags,
-    };
+function renderTopTopics(tags) {
+  if (!topTopicsEl) return;
+  topTopicsEl.innerHTML = "";
+  tags.slice(0, 8).forEach((tag) => {
+    const li = document.createElement("li");
+    li.textContent = tag;
+    topTopicsEl.appendChild(li);
   });
 }
 
-async function loadNewsData() {
-  for (const url of NEWS_URLS) {
-    try {
-      const resp = await fetch(url, { cache: "no-store" });
-      if (!resp.ok) continue;
-      const data = await resp.json();
-      const list = normalizeList(data);
-      if (list.length) return list;
-    } catch (e) {
-      console.warn("failed to load", url, e);
-    }
-  }
-  throw new Error("no data");
-}
-
-function renderTags(allItems) {
-  const tagSet = new Map();
-
-  for (const item of allItems) {
-    for (const tag of item.tags || []) {
-      const key = tag.toLowerCase();
-      tagSet.set(key, (tagSet.get(key) || 0) + 1);
-    }
-  }
-
-  const tags = [...tagSet.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 15);
-
-  const filterRoot = document.getElementById("filter-tags");
-  const topRoot = document.getElementById("top-tags");
-  if (!filterRoot || !topRoot) return;
-
-  filterRoot.innerHTML = "";
-  topRoot.innerHTML = "";
-
-  const allBtn = document.createElement("button");
-  allBtn.className = "tag-pill tag-pill_active";
-  allBtn.textContent = "Все";
-  allBtn.dataset.tag = "";
-  filterRoot.appendChild(allBtn);
-
-  for (const [tag, count] of tags) {
-    const btn = document.createElement("button");
-    btn.className = "tag-pill";
-    btn.textContent = tag;
-    btn.dataset.tag = tag;
-    filterRoot.appendChild(btn);
-
-    const li = document.createElement("li");
-    li.className = "tag-cloud__item";
-    li.textContent = `${tag} · ${count}`;
-    topRoot.appendChild(li);
-  }
-}
-
-function renderList(items) {
-  const listRoot = document.getElementById("news-list");
-  const emptyEl = document.getElementById("news-empty");
-  if (!listRoot) return;
-
-  listRoot.innerHTML = "";
-
-  if (!items.length) {
-    if (emptyEl) emptyEl.hidden = false;
-    return;
-  }
-  if (emptyEl) emptyEl.hidden = true;
-
-  for (const item of items) {
-    const a = document.createElement("a");
-    a.href = `./article.html?idx=${encodeURIComponent(item.idx)}`;
-    a.className = "news-card";
-
-    const main = document.createElement("div");
-    const aside = document.createElement("div");
-    aside.className = "news-card__aside";
-
-    const title = document.createElement("h3");
-    title.className = "news-card__title";
-    title.textContent = item.title;
-
-    const meta = document.createElement("div");
-    meta.className = "news-card__meta";
-
-    if (item.source) {
-      const src = document.createElement("span");
-      src.className = "news-card__meta-badge";
-      src.textContent = item.source;
-      meta.appendChild(src);
-    }
-
-    if (item.date) {
-      const date = document.createElement("span");
-      date.textContent = formatDate(item.date);
-      meta.appendChild(date);
-    }
-
-    const summary = document.createElement("p");
-    summary.className = "news-card__summary";
-    summary.textContent = item.summary || "Подробности — в карточке новости.";
-
-    main.appendChild(title);
-    main.appendChild(meta);
-    main.appendChild(summary);
-
-    if (item.image) {
-      const img = document.createElement("img");
-      img.className = "news-card__thumb";
-      img.src = item.image;
-      img.alt = "";
-      aside.appendChild(img);
-    }
-
-    const more = document.createElement("div");
-    more.className = "news-card__more";
-    more.textContent = "Читать полностью →";
-    aside.appendChild(more);
-
-    a.appendChild(main);
-    a.appendChild(aside);
-    listRoot.appendChild(a);
-  }
-}
-
-function setupInteractions(allItems) {
-  const searchInput = document.getElementById("search-input");
-  const filterRoot = document.getElementById("filter-tags");
-  const errorEl = document.getElementById("news-error");
-
-  let activeTag = "";
-  let query = "";
-
-  function applyFilter() {
-    const q = query.trim().toLowerCase();
-    const tag = activeTag;
-
-    const filtered = allItems.filter((item) => {
-      if (tag && !(item.tags || []).some((t) => t.toLowerCase() === tag)) {
-        return false;
-      }
-      if (!q) return true;
-      const haystack = [
-        item.title,
-        item.summary,
-        item.source,
-        (item.tags || []).join(" "),
-      ]
-        .join(" ")
-        .toLowerCase();
-      return haystack.includes(q);
-    });
-
-    renderList(filtered);
-    if (errorEl) errorEl.hidden = true;
-  }
-
-  if (searchInput) {
-    searchInput.addEventListener("input", () => {
-      query = searchInput.value || "";
-      applyFilter();
-    });
-
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "/" && document.activeElement !== searchInput) {
-        e.preventDefault();
-        searchInput.focus();
-      }
-    });
-  }
-
-  if (filterRoot) {
-    filterRoot.addEventListener("click", (e) => {
-      const btn = e.target.closest(".tag-pill");
-      if (!btn) return;
-
-      activeTag = btn.dataset.tag || "";
-      for (const el of filterRoot.querySelectorAll(".tag-pill")) {
-        el.classList.toggle("tag-pill_active", el === btn);
-      }
-      applyFilter();
-    });
-  }
-
-  applyFilter();
-}
-
-async function init() {
-  const errorEl = document.getElementById("news-error");
+async function loadMetaSafe() {
   try {
-    const list = await loadNewsData();
-    renderTags(list);
-    setupInteractions(list);
-  } catch (e) {
-    console.error(e);
-    if (errorEl) {
-      errorEl.hidden = false;
-    }
+    const res = await fetch(META_URL, { cache: "no-store" });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
   }
 }
 
-document.addEventListener("DOMContentLoaded", init);
+async function main() {
+  try {
+    const res = await fetch(NEWS_URL, { cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const raw = await res.json();
+    const items = normalizeNews(raw);
+
+    if (!items.length) {
+      renderNews([]);
+      return;
+    }
+
+    let current = items.slice();
+
+    const tags = collectTags(items);
+    renderTagFilter(tags);
+    renderTopTopics(tags);
+
+    function applyFilters() {
+      const q = (searchInput?.value || "").trim().toLowerCase();
+      const tag = tagSelect?.value || "";
+
+      current = items.filter((item) => {
+        if (tag && !(item.tags || []).includes(tag)) return false;
+        if (!q) return true;
+        const haystack =
+          (item.title || "") +
+          " " +
+          (item.snippet || "") +
+          " " +
+          (item.source || "") +
+          " " +
+          (item.tags || []).join(" ");
+        return haystack.toLowerCase().includes(q);
+      });
+
+      renderNews(current);
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener("input", applyFilters);
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "/" && document.activeElement !== searchInput) {
+          e.preventDefault();
+          searchInput.focus();
+        }
+      });
+    }
+    if (tagSelect) tagSelect.addEventListener("change", applyFilters);
+
+    renderNews(current);
+    setVisible(errorEl, false);
+
+    // метаданные можем использовать позже, пока просто грузим «для будущего»
+    void loadMetaSafe();
+  } catch (err) {
+    console.error("Ошибка загрузки новостей:", err);
+    setVisible(errorEl, true);
+    setVisible(emptyEl, false);
+  }
+}
+
+main();
