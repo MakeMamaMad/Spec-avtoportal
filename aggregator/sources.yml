@@ -1,28 +1,32 @@
-rss:
-  # Общее русскоязычное RSS по ключевым фразам (полуприцепная тематика)
-  - name: "Google News: полуприцеп/прицеп (RU)"
-    url: "https://news.google.com/rss/search?q=%D0%BF%D0%BE%D0%BB%D1%83%D0%BF%D1%80%D0%B8%D1%86%D0%B5%D0%BF%20OR%20%D0%BF%D1%80%D0%B8%D1%86%D0%B5%D0%BF%20OR%20%D0%BD%D0%B8%D0%B7%D0%BA%D0%BE%D1%80%D0%B0%D0%BC%D0%BD%D1%8B%D0%B9%20OR%20%D1%80%D0%B5%D1%84%D1%80%D0%B8%D0%B6%D0%B5%D1%80%D0%B0%D1%82%D0%BE%D1%80%D0%BD%D1%8B%D0%B9%20OR%20%D1%82%D1%80%D0%B0%D0%BB%20OR%20%D1%81%D0%B0%D0%BC%D0%BE%D1%81%D0%B2%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9%20OR%20%D0%BA%D0%BE%D0%BD%D1%82%D0%B5%D0%B9%D0%BD%D0%B5%D1%80%D0%BE%D0%B2%D0%BE%D0%B7%20OR%20%D1%86%D0%B8%D1%81%D1%82%D0%B5%D1%80%D0%BD%D0%B0%20OR%20%D1%88%D1%82%D0%BE%D1%80%D0%BD%D1%8B%D0%B9&hl=ru&gl=RU&ceid=RU:ru"
 
-  # По доменам (то же RU, но ограничено источником) — так мы получим «те же» порталы,
-  # но через индексацию Google, минуя их антибот.
-  - name: "Google News: Drom.ru (trailers)"
-    url: "https://news.google.com/rss/search?q=site%3Anews.drom.ru%20%28%D0%BF%D0%BE%D0%BB%D1%83%D0%BF%D1%80%D0%B8%D1%86%D0%B5%D0%BF%20OR%20%D0%BF%D1%80%D0%B8%D1%86%D0%B5%D0%BF%20OR%20%D1%82%D1%80%D0%B0%D0%BB%20OR%20%D1%80%D0%B5%D1%84%D1%80%D0%B8%D0%B6%D0%B5%D1%80%D0%B0%D1%82%D0%BE%D1%80%29&hl=ru&gl=RU&ceid=RU:ru"
+- id: trailer-press
+  enabled: true          # включить источник
+  kind: rss              # тип источника (rss / atom / api — в проекте используется rss)
+  title: "Новости прицепов и полуприцепов — Trailer-Press"
+  url: "https://example.com/rss/trailers.xml"
+  tags:
+    - отрасль
+    - прицепы
 
-  - name: "Google News: За рулём (trailers)"
-    url: "https://news.google.com/rss/search?q=site%3Awww.zr.ru%20%28%D0%BF%D0%BE%D0%BB%D1%83%D0%BF%D1%80%D0%B8%D1%86%D0%B5%D0%BF%20OR%20%D0%BF%D1%80%D0%B8%D1%86%D0%B5%D0%BF%20OR%20%D0%BD%D0%B8%D0%B7%D0%BA%D0%BE%D1%80%D0%B0%D0%BC%D0%BD%D1%8B%D0%B9%29&hl=ru&gl=RU&ceid=RU:ru"
+- id: truck-market
+  enabled: true
+  kind: rss
+  title: "Рынок грузовиков и полуприцепов"
+  url: "https://example.com/rss/truck-market.xml"
+  tags:
+    - рынок
+    - аналитика
 
-  - name: "Google News: Kolesa.ru (trailers)"
-    url: "https://news.google.com/rss/search?q=site%3Awww.kolesa.ru%20%28%D0%BF%D0%BE%D0%BB%D1%83%D0%BF%D1%80%D0%B8%D1%86%D0%B5%D0%BF%20OR%20%D0%BF%D1%80%D0%B8%D1%86%D0%B5%D0%BF%20OR%20%D1%82%D1%80%D0%B0%D0%BB%20OR%20%D1%80%D0%B5%D1%84%D1%80%D0%B8%D0%B6%D0%B5%D1%80%D0%B0%D1%82%D0%BE%D1%80%29&hl=ru&gl=RU&ceid=RU:ru"
+# при необходимости позже добавишь сюда ещё источники по тому же шаблону:
+# - id: ...
+#   enabled: true
+#   kind: rss
+#   title: "Человекочитаемое имя"
+#   url: "https://адрес/rss"
+#   tags:
+#     - тег1
+#     - тег2
 
-  - name: "Google News: Motor.ru (trailers)"
-    url: "https://news.google.com/rss/search?q=site%3Amotor.ru%20%28%D0%BF%D0%BE%D0%BB%D1%83%D0%BF%D1%80%D0%B8%D1%86%D0%B5%D0%BF%20OR%20%D0%BF%D1%80%D0%B8%D1%86%D0%B5%D0%BF%20OR%20%D1%82%D1%80%D0%B0%D0%BB%29&hl=ru&gl=RU&ceid=RU:ru"
-
-  - name: "Google News: Грузовик-Пресс (trailers)"
-    url: "https://news.google.com/rss/search?q=site%3Agruzovikpress.ru%20%28%D0%BF%D0%BE%D0%BB%D1%83%D0%BF%D1%80%D0%B8%D1%86%D0%B5%D0%BF%20OR%20%D0%BF%D1%80%D0%B8%D1%86%D0%B5%D0%BF%29&hl=ru&gl=RU&ceid=RU:ru"
-
-  # Оставим прямой Motor.ru (он у тебя отдаёт 1 пост — пусть остаётся)
-  - name: "Motor.ru (экспорт RSS)"
-    url: "https://motor.ru/export/rss.xml"
 
 
 
