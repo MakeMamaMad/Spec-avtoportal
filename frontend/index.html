@@ -2,21 +2,15 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <title>СпецТрейлеры — Новости, ГОСТы и гайды</title>
+  <title>СпецТрейлеры — новости, ГОСТы и гайды</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta
-    name="description"
-    content="Ежедневная выжимка отраслевых новостей, база нормативов и практические гайды для рынка прицепов и полуприцепов."
-  />
-
-  <!-- ВАЖНО: только один CSS — styles.css, никаких tokens.css/base.css/components.css -->
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="description" content="Ежедневная выжимка отраслевых новостей, база нормативов и практические гайды для рынка прицепов и полуприцепов." />
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <header class="site-header">
     <div class="container header-inner">
-      <a href="index.html" class="logo">
-        <!-- если потом сделаем нормальный логотип, можно заменить src -->
+      <a href="./index.html" class="logo">
         <span class="logo-mark">ST</span>
         <span class="logo-text">
           СпецТрейлеры
@@ -25,7 +19,7 @@
       </a>
 
       <nav class="main-nav">
-        <a href="index.html" class="nav-link nav-link-active">Новости</a>
+        <a href="./index.html" class="nav-link nav-link-active">Новости</a>
         <a href="#law" class="nav-link">Законодательство / ГОСТы</a>
         <a href="#guides" class="nav-link">Гайды и регламенты</a>
         <a href="#video" class="nav-link">Видео</a>
@@ -38,12 +32,9 @@
       <div class="container">
         <h1>Новости отрасли прицепов и грузовой техники</h1>
         <p class="hero-subtitle">
-          Подрубрики: Выставки · Новые модели · Новые производители · Рынок · Уникальные факты ·
-          Производители грузовиков/моторов · Дилеры
+          Подрубрики: Выставки · Новые модели · Новые производители · Рынок · Уникальные факты · Производители грузовиков/моторов · Дилеры
         </p>
-        <p class="hero-hint">
-          Нажмите <kbd>/</kbd> для поиска по заголовкам. Клик по бейджу рубрики — отфильтрует ленту.
-        </p>
+        <p class="hero-hint">Нажмите <kbd>/</kbd> для поиска. Нажмите на бейдж рубрики — отфильтровать ленту.</p>
       </div>
     </section>
 
@@ -51,12 +42,7 @@
       <div class="container filters-inner">
         <div class="filters-group">
           <label for="search" class="filters-label">Поиск по заголовку</label>
-          <input
-            id="search"
-            type="search"
-            class="filters-input"
-            placeholder="Начните вводить модель, бренд или событие…"
-          />
+          <input id="search" type="search" class="filters-input" placeholder="Начните вводить модель, бренд или событие…" />
         </div>
 
         <div class="filters-group">
@@ -68,19 +54,11 @@
 
     <section class="container layout">
       <div class="layout-main">
-        <section>
-          <h2 class="section-title">Лента новостей</h2>
-          <div id="news-list" class="news-list"></div>
-          <div id="news-empty" class="empty-state" hidden>
-            По текущему фильтру новостей не найдено. Сбросьте поиск или выберите другую рубрику.
-          </div>
-          <div id="news-loading" class="loading">
-            Загрузка ленты…
-          </div>
-          <div id="news-error" class="error" hidden>
-            Не удалось загрузить новости. Попробуйте обновить страницу.
-          </div>
-        </section>
+        <h2 class="section-title">Лента новостей</h2>
+        <div id="news-list" class="news-list"></div>
+        <div id="news-empty" class="empty-state" hidden>По текущему фильтру новостей не найдено.</div>
+        <div id="news-loading" class="loading">Загрузка ленты…</div>
+        <div id="news-error" class="error" hidden>Не удалось загрузить новости. Попробуйте обновить страницу.</div>
       </div>
 
       <aside class="layout-sidebar">
@@ -92,53 +70,39 @@
         <section class="sidebar-block">
           <h3 class="sidebar-title">Реклама (нативная)</h3>
           <p class="sidebar-text">Спецавтотехника — решения под вашу задачу.</p>
-          <p class="sidebar-text">
-            Профессиональные надстройки и сервис. Без навязчивости, только релевантные кейсы.
-          </p>
+          <p class="sidebar-text">Профессиональные надстройки и сервис. Без баннерного шума.</p>
         </section>
 
         <section id="about" class="sidebar-block">
           <h3 class="sidebar-title">О проекте</h3>
-          <p class="sidebar-text">
-            Ежедневная выжимка отраслевых новостей, база нормативов и практические гайды для рынка
-            прицепов/полуприцепов.
-          </p>
-        </section>
-
-        <section class="sidebar-block">
-          <h3 class="sidebar-title">Источники</h3>
-          <p class="sidebar-text">
-            Производители, дилеры, профильные СМИ, регуляторы, открытые видео-платформы. Уважаем
-            robots.txt и условия источников.
-          </p>
+          <p class="sidebar-text">Ежедневная выжимка отраслевых новостей, база нормативов и практические гайды для рынка прицепов/полуприцепов.</p>
         </section>
       </aside>
     </section>
 
     <section id="law" class="container stub-section">
       <h2 class="section-title">Законодательство / ГОСТы</h2>
-      <p>Этот раздел подтянем после того, как полностью восстановим новостную ленту.</p>
+      <p>Подключим после полной починки ленты.</p>
     </section>
 
     <section id="guides" class="container stub-section">
       <h2 class="section-title">Гайды и регламенты</h2>
-      <p>Аналогично — сначала починим базовый функционал сайта.</p>
+      <p>Тоже позже — сейчас главное, чтобы новости работали стабильно.</p>
     </section>
 
     <section id="video" class="container stub-section">
       <h2 class="section-title">Видео</h2>
-      <p>Видео берутся из YouTube/VK — отдадим отдельным этапом.</p>
+      <p>Видео из YouTube/VK привяжем отдельным этапом.</p>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="container footer-inner">
       <span>© СпецТрейлеры, агрегатор новостей о прицепах и полуприцепах.</span>
-      <span>Мы не публикуем рекламные пресс-релизы САТ-линейки.</span>
+      <span>Мы не публикуем рекламные пресс-релизы линейки САТ.</span>
     </div>
   </footer>
 
-  <!-- ВАЖНО: только один скрипт, без main.js -->
-  <script src="news.js"></script>
+  <script src="./news.js"></script>
 </body>
 </html>
