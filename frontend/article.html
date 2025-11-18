@@ -2,36 +2,38 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <title>СпецТрейлеры — Полная новость</title>
+  <title>Статья — СпецТрейлеры</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <script type="module" src="article.js" defer></script>
 </head>
 <body>
   <header class="site-header">
-    <div class="site-header__inner">
-      <a href="./index.html" class="logo">СпецТрейлеры</a>
-      <nav class="main-nav">
-        <a href="./index.html" class="main-nav__link">Назад к ленте</a>
-      </nav>
+    <div class="container header-inner">
+      <div class="logo">
+        <span class="logo-mark">СТ</span>
+        <a href="./index.html" class="logo-text">СпецТрейлеры</a>
+      </div>
     </div>
   </header>
 
-  <main class="page page_article">
+  <main class="container article-layout">
     <article id="article-root" class="article">
-      <!-- контент подставится из article.js -->
+      <p>Загрузка статьи…</p>
     </article>
 
-    <p id="article-error" class="error" hidden>
-      Не удалось загрузить новость. Вернитесь на главную и выберите новость заново.
-    </p>
+    <aside class="sidebar">
+      <section class="sidebar-block">
+        <h2 class="sidebar-title">Ещё по теме</h2>
+        <ul id="related-list" class="related-list"></ul>
+      </section>
+    </aside>
   </main>
 
   <footer class="site-footer">
-    <div class="site-footer__inner">
-      <p class="muted">СпецТрейлеры — отраслевой агрегатор новостей, ГОСТов и гайдов.</p>
+    <div class="container footer-inner">
+      <span>© СпецТрейлеры, <span id="footer-year"></span></span>
     </div>
   </footer>
-
-  <script type="module" src="./article.js"></script>
 </body>
 </html>
