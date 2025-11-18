@@ -5,35 +5,47 @@
   <title>Статья — СпецТрейлеры</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="styles.css" />
-  <script type="module" src="article.js" defer></script>
 </head>
-<body>
+<body class="article-page">
   <header class="site-header">
     <div class="container header-inner">
-      <div class="logo">
-        <span class="logo-mark">СТ</span>
-        <a href="./index.html" class="logo-text">СпецТрейлеры</a>
-      </div>
+      <a href="index.html" class="logo">
+        <span class="logo-mark">ST</span>
+        <span class="logo-text">
+          СпецТрейлеры
+          <span class="logo-sub">Новости, ГОСТы и гайды</span>
+        </span>
+      </a>
+
+      <nav class="main-nav">
+        <a href="index.html" class="nav-link nav-link-active">Новости</a>
+        <a href="index.html#law" class="nav-link">Законодательство / ГОСТы</a>
+        <a href="index.html#guides" class="nav-link">Гайды и регламенты</a>
+        <a href="index.html#video" class="nav-link">Видео</a>
+      </nav>
     </div>
   </header>
 
-  <main class="container article-layout">
-    <article id="article-root" class="article">
-      <p>Загрузка статьи…</p>
-    </article>
+  <main class="page-main">
+    <div class="container article-layout">
+      <article id="article" class="article"></article>
 
-    <aside class="sidebar">
-      <section class="sidebar-block">
-        <h2 class="sidebar-title">Ещё по теме</h2>
-        <ul id="related-list" class="related-list"></ul>
-      </section>
-    </aside>
+      <aside class="article-sidebar">
+        <section class="sidebar-block">
+          <h3 class="sidebar-title">Другие материалы</h3>
+          <div id="related" class="related-list"></div>
+        </section>
+      </aside>
+    </div>
   </main>
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <span>© СпецТрейлеры, <span id="footer-year"></span></span>
+      <span>© СпецТрейлеры.</span>
+      <a href="index.html" class="footer-link">Вернуться на главную</a>
     </div>
   </footer>
+
+  <script src="article.js"></script>
 </body>
 </html>
