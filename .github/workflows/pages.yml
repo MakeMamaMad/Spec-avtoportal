@@ -1,18 +1,9 @@
-name: Deploy Pages
+name: Pages
 
 on:
-  # вручную
-  workflow_dispatch:
-  # при изменениях в статике/скриптах/данных
   push:
     branches: [ main ]
-    paths:
-      - 'index.html'
-      - 'article.html'
-      - '*.js'
-      - 'css/**'
-      - 'frontend/**'
-      - '.github/workflows/pages.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -20,7 +11,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: "pages"
   cancel-in-progress: true
 
 jobs:
@@ -30,30 +21,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
-      - name: Build static bundle
+      - name: Sanity check
         run: |
-          set -eux
-          rm -rf dist
-          mkdir -p dist
+          test -f frontend/index.html || (echo "frontend/index.html not found" && exit 1)
 
-          # Кладем весь репозиторий в dist, исключая .git и .github
-          rsync -av --delete \
-            --exclude '.git' \
-            --exclude '.github' \
-            ./ dist/
-
-          # Гарантируем, что данные есть в артефакте
-          mkdir -p dist/frontend/data
-          if [ -d frontend/data ]; then
-            rsync -av frontend/data/ dist/frontend/data/
-          fi
-
-      - name: Upload artifact
+      - name: Upload static site (frontend)
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: frontend  # <— публикуем содержимое папки frontend
 
   deploy:
     needs: build
@@ -62,5 +39,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - id: deployment
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
