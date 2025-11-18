@@ -1,236 +1,106 @@
 <!doctype html>
 <html lang="ru">
-
 <head>
   <meta charset="utf-8" />
+  <title>СпецТрейлеры — Новости, ГОСТы и гайды</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>СпецТрейлеры — Новости, ГОСТы и Гайды</title>
-  <meta name="description"
-    content="Новости прицепов/полуприцепов и грузовых авто. ГОСТы, ТР ТС, ПДД, ОСАГО, техосмотр. Практические гайды и регламенты.">
 
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Roboto+Condensed:wght@600;700&display=swap"
-    rel="stylesheet" />
-
- <link rel="stylesheet" href="./tokens.css">
- <link rel="stylesheet" href="./base.css">
- <link rel="stylesheet" href="./components.css">
-
-
-  <link rel="icon" href="assets/logo.svg" />
-
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="СпецТрейлеры — Новости, ГОСТы и Гайды" />
-  <meta property="og:description" content="Лента новостей отрасли + база регламентов и практические руководства." />
-  <meta property="og:image" content="assets/og.png" />
-  <meta name="theme-color" content="#0b1230" />
-
-  <!-- Минимальные стили для листинга новостей и пагинации -->
-  <style>
-    /* карточка с медиа */
-    #news-list {
-      display: grid;
-      gap: 12px;
-    }
-
-    #news-list .card {
-      display: grid;
-      grid-template-columns: 168px 1fr;
-      gap: 12px;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 12px;
-      background: #fff;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    #news-list .card .media {
-      border-radius: 8px;
-      overflow: hidden;
-      background: #f2f3f5;
-      aspect-ratio: 16 / 9;
-    }
-
-    #news-list .card .media img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    #news-list .card .media .img-ph {
-      width: 100%;
-      height: 100%;
-    }
-
-    @media (max-width: 720px) {
-      #news-list .card {
-        grid-template-columns: 1fr;
-      }
-
-      #news-list .card .media {
-        height: 180px;
-      }
-    }
-
-    .card {
-      display: block;
-      text-decoration: none;
-      color: inherit;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 12px;
-      background: #fff;
-    }
-
-    .card:hover {
-      background: #fafafa;
-    }
-
-    .card .card-meta {
-      color: #6b7280;
-      font-size: 12px;
-      margin: 6px 0 8px;
-    }
-
-    #pager {
-      margin: 16px 0 24px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    #pager a,
-    #pager span {
-      padding: 6px 10px;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-      text-decoration: none;
-      color: #111827;
-    }
-
-    #pager .active {
-      background: #111827;
-      color: #fff;
-      border-color: #111827;
-    }
-  </style>
-  <!-- Fix absolute /urls on GitHub Pages project site -->
-<script>
-(function() {
-  // Работать только на *.github.io
-  if (!location.hostname.endsWith('github.io')) return;
-
-  // Имя репо: /Spec-avtoportal/...  -> 'Spec-avtoportal'
-  var repo = location.pathname.split('/')[1] || '';
-  if (!repo) return;
-  var prefix = '/' + repo;
-
-  function fixUrl(u) {
-    // Чиним только абсолютные пути вида "/something"
-    return (typeof u === 'string' && u.startsWith('/')) ? (prefix + u) : u;
-  }
-
-  // Прогоняем <link>, <script>, <img> — сразу (до загрузки стилей)
-  document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('link[href]').forEach(function(el){
-      el.href = fixUrl(el.getAttribute('href'));
-    });
-    document.querySelectorAll('script[src]').forEach(function(el){
-      el.src = fixUrl(el.getAttribute('src'));
-    });
-    document.querySelectorAll('img[src]').forEach(function(el){
-      el.src = fixUrl(el.getAttribute('src'));
-    });
-  });
-
-  // Хелпер для JS (fetch и т.п.)
-  window.fixPath = function(p){ return fixUrl(p); };
-})();
-</script>
-
+  <!-- ОДИН нормальный css вместо tokens/base/components -->
+  <link rel="stylesheet" href="./styles.css" />
 </head>
-
 <body>
-  <header class="header">
-    <div class="container header-inner">
-      <a class="logo" href="./">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M3 16h14l3-6h-7l-2 4H3v2Z" stroke="currentColor" stroke-width="1.5" />
-          <circle cx="7" cy="18" r="2" fill="currentColor" />
-          <circle cx="17" cy="18" r="2" fill="currentColor" />
-        </svg>
-        <span>СпецТрейлеры</span>
-      </a>
-      <nav class="nav">
-        <a class="active" href="./">Новости</a>
-        <a href="legislation.html">Законодательство / ГОСТы</a>
-        <a href="guides.html">Гайды и регламенты</a>
-        <a href="videos.html">Видео</a>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a href="./index.html" class="logo">СпецТрейлеры</a>
+
+      <nav class="main-nav">
+        <a href="./index.html" class="main-nav__link main-nav__link_active">Новости</a>
+        <a href="#" class="main-nav__link main-nav__link_disabled">Законодательство / ГОСТы</a>
+        <a href="#" class="main-nav__link main-nav__link_disabled">Гайды и регламенты</a>
+        <a href="#" class="main-nav__link main-nav__link_disabled">Видео</a>
       </nav>
     </div>
   </header>
 
-  <section class="hero container">
-    <h1>Новости отрасли прицепов и грузовой техники</h1>
-    <p class="sub">Подрубрики: Выставки · Новые модели · Новые производители · Рынок · Уникальные факты · Производители
-      грузовиков/моторов · Дилеры</p>
-  </section>
-
-  <main class="container grid">
-    <!-- Лента новостей + пагинация -->
-    <section>
-      <div class="list" id="news-list"></div>
-      <nav id="pager" class="pager"></nav>
+  <main class="page">
+    <section class="page__intro">
+      <h1 class="page__title">Новости отрасли прицепов и грузовой техники</h1>
+      <p class="page__subtitle">
+        Подрубрики: Выставки · Новые модели · Новые производители · Рынок · Уникальные факты ·
+        Производители грузовиков/моторов · Дилеры
+      </p>
     </section>
 
-    <aside class="side">
-      <div class="widget">
-        <h4>Фильтр по подрубрикам</h4>
-        <div class="chips" id="chips"></div>
+    <section class="page__controls">
+      <div class="control-block">
+        <h2 class="control-block__title">Фильтр по подрубрикам</h2>
+        <div id="filter-tags" class="tags"></div>
       </div>
-      <div class="widget">
-        <h4>Топ тем</h4>
-        <div id="top-tags" class="chips"></div>
+
+      <div class="control-block">
+        <h2 class="control-block__title">Поиск</h2>
+        <input
+          id="search-input"
+          class="search-input"
+          type="search"
+          placeholder="Найдите новость по тексту или источнику (нажмите /)"
+        />
       </div>
-      <div class="widget">
-        <h4>Реклама (нативная)</h4>
-        <div class="ad-native" id="ad-spot">
-          <h4>Спецавтотехника — решения под вашу задачу</h4>
-          <p>Профессиональные надстройки и сервис. Без навязчивости.</p>
+    </section>
+
+    <section class="page__content">
+      <div class="layout">
+        <div class="layout__main">
+          <div id="news-list" class="news-list"></div>
+          <p id="news-empty" class="muted" hidden>По текущему фильтру новости не найдены.</p>
+          <p id="news-error" class="error" hidden>Не удалось загрузить новости. Попробуйте обновить страницу.</p>
+        </div>
+
+        <aside class="layout__sidebar">
+          <div class="sidebar-block">
+            <h2 class="sidebar-block__title">Топ тем</h2>
+            <ul id="top-tags" class="tag-cloud"></ul>
+          </div>
+
+          <div class="sidebar-block">
+            <h2 class="sidebar-block__title">Реклама (нативная)</h2>
+            <p class="muted">
+              Места под нативные блоки появятся позже. Без навязчивости — только релевантные кейсы.
+            </p>
+          </div>
+
+          <div class="sidebar-block">
+            <h2 class="sidebar-block__title">О проекте</h2>
+            <p class="muted">
+              Ежедневная выжимка отраслевых новостей, база нормативов и практические гайды
+              для рынка прицепов/полуприцепов.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div>
+          <div class="site-footer__title">Источники</div>
+          <p class="muted">
+            Производители, дилеры, профильные СМИ, регуляторы, открытые видео-платформы.
+            Мы уважаем robots.txt.
+          </p>
+        </div>
+        <div>
+          <div class="site-footer__title">Реклама</div>
+          <p class="muted">
+            Нативные блоки «Спецавтотехника» появятся после роста трафика.
+            Никакого кликбейта — только полезные кейсы.
+          </p>
         </div>
       </div>
-      <div class="widget notice">
-        Нажмите <span class="kbd">/</span> для поиска. Нажмите на бейдж рубрики, чтобы отфильтровать ленту.
-      </div>
-    </aside>
+    </footer>
   </main>
 
-  <footer class="footer">
-    <div class="container cols">
-      <div>
-        <strong>О проекте</strong>
-        <p>Ежедневная выжимка отраслевых новостей, база нормативов и практические гайды для рынка прицепов/полуприцепов.
-        </p>
-      </div>
-      <div>
-        <strong>Источники</strong>
-        <p>Производители, дилеры, профильные СМИ, регуляторы, открытые видео-платформы. Мы уважаем robots.txt.</p>
-      </div>
-      <div>
-        <strong>Реклама</strong>
-        <p>Нативные блоки «Спецавтотехника» появятся после роста трафика. Без навязчивости — только релевантные кейсы.
-        </p>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Скрипты -->
-  <script type="module" src="./main.js"></script>
+  <!-- один js для логики страницы -->
   <script type="module" src="./news.js"></script>
-
 </body>
-
 </html>
