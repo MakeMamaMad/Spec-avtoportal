@@ -1,40 +1,41 @@
-# aggregator/sources.yml — все источники в одном СПИСКЕ.
-# Важно: каждая запись начинается с "- " в первой колонке.
+# aggregator/sources.yml
+# ВАЖНО: верхний уровень — объект с ключом "sources",
+# внутри которого лежит СПИСОК источников.
 
-# RSS-источники новостей
-- id: trailer-press
-  enabled: true          # включить источник
-  kind: rss              # тип источника (rss / youtube / vk / api и т.п.)
-  title: "Новости прицепов и полуприцепов — Trailer-Press"
-  url: "https://example.com/rss/trailers.xml"
-  tags:
-    - отрасль
-    - прицепы
+sources:
+  # RSS-источники новостей
+  - id: trailer-press
+    enabled: true          # включить источник
+    kind: rss              # тип источника (rss / youtube / vk / api и т.п.)
+    title: "Новости прицепов и полуприцепов — Trailer-Press"
+    url: "https://example.com/rss/trailers.xml"
+    tags:
+      - отрасль
+      - прицепы
 
-- id: truck-market
-  enabled: true
-  kind: rss
-  title: "Рынок грузовиков и полуприцепов"
-  url: "https://example.com/rss/truck-market.xml"
-  tags:
-    - рынок
-    - аналитика
+  - id: truck-market
+    enabled: true
+    kind: rss
+    title: "Рынок грузовиков и полуприцепов"
+    url: "https://example.com/rss/truck-market.xml"
+    tags:
+      - рынок
+      - аналитика
 
-# YouTube-каналы для раздела «Видео».
-# youtube БОЛЬШЕ не отдельный ключ на верхнем уровне — это обычный элемент списка.
-- id: youtube
-  enabled: true
-  kind: youtube
-  channels:
-    - channel_id: "UC0SAWzOPY-BiS5NVv3vdTFw"
-      name: "ы"
-    - channel_id: "UCDU7Dh9zymMryM43US9bCJQ"
-      name: "i"
+  # YouTube-каналы для раздела «Видео».
+  - id: youtube
+    enabled: true
+    kind: youtube
+    channels:
+      - channel_id: "UC0SAWzOPY-BiS5NVv3vdTFw"
+        name: "ы"
+      - channel_id: "UCDU7Dh9zymMryM43US9bCJQ"
+        name: "i"
 
-# Группы/сообщества VK
-- id: vk
-  enabled: true
-  kind: vk
-  groups:
-    - domain: "specavto_official"  # https://vk.com/specavto_official
-      name: "СпецАвто"
+  # Группы/сообщества VK
+  - id: vk
+    enabled: true
+    kind: vk
+    groups:
+      - domain: "specavto_official"  # https://vk.com/specavto_official
+        name: "СпецАвто"
