@@ -3,7 +3,7 @@ name: Ingest & Publish
 on:
   workflow_dispatch:
   schedule:
-    # при желании поменяешь расписание
+    # при желании поправишь расписание
     - cron: '0 * * * *'
   push:
     paths:
@@ -67,7 +67,7 @@ jobs:
           echo
           echo "============================="
 
-      - name: Commit & push changes (with rebase & retries)
+      - name: Commit & push changes
         env:
           GIT_AUTHOR_NAME: github-actions
           GIT_AUTHOR_EMAIL: actions@users.noreply.github.com
@@ -75,30 +75,15 @@ jobs:
           GIT_COMMITTER_EMAIL: actions@users.noreply.github.com
         run: |
           git status
-          if git diff --quiet; then
+
+          # Добавляем ВСЕ json из frontend/data (news.json, news_meta.json и т.д.)
+          git add frontend/data/*.json || true
+
+          # Если после add нет изменений — просто выходим
+          if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
 
-          for attempt in 1 2 3; do
-            echo "Attempt $attempt to rebase & push"
-            git pull --rebase origin main || true
-            if git rebase --continue 2>/dev/null; then
-              echo "Rebase continued"
-            fi
-
-            git add frontend/data/news.json
-
-            if git commit -m "Update news.json (automated ingest)"; then
-              if git push origin main; then
-                echo "Push succeeded"
-                exit 0
-              fi
-            fi
-
-            echo "Push failed, retrying..."
-            sleep 5
-          done
-
-          echo "Failed to push after 3 attempts"
-          exit 1
+          git commit -m "Update data json (automated ingest)"
+          git push origin main
