@@ -1,123 +1,197 @@
-// article.js  (v12.1)
+// article.js — полная статья для «СпецТрейлеры»
+// Берёт индекс статьи из параметра ?idx=N, грузит те же JSON,
+// блокирует переходы на TASS через список BLOCKED.
 
-const BLOCKED = ['tass.ru','www.tass.ru','tass.com','tass'];
-const $ = (s,r=document)=>r.querySelector(s);
+'use strict';
 
-function fmtDate(iso){ const d=new Date(iso||Date.now()); if(Number.isNaN(+d))return''; const p=n=>String(n).padStart(2,'0'); return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}, ${p(d.getHours())}:${p(d.getMinutes())}`; }
-function stripHTML(s=''){ const el=document.createElement('div'); el.innerHTML=s; return (el.textContent||'').trim(); }
+const BLOCKED = ['tass.ru', 'www.tass.ru', 'tass.com', 'tass'];
 
-function ensure(){
-  const post = $('#post') || (()=>{ const n=document.createElement('main'); n.id='post'; document.body.appendChild(n); return n; })();
-  const nf   = $('#nf')   || (()=>{ const n=document.createElement('div');  n.id='nf'; n.hidden=true; n.textContent='Новость не найдена'; document.body.appendChild(n); return n; })();
-  const actions = $('#bottom-actions') || (()=>{ const n=document.createElement('div'); n.id='bottom-actions'; n.hidden=true; n.innerHTML='<a class="btn" href="index.html">← Вернуться к ленте</a> <a class="btn btn--primary" id="read-source" hidden>Читать в источнике ↗</a>'; document.body.appendChild(n); return n; })();
-  return {post,nf,actions};
+const DATA_PATHS = [
+  './data/news_meta.json',
+  './data/news.json'
+];
+
+const $ = (sel, root = document) => root.querySelector(sel);
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(+d)) return '';
+  const p = n => String(n).padStart(2, '0');
+  return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()}, ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 
-const isBlocked = (it)=> {
-  const d=String(it?.domain||'').toLowerCase().trim();
-  const u=String(it?.url||'').toLowerCase().trim();
-  return BLOCKED.some(b=>d.includes(b)||u.includes(b));
-};
-const pickImage = (it)=> {
-  const cand=it?.image||it?.cover||it?.img||(Array.isArray(it?.images)?it.images[0]:'');
-  return (typeof cand==='string' && cand.trim()) ? cand.trim() : '';
-};
-function placeholderFor(it){
-  const domain=(it?.domain||'news').replace(/^https?:\/\//,'').split('/')[0];
-  const label=domain.length>18?domain.slice(0,18)+'…':domain;
-  const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='640' height='360'>
-    <rect width='100%' height='100%' fill='#eef2f7'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
-    font-family='Inter,system-ui,Segoe UI,Roboto,Arial' font-size='28' fill='#667085'>${label}</text></svg>`;
-  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+function pickField(obj, keys, fallback = '') {
+  for (const key of keys) {
+    const parts = key.split('.');
+    let cur = obj;
+    for (const part of parts) {
+      if (cur && Object.prototype.hasOwnProperty.call(cur, part)) {
+        cur = cur[part];
+      } else {
+        cur = undefined;
+        break;
+      }
+    }
+    if (cur !== undefined && cur !== null) return cur;
+  }
+  return fallback;
 }
 
-/* «умный» поиск исходного URL */
-function pickSourceField(item){
-  const candidates = [
-    item?.url, item?.link, item?.href, item?.source,
-    item?.source_url, item?.origin_url, item?.original_url, item?.canonical
-  ];
-  return candidates.find(v => typeof v === 'string' && v.trim());
+async function loadNewsData() {
+  let lastError = null;
+
+  for (const path of DATA_PATHS) {
+    try {
+      const res = await fetch(path, { cache: 'no-store' });
+      if (!res.ok) {
+        lastError = new Error(`${path}: HTTP ${res.status}`);
+        continue;
+      }
+      return await res.json();
+    } catch (err) {
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error('Не удалось загрузить данные новостей');
 }
-function buildSourceUrl(item) {
-  const raw = pickSourceField(item);
-  const domain = (item?.domain || '').replace(/^https?:\/\//,'').split('/')[0];
 
-  if (!raw) return '';
+function normalizeItems(raw) {
+  const list = Array.isArray(raw) ? raw : (raw?.items || raw?.news || []);
 
-  const u = String(raw).trim();
+  return list.map((item, idx) => {
+    const title = pickField(item, ['title', 'headline'], 'Без заголовка');
+    const summary = pickField(item, ['summary', 'description', 'lead'], '');
+    const category = pickField(item, ['category', 'rubric'], '');
+    const source = pickField(item, ['source', 'source.name', 'source_title'], '');
+    const published = pickField(item, ['published_at', 'pubDate', 'date'], '');
+    const image = pickField(item, ['image_url', 'image', 'enclosure.url'], '');
+    const url = pickField(item, ['url', 'link'], '');
+    const contentHtml = pickField(item, ['content_html', 'content', 'body'], '');
 
-  // локальные ссылки на нашу же страницу — игнорируем
-  if (/^(\.?\/)?article\.html(\?|#|$)/i.test(u)) return '';
+    return {
+      idx,
+      raw: item,
+      title,
+      summary,
+      category,
+      source,
+      published,
+      image,
+      url,
+      contentHtml
+    };
+  });
+}
 
-  // абсолютный URL
-  if (/^https?:\/\//i.test(u)) return u;
+function getIdxFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const idxStr = params.get('idx');
+  if (idxStr === null) return null;
+  const n = Number.parseInt(idxStr, 10);
+  return Number.isNaN(n) ? null : n;
+}
 
-  // протокол-относительный
-  if (u.startsWith('//')) return 'https:' + u;
-
-  // относительный путь -> приклеиваем домен
-  if (u.startsWith('/')) {
-    if (domain) return `https://${domain}${u}`;
+function getHost(url) {
+  try {
+    return new URL(url).hostname;
+  } catch {
     return '';
   }
-
-  // прочие случаи — если есть домен, считаем относительным к домену
-  if (domain) return `https://${domain}/${u}`;
-
-  return '';
 }
 
-function render(item){
-  const {post,nf,actions}=ensure();
-  if(!item || isBlocked(item)){ nf.hidden=false; actions.hidden=false; post.innerHTML=''; return; }
-
-  const img=pickImage(item);
-  const cover = img ? `<div class="cover"><img src="${img}" loading="eager" decoding="async" referrerpolicy="no-referrer"
-                    onerror="this.onerror=null;this.src='${placeholderFor(item)}'"></div>` : ``;
-
-  post.innerHTML = `
-    <h1 class="title">${item.title||''}</h1>
-    <div class="meta">
-      ${item.domain?`<span>${item.domain}</span>`:''}
-      ${item.date?`<span>•</span><time>${fmtDate(item.date)}</time>`:''}
-    </div>
-    ${cover}
-    ${item.summary?`<p class="lead">${stripHTML(item.summary)}</p>`:''}
-  `;
-
-  actions.hidden = false;
-
-  // «Читать в источнике»
-  const readBtn = document.getElementById('read-source');
-  if (readBtn) {
-    const src = buildSourceUrl(item);
-    if (src) {
-      readBtn.href = src;
-      readBtn.target = '_blank';
-      readBtn.rel = 'noopener noreferrer';
-      readBtn.hidden = false;
-    } else {
-      readBtn.hidden = true;
-    }
+function showError(msg) {
+  const errorEl = $('#article-error');
+  if (errorEl) {
+    errorEl.textContent = msg;
+    errorEl.style.display = 'block';
+  } else {
+    alert(msg);
   }
 }
 
-function getId(){ const u=new URL(location.href); return u.searchParams.get('id'); }
-function pickFromLocal(){ try{ const raw=localStorage.getItem('currentArticle'); if(raw) return JSON.parse(raw); }catch{} return null; }
-
-document.addEventListener('DOMContentLoaded', () => {
-  const cached = pickFromLocal();
-  if (cached) render(cached);
-
-  if (!cached && Array.isArray(window.__ALL_NEWS__)) {
-    const id = getId();
-    const n = Number(id);
-    const list = window.__ALL_NEWS__;
-    if (Number.isFinite(n) && list[n]) render(list[n]);
-    else {
-      const byId = list.find(x => String(x?.id) === String(id));
-      if (byId) render(byId);
-    }
+async function initArticle() {
+  const idx = getIdxFromQuery();
+  if (idx === null) {
+    showError('Не передан параметр статьи (?idx=...).');
+    return;
   }
-});
+
+  try {
+    const data = await loadNewsData();
+    const items = normalizeItems(data);
+
+    if (idx < 0 || idx >= items.length) {
+      showError('Статья не найдена. Возможно, лента обновилась.');
+      return;
+    }
+
+    const item = items[idx];
+
+    const titleEl = $('#article-title');
+    const metaEl = $('#article-meta');
+    const imgWrapEl = $('#article-image-wrap');
+    const bodyEl = $('#article-body');
+    const sourceLinkEl = $('#article-source-link');
+    const sourceHostEl = $('#article-source-host');
+
+    if (titleEl) {
+      titleEl.textContent = item.title;
+    }
+
+    if (metaEl) {
+      const parts = [];
+      if (item.category) parts.push(item.category);
+      if (item.source) parts.push(item.source);
+      if (item.published) parts.push(fmtDate(item.published));
+      metaEl.textContent = parts.join(' · ');
+    }
+
+    if (imgWrapEl) {
+      if (item.image) {
+        imgWrapEl.innerHTML = `<img src="${item.image}" alt="">`;
+      } else {
+        imgWrapEl.style.display = 'none';
+      }
+    }
+
+    if (bodyEl) {
+      if (item.contentHtml) {
+        // Предполагаем, что контент уже из доверенного источника (агрегатор)
+        bodyEl.innerHTML = item.contentHtml;
+      } else if (item.summary) {
+        bodyEl.innerHTML = `<p>${item.summary}</p>`;
+      } else {
+        bodyEl.innerHTML = '<p>Текст статьи недоступен.</p>';
+      }
+    }
+
+    const host = item.url ? getHost(item.url) : '';
+
+    if (sourceHostEl) {
+      sourceHostEl.textContent = host || (item.source || '');
+    }
+
+    if (sourceLinkEl) {
+      if (!item.url) {
+        sourceLinkEl.style.display = 'none';
+      } else if (BLOCKED.includes(host)) {
+        // TASS и т.п. — ссылку не даём, только текст
+        sourceLinkEl.style.display = 'none';
+        if (sourceHostEl) {
+          sourceHostEl.textContent = 'Источник скрыт редакцией (TASS)';
+        }
+      } else {
+        sourceLinkEl.href = item.url;
+        sourceLinkEl.target = '_blank';
+        sourceLinkEl.rel = 'noopener noreferrer';
+      }
+    }
+  } catch (err) {
+    console.error('Ошибка при загрузке статьи:', err);
+    showError('Ошибка при загрузке статьи. Проверь, что JSON-файлы в папке data доступны.');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initArticle);
