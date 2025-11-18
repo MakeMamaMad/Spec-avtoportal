@@ -2,105 +2,103 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <title>СпецТрейлеры — Новости, ГОСТы и гайды</title>
+  <title>СпецТрейлеры — Новости, ГОСТы и Гайды</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Новости рынка прицепов и полуприцепов, ГОСТы и практические гайды." />
 
-  <!-- ОДИН нормальный css вместо tokens/base/components -->
-  <link rel="stylesheet" href="./styles.css" />
+  <!-- Один простой CSS, без base.css/tokens.css/components.css -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Скрипт списка новостей -->
+  <script type="module" src="news.js" defer></script>
 </head>
 <body>
   <header class="site-header">
-    <div class="site-header__inner">
-      <a href="./index.html" class="logo">СпецТрейлеры</a>
+    <div class="container header-inner">
+      <div class="logo">
+        <!-- Без logo.svg, чтобы не было 404 -->
+        <span class="logo-mark">СТ</span>
+        <span class="logo-text">СпецТрейлеры</span>
+      </div>
 
-      <nav class="main-nav">
-        <a href="./index.html" class="main-nav__link main-nav__link_active">Новости</a>
-        <a href="#" class="main-nav__link main-nav__link_disabled">Законодательство / ГОСТы</a>
-        <a href="#" class="main-nav__link main-nav__link_disabled">Гайды и регламенты</a>
-        <a href="#" class="main-nav__link main-nav__link_disabled">Видео</a>
+      <nav class="nav">
+        <a href="./index.html" class="nav-link nav-link-active">Новости</a>
+        <a href="#laws" class="nav-link">Законодательство / ГОСТы</a>
+        <a href="#guides" class="nav-link">Гайды и регламенты</a>
+        <a href="#video" class="nav-link">Видео</a>
       </nav>
     </div>
   </header>
 
-  <main class="page">
-    <section class="page__intro">
-      <h1 class="page__title">Новости отрасли прицепов и грузовой техники</h1>
-      <p class="page__subtitle">
+  <main class="container main-layout">
+    <section class="news-column">
+      <h1 class="page-title">Новости отрасли прицепов и грузовой техники</h1>
+      <p class="page-subtitle">
         Подрубрики: Выставки · Новые модели · Новые производители · Рынок · Уникальные факты ·
         Производители грузовиков/моторов · Дилеры
       </p>
-    </section>
 
-    <section class="page__controls">
-      <div class="control-block">
-        <h2 class="control-block__title">Фильтр по подрубрикам</h2>
-        <div id="filter-tags" class="tags"></div>
-      </div>
+      <section class="filters">
+        <div class="filters-row">
+          <label class="filter-label">
+            Поиск:
+            <input type="search" id="search-input" placeholder="Нажмите / и начните вводить..." />
+          </label>
 
-      <div class="control-block">
-        <h2 class="control-block__title">Поиск</h2>
-        <input
-          id="search-input"
-          class="search-input"
-          type="search"
-          placeholder="Найдите новость по тексту или источнику (нажмите /)"
-        />
-      </div>
-    </section>
-
-    <section class="page__content">
-      <div class="layout">
-        <div class="layout__main">
-          <div id="news-list" class="news-list"></div>
-          <p id="news-empty" class="muted" hidden>По текущему фильтру новости не найдены.</p>
-          <p id="news-error" class="error" hidden>Не удалось загрузить новости. Попробуйте обновить страницу.</p>
+          <label class="filter-label">
+            Рубрика:
+            <select id="tag-select">
+              <option value="">Все</option>
+            </select>
+          </label>
         </div>
+      </section>
 
-        <aside class="layout__sidebar">
-          <div class="sidebar-block">
-            <h2 class="sidebar-block__title">Топ тем</h2>
-            <ul id="top-tags" class="tag-cloud"></ul>
-          </div>
+      <section id="news-list" class="news-list" aria-live="polite">
+        <!-- Карточки новостей сюда отрисует news.js -->
+      </section>
 
-          <div class="sidebar-block">
-            <h2 class="sidebar-block__title">Реклама (нативная)</h2>
-            <p class="muted">
-              Места под нативные блоки появятся позже. Без навязчивости — только релевантные кейсы.
-            </p>
-          </div>
+      <div id="news-empty" class="news-empty hidden">
+        По вашему фильтру ничего не найдено.
+      </div>
 
-          <div class="sidebar-block">
-            <h2 class="sidebar-block__title">О проекте</h2>
-            <p class="muted">
-              Ежедневная выжимка отраслевых новостей, база нормативов и практические гайды
-              для рынка прицепов/полуприцепов.
-            </p>
-          </div>
-        </aside>
+      <div id="news-error" class="news-error hidden">
+        Не удалось загрузить ленту новостей. Попробуйте обновить страницу позже.
       </div>
     </section>
 
-    <footer class="site-footer">
-      <div class="site-footer__inner">
-        <div>
-          <div class="site-footer__title">Источники</div>
-          <p class="muted">
-            Производители, дилеры, профильные СМИ, регуляторы, открытые видео-платформы.
-            Мы уважаем robots.txt.
-          </p>
-        </div>
-        <div>
-          <div class="site-footer__title">Реклама</div>
-          <p class="muted">
-            Нативные блоки «Спецавтотехника» появятся после роста трафика.
-            Никакого кликбейта — только полезные кейсы.
-          </p>
-        </div>
-      </div>
-    </footer>
+    <aside class="sidebar">
+      <section class="sidebar-block">
+        <h2 class="sidebar-title">Топ тем</h2>
+        <ul id="top-topics" class="tag-list">
+          <!-- наполним из метаданных, если будут -->
+        </ul>
+      </section>
+
+      <section class="sidebar-block">
+        <h2 class="sidebar-title">Реклама (нативная)</h2>
+        <p class="sidebar-text">
+          Спецавтотехника — решения под вашу задачу. Профессиональные надстройки и сервис. Без навязчивости.
+        </p>
+      </section>
+
+      <section class="sidebar-block">
+        <h2 class="sidebar-title">О проекте</h2>
+        <p class="sidebar-text">
+          Ежедневная выжимка отраслевых новостей, база нормативов и практические гайды для рынка прицепов/полуприцепов.
+        </p>
+        <p class="sidebar-text">
+          Источники: производители, дилеры, профильные СМИ, регуляторы, открытые видео-платформы. Мы уважаем robots.txt.
+        </p>
+      </section>
+    </aside>
   </main>
 
-  <!-- один js для логики страницы -->
-  <script type="module" src="./news.js"></script>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>© СпецТрейлеры, <span id="footer-year"></span></span>
+      <span class="footer-note">Нативная реклама включится позже, когда появится трафик.</span>
+    </div>
+  </footer>
 </body>
 </html>
