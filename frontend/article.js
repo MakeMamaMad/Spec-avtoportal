@@ -1,179 +1,149 @@
 // frontend/article.js
 
-const NEWS_URL = "./data/news.json";
-const articleRoot = document.getElementById("article-root");
-const relatedList = document.getElementById("related-list");
-const footerYearEl = document.getElementById("footer-year");
+(function () {
+  const NEWS_URL = 'data/news.json';
 
-if (footerYearEl) {
-  footerYearEl.textContent = new Date().getFullYear();
-}
+  const articleEl = document.getElementById('article');
+  const relatedEl = document.getElementById('related');
 
-function formatDate(iso) {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  const dd = String(d.getDate()).padStart(2, "0");
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const yyyy = d.getFullYear();
-  const hh = String(d.getHours()).padStart(2, "0");
-  const mi = String(d.getMinutes()).padStart(2, "0");
-  return `${dd}.${mm}.${yyyy}, ${hh}:${mi}`;
-}
-
-function normalizeNews(raw) {
-  if (!raw) return [];
-  let items = Array.isArray(raw) ? raw : raw.items || raw.news || raw.data || [];
-  if (!Array.isArray(items)) return [];
-
-  return items.map((item, index) => {
-    const title =
-      item.title ||
-      item.headline ||
-      item.name ||
-      `Новость #${index + 1}`;
-
-    const url = item.url || item.link || null;
-    const source = item.source || item.source_name || "";
-    const tags = item.tags || item.rubrics || item.categories || [];
-    const dt =
-      item.published_at ||
-      item.pub_date ||
-      item.date ||
-      item.datetime ||
-      null;
-    const snippet =
-      item.snippet || item.summary || item.description || "";
-
-    return {
-      _index: index,
-      raw: item,
-      title,
-      url,
-      source,
-      tags: Array.isArray(tags) ? tags : typeof tags === "string" ? [tags] : [],
-      published_at: dt,
-      snippet,
-    };
-  });
-}
-
-function renderArticle(item) {
-  articleRoot.innerHTML = "";
-
-  const titleEl = document.createElement("h1");
-  titleEl.className = "article-title";
-  titleEl.textContent = item.title;
-
-  const metaEl = document.createElement("div");
-  metaEl.className = "article-meta";
-
-  if (item.source) {
-    const s = document.createElement("span");
-    s.className = "news-source";
-    s.textContent = item.source;
-    metaEl.appendChild(s);
+  function fmtDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(+d)) return '';
+    const p = (n) => String(n).padStart(2, '0');
+    return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()}`;
   }
 
-  if (item.published_at) {
-    const d = document.createElement("span");
-    d.className = "news-date";
-    d.textContent = formatDate(item.published_at);
-    metaEl.appendChild(d);
+  function getField(obj, candidates, fallback = '') {
+    for (const key of candidates) {
+      if (obj && obj[key] != null && obj[key] !== '') return obj[key];
+    }
+    return fallback;
   }
 
-  if (item.url) {
-    const link = document.createElement("a");
-    link.href = item.url;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.textContent = "Читать в источнике";
-    link.className = "tag tag-primary";
-    metaEl.appendChild(link);
+  function renderNotFound(message) {
+    articleEl.innerHTML = `
+      <div class="empty-state">
+        <h1>Статья не найдена</h1>
+        <p>${message}</p>
+        <p><a href="index.html" class="news-card-link">Вернуться к ленте</a></p>
+      </div>
+    `;
   }
 
-  const bodyEl = document.createElement("div");
-  bodyEl.className = "article-body";
+  function renderArticle(item, allNews) {
+    const title = getField(item, ['title', 'headline', 'name'], 'Без заголовка');
+    const summary = getField(item, ['summary', 'lead', 'description'], '');
+    const dateRaw = getField(item, ['published_at', 'date', 'pub_date']);
+    const date = fmtDate(dateRaw);
+    const sourceName = getField(item, ['source_name', 'source', 'site'], '');
+    const sourceUrl = getField(item, ['url', 'link', 'source_url'], '');
+    const image = getField(item, ['image_url', 'image', 'img'], '');
+    const tags = item.tags || item.rubrics || [];
+    const bodyHtml =
+      getField(item, ['content_html', 'body_html']) ||
+      getField(item, ['content', 'body', 'text', 'full_text', 'article'], summary);
 
-  const rawBody =
-    item.raw?.content ||
-    item.raw?.body ||
-    item.raw?.text ||
-    item.snippet ||
-    "";
+    document.title = `${title} — СпецТрейлеры`;
 
-  if (rawBody && /<\/?[a-z][\s\S]*>/i.test(rawBody)) {
-    // похоже на HTML
-    bodyEl.innerHTML = rawBody;
-  } else {
-    const p = document.createElement("p");
-    p.textContent = rawBody || "Текст статьи недоступен.";
-    bodyEl.appendChild(p);
+    articleEl.innerHTML = `
+      <header class="article-header">
+        <p class="article-breadcrumbs">
+          <a href="index.html">Новости</a> ·
+          ${tags && tags.length ? `<span>${tags.map((t) => String(t)).join(', ')}</span>` : ''}
+        </p>
+        <h1 class="article-title">${title}</h1>
+        <div class="article-meta">
+          ${date ? `<span class="article-meta-item">${date}</span>` : ''}
+          ${sourceName ? `<span class="article-meta-item">${sourceName}</span>` : ''}
+        </div>
+      </header>
+
+      ${image ? `<div class="article-image-wrap"><img src="${image}" alt="" class="article-image"/></div>` : ''}
+
+      <section class="article-body">
+        ${
+          bodyHtml && /<\/?[a-z][\s\S]*>/i.test(bodyHtml)
+            ? bodyHtml
+            : `<p>${(bodyHtml || '').replace(/\n{2,}/g, '</p><p>')}</p>`
+        }
+      </section>
+
+      <footer class="article-footer">
+        ${
+          sourceUrl
+            ? `<a class="primary-btn" href="${sourceUrl}" target="_blank" rel="noopener noreferrer">
+                 Читать в источнике
+               </a>`
+            : ''
+        }
+        <a href="index.html" class="secondary-btn">Назад к ленте</a>
+      </footer>
+    `;
+
+    // простые "похожие" материалы
+    const sameTag = (tags && tags[0]) || null;
+    const currentId = getField(item, ['id', 'slug'], null);
+
+    const related = allNews
+      .filter((n) => {
+        if (!currentId) return true;
+        const nid = getField(n, ['id', 'slug'], null);
+        if (nid === currentId) return false;
+        if (!sameTag) return true;
+        const nTags = n.tags || n.rubrics || [];
+        return Array.isArray(nTags) && nTags.includes(sameTag);
+      })
+      .slice(0, 5);
+
+    relatedEl.innerHTML = '';
+
+    for (const r of related) {
+      const rid = getField(r, ['id', 'slug'], '');
+      const rTitle = getField(r, ['title', 'headline', 'name'], 'Без заголовка');
+      const rDate = fmtDate(getField(r, ['published_at', 'date', 'pub_date']));
+      const a = document.createElement('a');
+      a.className = 'related-item';
+      a.href = `article.html?id=${encodeURIComponent(rid)}`;
+      a.innerHTML = `
+        <span class="related-title">${rTitle}</span>
+        ${rDate ? `<span class="related-date">${rDate}</span>` : ''}
+      `;
+      relatedEl.appendChild(a);
+    }
   }
 
-  articleRoot.appendChild(titleEl);
-  articleRoot.appendChild(metaEl);
-  articleRoot.appendChild(bodyEl);
-}
+  async function init() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
 
-function renderRelated(allItems, currentIndex) {
-  if (!relatedList) return;
-  relatedList.innerHTML = "";
-
-  const current = allItems[currentIndex];
-  if (!current) return;
-
-  const currentTag = (current.tags && current.tags[0]) || null;
-
-  const candidates = allItems.filter(
-    (item, idx) =>
-      idx !== currentIndex &&
-      (!currentTag || (item.tags || []).includes(currentTag))
-  );
-
-  candidates.slice(0, 5).forEach((item) => {
-    const li = document.createElement("li");
-    li.className = "related-item";
-    const a = document.createElement("a");
-    const url = new URL("./article.html", window.location.href);
-    url.searchParams.set("index", String(item._index));
-    a.href = url.toString();
-    a.textContent = item.title;
-    li.appendChild(a);
-    relatedList.appendChild(li);
-  });
-}
-
-async function main() {
-  const params = new URLSearchParams(window.location.search);
-  const indexStr = params.get("index");
-  const index = indexStr ? Number.parseInt(indexStr, 10) : NaN;
-
-  if (Number.isNaN(index)) {
-    articleRoot.innerHTML =
-      "<p>Не указан идентификатор статьи. Вернитесь на главную страницу.</p>";
-    return;
-  }
-
-  try {
-    const res = await fetch(NEWS_URL, { cache: "no-store" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const raw = await res.json();
-    const items = normalizeNews(raw);
-
-    if (!items.length || !items[index]) {
-      articleRoot.innerHTML =
-        "<p>Статья не найдена. Возможно, она была удалена или лента обновилась.</p>";
+    if (!id) {
+      renderNotFound('Не передан идентификатор статьи в параметре URL ?id=...');
       return;
     }
 
-    renderArticle(items[index]);
-    renderRelated(items, index);
-  } catch (err) {
-    console.error("Ошибка загрузки статьи:", err);
-    articleRoot.innerHTML =
-      "<p>Не удалось загрузить статью. Попробуйте позже.</p>";
-  }
-}
+    let data;
+    try {
+      const resp = await fetch(NEWS_URL, { cache: 'no-store' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      data = await resp.json();
+    } catch (e) {
+      console.error('Не удалось загрузить новости для статьи', e);
+      renderNotFound('Ошибка при загрузке базы новостей.');
+      return;
+    }
 
-main();
+    const news = Array.isArray(data) ? data : data.items || [];
+    const item =
+      news.find((n) => String(getField(n, ['id', 'slug'], '')).trim() === id.trim()) || null;
+
+    if (!item) {
+      renderNotFound('Новость с таким идентификатором не найдена.');
+      return;
+    }
+
+    renderArticle(item, news);
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
