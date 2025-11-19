@@ -63,7 +63,7 @@ sources:
 # но пригодится дальше для видео-раздела
 youtube:
   - channel_id: "UC0SAWzOPY-BiS5NVv3vdTFw"
-    name: "ы"
+    name: "Прицепы и полуприцепы SATpricep"
     videos:
       - "jQQzPo6YWPg"
       - "AwMnAEEOfoM"
@@ -73,7 +73,7 @@ youtube:
       - "JArHntGs9iM"
 
   - channel_id: "UCDU7Dh9zymMryM43US9bCJQ"
-    name: "i"
+    name: "Прицепы TRAILUX"
     videos:
       - "Qwerty123456"
       - "Asdfgh987654"
