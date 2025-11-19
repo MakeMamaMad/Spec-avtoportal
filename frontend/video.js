@@ -1,17 +1,16 @@
 // video.js
-// Страница "Видео": строим плейлисты YouTube по каналам из aggregator/sources.yml
+// Страница "Видео": строим плейлисты и отдельные ролики по данным из aggregator/sources.yml
 
-// Если поменяешь название репо или ветку, нужно обновить этот URL.
 const SOURCES_YAML_URL =
   "https://raw.githubusercontent.com/MakeMamaMad/Spec-avtoportal/main/aggregator/sources.yml";
 
 document.addEventListener("DOMContentLoaded", () => {
-  loadYoutubePlaylists().catch((err) => {
+  loadYoutubeSection().catch((err) => {
     console.error("[video] unexpected error", err);
   });
 });
 
-async function loadYoutubePlaylists() {
+async function loadYoutubeSection() {
   const listEl = document.getElementById("video-list");
   const statusEl = document.getElementById("video-status");
   const errorEl = document.getElementById("video-error");
@@ -22,25 +21,25 @@ async function loadYoutubePlaylists() {
     return;
   }
 
-  function showStatus(msg) {
+  const showStatus = (msg) => {
     statusEl.textContent = msg;
     statusEl.hidden = false;
     errorEl.hidden = true;
     emptyEl.hidden = true;
-  }
+  };
 
-  function showError(msg) {
+  const showError = (msg) => {
     if (msg) errorEl.textContent = msg;
     statusEl.hidden = true;
     errorEl.hidden = false;
     emptyEl.hidden = true;
-  }
+  };
 
-  function showEmpty() {
+  const showEmpty = () => {
     statusEl.hidden = true;
     errorEl.hidden = true;
     emptyEl.hidden = false;
-  }
+  };
 
   showStatus("Загружаем конфигурацию каналов…");
 
@@ -75,9 +74,9 @@ async function loadYoutubePlaylists() {
     const channelUrl = `https://www.youtube.com/channel/${encodeURIComponent(
       channelId
     )}`;
+    const videos = Array.isArray(ch.videos) ? ch.videos : [];
 
-    // Пытаемся построить ID плейлиста "Загрузки" для канала.
-    // Для обычных каналов он выглядит как "UU" + channelId без первых двух символов "UC".
+    // Пытаемся построить плейлист "Загрузки" на случай, если videos не указан
     let playlistId = null;
     if (channelId.startsWith("UC") && channelId.length > 2) {
       playlistId = "UU" + channelId.slice(2);
@@ -93,12 +92,39 @@ async function loadYoutubePlaylists() {
       </p>
     `;
 
-    let playerHtml = "";
-    if (playlistId) {
+    let playersHtml = "";
+
+    if (videos.length) {
+      // Рисуем несколько отдельных роликов
+      const slice = videos.slice(0, 6); // максимум 6, чтобы страница не умерла
+      playersHtml =
+        '<div class="video-card__grid">' +
+        slice
+          .map((videoId) => {
+            const src = `https://www.youtube.com/embed/${encodeURIComponent(
+              videoId
+            )}`;
+            return `
+              <div class="video-card__player">
+                <iframe
+                  src="${src}"
+                  loading="lazy"
+                  title="${escapeHtml(name)} — видео"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                ></iframe>
+              </div>
+            `;
+          })
+          .join("") +
+        "</div>";
+    } else if (playlistId) {
+      // Фолбэк: один плеер с плейлистом загрузок
       const src = `https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(
         playlistId
       )}`;
-      playerHtml = `
+      playersHtml = `
         <div class="video-card__player">
           <iframe
             src="${src}"
@@ -111,7 +137,7 @@ async function loadYoutubePlaylists() {
         </div>
       `;
     } else {
-      playerHtml = `
+      playersHtml = `
         <div class="video-card__player video-card__player--placeholder">
           Не удалось построить плейлист для этого канала.
         </div>
@@ -120,7 +146,8 @@ async function loadYoutubePlaylists() {
 
     const footerHtml = `
       <div class="video-card__footer">
-        <a href="${channelUrl}" target="_blank" rel="noopener noreferrer" class="primary-btn primary-btn-sm">
+        <a href="${channelUrl}" target="_blank" rel="noopener noreferrer"
+           class="primary-btn primary-btn-sm">
           Открыть канал на YouTube
         </a>
       </div>
@@ -128,7 +155,7 @@ async function loadYoutubePlaylists() {
 
     card.innerHTML = `
       ${titleHtml}
-      ${playerHtml}
+      ${playersHtml}
       ${footerHtml}
     `;
 
