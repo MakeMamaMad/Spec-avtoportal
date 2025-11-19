@@ -1,60 +1,73 @@
-# Конфигурация источников для агрегатора.
-# ВАЖНО: верхний уровень — это mapping с ключом `sources`.
-
+# Основные новостные источники (RSS)
 sources:
-  - id: gruzovoy-ru
-    enabled: true
-    kind: rss
-    title: "Грузовой Ру — грузовые автомобили, прицепы, коммерческий транспорт"
-    url: "https://gruzovoy.ru/rss"
-    tags:
-      - отрасль
-      - грузовики
-      - прицепы
-      - коммерческий транспорт
-
   - id: st-kt
     enabled: true
     kind: rss
-    title: "Журнал «СпецТехника и Коммерческий Транспорт»"
+    title: "СпецТехника и Коммерческий Транспорт"
     url: "https://st-kt.ru/rss"
     tags:
-      - отрасль
       - спецтехника
+      - прицепы
+      - грузовики
+
+  - id: gruzovoy-ru
+    enabled: true
+    kind: rss
+    title: "Грузовой Ру — грузовые автомобили, прицепы и полуприцепы"
+    url: "https://gruzovoy.ru/rss"
+    tags:
       - грузовики
       - прицепы
       - рынок
+
+  - id: vedomosti-commercial
+    enabled: true
+    kind: rss
+    title: "Ведомости — коммерческий транспорт"
+    url: "https://www.vedomosti.ru/rss/rubric/auto/commercial_vehicles"
+    tags:
+      - рынок
+      - аналитика
+      - коммерческий транспорт
+
+  - id: metalinfo-trucks
+    enabled: true
+    kind: rss
+    title: "Metalinfo — грузовая техника"
+    url: "https://rss.metalinfo.ru/ru/news/s6522.html"
+    tags:
+      - грузовая техника
+      - прицепы
+      - полуприцепы
+
+  - id: metalinfo-truck-market
+    enabled: true
+    kind: rss
+    title: "Metalinfo — рынок грузовиков"
+    url: "https://rss.metalinfo.ru/ru/news/s7170.html"
+    tags:
+      - рынок грузовиков
+      - аналитика
 
   - id: motor-ru
     enabled: true
     kind: rss
-    title: "Motor.ru — автомобильные новости"
+    title: "Motor.ru — автоновости"
     url: "https://motor.ru/exports/rss"
     tags:
+      - автоновости
       - легковые
-      - рынок
-      - автоновости
-      - автоспорт
+      - общий поток
 
-  - id: gazeta-ru-autonews
-    enabled: true
-    kind: rss
-    title: "Газета.Ru — автоновости"
-    url: "https://www.gazeta.ru/export/rss/autonews.xml"
-    tags:
-      - рынок
-      - аналитика
-      - автоновости
-
-# Видео-источники (если понадобится для блока с видео).
-# Они не мешают проверке, просто лежат рядом.
-
+# Конфигурация каналов YouTube — пока не используется агрегатором,
+# но пригодится дальше для видео-раздела
 youtube:
   - channel_id: "UC0SAWzOPY-BiS5NVv3vdTFw"
     name: "ы"
   - channel_id: "UCDU7Dh9zymMryM43US9bCJQ"
     name: "i"
 
+# Конфигурация пабликов ВК — тоже на будущее
 vk:
   - domain: "specavto_official"  # https://vk.com/specavto_official
     name: "СпецАвто"
