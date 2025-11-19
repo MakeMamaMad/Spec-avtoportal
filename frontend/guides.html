@@ -1,58 +1,76 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
   <title>Гайды и регламенты — СпецТрейлеры</title>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/tokens.css">
-  <link rel="stylesheet" href="styles/base.css">
-  <link rel="stylesheet" href="styles/components.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="description"
+    content="Практические руководства, чек-листы и регламенты по работе с прицепной техникой."
+  />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<header class="header">
-  <div class="container header-inner">
-    <a class="logo" href="./">
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 16h14l3-6h-7l-2 4H3v2Z" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="18" r="2" fill="currentColor"/><circle cx="17" cy="18" r="2" fill="currentColor"/></svg>
-      <span>СпецТрейлеры</span>
-    </a>
-    <nav class="nav">
-      <a href="./">Новости</a>
-      <a href="legislation.html">Законодательство / ГОСТы</a>
-      <a class="active" href="guides.html">Гайды и регламенты</a>
-      <a href="videos.html">Видео</a>
-    </nav>
-  </div>
-</header>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">ST</span>
+        <span class="logo-text">
+          СпецТрейлеры
+          <span class="logo-sub">Новости, ГОСТы и гайды</span>
+        </span>
+      </a>
 
-<section class="hero container">
-  <h1>Гайды и регламенты</h1>
-  <p class="sub">Практические руководства: подбор прицепа под задачу, обслуживание, тюнинг, FAQ</p>
-</section>
-
-<main class="container grid">
-  <section>
-    <div class="list" id="guides-list"></div>
-  </section>
-  <aside class="side">
-    <div class="widget">
-      <h4>Разделы</h4>
-      <div class="chips" id="guide-chips"></div>
+      <nav class="main-nav">
+        <a href="index.html" class="nav-link">Новости</a>
+        <a href="law.html" class="nav-link">Законодательство / ГОСТы</a>
+        <a href="guides.html" class="nav-link nav-link-active">Гайды и регламенты</a>
+        <a href="video.html" class="nav-link">Видео</a>
+      </nav>
     </div>
-    <div class="widget notice">
-      Каждый гайд — оригинальный текст (без копипаста), адаптированный под российские реалии.
-    </div>
-  </aside>
-</main>
+  </header>
 
-<footer class="footer">
-  <div class="container cols">
-    <div><strong>Редполитика</strong><p>Минимум рекламного шума, максимум пользы. Ссылки на источники — обязательно.</p></div>
-    <div><strong>ОБНОВЛЕНИЯ</strong><p>Мы помечаем свежие правки бейджем «Обновлено» и датой.</p></div>
-    <div><strong>Контакты</strong><p>Рекламодателям и авторам — welcome.</p></div>
-  </div>
-</footer>
-<script type="module" src="js/guides.js"></script>
+  <main class="page-main">
+    <section class="hero">
+      <div class="container">
+        <h1>Гайды и регламенты</h1>
+        <p class="hero-subtitle">
+          Подборка практических материалов: от эксплуатации прицепов до настройки парка и работы с дилерами.
+        </p>
+      </div>
+    </section>
+
+    <section class="container layout">
+      <div class="layout-main">
+        <section>
+          <h2 class="section-title">Полезные материалы</h2>
+          <p class="sidebar-text">
+            В будущем здесь будет отдельная база гайдов с тегами и фильтрами.
+            Сейчас это аккуратная заглушка, чтобы навигация по вкладкам работала.
+          </p>
+          <ul class="doc-list">
+            <li>Чек-лист приёмки нового полуприцепа.</li>
+            <li>Регламент обслуживания ходовой части и тормозной системы.</li>
+            <li>Рекомендации по выбору прицепа под разные задачи.</li>
+          </ul>
+        </section>
+      </div>
+
+      <aside class="layout-sidebar">
+        <section class="sidebar-block">
+          <h3 class="sidebar-title">Планы по разделу</h3>
+          <p class="sidebar-text">
+            Сюда можно подтягивать материалы из отдельного JSON/БД и выводить их как статьи с фильтрами.
+          </p>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>© СпецТрейлеры, агрегатор новостей о прицепах и полуприцепах.</span>
+    </div>
+  </footer>
 </body>
 </html>
