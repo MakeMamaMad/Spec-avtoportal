@@ -1,5 +1,5 @@
 # Источники новостей для агрегатора.
-# ВАЖНО: весь файл — это список (list), без корневого ключа вроде `sources:`.
+# Весь файл — это список элементов (list), без корневого ключа вроде `sources:`.
 
 - id: gruzovoy-ru
   enabled: true
@@ -29,37 +29,3 @@
   kind: rss
   title: "Motor.ru — автомобильные новости"
   url: "https://motor.ru/exports/rss"
-  tags:
-    - легковые
-    - рынок
-    - автоновости
-    - автоспорт
-
-- id: gazeta-ru-autonews
-  enabled: true
-  kind: rss
-  title: "Газета.Ru — автоновости"
-  url: "https://www.gazeta.ru/export/rss/autonews.xml"
-  tags:
-    - рынок
-    - аналитика
-    - автоновости
-
-
-  # YouTube-каналы для раздела «Видео».
-  - id: youtube
-    enabled: true
-    kind: youtube
-    channels:
-      - channel_id: "UC0SAWzOPY-BiS5NVv3vdTFw"
-        name: "ы"
-      - channel_id: "UCDU7Dh9zymMryM43US9bCJQ"
-        name: "i"
-
-  # Группы/сообщества VK
-  - id: vk
-    enabled: true
-    kind: vk
-    groups:
-      - domain: "specavto_official"  # https://vk.com/specavto_official
-        name: "СпецАвто"
