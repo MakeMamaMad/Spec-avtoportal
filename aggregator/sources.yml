@@ -64,10 +64,17 @@ sources:
 youtube:
   - channel_id: "UC0SAWzOPY-BiS5NVv3vdTFw"
     name: "ы"
+    videos:
+      - "jQQzPo6YWPg"
+      - "AwMnAEEOfoM"
+      - "_6JdduOi4CE"
+      - "1ZKbQu2NQ4s"
+      - "1ZKbQu2NQ4s"
+      - "JArHntGs9iM"
+
   - channel_id: "UCDU7Dh9zymMryM43US9bCJQ"
     name: "i"
+    videos:
+      - "Qwerty123456"
+      - "Asdfgh987654"
 
-# Конфигурация пабликов ВК — тоже на будущее
-vk:
-  - domain: "specavto_official"  # https://vk.com/specavto_official
-    name: "СпецАвто"
