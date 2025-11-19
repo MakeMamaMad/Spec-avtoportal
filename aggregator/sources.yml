@@ -1,63 +1,59 @@
-# Основные новостные источники (RSS)
 sources:
-  - id: st-kt
+  # Спецтехника и коммерческий транспорт — общий профильный портал
+  - id: st-kt-main
     enabled: true
     kind: rss
-    title: "СпецТехника и Коммерческий Транспорт"
+    title: "Спецтехника и коммерческий транспорт — st-kt.ru"
     url: "https://st-kt.ru/rss"
     tags:
       - спецтехника
       - прицепы
+      - полуприцепы
       - грузовики
 
+  # Грузовой.ру — новости по рынку грузовых автомобилей
   - id: gruzovoy-ru
     enabled: true
     kind: rss
-    title: "Грузовой Ру — грузовые автомобили, прицепы и полуприцепы"
+    title: "Грузовой.ру — рынок грузовиков"
     url: "https://gruzovoy.ru/rss"
     tags:
       - грузовики
-      - прицепы
       - рынок
+      - статистика
 
-  - id: vedomosti-commercial
-    enabled: true
-    kind: rss
-    title: "Ведомости — коммерческий транспорт"
-    url: "https://www.vedomosti.ru/rss/rubric/auto/commercial_vehicles"
-    tags:
-      - рынок
-      - аналитика
-      - коммерческий транспорт
-
+  # Металлоснабжение и сбыт — тематическая рубрика "Рынок грузовиков"
   - id: metalinfo-trucks
     enabled: true
     kind: rss
-    title: "Metalinfo — грузовая техника"
-    url: "https://rss.metalinfo.ru/ru/news/s6522.html"
+    title: "Рынок грузовиков — Металлоснабжение и сбыт"
+    url: "https://rss.metalinfo.ru/ru/news/s7170.rss"
     tags:
-      - грузовая техника
-      - прицепы
-      - полуприцепы
-
-  - id: metalinfo-truck-market
-    enabled: true
-    kind: rss
-    title: "Metalinfo — рынок грузовиков"
-    url: "https://rss.metalinfo.ru/ru/news/s7170.html"
-    tags:
-      - рынок грузовиков
+      - рынок
+      - грузовики
       - аналитика
 
-  - id: motor-ru
+  # Ведомости — коммерческий транспорт (деловая пресса)
+  - id: vedomosti-commercial-vehicles
     enabled: true
     kind: rss
-    title: "Motor.ru — автоновости"
-    url: "https://motor.ru/exports/rss"
+    title: "Ведомости — коммерческие автомобили"
+    url: "https://www.vedomosti.ru/rss/rubric/auto/commercial_vehicles"
     tags:
-      - автоновости
-      - легковые
-      - общий поток
+      - коммерческий транспорт
+      - грузовики
+      - бизнес
+
+  # Truckmix — отраслевые новости по спецтехнике и грузовому транспорту
+  - id: truckmix-industry
+    enabled: true
+    kind: rss
+    title: "Truckmix — отраслевые новости спецтехники"
+    url: "https://truckmix.ru/publication/rss?type=1"
+    tags:
+      - спецтехника
+      - грузовики
+      - прицепы
 
 # Конфигурация каналов YouTube — пока не используется агрегатором,
 # но пригодится дальше для видео-раздела
