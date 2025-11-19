@@ -1,26 +1,50 @@
-# aggregator/sources.yml
-# ВАЖНО: верхний уровень — объект с ключом "sources",
-# внутри которого лежит СПИСОК источников.
+# Источники новостей для агрегатора.
+# ВАЖНО: весь файл — это список (list), без корневого ключа вроде `sources:`.
 
-sources:
-  # RSS-источники новостей
-  - id: trailer-press
-    enabled: true          # включить источник
-    kind: rss              # тип источника (rss / youtube / vk / api и т.п.)
-    title: "Новости прицепов и полуприцепов — Trailer-Press"
-    url: "https://example.com/rss/trailers.xml"
-    tags:
-      - отрасль
-      - прицепы
+- id: gruzovoy-ru
+  enabled: true
+  kind: rss
+  title: "Грузовой Ру — грузовые автомобили, прицепы, коммерческий транспорт"
+  url: "https://gruzovoy.ru/rss"
+  tags:
+    - отрасль
+    - грузовики
+    - прицепы
+    - коммерческий транспорт
 
-  - id: truck-market
-    enabled: true
-    kind: rss
-    title: "Рынок грузовиков и полуприцепов"
-    url: "https://example.com/rss/truck-market.xml"
-    tags:
-      - рынок
-      - аналитика
+- id: st-kt
+  enabled: true
+  kind: rss
+  title: "Журнал «СпецТехника и Коммерческий Транспорт»"
+  url: "https://st-kt.ru/rss"
+  tags:
+    - отрасль
+    - спецтехника
+    - грузовики
+    - прицепы
+    - рынок
+
+- id: motor-ru
+  enabled: true
+  kind: rss
+  title: "Motor.ru — автомобильные новости"
+  url: "https://motor.ru/exports/rss"
+  tags:
+    - легковые
+    - рынок
+    - автоновости
+    - автоспорт
+
+- id: gazeta-ru-autonews
+  enabled: true
+  kind: rss
+  title: "Газета.Ru — автоновости"
+  url: "https://www.gazeta.ru/export/rss/autonews.xml"
+  tags:
+    - рынок
+    - аналитика
+    - автоновости
+
 
   # YouTube-каналы для раздела «Видео».
   - id: youtube
