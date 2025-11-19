@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta
     name="description"
-    content="Подборка видео по прицепам и полуприцепам: обзоры, тесты, интервью."
+    content="Видео по прицепам и полуприцепам: обзоры, тест-драйвы, заводские ролики и разбор нормативки."
   />
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -33,9 +33,14 @@
   <main class="page-main">
     <section class="hero">
       <div class="container">
-        <h1>Видео</h1>
+        <h1>Видео по прицепам и полуприцепам</h1>
         <p class="hero-subtitle">
-          Обзоры техники, тест-драйвы, интервью с производителями и дилерами.
+          Обзоры полуприцепов, тесты автопоездов, заводские ролики и разборы нормативки —
+          всё в одном месте.
+        </p>
+        <p class="hero-hint">
+          Список каналов берётся из <code>aggregator/sources.yml</code>, секция <code>youtube</code>.
+          Добавишь канал в YAML — он появится здесь автоматически после следующего деплоя.
         </p>
       </div>
     </section>
@@ -43,41 +48,45 @@
     <section class="container layout">
       <div class="layout-main">
         <section>
-          <h2 class="section-title">Видео-подборка</h2>
-          <p class="sidebar-text">
-            Позже сюда можно подключить автоматическую выгрузку из YouTube/VK по твоим каналам.
-            Пока раздел показывает пример карточек видео.
-          </p>
+          <h2 class="section-title">Наши и партнёрские YouTube-каналы</h2>
 
-          <div class="video-grid">
-            <article class="video-card">
-              <div class="video-thumb-placeholder">Видео 1</div>
-              <h3 class="video-title">Обзор нового полуприцепа (пример)</h3>
-              <p class="video-meta">YouTube · 12:34</p>
-            </article>
-
-            <article class="video-card">
-              <div class="video-thumb-placeholder">Видео 2</div>
-              <h3 class="video-title">Тест-драйв автопоезда (пример)</h3>
-              <p class="video-meta">VK · 08:10</p>
-            </article>
-
-            <article class="video-card">
-              <div class="video-thumb-placeholder">Видео 3</div>
-              <h3 class="video-title">Интервью с производителем (пример)</h3>
-              <p class="video-meta">YouTube · 18:05</p>
-            </article>
+          <div id="video-status" class="loading">
+            Загрузка списка каналов…
           </div>
+
+          <div id="video-error" class="error" hidden>
+            Не удалось загрузить список каналов. Проверьте, что репозиторий публичный и файл
+            <code>aggregator/sources.yml</code> доступен.
+          </div>
+
+          <div id="video-empty" class="empty-state" hidden>
+            В секции <code>youtube</code> файла <code>aggregator/sources.yml</code> пока нет ни одного
+            канала. Добавьте туда хотя бы один <code>channel_id</code> — и он появится здесь.
+          </div>
+
+          <div id="video-list" class="video-grid"></div>
         </section>
       </div>
 
       <aside class="layout-sidebar">
         <section class="sidebar-block">
-          <h3 class="sidebar-title">Как это будет работать</h3>
-          <p class="sidebar-text">
-            В конфиге агрегатора уже есть блоки <code>youtube</code> и <code>vk</code>. Позже можно
-            связать их с этой страницей и выводить реальные ролики.
-          </p>
+          <h3 class="sidebar-title">Как добавить новый канал</h3>
+          <ol class="sidebar-text">
+            <li>Открой <code>aggregator/sources.yml</code> в репозитории.</li>
+            <li>В секции <code>youtube:</code> добавь блок вида:<br />
+              <code>- channel_id: "UCXXXX..."<br />&nbsp;&nbsp;name: "Название канала"</code>
+            </li>
+            <li>Закоммить изменения, дождись <strong>Ingest &amp; Publish</strong> и обнови эту страницу.</li>
+          </ol>
+        </section>
+
+        <section class="sidebar-block">
+          <h3 class="sidebar-title">Идеи для развития</h3>
+          <ul class="doc-list">
+            <li>Выводить последние ролики по каждому каналу через YouTube API.</li>
+            <li>Сделать подборки роликов по темам: «новые модели», «выставки», «нормативка».</li>
+            <li>Подсветить «официальные» каналы производителя/дилеров.</li>
+          </ul>
         </section>
       </aside>
     </section>
@@ -88,5 +97,10 @@
       <span>© СпецТрейлеры, агрегатор новостей о прицепах и полуприцепах.</span>
     </div>
   </footer>
+
+  <!-- Библиотека для парсинга YAML -->
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <!-- Скрипт страницы видео -->
+  <script src="video.js"></script>
 </body>
 </html>
