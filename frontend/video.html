@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta
     name="description"
-    content="Видео по прицепам и полуприцепам: обзоры, тест-драйвы, заводские ролики и разбор нормативки."
+    content="Видео по прицепам и полуприцепам: обзоры, тесты автопоездов и разборы нормативки."
   />
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -39,8 +39,8 @@
           всё в одном месте.
         </p>
         <p class="hero-hint">
-          Список каналов берётся из <code>aggregator/sources.yml</code>, секция <code>youtube</code>.
-          Добавишь канал в YAML — он появится здесь автоматически после следующего деплоя.
+          Список каналов берётся из <code>aggregator/sources.yml</code>, секция
+          <code>youtube</code>. Для каждого канала мы показываем его плейлист «Загрузки».
         </p>
       </div>
     </section>
@@ -55,13 +55,14 @@
           </div>
 
           <div id="video-error" class="error" hidden>
-            Не удалось загрузить список каналов. Проверьте, что репозиторий публичный и файл
-            <code>aggregator/sources.yml</code> доступен.
+            Не удалось загрузить список каналов. Проверьте доступность
+            <code>aggregator/sources.yml</code> и обновите страницу.
           </div>
 
           <div id="video-empty" class="empty-state" hidden>
-            В секции <code>youtube</code> файла <code>aggregator/sources.yml</code> пока нет ни одного
-            канала. Добавьте туда хотя бы один <code>channel_id</code> — и он появится здесь.
+            В секции <code>youtube</code> файла <code>aggregator/sources.yml</code> пока нет ни
+            одного канала. Добавьте туда блоки с <code>channel_id</code> — и здесь появятся
+            плейлисты.
           </div>
 
           <div id="video-list" class="video-grid"></div>
@@ -70,22 +71,22 @@
 
       <aside class="layout-sidebar">
         <section class="sidebar-block">
-          <h3 class="sidebar-title">Как добавить новый канал</h3>
+          <h3 class="sidebar-title">Как добавить канал</h3>
           <ol class="sidebar-text">
-            <li>Открой <code>aggregator/sources.yml</code> в репозитории.</li>
-            <li>В секции <code>youtube:</code> добавь блок вида:<br />
+            <li>Откройте <code>aggregator/sources.yml</code> в репозитории.</li>
+            <li>В секции <code>youtube:</code> добавьте канал:<br />
               <code>- channel_id: "UCXXXX..."<br />&nbsp;&nbsp;name: "Название канала"</code>
             </li>
-            <li>Закоммить изменения, дождись <strong>Ingest &amp; Publish</strong> и обнови эту страницу.</li>
+            <li>Закоммитьте изменения, дождитесь <strong>Ingest &amp; Publish</strong> и обновите раздел «Видео».</li>
           </ol>
         </section>
 
         <section class="sidebar-block">
-          <h3 class="sidebar-title">Идеи для развития</h3>
+          <h3 class="sidebar-title">Идеи развития раздела</h3>
           <ul class="doc-list">
-            <li>Выводить последние ролики по каждому каналу через YouTube API.</li>
-            <li>Сделать подборки роликов по темам: «новые модели», «выставки», «нормативка».</li>
-            <li>Подсветить «официальные» каналы производителя/дилеров.</li>
+            <li>Выводить подборки роликов по темам (выставки, новые модели, нормативка).</li>
+            <li>Отмечать официальные каналы производителей и дилеров.</li>
+            <li>Подгружать последние ролики по API, когда захочешь заморочиться с ключом.</li>
           </ul>
         </section>
       </aside>
