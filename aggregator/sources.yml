@@ -1,59 +1,53 @@
 sources:
-  # Спецтехника и коммерческий транспорт — общий профильный портал
-  - id: st-kt-main
+  - id: kolesa
     enabled: true
     kind: rss
-    title: "Спецтехника и коммерческий транспорт — st-kt.ru"
-    url: "https://st-kt.ru/rss"
+    title: "Автоновости — Kolesa.ru"
+    url: "https://www.kolesa.ru/export/rss.xml"
     tags:
-      - спецтехника
-      - прицепы
-      - полуприцепы
-      - грузовики
+      - легковые
+      - рынок
+      - общие-авто
 
-  # Грузовой.ру — новости по рынку грузовых автомобилей
-  - id: gruzovoy-ru
+  - id: gazeta-autonews
     enabled: true
     kind: rss
-    title: "Грузовой.ру — рынок грузовиков"
+    title: "Автоновости — Газета.Ru"
+    url: "https://www.gazeta.ru/export/rss/autonews.xml"
+    tags:
+      - легковые
+      - рынок
+      - общие-авто
+
+  - id: gruzovoy
+    enabled: true
+    kind: rss
+    title: "Грузовые автомобили и прицепы — Грузовой.ру"
     url: "https://gruzovoy.ru/rss"
     tags:
       - грузовики
-      - рынок
-      - статистика
+      - прицепы
+      - коммерческий-транспорт
 
-  # Металлоснабжение и сбыт — тематическая рубрика "Рынок грузовиков"
-  - id: metalinfo-trucks
+  - id: truckmix
     enabled: true
     kind: rss
-    title: "Рынок грузовиков — Металлоснабжение и сбыт"
-    url: "https://rss.metalinfo.ru/ru/news/s7170.rss"
-    tags:
-      - рынок
-      - грузовики
-      - аналитика
-
-  # Ведомости — коммерческий транспорт (деловая пресса)
-  - id: vedomosti-commercial-vehicles
-    enabled: true
-    kind: rss
-    title: "Ведомости — коммерческие автомобили"
-    url: "https://www.vedomosti.ru/rss/rubric/auto/commercial_vehicles"
-    tags:
-      - коммерческий транспорт
-      - грузовики
-      - бизнес
-
-  # Truckmix — отраслевые новости по спецтехнике и грузовому транспорту
-  - id: truckmix-industry
-    enabled: true
-    kind: rss
-    title: "Truckmix — отраслевые новости спецтехники"
+    title: "Спецтехника и грузовой транспорт — TRUCKMIX.ru"
     url: "https://truckmix.ru/publication/rss?type=1"
     tags:
       - спецтехника
       - грузовики
-      - прицепы
+      - коммерческий-транспорт
+
+  - id: rg-autopark
+    enabled: true
+    kind: rss
+    title: "Автопарк — Российская газета"
+    url: "https://rg.ru/xml/index.xml"
+    tags:
+      - легковые
+      - рынок
+      - общие-авто
 
 # Конфигурация каналов YouTube — пока не используется агрегатором,
 # но пригодится дальше для видео-раздела
