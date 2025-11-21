@@ -1,6 +1,69 @@
 [
   {
     "source": "source",
+    "title": "Три человека погибли при крушении самолета в горах Японии",
+    "link": "https://rg.ru/2025/11/21/tri-cheloveka-pogibli-pri-krushenii-samoleta-v-gorah-iaponii.html",
+    "summary": "В Японии упал и полностью сгорел небольшой самолет, на борту которого находились трое человек. Об этом сообщает <a href=\"https://news.tnc.co.jp/news/articles/NID2025111828047\" rel=\"noopener noreferrer\" target=\"_blank\">TNC News</a>.",
+    "image": null,
+    "published_at": "2025-11-21T02:41:08+00:00",
+    "domain": "rg.ru"
+  },
+  {
+    "source": "source",
+    "title": "Пленный солдат ВСУ призвал украинцев сдавать ВС РФ места расположения ТЦК",
+    "link": "https://rg.ru/2025/11/21/plennyj-soldat-vsu-prizval-ukraincev-sdavat-vs-rf-mesta-raspolozheniia-tck.html",
+    "summary": "Жителям Украины стоит сдавать российским военнослужащим места расположения территориальных центров комплектования (ТЦК - военкоматов) для нанесения по ним ударов. Об этом <a href=\"https://tass.ru/armiya-i-opk/25687503\" rel=\"noopener noreferrer\" target=\"_blank\">ТАСС</a> заявил пленный стрелок 57-й отдельной мотопехотной бригады ВСУ Валерий Дячук.",
+    "image": null,
+    "published_at": "2025-11-21T02:30:54+00:00",
+    "domain": "rg.ru"
+  },
+  {
+    "source": "source",
+    "title": "В Приморье медики удалили у пациентки опухоль размером с два шара для боулинга",
+    "link": "https://rg.ru/2025/11/21/reg-dfo/v-primore-mediki-udalili-u-pacientki-opuhol-razmerom-s-dva-shara-dlia-boulinga.html",
+    "summary": "У жительницы Владивостока удалили опухоль огромного размера. Об этом <a href=\"https://t.me/amur_mash/10940\" rel=\"noopener noreferrer\" target=\"_blank\">сообщает</a> Amur Mash.",
+    "image": null,
+    "published_at": "2025-11-21T02:20:09+00:00",
+    "domain": "rg.ru"
+  },
+  {
+    "source": "source",
+    "title": "Небензя: У Европы не осталось денег на Украину",
+    "link": "https://rg.ru/2025/11/21/nebenzia-u-evropy-ne-ostalos-deneg-na-ukrainu.html",
+    "summary": "Европа исчерпала ресурсы на поддержку Украины. Об этом заявил постпред России при ООН Василий Небензя в ходе заседания Совбеза организации.",
+    "image": null,
+    "published_at": "2025-11-21T02:05:34+00:00",
+    "domain": "rg.ru"
+  },
+  {
+    "source": "source",
+    "title": "В РФ начались продажи Toyota Land Cruiser на гусеничном ходу: легально и дорого",
+    "link": "https://rg.ru/2025/11/21/v-rf-nachalis-prodazhi-toyota-land-cruiser-na-gusenichnom-hodu-legalno-i-dorogo.html",
+    "summary": "В Ярославской области \"РГ\" обнаружила необычный лот: на продажу выставили Toyota Land Cruiser 70 Series… на гусеницах. И это все абсолютно законно.",
+    "image": null,
+    "published_at": "2025-11-21T01:30:39+00:00",
+    "domain": "rg.ru"
+  },
+  {
+    "source": "source",
+    "title": "Кимаковский: Взятие Купянска замкнуло кольцо вокруг ВСУ на левом берегу Оскола",
+    "link": "https://rg.ru/2025/11/21/reg-dnr/osvobozhdenie-kupianska-zamknulo-kolco-vokrug-vsu-na-levom-beregu-oskola.html",
+    "summary": "Освобождение армией России города Купянска в Харьковской области фактически замыкает кольцо вокруг крупной группировки ВСУ на левом берегу реки Оскол. Об этом <a href=\"https://tass.ru/armiya-i-opk/25686259\" rel=\"noopener noreferrer\" target=\"_blank\">ТАСС</a> рассказал советник главы Донецкой Народной Республики Игорь Кимаковский.",
+    "image": null,
+    "published_at": "2025-11-21T01:29:59+00:00",
+    "domain": "rg.ru"
+  },
+  {
+    "source": "source",
+    "title": "Лидер Ирана предложил перенести столицу в иное место из-за дефицита воды",
+    "link": "https://rg.ru/2025/11/21/prezident-irana-predlozhil-perenesti-stolicu-iz-za-nehvatki-vody-v-tegerane.html",
+    "summary": "Президент Ирана Масуд Пезешкиан предложил перенести столицу страны, объяснив свою инициативу перенаселенностью и нехваткой воды в Тегеране.",
+    "image": null,
+    "published_at": "2025-11-21T01:25:32+00:00",
+    "domain": "rg.ru"
+  },
+  {
+    "source": "source",
     "title": "По факту смертельного ДТП в Приамурье прокуратура начала проверку",
     "link": "https://rg.ru/2025/11/21/reg-dfo/po-faktu-smertelnogo-dtp-v-priamure-prokuratura-nachala-proverku.html",
     "summary": "В Амурской области Тындинская городская прокуратура <a href=\"https://t.me/prokuratura28/6557\" rel=\"noopener noreferrer\" target=\"_blank\">начала</a> проверку обстоятельств ДТП, которое вчера <a href=\"https://rg.ru/2025/11/20/v-priamure-pogib-voditel-dvoe-detej-postradali-v-dtp.html\" rel=\"noopener noreferrer\" target=\"_blank\">унесло жизнь</a> водителя в поселке Соловьевск.",
