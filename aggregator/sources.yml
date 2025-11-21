@@ -1,53 +1,44 @@
+# Основные новостные источники
 sources:
-  - id: kolesa
+  - id: truckmix-industry
     enabled: true
     kind: rss
-    title: "Автоновости — Kolesa.ru"
-    url: "https://www.kolesa.ru/export/rss.xml"
-    tags:
-      - легковые
-      - рынок
-      - общие-авто
-
-  - id: gazeta-autonews
-    enabled: true
-    kind: rss
-    title: "Автоновости — Газета.Ru"
-    url: "https://www.gazeta.ru/export/rss/autonews.xml"
-    tags:
-      - легковые
-      - рынок
-      - общие-авто
-
-  - id: gruzovoy
-    enabled: true
-    kind: rss
-    title: "Грузовые автомобили и прицепы — Грузовой.ру"
-    url: "https://gruzovoy.ru/rss"
-    tags:
-      - грузовики
-      - прицепы
-      - коммерческий-транспорт
-
-  - id: truckmix
-    enabled: true
-    kind: rss
-    title: "Спецтехника и грузовой транспорт — TRUCKMIX.ru"
+    title: "TRUCKMIX — новости спецтехники и грузового транспорта"
     url: "https://truckmix.ru/publication/rss?type=1"
     tags:
       - спецтехника
       - грузовики
-      - коммерческий-транспорт
+      - прицепы
 
-  - id: rg-autopark
+  - id: stkt-magazine
     enabled: true
     kind: rss
-    title: "Автопарк — Российская газета"
-    url: "https://rg.ru/xml/index.xml"
+    title: "Журнал «СпецТехника и Коммерческий Транспорт»"
+    url: "https://st-kt.ru/rss"
     tags:
-      - легковые
-      - рынок
-      - общие-авто
+      - спецтехника
+      - коммерческий транспорт
+      - полуприцепы
+
+  - id: comautotrans-news
+    enabled: true
+    kind: rss
+    title: "ComAutoTrans — новости выставки коммерческого транспорта"
+    url: "https://comautotrans.moscow/rss-feed-223104201511.xml"
+    tags:
+      - выставки
+      - коммерческий транспорт
+      - прицепы
+
+  - id: sbsgroup-telematics
+    enabled: true
+    kind: rss
+    title: "SBS Group — мониторинг и цифровизация транспорта"
+    url: "https://sbsgroup-rus.ru/rss-feed-704478702641.xml"
+    tags:
+      - телематика
+      - мониторинг
+      - коммерческий транспорт
 
 # Конфигурация каналов YouTube — пока не используется агрегатором,
 # но пригодится дальше для видео-раздела
