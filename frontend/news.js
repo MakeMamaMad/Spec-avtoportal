@@ -1,4 +1,4 @@
-// news.js — простой и устойчивый вариант
+// news.js — простой стабильный вариант без баннера-магии
 
 const NEWS_URL = 'data/news.json';
 
@@ -11,7 +11,7 @@ function fmtDate(iso) {
   return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()}`;
 }
 
-// Обрезаем HTML до текста
+// Обрезаем HTML до чистого текста
 function stripHtml(html) {
   if (!html) return '';
   const tmp = document.createElement('div');
@@ -19,7 +19,7 @@ function stripHtml(html) {
   return tmp.textContent || tmp.innerText || '';
 }
 
-// Рендер одной карточки новости
+// Одна карточка новости
 function renderNewsCard(item) {
   const id =
     item.id ||
@@ -46,16 +46,15 @@ function renderNewsCard(item) {
     item.headline ||
     'Без заголовка';
 
-  const summary =
-    stripHtml(
-      item.summary ||
-      item.description ||
-      item.lead ||
-      item.snippet ||
-      ''
-    );
+  const summary = stripHtml(
+    item.summary ||
+    item.description ||
+    item.lead ||
+    item.snippet ||
+    ''
+  );
 
-  // ссылка на внутреннюю страницу статьи (как раньше)
+  // ссылка на страницу статьи (как было изначально)
   const internalUrl = id
     ? `article.html?id=${encodeURIComponent(id)}`
     : (item.url || item.link || '#');
@@ -86,7 +85,7 @@ function renderNewsCard(item) {
   return card;
 }
 
-// Рендер ленты
+// Рендер списка новостей
 function renderNewsList(container, items) {
   container.innerHTML = '';
   const frag = document.createDocumentFragment();
@@ -103,65 +102,57 @@ function renderNewsList(container, items) {
   container.appendChild(frag);
 }
 
-// Кнопка "Ок, посмотреть" — просто перезагрузить страницу
-function setupUpdateBanner() {
-  const banner = document.querySelector('[data-role="news-update-banner"]');
-  const btn = document.querySelector('[data-role="news-update-button"]');
-
-  if (banner && btn) {
-    btn.addEventListener('click', function () {
-      // просто перезагружаем страницу, подтягиваются свежие news.json
-      window.location.reload();
-    });
-  }
-}
-
-// Основная загрузка новостей
+// Основная загрузка ленты
 async function loadNews() {
-  const listEl = document.querySelector('[data-role="news-list"]');
-  const loadingEl = document.querySelector('[data-role="news-loading"]');
-  const errorEl = document.querySelector('[data-role="news-error"]');
-  const emptyEl = document.querySelector('[data-role="news-empty"]');
+  // Пытаемся найти контейнер разными способами,
+  // чтобы не зависеть от точного атрибута
+  const listEl =
+    document.querySelector('[data-role="news-list"]') ||
+    document.querySelector('.news-feed__list') ||
+    document.querySelector('.news-list') ||
+    document.querySelector('#news-list');
 
   if (!listEl) {
     console.warn('[news] контейнер ленты не найден');
     return;
   }
 
+  const loadingEl = document.querySelector('[data-role="news-loading"]');
+  const errorEl   = document.querySelector('[data-role="news-error"]');
+  const emptyEl   = document.querySelector('[data-role="news-empty"]');
+
   function showState(state) {
     const states = [
       ['loading', loadingEl],
       ['error', errorEl],
-      ['empty', emptyEl]
+      ['empty', emptyEl],
     ];
-
     states.forEach(([name, el]) => {
       if (!el) return;
-      el.classList.toggle('is-hidden', state !== name);
+      if (state === name) el.classList.remove('is-hidden');
+      else el.classList.add('is-hidden');
     });
 
     if (state === 'ok') {
       if (loadingEl) loadingEl.classList.add('is-hidden');
-      if (errorEl) errorEl.classList.add('is-hidden');
-      if (emptyEl) emptyEl.classList.add('is-hidden');
+      if (errorEl)   errorEl.classList.add('is-hidden');
+      if (emptyEl)   emptyEl.classList.add('is-hidden');
     }
   }
 
   showState('loading');
 
   try {
-    // cache-buster, чтобы браузер не тянул старый кэш
+    // cache-buster, чтобы не брать старый кэш
     const resp = await fetch(NEWS_URL + '?_=' + Date.now());
-    if (!resp.ok) {
-      throw new Error('HTTP ' + resp.status);
-    }
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
 
     const data = await resp.json();
-
     let items = [];
+
     if (Array.isArray(data)) items = data;
-    else if (Array.isArray(data.items)) items = data.items;
-    else if (Array.isArray(data.news)) items = data.news;
+    else if (Array.isArray(data.items))   items = data.items;
+    else if (Array.isArray(data.news))    items = data.news;
     else if (Array.isArray(data.results)) items = data.results;
 
     if (!items.length) {
@@ -182,8 +173,5 @@ async function loadNews() {
   }
 }
 
-// Старт
-document.addEventListener('DOMContentLoaded', function () {
-  setupUpdateBanner();
-  loadNews();
-});
+// Стартуем после загрузки DOM
+document.addEventListener('DOMContentLoaded', loadNews);
