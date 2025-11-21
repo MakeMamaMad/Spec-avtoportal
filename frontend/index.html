@@ -63,14 +63,18 @@
       </div>
     </section>
 
-    <section class="container layout">
-      <div class="layout-main">
-        <!-- Баннер про обновление ленты -->
-        <div id="news-banner" class="update-banner" hidden>
-          <span id="news-banner-text">Лента новостей обновилась</span>
-          <button id="news-banner-btn" type="button" class="primary-btn primary-btn-sm">
-            Ок, посмотреть
-          </button>
+     <section class="container layout">
+      <div class="news-update-banner is-hidden" data-role="news-refresh-banner">
+      <span class="news-update-banner__text" data-role="news-refresh-text">
+        Лента новостей обновилась
+      </span>
+        <button
+          type="button"
+        class="btn btn--primary news-update-banner__button"
+        data-role="news-refresh-btn"
+            >
+          Ок, посмотреть
+        </button>
         </div>
 
         <section>
