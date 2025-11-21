@@ -1,177 +1,315 @@
-// news.js — простой стабильный вариант без баннера-магии
+// news.js — лента новостей на главной
 
-const NEWS_URL = 'data/news.json';
+(function () {
+  const NEWS_URLS = [
+    "data/news.json",
+    "frontend/data/news.json",
+  ];
 
-// Формат даты "21.11.2025"
-function fmtDate(iso) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  if (Number.isNaN(+d)) return '';
-  const p = n => String(n).padStart(2, '0');
-  return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()}`;
-}
+  // Ключ в localStorage для баннера "лента обновилась"
+  const STORAGE_KEY = "st_news_first_key_v1";
 
-// Обрезаем HTML до чистого текста
-function stripHtml(html) {
-  if (!html) return '';
-  const tmp = document.createElement('div');
-  tmp.innerHTML = html;
-  return tmp.textContent || tmp.innerText || '';
-}
+  const els = {
+    list: document.getElementById("news-list"),
+    empty: document.getElementById("news-empty"),
+    loading: document.getElementById("news-loading"),
+    error: document.getElementById("news-error"),
+    search: document.getElementById("search"),
+    rubricFilters: document.getElementById("rubric-filters"),
+    topTags: document.getElementById("top-tags"),
+    banner: document.getElementById("news-banner"),
+    bannerText: document.getElementById("news-banner-text"),
+    bannerBtn: document.getElementById("news-banner-btn"),
+  };
 
-// Одна карточка новости
-function renderNewsCard(item) {
-  const id =
-    item.id ||
-    item.slug ||
-    item.guid ||
-    item.uid ||
-    '';
+  let allNews = [];
+  let activeRubric = null;
+  let searchQuery = "";
 
-  const sourceName =
-    item.source_name ||
-    item.source ||
-    (item.domain && String(item.domain).replace(/^https?:\/\//, '')) ||
-    '';
-
-  const published =
-    item.published ||
-    item.published_at ||
-    item.date ||
-    item.datetime ||
-    '';
-
-  const title =
-    item.title ||
-    item.headline ||
-    'Без заголовка';
-
-  const summary = stripHtml(
-    item.summary ||
-    item.description ||
-    item.lead ||
-    item.snippet ||
-    ''
-  );
-
-  // ссылка на страницу статьи (как было изначально)
-  const internalUrl = id
-    ? `article.html?id=${encodeURIComponent(id)}`
-    : (item.url || item.link || '#');
-
-  const card = document.createElement('article');
-  card.className = 'news-card';
-
-  card.innerHTML = `
-    <header class="news-card__header">
-      <h3 class="news-card__title">
-        <a href="${internalUrl}">
-          ${title}
-        </a>
-      </h3>
-      <div class="news-card__meta">
-        ${published ? `<span class="news-card__date">${fmtDate(published)}</span>` : ''}
-        ${sourceName ? `<span class="news-card__source">${sourceName}</span>` : ''}
-      </div>
-    </header>
-    <div class="news-card__body">
-      ${summary ? `<p>${summary}</p>` : ''}
-    </div>
-    <footer class="news-card__footer">
-      <a class="news-card__more" href="${internalUrl}">Читать полностью</a>
-    </footer>
-  `;
-
-  return card;
-}
-
-// Рендер списка новостей
-function renderNewsList(container, items) {
-  container.innerHTML = '';
-  const frag = document.createDocumentFragment();
-
-  items.forEach(item => {
-    try {
-      const card = renderNewsCard(item);
-      frag.appendChild(card);
-    } catch (e) {
-      console.error('[news] ошибка при рендере карточки', e, item);
-    }
-  });
-
-  container.appendChild(frag);
-}
-
-// Основная загрузка ленты
-async function loadNews() {
-  // Пытаемся найти контейнер разными способами,
-  // чтобы не зависеть от точного атрибута
-  const listEl =
-    document.querySelector('[data-role="news-list"]') ||
-    document.querySelector('.news-feed__list') ||
-    document.querySelector('.news-list') ||
-    document.querySelector('#news-list');
-
-  if (!listEl) {
-    console.warn('[news] контейнер ленты не найден');
-    return;
+  function fmtDate(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (Number.isNaN(+d)) return "";
+    const p = (n) => String(n).padStart(2, "0");
+    return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()}`;
   }
 
-  const loadingEl = document.querySelector('[data-role="news-loading"]');
-  const errorEl   = document.querySelector('[data-role="news-error"]');
-  const emptyEl   = document.querySelector('[data-role="news-empty"]');
+  function getField(obj, candidates, fallback = "") {
+    for (const key of candidates) {
+      if (obj && obj[key] != null && obj[key] !== "") return obj[key];
+    }
+    return fallback;
+  }
 
-  function showState(state) {
-    const states = [
-      ['loading', loadingEl],
-      ['error', errorEl],
-      ['empty', emptyEl],
-    ];
-    states.forEach(([name, el]) => {
-      if (!el) return;
-      if (state === name) el.classList.remove('is-hidden');
-      else el.classList.add('is-hidden');
+  function buildRubrics(news) {
+    const set = new Set();
+    for (const item of news) {
+      const tags = item.tags || item.rubrics || [];
+      if (Array.isArray(tags)) {
+        for (const t of tags) {
+          const s = String(t || "").trim();
+          if (s) set.add(s);
+        }
+      }
+    }
+
+    els.rubricFilters.innerHTML = "";
+
+    const allBtn = document.createElement("button");
+    allBtn.className = "chip chip-active";
+    allBtn.textContent = "Все";
+    allBtn.dataset.rubric = "";
+    els.rubricFilters.appendChild(allBtn);
+
+    [...set].sort().forEach((tag) => {
+      const btn = document.createElement("button");
+      btn.className = "chip";
+      btn.textContent = tag;
+      btn.dataset.rubric = tag;
+      els.rubricFilters.appendChild(btn);
+    });
+  }
+
+  function buildTopTags(news) {
+    const counter = new Map();
+    for (const item of news) {
+      const tags = item.tags || item.rubrics || [];
+      if (Array.isArray(tags)) {
+        for (const t of tags) {
+          const key = String(t || "").trim();
+          if (!key) continue;
+          counter.set(key, (counter.get(key) || 0) + 1);
+        }
+      }
+    }
+    const top = [...counter.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
+
+    els.topTags.innerHTML = "";
+    for (const [tag, count] of top) {
+      const li = document.createElement("li");
+      li.className = "tag-pill";
+      li.textContent = `${tag} (${count})`;
+      els.topTags.appendChild(li);
+    }
+  }
+
+  function render() {
+    const q = searchQuery.trim().toLowerCase();
+    const rubric = activeRubric;
+
+    const filtered = allNews.filter((item) => {
+      const title = getField(item, ["title", "headline", "name"]).toLowerCase();
+      const tags = (item.tags || item.rubrics || []).map((t) =>
+        String(t).toLowerCase()
+      );
+
+      if (q && !title.includes(q)) return false;
+      if (rubric && !tags.includes(rubric.toLowerCase())) return false;
+      return true;
     });
 
-    if (state === 'ok') {
-      if (loadingEl) loadingEl.classList.add('is-hidden');
-      if (errorEl)   errorEl.classList.add('is-hidden');
-      if (emptyEl)   emptyEl.classList.add('is-hidden');
-    }
-  }
+    els.list.innerHTML = "";
 
-  showState('loading');
-
-  try {
-    // cache-buster, чтобы не брать старый кэш
-    const resp = await fetch(NEWS_URL + '?_=' + Date.now());
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-
-    const data = await resp.json();
-    let items = [];
-
-    if (Array.isArray(data)) items = data;
-    else if (Array.isArray(data.items))   items = data.items;
-    else if (Array.isArray(data.news))    items = data.news;
-    else if (Array.isArray(data.results)) items = data.results;
-
-    if (!items.length) {
-      console.warn('[news] news.json пустой или формат не распознан', data);
-      showState('empty');
+    if (!filtered.length) {
+      els.empty.hidden = false;
       return;
     }
 
-    renderNewsList(listEl, items);
-    showState('ok');
-  } catch (err) {
-    console.error('[news] не удалось загрузить ленту', err);
-    if (errorEl) {
-      errorEl.textContent =
-        'Не удалось загрузить новости. Попробуйте обновить страницу.';
-    }
-    showState('error');
-  }
-}
+    els.empty.hidden = true;
 
-// Стартуем после загрузки DOM
-document.addEventListener('DOMContentLoaded', loadNews);
+    filtered.forEach((item, index) => {
+      // Индекс в отсортированном массиве — наш "id" для статьи
+      const idx = index;
+      const title = getField(item, ["title", "headline", "name"], "Без заголовка");
+      const summary = getField(item, ["summary", "lead", "description"], "");
+      const date = fmtDate(getField(item, ["published_at", "date", "pub_date"]));
+      const sourceName = getField(item, ["source_name", "source", "site"], "");
+      const image = getField(item, ["image_url", "image", "img"], "");
+      const tags = item.tags || item.rubrics || [];
+
+      const card = document.createElement("article");
+      card.className = "news-card";
+
+      card.innerHTML = `
+        ${image ? `<div class="news-card-image-wrap"><img src="${image}" alt="" class="news-card-image" loading="lazy"/></div>` : ""}
+        <div class="news-card-body">
+          <header class="news-card-header">
+            <h3 class="news-card-title">
+              <a href="article.html?i=${encodeURIComponent(idx)}">${title}</a>
+            </h3>
+            <div class="news-card-meta">
+              ${date ? `<span class="news-card-meta-item">${date}</span>` : ""}
+              ${sourceName ? `<span class="news-card-meta-item">${sourceName}</span>` : ""}
+            </div>
+          </header>
+          ${summary ? `<p class="news-card-summary">${summary}</p>` : ""}
+          <div class="news-card-footer">
+            <a class="news-card-link" href="article.html?i=${encodeURIComponent(idx)}">Читать полностью</a>
+            <div class="news-card-tags">
+              ${
+                Array.isArray(tags)
+                  ? tags
+                      .map(
+                        (t) =>
+                          `<button type="button" class="tag-badge" data-tag="${String(
+                            t
+                          )}">${String(t)}</button>`
+                      )
+                      .join("")
+                  : ""
+              }
+            </div>
+          </div>
+        </div>
+      `;
+
+      els.list.appendChild(card);
+    });
+  }
+
+  function handleUpdateBanner(news) {
+    if (!els.banner || !news.length) return;
+
+    const first = news[0];
+    const firstDate = getField(first, ["published_at", "date", "pub_date"], "");
+    const firstTitle = getField(first, ["title", "headline", "name"], "");
+    const newKey = `${firstDate}|${firstTitle}`;
+    const prevKey = window.localStorage.getItem(STORAGE_KEY);
+
+    // Первый заход — запоминаем состояние, баннер не показываем.
+    if (!prevKey) {
+      window.localStorage.setItem(STORAGE_KEY, newKey);
+      return;
+    }
+
+    if (prevKey === newKey) return;
+
+    // Есть обновления. Прикидываем, сколько новостей новее прошлого "первого".
+    let diffCount = 0;
+    if (prevKey.split("|")[0]) {
+      const prevDate = new Date(prevKey.split("|")[0]);
+      if (!Number.isNaN(+prevDate)) {
+        diffCount = news.filter((n) => {
+          const ds = getField(n, ["published_at", "date", "pub_date"], "");
+          if (!ds) return false;
+          const d = new Date(ds);
+          if (Number.isNaN(+d)) return false;
+          return d > prevDate;
+        }).length;
+      }
+    }
+
+    if (els.bannerText) {
+      els.bannerText.textContent =
+        diffCount > 0
+          ? `Появилось новых новостей: ${diffCount}`
+          : "Лента новостей обновилась";
+    }
+
+    els.banner.hidden = false;
+
+    if (els.bannerBtn) {
+      els.bannerBtn.addEventListener(
+        "click",
+        () => {
+          els.banner.hidden = true;
+          window.localStorage.setItem(STORAGE_KEY, newKey);
+        },
+        { once: true }
+      );
+    }
+  }
+
+  async function loadNews() {
+    for (const url of NEWS_URLS) {
+      try {
+        const resp = await fetch(url, { cache: "no-store" });
+        if (!resp.ok) continue;
+        const data = await resp.json();
+        allNews = Array.isArray(data) ? data : data.items || [];
+        break;
+      } catch {
+        // пробуем следующий URL
+      }
+    }
+
+    if (!allNews.length) {
+      els.loading.style.display = "none";
+      els.error.hidden = false;
+      return;
+    }
+
+    // Одинаковая сортировка для главной и страницы статьи
+    allNews.sort((a, b) => {
+      const da = new Date(
+        getField(a, ["published_at", "date", "pub_date"]) || 0
+      ).getTime();
+      const db = new Date(
+        getField(b, ["published_at", "date", "pub_date"]) || 0
+      ).getTime();
+      return db - da;
+    });
+
+    buildRubrics(allNews);
+    buildTopTags(allNews);
+    render();
+    handleUpdateBanner(allNews);
+
+    els.loading.style.display = "none";
+  }
+
+  function onSearchChange(e) {
+    searchQuery = e.target.value || "";
+    render();
+  }
+
+  function onRubricClick(e) {
+    const btn = e.target.closest("button[data-rubric]");
+    if (!btn) return;
+
+    activeRubric = btn.dataset.rubric || null;
+
+    for (const el of els.rubricFilters.querySelectorAll(".chip")) {
+      el.classList.toggle("chip-active", el === btn);
+    }
+
+    render();
+  }
+
+  function onTagClickFromCard(e) {
+    const btn = e.target.closest("button.tag-badge");
+    if (!btn) return;
+    const tag = btn.dataset.tag;
+    if (!tag) return;
+
+    activeRubric = tag;
+
+    for (const el of els.rubricFilters.querySelectorAll(".chip")) {
+      el.classList.toggle("chip-active", el.dataset.rubric === tag);
+    }
+
+    render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function setupEvents() {
+    if (els.search) els.search.addEventListener("input", onSearchChange);
+    if (els.rubricFilters)
+      els.rubricFilters.addEventListener("click", onRubricClick);
+    if (els.list) els.list.addEventListener("click", onTagClickFromCard);
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "/" && !e.target.closest("input, textarea")) {
+        e.preventDefault();
+        els.search && els.search.focus();
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    setupEvents();
+    loadNews();
+  });
+})();
