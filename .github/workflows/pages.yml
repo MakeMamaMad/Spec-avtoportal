@@ -3,6 +3,13 @@ name: Pages
 on:
   push:
     branches: [ main ]
+
+  # Запуск после успешного Ingest & Publish
+  workflow_run:
+    workflows: ["Ingest & Publish"]
+    types: [completed]
+
+  # Ручной запуск из Actions
   workflow_dispatch:
 
 permissions:
@@ -16,6 +23,8 @@ concurrency:
 
 jobs:
   build:
+    # Для workflow_run запускаем только если Ingest & Publish прошёл успешно
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,7 +39,7 @@ jobs:
       - name: Upload static site (frontend)
         uses: actions/upload-pages-artifact@v3
         with:
-          path: frontend  # <— публикуем содержимое папки frontend
+          path: frontend  # публикуем содержимое папки frontend
 
   deploy:
     needs: build
