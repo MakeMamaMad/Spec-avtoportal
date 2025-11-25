@@ -1,15 +1,14 @@
-
 sources:
-   - id: truckmix-industry
+  - id: truckmix-industry
     enabled: true
     kind: rss
-    title: "Новости спецтехники и грузового транспорта — TRUCKMIX.ru"
+    title: "TRUCKMIX — новости спецтехники и грузового транспорта"
     url: "https://truckmix.ru/publication/rss?type=1"
     tags:
-      - грузовики
       - спецтехника
-      - коммерческий транспорт
-      
+      - грузовики
+      - прицепы
+
   - id: gruzovoy-main
     enabled: true
     kind: rss
@@ -20,7 +19,7 @@ sources:
       - прицепы
       - полуприцепы
       - рынок
-      
+
   - id: vedomosti-commercial
     enabled: true
     kind: rss
@@ -30,7 +29,7 @@ sources:
       - коммерческий транспорт
       - экономика
       - грузовики
-      
+
   - id: motor-general
     enabled: true
     kind: rss
@@ -40,16 +39,6 @@ sources:
       - авто
       - коммерческий транспорт
       - рынок
-      
-  - id: truckmix-industry
-    enabled: true
-    kind: rss
-    title: "TRUCKMIX — новости спецтехники и грузового транспорта"
-    url: "https://truckmix.ru/publication/rss?type=1"
-    tags:
-      - спецтехника
-      - грузовики
-      - прицепы
 
   - id: stkt-magazine
     enabled: true
@@ -81,8 +70,6 @@ sources:
       - мониторинг
       - коммерческий транспорт
 
-# Конфигурация каналов YouTube — пока не используется агрегатором,
-# но пригодится дальше для видео-раздела
 youtube:
   - channel_id: "UC0SAWzOPY-BiS5NVv3vdTFw"
     name: "Прицепы и полуприцепы SATpricep"
@@ -90,7 +77,6 @@ youtube:
       - "jQQzPo6YWPg"
       - "AwMnAEEOfoM"
       - "_6JdduOi4CE"
-      - "1ZKbQu2NQ4s"
       - "1ZKbQu2NQ4s"
       - "JArHntGs9iM"
 
@@ -105,3 +91,6 @@ youtube:
       - "lltCXceqVVE"
       - "tcBJMYV16cs"
 
+vk:
+  - domain: "specavto_official"  # https://vk.com/specavto_official
+    name: "СпецАвто"
