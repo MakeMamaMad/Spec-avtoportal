@@ -1,5 +1,46 @@
-# Основные новостные источники
+
 sources:
+   - id: truckmix-industry
+    enabled: true
+    kind: rss
+    title: "Новости спецтехники и грузового транспорта — TRUCKMIX.ru"
+    url: "https://truckmix.ru/publication/rss?type=1"
+    tags:
+      - грузовики
+      - спецтехника
+      - коммерческий транспорт
+      
+  - id: gruzovoy-main
+    enabled: true
+    kind: rss
+    title: "Грузовой Ру — грузовые автомобили, прицепы и полуприцепы"
+    url: "https://gruzovoy.ru/rss"
+    tags:
+      - грузовики
+      - прицепы
+      - полуприцепы
+      - рынок
+      
+  - id: vedomosti-commercial
+    enabled: true
+    kind: rss
+    title: "Коммерческие автомобили — Ведомости"
+    url: "https://www.vedomosti.ru/rss/rubric/auto/commercial_vehicles"
+    tags:
+      - коммерческий транспорт
+      - экономика
+      - грузовики
+      
+  - id: motor-general
+    enabled: true
+    kind: rss
+    title: "Motor.ru — автоновости"
+    url: "https://motor.ru/exports/rss"
+    tags:
+      - авто
+      - коммерческий транспорт
+      - рынок
+      
   - id: truckmix-industry
     enabled: true
     kind: rss
