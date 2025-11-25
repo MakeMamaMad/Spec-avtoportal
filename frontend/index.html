@@ -122,5 +122,21 @@
   </footer>
 
   <script src="news.js"></script>
+  <script>
+  // Сохраняем текущую позицию на странице
+  if (window.location.hash) {
+      localStorage.setItem('lastScrollPosition', window.location.hash);
+  }
+
+  // При загрузке страницы проверяем, была ли сохранена позиция и восстанавливаем
+  window.onload = function() {
+      const scrollPosition = localStorage.getItem('lastScrollPosition');
+      if (scrollPosition) {
+          window.scrollTo(0, document.querySelector(scrollPosition).offsetTop);
+          localStorage.removeItem('lastScrollPosition');
+      }
+  };
+</script>
+
 </body>
 </html>
