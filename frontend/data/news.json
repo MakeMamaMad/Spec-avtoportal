@@ -1,6 +1,60 @@
 [
   {
     "source": "source",
+    "title": "В Нижнем Новгороде запустили серийное производство дизеля G 2.5 для грузовиков и автобусов",
+    "link": "http://gruzovoy.ru/news/industry/3095_v_nijnem_novgorode_zapystili_seriinoe_proizvodstvo_dizelya_g_25_dlya_gryzovikov_i_avtobysov.html",
+    "summary": "В нижегородском автомобильном кластере стартовало серийное производство дизельного двигателя G 2.5. Речь идёт не просто о новой разработке, а о формировании полноценной компетенции, критически важной для всей отрасли",
+    "image": null,
+    "published_at": "2025-11-24T13:34:25+00:00",
+    "domain": "gruzovoy.ru"
+  },
+  {
+    "source": "source",
+    "title": "Бизнес стал на 47% реже приобретать грузовой транспорт",
+    "link": "http://gruzovoy.ru/news/industry/3094_biznes_stal_na_47_reje_priobretat_gryzovoi_transport.html",
+    "summary": "Специалисты электронной торговой площадки «ТендерПро» изучили, как за год изменился спрос на грузовой транспорт со стороны коммерческих предприятий.По оценкам аналитиков, за период ноябрь 2024-го – конец ноября 2025-го интерес бизнеса к грузовому транспорту сократился в среднем на 44,7%",
+    "image": null,
+    "published_at": "2025-11-24T13:29:10+00:00",
+    "domain": "gruzovoy.ru"
+  },
+  {
+    "source": "source",
+    "title": "Топ-5 брендов по числу дилеров LCV в РФ заметно изменился",
+    "link": "http://gruzovoy.ru/news/industry/3093_top-5_brendov_po_chisly_dilerov_lcv_v_rf_zametno_izmenilsya.html",
+    "summary": "Эксперты агентства «АВТОСТАТ» сообщили, что в октябре 2025 года число дилеров LCV в России составило 1 104, чуть снизившись в 3 квартале (в июле их было 1 115). Дополнительно специалисты решили посмотреть, как изменилась марочная структура дилерских контрактов по продаже и обслуживанию лёгких коммерческих автомобилей (LCV) за последние почти четыре года",
+    "image": "https://cdna.gruzovoy.ru/c/ed0a1f3b34ec56386cbf3e4d98e61faa.jpg",
+    "published_at": "2025-11-24T13:24:29+00:00",
+    "domain": "gruzovoy.ru"
+  },
+  {
+    "source": "source",
+    "title": "Выставка коммерческого транспорта и технологий COMvex запускает подкаст COMvex Talks",
+    "link": "http://gruzovoy.ru/news/industry/3092_vistavka_kommercheskogo_transporta_i_tehnologii_comvex_zapyskaet_podkast_comvex_talks.html",
+    "summary": "Одна из ключевых выставок майской синергии отраслевых выставок EXPO развивает новый формат общения с аудиторией в формате живого диалога с ведущими игроками и экспертами рынка коммерческого транспорта",
+    "image": "https://cdna.gruzovoy.ru/c/c5ba08d957f2c6d2883c12679197548b.jpg",
+    "published_at": "2025-11-21T12:46:40+00:00",
+    "domain": "gruzovoy.ru"
+  },
+  {
+    "source": "source",
+    "title": "В Москве запустили вечернюю «Школу коллекционера»",
+    "link": "https://motor.ru/news/muzei-transporta-moskvy-zapustil-shkolu-kollekcionera-na-vdnkh-20-11-2025.htm",
+    "summary": "Это бесплатный образовательный проект, который поможет начинающим коллекционерам в разных областях, от современного искусства и ценных бумаг до ретроавтомобилей, подойти к своему увлечению с точки зрения музейного профессионала. Программа подготовлена в рамках проекта «Клуб коллекционеров Музея транспорта Москвы».",
+    "image": "https://motor.ru/imgs/2025/11/20/10/6929313/99dbbb485e604d418b2c543cf17db1ada0a72edc.png",
+    "published_at": "2025-11-20T11:01:17+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "В Усть-Лабинске прошёл 2-й этап чемпионата Systême Electric Drift Challenge",
+    "link": "https://motor.ru/news/v-rossii-zavershilsya-2-i-etap-chempionata-po-driftu-sdc-20-11-2025.htm",
+    "summary": "Вместе с&nbsp;очередным этапом закончился и&nbsp;двухнедельный дрифт-лагерь для команд, принимавших участие в&nbsp;сдвоенном этапе. Единственный в&nbsp;стране зимне-летний чемпионат отличается не&nbsp;только атмосферой дрифтового братства, но&nbsp;и&nbsp;рекордным числом тренировок: в&nbsp;преддверии 2 этапа прошло 8748 заездов.",
+    "image": "https://motor.ru/imgs/2025/11/20/10/6929306/01f410cd9eae3ca9c6e0b993d4dae8a694da5c66.jpg",
+    "published_at": "2025-11-20T10:52:53+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
     "title": "Новый формат подкаста",
     "link": "https://comautotrans.moscow/tpost/pfuf6tck71-novii-format-podkasta",
     "summary": "",
@@ -16,6 +70,33 @@
     "image": "https://static.tildacdn.com/tild3465-3761-4436-b138-653634666136/Frame_391.png",
     "published_at": "2025-11-20T07:46:00+00:00",
     "domain": "comautotrans.moscow"
+  },
+  {
+    "source": "source",
+    "title": "Автолизинг в минусе: падение по всем категориям транспорта",
+    "link": "http://gruzovoy.ru/news/industry/3091_avtolizing_v_minyse_padenie_po_vsem_kategoriyam_transporta.html",
+    "summary": "По данным маркетингового агентства НАПИ, за январь – сентябрь 2025 года в лизинг было выдано 197,9 тыс. единиц новых и подержанных автомобилей, что на 38,6% меньше в сравнении с 322,4 тыс. единиц годом ранее",
+    "image": "https://cdna.gruzovoy.ru/c/2ec1b94888e6b09f3435eb3d59e512ef.jpg",
+    "published_at": "2025-11-17T13:53:32+00:00",
+    "domain": "gruzovoy.ru"
+  },
+  {
+    "source": "source",
+    "title": "Производители ЕАЭС пожаловались на демпинг шин из Китая, Таиланда и Вьетнама",
+    "link": "http://gruzovoy.ru/news/industry/3090_proizvoditeli_eaes_pojalovalis_na_demping_shin_iz_kitaya_tailanda_i_vetnama.html",
+    "summary": "Департамент защиты внутреннего рынка Евразийской экономической комиссии (ЕЭК) приступил к расследованию в отношении поставщиков на российский рынок автомобильных покрышек из Вьетнама, Таиланда и Китая",
+    "image": null,
+    "published_at": "2025-11-17T09:39:44+00:00",
+    "domain": "gruzovoy.ru"
+  },
+  {
+    "source": "source",
+    "title": "Увеличенная скидка на LCV по программе льготного лизинга продлена до конца года",
+    "link": "http://gruzovoy.ru/news/industry/3089_yvelichennaya_skidka_na_lcv_po_programme_lgotnogo_lizinga_prodlena_do_konca_goda.html",
+    "summary": "Минпромторг России возобновил действие увеличенной скидки в 20% на лёгкие коммерческие автомобили (ранее была введена на период с 8 сентября до 1 октября)",
+    "image": null,
+    "published_at": "2025-11-17T09:04:50+00:00",
+    "domain": "gruzovoy.ru"
   },
   {
     "source": "source",
@@ -37,6 +118,15 @@
   },
   {
     "source": "source",
+    "title": "Усть-Лабинск примет 2-й этап Чемпионата по дрифту SDC",
+    "link": "https://motor.ru/news/nazvany-daty-2-go-etapa-chempionata-po-driftu-sdc-13-11-2025.htm",
+    "summary": "Заявки на&nbsp;участие уже подали более 70 спортсменов. В&nbsp;субботу состоятся квалификационные заезды, а&nbsp;в&nbsp;воскресенье определятся лидеры среди лучших 32 пилотов. В&nbsp;седьмом сезоне организаторы предусмотрели новую номинацию&nbsp;— «Лучшее инженерное решение».",
+    "image": "https://motor.ru/imgs/2025/11/13/19/6926198/6e86b0772f50bb981176592bce457db3d0a35739.jpg",
+    "published_at": "2025-11-13T19:16:10+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
     "title": "Ассоциация Импортеров и Производителей Спецтехники объявляет проведение форума АИПС",
     "link": "https://truckmix.ru/news/associaciya-importerov-i-proizvoditelei-spectehniki-obyavlyaet-provedenie-foryma-aips",
     "summary": "Ассоциация Импортеров и Производителей Спецтехники (АИПС) объявляет проведение форума для членов Ассоциации и компаний, работающих в сегментах импортирования, поставки, обслуживания и производства строительной, дорожно-строительной...",
@@ -55,12 +145,48 @@
   },
   {
     "source": "source",
+    "title": "СИМАЗ инвестировал более 750 млн рублей в запуск серийного производства новых автобусов",
+    "link": "http://gruzovoy.ru/news/industry/3088_simaz_investiroval_bolee_750_mln_ryblei_v_zapysk_seriinogo_proizvodstva_novih_avtobysov.html",
+    "summary": "«Симбирский автобусный завод» (СИМАЗ) приступил в Ульяновске к серийному производству новой низкопольной модели автобуса СИМАЗ-4282 в двух модификациях — среднего и большого классов. После выхода на проектную мощность предприятие сможет выпускать до 1 500 городских и туристических автобусов",
+    "image": "https://cdna.gruzovoy.ru/c/798f6d43c17526879e03d259e6518fd0.jpg",
+    "published_at": "2025-11-12T06:09:07+00:00",
+    "domain": "gruzovoy.ru"
+  },
+  {
+    "source": "source",
+    "title": "Не все автоконцерны КНР успели начать отзыв проблемных грузовиков",
+    "link": "https://www.vedomosti.ru/business/articles/2025/11/12/1154089-ne-vse-avtokontserni-knr-uspeli-nachat-otziv-problemnih-gruzovikov",
+    "summary": "Производители и Росстандарт договариваются об условиях урегулирования сложившейся ситуации",
+    "image": "https://cdn.vdmsti.ru/image/2025/8r/1cky0b/normal-1qym.jpg",
+    "published_at": "2025-11-11T22:36:18+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "В Усть-Лабинске подвели итоги 1-го этапа Чемпионата по дрифту SDC",
+    "link": "https://motor.ru/news/zavershilsya-pervyi-etap-chempionata-po-driftu-systeme-electric-drift-challenge-11-11-2025.htm",
+    "summary": "В&nbsp;преддверии стартов на&nbsp;СТК «Пилот» было обновлено покрытие трассы, расширена зона старта и&nbsp;постановки, что увеличило скорость разгона перед постановкой до&nbsp;105−110 км/ч. Оценивали дрифтеров судья стиля Аркадий Цареградцев, судья траектории Степан Земцев и судья угла Никита Шиков, которые распределяли 100 максимальных баллов следующим образом: 70 — за траекторию, 20 — за стиль, 10 — за угол.",
+    "image": "https://motor.ru/imgs/2025/11/11/13/6924634/1b4fff0e3a16a431f3bf740e7d0f0debe8f52364.jpg",
+    "published_at": "2025-11-11T13:09:36+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
     "title": "«Грузовая Механика» представит подъёмное оборудование и складскую технику на выставке MITEX 2025 в Крокус Экспо",
     "link": "https://truckmix.ru/news/gryzovaya-mehanika-predstavit-podyomnoe-oborydovanie-i-skladskyu-tehniky-na-vistavke-mitex-2025-v-krokys-ekspo",
     "summary": "Компания «Грузовая Механика» приглашает участников и гостей выставки  MITEX 2025 посетить свой стенд: где она представит подъёмное оборудование и складскую технику",
     "image": "https://truckmix.ru/images/publications/9/9/3/6911aa92e5fa0.jpg",
     "published_at": "2025-11-10T09:04:18+00:00",
     "domain": "truckmix.ru"
+  },
+  {
+    "source": "source",
+    "title": "Рынок грузовиков продолжает падение, но октябрь лучше сентября",
+    "link": "http://gruzovoy.ru/news/industry/3087_rinok_gryzovikov_prodoljaet_padenie_no_oktyabr_lychshe_sentyabrya.html",
+    "summary": "Октябрь стал непростым месяцем для сегмента грузовых автомобилей: снижение продаж зафиксировано во всех сегментах — от лёгких до тяжёлых машин. KAMAZ, SITRAK и GAZ удерживают лидерство на падающем рынке",
+    "image": null,
+    "published_at": "2025-11-06T14:18:04+00:00",
+    "domain": "gruzovoy.ru"
   },
   {
     "source": "source",
@@ -73,6 +199,42 @@
   },
   {
     "source": "source",
+    "title": "Чистый убыток КАМАЗа увеличился в 7,6 раз в годовом выражении",
+    "link": "http://gruzovoy.ru/news/industry/3086_chistii_ybitok_kamaza_yvelichilsya_v_76_raz_v_godovom_virajenii.html",
+    "summary": "ПАО «КАМАЗ» за девять месяцев 2025 года зафиксировало чистый убыток в 29,1 млрд руб., что в 7,6 раза больше по сравнению с аналогичным периодом прошлого года. Об этом сообщается в финансовом отчёте компании по РСБУ",
+    "image": null,
+    "published_at": "2025-11-05T08:56:40+00:00",
+    "domain": "gruzovoy.ru"
+  },
+  {
+    "source": "source",
+    "title": "Грузовая техника в Telegram: кто собрал самую большую аудиторию",
+    "link": "http://gruzovoy.ru/news/industry/3085_gryzovaya_tehnika_v_telegram_kto_sobral_samyu_bolshyu_ayditoriu.html",
+    "summary": "Кто задаёт тон в Telegram-сообществе коммерческого транспорта? Грузовой Ру представляет рейтинг самых результативных каналов отрасли",
+    "image": "https://cdna.gruzovoy.ru/c/e512e9e4f7ee9f1ec6cb7d2169da6f58.png",
+    "published_at": "2025-11-01T06:51:56+00:00",
+    "domain": "gruzovoy.ru"
+  },
+  {
+    "source": "source",
+    "title": "Предложен новый механизм взимания утильсбора",
+    "link": "http://gruzovoy.ru/news/industry/3084_predlojen_novii_mehanizm_vzimaniya_ytilsbora.html",
+    "summary": "В Госдуме подготовлен законопроект, который освободит дилеров от уплаты утильсбора на ввезённую, но нереализованную технику",
+    "image": null,
+    "published_at": "2025-10-30T14:37:21+00:00",
+    "domain": "gruzovoy.ru"
+  },
+  {
+    "source": "source",
+    "title": "Аркадий Цареградцев открывает новый сезон чемпионата SDC",
+    "link": "https://motor.ru/news/startuet-novyi-sezon-chempionata-po-driftu-systeme-electric-drift-challenge-29-10-2025.htm",
+    "summary": "Systême Electric Drift Challenge (SDC)&nbsp;— новый бренд уже ставшего легендарным Чемпионата Sochi Drift Challenge, сохраняет главную идею&nbsp;— доступный дрифт на&nbsp;профессиональном уровне для каждого, с&nbsp;правильной идеологией и&nbsp;максимальной конкуренцией. Идеолог, основатель и&nbsp;организатор SDC&nbsp;— Чемпион России, вице-чемпион мира по&nbsp;дрифту Аркадий Цареградцев. Седьмой сезон по&nbsp;традиции объединит в&nbsp;одном соревновании как опытных дрифтеров, так и&nbsp;новичков.",
+    "image": "https://motor.ru/imgs/2025/10/29/07/6918303/5256b93cff419806b4b99ce015fb4d6ef87d52f7.jpg",
+    "published_at": "2025-10-29T07:37:22+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
     "title": "Компания \"Грузовая Механика\" приглашает ознакомиться с техникой для логистики на выставке Translogistica Ural",
     "link": "https://truckmix.ru/news/kompaniya-gryzovaya-mehanika-priglashaet-oznakomitsya-s-tehnikoi-dlya-logistiki-na-vistavke-translogistica-ural",
     "summary": "С 29 по 31 октября 2025 года Екатеринбург вновь станет центром притяжения для логистического сообщества Урала — здесь пройдёт ключевое отраслевое событие года: выставка Translogistica Ural. Компания «Грузовая Механика» приглашает...",
@@ -82,12 +244,30 @@
   },
   {
     "source": "source",
+    "title": "«Камаз» вернется к пятидневке с 10 ноября",
+    "link": "https://www.vedomosti.ru/auto/articles/2025/10/24/1149702-kamaz-vernetsya",
+    "summary": "Под конец года у компании увеличился поток заказов",
+    "image": "https://cdn.vdmsti.ru/image/2025/89/177gqi/normal-1jzw.png",
+    "published_at": "2025-10-24T17:30:09+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
     "title": "SINOTRUK установил рекорд по экспорту тяжелых грузовиков",
     "link": "https://truckmix.ru/news/sinotruk-ystanovil-rekord-po-eksporty-tyajelih-gryzovikov",
     "summary": "В сентябре 2025 года экспорт тяжелых грузовиков SINOTRUK превысил 15 000 единиц,\nчто стало новым рекордом экспорта для китайской отрасли. Об этом и других\nдостижениях компании рассказали на глобальной партнерской конференции...",
     "image": "https://truckmix.ru/images/publications/7/3/6/68fb52f01b96e.JPG",
     "published_at": "2025-10-24T10:20:32+00:00",
     "domain": "truckmix.ru"
+  },
+  {
+    "source": "source",
+    "title": "Зимние шины Gislaved: кое-что о флагманской линейке",
+    "link": "https://motor.ru/lab/gislaved-winter-2025-26.htm",
+    "summary": "Новые модели Gislaved IceControl и ArcticControl не приходят на смену известным NordFrost 200 и SoftFrost 200 — они встают чуть выше и получают статус флагманских моделей. А в чем собственно разница, и почему у этих двух линеек совсем разные названия, а в дизайне протектора так мало общего? Потому что это не просто отдельная ветвь… Она вообще растет из другого корня. Который уходит в Германию.",
+    "image": "https://motor.ru/imgs/2025/10/22/13/6914535/e8b5633203ff76d4b80a1e3096454aa14eb2719a.jpg",
+    "published_at": "2025-10-22T16:45:32+00:00",
+    "domain": "motor.ru"
   },
   {
     "source": "source",
@@ -109,6 +289,15 @@
   },
   {
     "source": "source",
+    "title": "«Алмаз-Антей» до конца осени начнет выпуск полноприводных тяжелых грузовиков",
+    "link": "https://www.vedomosti.ru/auto/articles/2025/10/21/1148415-almaz-antei-nachnet-vipusk-polnoprivodnih-tyazhelih-gruzovikov",
+    "summary": "Уже в 2026 году на бывшем заводе Scania и Man в Петербурге планируется собрать 600 машин",
+    "image": "https://cdn.vdmsti.ru/image/2025/85/1ejxnx/normal-1tim.jpg",
+    "published_at": "2025-10-20T22:28:24+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
     "title": "UMG представила ратрак РТ-6 на Форуме туристических  территорий",
     "link": "https://truckmix.ru/news/umg-predstavila-ratrak-rt-6-na-foryme-tyristicheskih-territorii",
     "summary": "Группа компаний UMG представила ратрак РТ-6, изготовленный на предприятии «Челябинские строительно-дорожные машины», на Форуме туристических территорий, который проходит с 15 по 16 октября в Москве на базе олимпийского комплекса...",
@@ -127,12 +316,39 @@
   },
   {
     "source": "source",
+    "title": "Bestune T90",
+    "link": "https://motor.ru/testdrives/2025-bestune-t90.htm",
+    "summary": "Много автомобиля свои деньги — кто только не пытался сделать идеальный продукт по этому рецепту. Отлично получалось у Шкоды, весьма преуспели Kia и Hyundai. Китайские производители и вовсе приняли эту формулу как девиз. А потом из неё выросли. И вот, крупный, но не очень дорогой Bestune T90 пытается вернуться к разумной простоте.",
+    "image": "https://motor.ru/imgs/2025/10/15/07/6910187/b209e1f6b9f34b5662060b068898378009ac2f78.jpg",
+    "published_at": "2025-10-15T08:15:14+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "В Подмосковье состоится выставка Московское Автошоу",
+    "link": "https://motor.ru/news/v-moskve-proidyot-absolyutno-novaya-vystavka-moskovskoe-avtoshou-14-10-2025.htm",
+    "summary": "Новое мероприятие должно напомнить российской публике, какими могут (и&nbsp;должны быть) классические мотор-шоу. К&nbsp;участию приглашены производители, импортёры и&nbsp;другие игроки российского авторынка. Организаторы уверены, что Московское Автошоу станет ключевой локацией, где будут проходить премьеры главных новинок.",
+    "image": "https://motor.ru/imgs/2025/10/14/07/6909616/a88157811cbc2c59874d8423d65a453ce6fceb3a.jpg",
+    "published_at": "2025-10-14T07:48:15+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
     "title": "Побывали в гостях у МАЗ",
     "link": "https://comautotrans.moscow/tpost/z1haeis3f1-pobivali-v-gostyah-u-maz",
     "summary": "",
     "image": "https://static.tildacdn.com/tild6437-6163-4633-a633-643034656333/3.jpg",
     "published_at": "2025-10-14T07:33:00+00:00",
     "domain": "comautotrans.moscow"
+  },
+  {
+    "source": "source",
+    "title": "Музей транспорта Москвы и коллекция Ильи Зибарева",
+    "link": "https://motor.ru/stories/muzei-transporta-moskvy-i-kollekciya-ili-zibareva.htm",
+    "summary": "Проект «Клуб коллекционеров Музея транспорта Москвы» открылся на ВДНХ совместной выставкой с Ильей Зибаревым. До&nbsp;конца нынешнего года посетители смогут увидеть уникальные экспонаты из&nbsp;собрания коллекционера редких автомобилей и&nbsp;другой техники. Сам проект «Клуб коллекционеров» нацелен на&nbsp;развитие взаимодействия музея с&nbsp;частными коллекционерами, реставраторами и&nbsp;энтузиастами транспорта.",
+    "image": "https://motor.ru/imgs/2025/10/10/09/6907565/a5e5bd1c68ec6eb859758b51a8433f9f1ad2aaa6.jpg",
+    "published_at": "2025-10-10T11:07:39+00:00",
+    "domain": "motor.ru"
   },
   {
     "source": "source",
@@ -154,12 +370,210 @@
   },
   {
     "source": "source",
+    "title": "Финал сезона русских гонок — в эти выходные",
+    "link": "https://motor.ru/lab/smp-rskg-grozniy-preview.htm",
+    "summary": "В спринтерских заездах баловень судьбы сразится с тем, кому часто не везет. А в марафонских гонках в схватке за титул сойдутся экипаж на мощном Mercedes-AMG и экипаж на российском болиде.",
+    "image": "https://motor.ru/imgs/2025/10/06/12/6905161/4f103a612ae1801de6f8defd11266ec0f519ebd0.jpg",
+    "published_at": "2025-10-06T12:07:56+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Rolls-Royce представил особенный Spectre, вдохновившись историей любви к собаке",
+    "link": "https://motor.ru/news/rolls-royce-sozdal-unikalnyi-spectre-v-chest-lyubimoi-sobaki-zakazchika-04-10-2025.htm",
+    "summary": "Британская Rolls-Royce подготовила для своего давнего клиента из США особенный автомобиль — эксклюзивное электрокупе Spectre, посвящённое его любимой собаке по кличке Бейли. Эта машина получила не только личное имя, но и уникальное оформление, в котором каждая деталь рассказывает историю преданности хозяина своему питомцу.",
+    "image": "https://motor.ru/imgs/2025/10/03/21/6904177/a247de4abf64e563d633e55beb926f66723bf831.jpg",
+    "published_at": "2025-10-03T21:59:10+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "МАЗ X оказался не концепт-траком, а реальным грузовиком",
+    "link": "https://motor.ru/news/maz-razdast-perevozchikam-gruzoviki-sovershenno-novogo-pokoleniya-03-10-2025.htm",
+    "summary": "В&nbsp;2024 году Минский автозавод презентовал проект MAZ X&nbsp;— концептуальный грузовик, задачей которого было показать наработки минчан по&nbsp;машинам следующего поколения. Как выяснила редакция «Мотора», в&nbsp;этом году шоутрак радикально доработали, изменив интерьер, каркас кабины и&nbsp;общую компоновку. Впереди&nbsp;— выпуск первой опытной партии.",
+    "image": "https://motor.ru/imgs/2025/10/03/13/6903923/6b206904e355e02f595c5e89f8956e8b53985d93.jpg",
+    "published_at": "2025-10-03T14:14:15+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "После обновления Polestar 3 стал мощнее и быстрее, но «потерял» в запасе хода",
+    "link": "https://motor.ru/news/shvedskii-krossover-polestar-3-poluchil-bolee-moshnye-elektrodvigateli-03-10-2025.htm",
+    "summary": "Бренд Polestar представил обновлённую версию электрокроссовера Model 3. Не меняя кардинально внешний вид и салон, инженеры провели серьёзную техническую модернизацию автомобиля.",
+    "image": "https://motor.ru/imgs/2025/10/03/12/6903865/29891cf9743411c8d53ec68dc60a7c4adbc87829.jpg",
+    "published_at": "2025-10-03T12:33:05+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "В продаже появился новый пикап Sollers ST9, собранный на УАЗе",
+    "link": "https://motor.ru/news/v-rossii-startovali-prodazhi-pikapa-sollers-st9-03-10-2025.htm",
+    "summary": "Машина представлена в двух комплектациях, и пока все они оснащаются бензиновым мотором. Минимальная стоимость пикапа — 3 499 000 рублей, что на 630 тысяч рублей превышает цену предыдущей модели Sollers ST8.",
+    "image": "https://motor.ru/imgs/2025/10/03/10/6903749/a1dc9173009ab6f01b632f40a71d8b74ed7a035d.jpg",
+    "published_at": "2025-10-03T10:27:14+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Глава Ford Фарли заявил, что покупателям не нужны дорогие электромобили",
+    "link": "https://motor.ru/news/glava-ford-prognoziruet-padenie-rynka-elektrokarov-do-urovnya-2022-goda-03-10-2025.htm",
+    "summary": "Генеральный директор Ford Motor Company Джим Фарли высказал опасение относительно будущего электромобилей, в частности, в США. По его мнению, отмена государственного налогового кредита для покупателей может привести к резкому снижению интереса к таким транспортным средствам.",
+    "image": "https://motor.ru/imgs/2025/10/03/09/6903691/af8b37ffcb75ff507c0b82a8e461afca79e01648.jpg",
+    "published_at": "2025-10-03T09:19:55+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Новая марка Eonyx сделала ставку на самые доступные электромобили в России",
+    "link": "https://motor.ru/news/elektromobili-eonyx-byudzhetnyi-vybor-dlya-biznesa-i-gorodskikh-poezdok-02-10-2025.htm",
+    "summary": "Российский рынок пополнился новой маркой компактных электромобилей, производство которых налажено на калининградском заводе «Автотор». Как отметила директор по коммуникациям групп компаний «Автодом» и «АвтоСпецЦентр» Анна Уткина, эти машины позиционируются как недорогой и практичный транспорт.",
+    "image": "https://motor.ru/imgs/2025/10/02/19/6903496/1a8484e4069fa6d56b54ad6c833eabe3d5b888af.jpg",
+    "published_at": "2025-10-02T19:47:41+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Представлен электрический Mitsubishi Eclipse Cross с запасом хода до 600 км",
+    "link": "https://motor.ru/news/na-rynok-vykhodit-elektrokrossover-mitsubishi-eclipse-cross-02-10-2025.htm",
+    "summary": "Автомобильный бренд Mitsubishi Motors объявил о скором выходе на рынок своей новинки — электрической модификации популярного кроссовера Eclipse Cross. Поставки машины в европейские дилерские центры будут запускаться поэтапно до конца 2025 года.",
+    "image": "https://motor.ru/imgs/2025/10/02/14/6903240/bb8738fd733f267ff4be294b4889db6a93a63a5a.jpg",
+    "published_at": "2025-10-02T16:27:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Chery прекратила продажи гибридных кроссоверов в России",
+    "link": "https://motor.ru/news/dva-gibridnykh-flagmana-chery-pokinuli-rossiiskii-rynok-02-10-2025.htm",
+    "summary": "Глава пресс-службы российского отделения компании Евгения Никитена-Кацарская подтвердила, что два кроссовера — Tiggo 7 Pro Plug-in Hybrid и Tiggo 8 Pro Plug-in Hybrid — выведены из гибридной линейки бренда в нашей стране.",
+    "image": "https://motor.ru/imgs/2025/10/02/12/6903150/dd11d4224cab2690f3d5c6144ee00059a7cd5b21.jpg",
+    "published_at": "2025-10-02T14:17:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Названы модели Audi, BMW и Mercedes, которые не подорожают после 1 ноября",
+    "link": "https://motor.ru/news/novyi-utilsbor-ne-zatronet-nekotorye-avtomobili-audi-bmw-i-mercedes-02-10-2025.htm",
+    "summary": "Введение новой методики приведёт к увеличению стоимости автомобилей, ввозимых по параллельным схемам в случае, если мощность их двигателя будет превышать 160 лошадиных сил. Наиболее ощутимо это ударит по машинам премиум-сегмента. Однако некоторые новые модели известных мировых производителей смогут избежать потенциального роста цен.",
+    "image": "https://motor.ru/imgs/2025/10/02/11/6903086/053b0710d34e38bc0043d625bf63e8b07ccacde4.jpg",
+    "published_at": "2025-10-02T11:27:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Завершилась 20-летняя история спортивного хэтчбека Ford Focus ST",
+    "link": "https://motor.ru/news/legenda-khot-khetchei-ford-focus-st-zakonchil-svoyu-istoriyu-02-10-2025.htm",
+    "summary": "Производство этого «заряженного» хэтчбека завершено, и вслед за ним, уже в ноябре, с конвейера снимут и стандартный Focus. Финальным экземпляром, сошедшим с производственной линии 26 сентября, стал Focus ST с окраской красного цвета.",
+    "image": "https://motor.ru/imgs/2025/10/02/09/6902983/8e6839d9db5f0f5fb15c916d165efe64bec55422.jpg",
+    "published_at": "2025-10-02T09:47:29+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
     "title": "UMG разработала новый экскаватор E225C LR со сверхдлинным  рабочим оборудованием",
     "link": "https://truckmix.ru/news/umg-razrabotala-novii-ekskavator-e225c-lr-so-sverhdlinnim-rabochim-oborydovaniem",
     "summary": "Предприятие «Тверской экскаватор» изготовило первый опытный образец экскаватора\nE225C LR, разработанного инженерным центром UMG. Данная модификация отличается\nсверхдлинным рабочим оборудованием, которое увеличивает радиус...",
     "image": "https://truckmix.ru/images/publications/3/4/5/68de4626ef86e.JPG",
     "published_at": "2025-10-02T09:30:14+00:00",
     "domain": "truckmix.ru"
+  },
+  {
+    "source": "source",
+    "title": "АвтоВАЗ смоделировал эксплуатацию Lada Iskra на протяжении 6 лет",
+    "link": "https://motor.ru/news/avtovaz-provyol-test-budto-lada-iskra-stoyala-6-let-pod-solncem-01-10-2025.htm",
+    "summary": "Инженеры автогиганта применяли специальные методики, чтобы сымитировать максимально жёсткую эксплуатацию модели на&nbsp;протяжении 6-летнего срока и&nbsp;150 тысяч километров. Для проведения испытаний, отработки технологий и&nbsp;обучения персонала было сделано около 300 автомобилей.",
+    "image": "https://motor.ru/imgs/2025/10/01/08/6902038/20cbffc113a2b39a0baaca185555db8b3b597079.jpg",
+    "published_at": "2025-10-01T08:31:12+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Land Rover Defender превратили в броневик для города с двигателем в 518 «лошадей»",
+    "link": "https://motor.ru/news/atele-inkas-pokazalo-defender-kotoryi-ne-boitsya-obstrela-i-granat-30-09-2025.htm",
+    "summary": "Канадское ателье Inkas представило особую версию внедорожника. Теперь это не просто роскошный автомобиль, он ещё и бронированный. Именно безопасность — главная задача этой машины.",
+    "image": "https://motor.ru/imgs/2025/09/30/18/6901761/9c9c2b19ac8e2ce4bac1897d577c2711efa973b7.jpg",
+    "published_at": "2025-09-30T19:07:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Российский «Атом» собрал более 105 тысяч предзаказов",
+    "link": "https://motor.ru/news/proizvodstvo-atoma-nachnyotsya-do-konca-goda-30-09-2025.htm",
+    "summary": "АО «Кама» при участии Росатома в качестве технологического партнёра впервые представила предсерийную версию электрокара в конце 2024 года. Летом текущего года стало известно, что доля отечественных компонентов в машине на этапе запуска конвейера будет равна 65–70%.",
+    "image": "https://motor.ru/imgs/2025/09/30/16/6901628/3d26fd33381da81f069cff75d2de32fbc82951ee.jpg",
+    "published_at": "2025-09-30T16:07:15+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "С 1 ноября 2025 года утильсбор в России начнут рассчитывать по новой формуле",
+    "link": "https://motor.ru/news/ministr-alikhanov-obyasnil-pochemu-utilsbor-budut-schitat-po-novomu-30-09-2025.htm",
+    "summary": "Теперь основным параметром для определения размера платежа станет не объём двигателя, а его мощность. Инициативу объясняют стремлением создать более честные условия, поскольку современные гибридные автомобили с небольшими двигателями часто демонстрируют мощность, сравнимую с крупными бензиновыми агрегатами.",
+    "image": "https://motor.ru/imgs/2025/09/30/08/6901238/10be4582dd09c660904de8a3f3c036db9b16333b.jpg",
+    "published_at": "2025-09-30T08:17:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Завершился сезон 2025 года Гран-При Российской Дрифт Серии",
+    "link": "https://motor.ru/news/arkadii-caregradcev-stal-dvukratnym-chempionom-rds-gp-29-09-2025.htm",
+    "summary": "Юбилейный, 100-й этап главного чемпионата страны по дрифту подвёл итог сезона 2025 года — «Финал Гран-При Российской Дрифт Серии» (RDS GP) на трассе Moscow Raceway определил обладателей титулов в личном и командном зачётах, а также победителя заключительной гонки турнира.",
+    "image": "https://motor.ru/imgs/2025/09/29/21/6901164/9e390b310aa1255cd471d54e8c991fe52af2496a.jpg",
+    "published_at": "2025-09-29T21:13:09+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Самый бюджетный российский гибрид Evolute i-Space представлен после рестайлинга",
+    "link": "https://motor.ru/news/stalo-izvestno-chto-izmenilos-v-obnovlyonnom-krossovere-evolute-i-space-29-09-2025.htm",
+    "summary": "Гибридный кроссовер Evolute i-Space появился на рынке чуть более года назад, но производитель уже представил обновлённую модель. Сразу бросаются в глаза изменения во внешности машины, но ими всё не ограничилось.",
+    "image": "https://motor.ru/imgs/2025/09/29/11/6900833/469ec63b2472ff011490c9ab1ce3a0d053333f6e.jpg",
+    "published_at": "2025-09-29T13:27:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "У кроссоверов Porsche, Lamborghini и Audi обнаружили риск утечки топлива",
+    "link": "https://motor.ru/news/iz-za-oshibki-na-konveiere-budut-otozvany-novye-porsche-i-lamborghini-29-09-2025.htm",
+    "summary": "Неприятный инцидент затронул сразу три премиальных бренда, входящих в концерн Volkswagen. Речь идёт об отзывной компании из-за потенциально опасной неполадки в топливной системе.",
+    "image": "https://motor.ru/imgs/2025/09/29/09/6900762/cc02acfdd2455c615ae0075e1baf95b6071d3fc7.jpg",
+    "published_at": "2025-09-29T09:17:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Министр Алиханов подтвердил планы по открытию дилерского центра LiXiang в России",
+    "link": "https://motor.ru/news/miniven-i-krossovery-lixiang-gotovyatsya-k-oficialnym-prodazham-v-rossii-26-09-2025.htm",
+    "summary": "Министр промышленности и торговли Антон Алиханов сообщил, что первый на территории России официальный дилерский центр китайской компании LiXiang планирует начать работу на российском рынке до завершения 2025 года.",
+    "image": "https://motor.ru/imgs/2025/09/26/16/6899887/62a6033732b62a2000e0be5c4f54835958092b2f.jpg",
+    "published_at": "2025-09-26T16:27:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "В России начались продажи Voyah Passion EVR с запасом хода в тысячу километров",
+    "link": "https://motor.ru/news/rossiyanam-stal-dostupen-k-pokupke-moshnyi-gibrid-voyah-passion-evr-26-09-2025.htm",
+    "summary": "На российском автомобильном рынке появилась новинка от Voyah. Модель Passion EVR представляет собой гибридную версию с впечатляющим общим запасом хода в 1 000 километров. Из них 200 километров машина способна преодолевать исключительно на электротяге.",
+    "image": "https://motor.ru/imgs/2025/09/26/10/6899551/baf520e2d41d04a8231248977d91c759594149bc.jpg",
+    "published_at": "2025-09-26T12:17:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Электрический Acura ZDX снят с производства спустя всего год после старта продаж",
+    "link": "https://motor.ru/news/acura-prekrashaet-vypusk-elektrokrossovera-zdx-iz-za-ego-provala-25-09-2025.htm",
+    "summary": "Автомобильный бренд Acura принял решение закрыть производство своего первого электрического вседорожника ZDX. Это происходит всего через 16 месяцев после того, как первые покупатели получили свои машины. Более того, в начале этого сентября производитель официально заявлял о планах обновить электрокар с началом следующего модельного года.",
+    "image": "https://motor.ru/imgs/2025/09/25/12/6898980/2184d0b6310bf44a7becb1f05fdd1ab30fb52b60.jpg",
+    "published_at": "2025-09-26T08:17:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Более 100 уникальных автомобилей выехали на трассу «Формулы-1» в Сочи",
+    "link": "https://motor.ru/news/avtofestival-v-siriuse-sobral-bolee-3-tysyach-gostei-25-09-2025.htm",
+    "summary": "Гоночный комплекс Сириус Автодром 20 сентября отпраздновал свой день рождения большим праздником для всех поклонников автомобилей. В честь такого события организаторы подготовили для гостей насыщенную программу, центром которой стала выставка редких машин.",
+    "image": "https://motor.ru/imgs/2025/09/25/14/6899160/0f12e7bb5bedd08dc22bfa8fcfd665418869e529.jpg",
+    "published_at": "2025-09-25T16:17:00+00:00",
+    "domain": "motor.ru"
   },
   {
     "source": "source",
@@ -181,6 +595,51 @@
   },
   {
     "source": "source",
+    "title": "Цены на гибриды Li Auto в Казахстане почти соответствуют их стоимости в Китае",
+    "link": "https://motor.ru/news/li-auto-obyavil-oficialnye-ceny-na-gibridnye-krossovery-v-kazakhstane-25-09-2025.htm",
+    "summary": "Китайская автомобильная марка официально объявила цены на свои гибридные кроссоверы для рынка Казахстана. Реализацией машин займется местная компания Allur, которая уже представляет такие бренды, как Kia, Skoda и Hongqi. Адрес дилерского центра уже сейчас можно найти на сайте производителя.",
+    "image": "https://motor.ru/imgs/2025/09/25/10/6898929/b9561ddbe900c7e97472098483e5245a91d59341.jpg",
+    "published_at": "2025-09-25T10:47:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Rox собирается локализовать в России производство кроссоверов и электрокара",
+    "link": "https://motor.ru/news/rox-mozhet-nachat-vypusk-avtomobilei-v-rossii-25-09-2025.htm",
+    "summary": "Автомобильная марка изучает возможность организации выпуска своих машин на территории нашей страны. Информацию подтвердили в компании Sinomach Auto, которая официально представляет этот бренд в России.",
+    "image": "https://motor.ru/imgs/2025/09/25/08/6898851/893882ca948eb1f3e131be4f90cf935d598155d1.jpg",
+    "published_at": "2025-09-25T08:27:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Седан Nissan Sentra после обновления получил больше технологий и комфорта",
+    "link": "https://motor.ru/news/obnovlyonnyi-nissan-sentra-sokhranil-dvigatel-no-rezko-smenil-imidzh-24-09-2025.htm",
+    "summary": "В США состоялась презентация обновлённого седана Nissan Sentra. Автомобиль получил яркий образ, однако его техническая основа — платформа и силовая установка — остались прежними. Продажи машины девятого поколения начнутся в четвёртом квартале этого года. Точная стоимость пока не объявлена, но производитель намерен сохранить за моделью репутацию одного из самых бюджетных предложений в своей линейке.",
+    "image": "https://motor.ru/imgs/2025/09/24/19/6898730/efc98e0f4781186d1010714bf9f53f3f920c5a99.jpg",
+    "published_at": "2025-09-24T19:09:39+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "В Подмосковье пройдёт финальный заезд кольцевых автогонок на выносливость",
+    "link": "https://motor.ru/news/v-nachale-oktyabrya-v-moskve-proidyot-grand-final-avtogonok-na-vynoslivost-24-09-2025.htm",
+    "summary": "В субботу, 4 октября, на автодроме «Moscow Raceway» состоится гранд-финал главных кольцевых автогонок на выносливость REC. Гран-При Москвы. Событие станет кульминацией всего сезона, состоящего из пяти этапов, которые проводились на самых известных трассах России.",
+    "image": "https://motor.ru/imgs/2025/09/24/13/6898412/c582b4723348bc41d83645c28160e4145f1a7e69.jpg",
+    "published_at": "2025-09-24T13:51:02+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Mercedes выпустил лимитированную серию седанов Maybach S 680 с золотом",
+    "link": "https://motor.ru/news/mercedes-predstavil-roskoshnyi-maybach-v12-s-otdelkoi-iz-chistogo-zolota-24-09-2025.htm",
+    "summary": "Mercedes-Benz представил уникальную версию флагманского седана Mercedes-Maybach S 680, которая получила название V12 Edition. Главной особенностью этого автомобиля стала эксклюзивная отделка экстерьера и интерьера, включающая элементы из чистого 24-каратного золота. Производитель планирует выпустить только 50 машин, которые поступят в продажу на некоторые мировые рынки этой осенью.",
+    "image": "https://motor.ru/imgs/2025/09/24/09/6898268/64e6da2c2a576501f7db43833b54665fb44bdf28.jpg",
+    "published_at": "2025-09-24T09:37:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
     "title": "«Синотрак Рус»: программа корректирующих мероприятий согласована с Росстандарт",
     "link": "https://truckmix.ru/news/sinotrak-rys-programma-korrektiryushih-meropriyatii-soglasovana-s-rosstandart",
     "summary": "Российское представительство международного концерна SINOTRUK, компания «Синотрак Рус», планирует восстановить ОТТС на грузовики SITRAK после устранения выявленных в ходе внеплановой проверки документарных нарушений.",
@@ -199,12 +658,84 @@
   },
   {
     "source": "source",
+    "title": "Сокровища Конкурса элегантности «Автокультуры»",
+    "link": "https://motor.ru/reports/elegance-by-autoculture.htm",
+    "summary": "В подмосковном гольф-клубе Forest Hills состоялся первый в России автомобильный конкурс элегантности, который может стать началом долгой и успешной ежегодной серии. Попытки организовать в нашей стране что-то подобное итальянской Villa d’Este или калифорнийского Пеббл-Бич уже предпринимали раньше, но эти мероприятия оказались разовыми. Конкурс элегантности, который замыслил Никита Муравин, основатель «Автокультуры», точно получился пробным шаром, а не «первым блином». Доказательства — в нашей галерее.",
+    "image": "https://motor.ru/imgs/2025/09/22/18/6897595/48c012450501c2d13e699c650b0bfbf1f0b5bf8d.jpg",
+    "published_at": "2025-09-22T19:54:58+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Россия вернула себе звание главного импортера китайских автомобилей",
+    "link": "https://motor.ru/news/russia-china-22-09-2025.htm",
+    "summary": "В августе ввоз легковушек из КНР достиг максимума с начала года, пишет РИА Новости со ссылкой на данные таможни Китая.&nbsp;За месяц было импортировано машин на сумму 796,4 миллиона долларов. Это на четверть больше, чем в июле, но вдвое меньше, чем за тот же месяц 2024-го.",
+    "image": "https://motor.ru/imgs/2025/09/22/13/6897438/511b53aa87a44af02075b22c7230240c29f07010.jpg",
+    "published_at": "2025-09-22T18:17:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Subaru попрощалась с Legacy",
+    "link": "https://motor.ru/news/subaru-legacy-end-22-09-2025.htm",
+    "summary": "12 сентября 2025 на заводе SIA (Subaru of Indiana Automotive) в Лафайете, Индиана, завершилось производство культового седана, который выпускался 36 лет. Последним стал Legacy в сером оттенке кузова Magnetite Gray и с кожаным салоном, оснащенный 2,5-литровой оппозитной «четверкой» и полным приводом. Вскоре предприятие прекратит выпуск еще одной модели — Outback.",
+    "image": "https://motor.ru/imgs/2025/09/22/12/6897430/dfe1e3344d3391663294a80cef7edcf41dc1fbf5.jpeg",
+    "published_at": "2025-09-22T16:50:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "В ОАЭ появится дилерский центр Aurus",
+    "link": "https://motor.ru/news/aurus-uae-22-09-2025.htm",
+    "summary": "Первый в Объединенных Арабских Эмиратах центр по продаже автомобилей российской люксовой марки скоро появится в Дубае. Об этом пишет Telegram-канал «Автопоток». Сообщается, что пока там выставлена только одна модель — седан Aurus Senat в трех экземплярах. Открытие ожидают «в ближайшие дни», но ни официальных анонсов, ни планов продаж пока не было.",
+    "image": "https://motor.ru/imgs/2025/09/22/08/6897293/b49de1a7eda31f0a1eb42e9cce871d23ff9fb41e.webp",
+    "published_at": "2025-09-22T13:19:08+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "В Китае показали седан Geely Emgrand пятого поколения",
+    "link": "https://motor.ru/news/geely-emgrand-5th-gen-22-09-2025.htm",
+    "summary": "В июне этого года, спустя около 15 лет с момента выхода модели на рынок, был продан четырехмиллионный экземпляр. Перейдя в новую генерацию, «четырехдверка» стала больше, получила эволюционные изменения во внешности, более технологичный салон и значительно более мощный мотор.",
+    "image": "https://motor.ru/imgs/2025/09/22/07/6897226/581144d1888ccefd8240f875dc7952ed5a05d627.jpg",
+    "published_at": "2025-09-22T10:01:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
     "title": "Новинка в мире фургонов 2025: премьера FOTON VIEW на выставке «Грузовой транспорт и логистика»",
     "link": "https://truckmix.ru/news/novinka-v-mire-fyrgonov-2025-premera-foton-view-na-vistavke-gryzovoi-transport-i-logistika",
     "summary": "Входящая в ГК «Автодом» компания «МБ РУС», эксклюзивный дистрибьютор фургонов и пикапов FOTON в России, выступила золотым партнером VIежегодной конференции «Грузовой транспорт и логистика 2025», а также в ходе выставки представила...",
     "image": "https://truckmix.ru/images/publications/1/0/3/68d1141460ef9.jpg",
     "published_at": "2025-09-22T09:17:08+00:00",
     "domain": "truckmix.ru"
+  },
+  {
+    "source": "source",
+    "title": "Проблемы с Porsche обойдутся Volkswagen в 6 млрд долларов",
+    "link": "https://motor.ru/news/vw-problems-22-09-2025.htm",
+    "summary": "Входящая в Volkswagen AG марка решила изменить стратегию из-за слабого спроса на электромобили, давления со стороны китайцев и [пошлин США](https://motor.ru/news/porsche-mercedes-benz-trump-28-03-2025.htm). Porsche возвращается к двигателям внутреннего сгорания и гибридным силовым установкам. Первым с переменами столкнется будущий флагманский кроссовер на базе Cayenne. Изначально планировалось, что он будет полностью «зеленым», но теперь Porsche готова оснастить его ДВС.",
+    "image": "https://motor.ru/imgs/2025/09/22/05/6897187/9ad1f58565bff88faa5b07b6889623ebcb17c9ba.jpeg",
+    "published_at": "2025-09-22T05:48:33+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Автомобили Xcite больше не производят. Но проект не закрыт",
+    "link": "https://motor.ru/news/xcite-production-19-09-2025.htm",
+    "summary": "С конвейера «Автозавод Санкт-Петербург» (экс-предприятие Nissan) больше не сходят кроссоверы Xcite: производство остановилось спустя полтора года после старта. Об этом сообщает «КП-Петербург» со ссылкой на главу предприятия Ивана Миронова. При этом бренд продолжит существовать и может быть перезапущен, если позволит рыночная ситуация.",
+    "image": "https://motor.ru/imgs/2025/09/19/12/6896020/59a69e07e712ee559562b1b391e3a0279a4402b5.webp",
+    "published_at": "2025-09-19T17:13:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "В России отзывают тысячи седанов Geely",
+    "link": "https://motor.ru/news/geely-recall-19-09-2025.htm",
+    "summary": "Федеральное агентство по техническому регулированию и метрологии (Росстандарт)&nbsp;объявило сервисную акцию, затрагивающую 17 736 Geely Emgrand, проданных в России с ноября 2023 года по сегодняшний день. Причина — риск деформации топливного бака. Все работы по устранению дефекта будут бесплатными для владельцев.",
+    "image": "https://motor.ru/imgs/2025/09/19/09/6895958/f5346cde17590bacef94e1e7effcb587bb3e6f3b.webp",
+    "published_at": "2025-09-19T14:09:00+00:00",
+    "domain": "motor.ru"
   },
   {
     "source": "source",
@@ -217,12 +748,147 @@
   },
   {
     "source": "source",
+    "title": "Hyundai Palisade массово отзывают из-за проблем с ремнями безопасности",
+    "link": "https://motor.ru/news/hyundai-palisade-recall-19-09-2025.htm",
+    "summary": "Южнокорейская компания объявила масштабный отзыв, касающийся 568 580 кроссоверов Palisade, реализованных на территории Соединенных Штатов с 2020 по 2025 год. Причина — дефект пряжек ремней безопасности, которые плохо фиксируют ремни. Это может привести к травмам в случае аварии.",
+    "image": "https://motor.ru/imgs/2025/09/19/05/6895908/675286a096ed24309e1b19fb3ca2dfe2af772d6d.jpeg",
+    "published_at": "2025-09-19T09:56:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Клуб коллекционеров Музея транспорта Москвы» запускается совместной выставкой с Ильей Зибаревым",
+    "link": "https://motor.ru/news/moscow-transport-museum-19-09-2025.htm",
+    "summary": "1 октября 2025 года в павильоне №26 на ВДНХ откроется совместная выставка Музея транспорта Москвы и Ильи Зибарева — коллекционера ретроавтомобилей и основателя Музея советской игрушки. Автомобиль «Москвич-433», прицеп «Скиф-М1» и другие предметы из его собрания будут представлены широкой публике. Открытие экспозиции станет первым событием нового проекта Музея транспорта Москвы «Клуб коллекционеров», который объединит совместные выставки с коллекционерами, изучение истории формирования частных собраний, запись интервью и подкастов с героями проекта, открытые лекции и дискуссии.",
+    "image": "https://motor.ru/imgs/2025/09/19/08/6895934/e8edd1b4a40e2417be40a2af72091255a779ae8a.jpg",
+    "published_at": "2025-09-19T08:40:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Подведены итоги юбилейной XX Премии «Внедорожник года – 2025»",
+    "link": "https://motor.ru/news/vnedorozhnik-goda-2025-19-09-2025.htm",
+    "summary": "В Москве состоялась торжественная церемония вручения наград XX юбилейной профессиональной Премии «Внедорожник года – 2025». Мероприятие, организованное журналом «Club 4x4», по традиции прошло в пространстве одноименного клуба и собрало ключевых игроков автомобильного рынка, экспертов, журналистов и почетных гостей.",
+    "image": "https://motor.ru/imgs/2025/09/19/08/6895936/87eefed1004203a7ec84f7ea68ff0f8b2df8cb6b.jpg",
+    "published_at": "2025-09-19T08:23:25+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Российский авторынок стал вторым в европейском зачете",
+    "link": "https://motor.ru/news/market-eu-19-09-2025.htm",
+    "summary": "В августе в России было продано 122 235 новых легковых автомобилей, подсчитал «Автостат». Это на 17,6 процента меньше, чем за тот же месяц 2025 года, но в нынешнем году это [максимальный результат](https://motor.ru/news/august-sales-04-09-2025.htm). Это позволило стране подняться еще выше в рейтинге рынков Европы: если в июне он был шестым, в июле — [уже третьим](https://motor.ru/news/europe-market-20-08-2025.htm), то в августе, по данным GlobalData, занял вторую строчку.",
+    "image": "https://motor.ru/imgs/2025/09/19/05/6895862/73eae7d333351d03bbbacf6498953dc1a35fa451.jpg",
+    "published_at": "2025-09-19T06:02:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Lada Iskra встала на конвейер в Санкт-Петербурге",
+    "link": "https://motor.ru/news/iskra-petersburg-18-09-2025.htm",
+    "summary": "На мощностях «Автозавода Санкт-Петербург» (экс-площадка Nissan) стартовало серийное производство Lada Iskra — новинки АвтоВАЗа, рыночный дебют которой состоялся в июле. До сих пор в продаже были только «Искры» тольяттинской сборки, а теперь в дилерскую сеть начали отгружать машины, сделанные в Санкт-Петербурге. Как отмечает пресс-служба АвтоВАЗа, они неотличимы от Iskra с главного конвейера.",
+    "image": "https://motor.ru/imgs/2025/09/18/13/6895587/aae3ec92ad7089d909185b16f8dfb1d8c9fcd37e.jpg",
+    "published_at": "2025-09-18T17:16:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Новый Mitsubishi Eclipse Cross породнился с Renault Scenic",
+    "link": "https://motor.ru/news/mitsu-eclipse-cross-18-09-2025.htm",
+    "summary": "Японская марка показала кроссовер Eclipse Cross второй генерации для Европы, который анонсировала в мае. Модель представляет собой перелицованный [Renault Scenic E-Tech](https://motor.ru/news/renault-scenic-ev-04-09-2023.htm) и оснащается исключительно электрической силовой установкой. Сначала в продаже появится версия с мотором на 218 сил и запасом хода 600 километров, а в следующем году к ней присоединится вариант попроще.",
+    "image": "https://motor.ru/imgs/2025/09/18/09/6895387/92fb6e883bc49528b59267d9d4f915d8faddb6fa.png",
+    "published_at": "2025-09-18T14:08:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Dacia Duster переделали в пикап",
+    "link": "https://motor.ru/news/duster-pickup-18-09-2025.htm",
+    "summary": "Он родился в сотрудничестве с румынским кузовным ателье Romturingia, которое уже превращало в грузовички Дастеры предыдущих поколений. Duster Pick-Up нового образца сохранил двойную кабину, но из-за этого пришлось пожертвовать габаритами грузовой платформы: ее размер — примерно метр на метр. Такой Duster доступен для заказа по цене от 25 983 евро (около 2,6 миллиона рублей).",
+    "image": "https://motor.ru/imgs/2025/09/18/05/6895335/53a9acd209365b1672ef6f93723bf4b8664838f9.webp",
+    "published_at": "2025-09-18T10:01:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Changan сертифицирует для российского рынка новый CS75 Plus",
+    "link": "https://motor.ru/news/changan-cs75-plus-18-09-2025.htm",
+    "summary": "Кроссовер четвертой генерации официально обещали привезти в Россию в этом году, и теперь стало известно, что процесс сертификации запущен. Об этом сообщает портал «Китайские автомобили». Кроссовер предложат с двумя двигателями на выбор, полным приводом и кластером с тремя экранами в салоне.",
+    "image": "https://motor.ru/imgs/2025/09/18/05/6895333/b360004be93943b7b4cead7a42fdae7f33d460ce.png",
+    "published_at": "2025-09-18T05:31:57+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "УАЗ «Патриот» обзавелся новой коробкой передач",
+    "link": "https://motor.ru/news/patriot-news-17-09-2025.htm",
+    "summary": "Ульяновский автозавод выпустил первые внедорожники с обновленным «атмосферником» ZMZ Pro объемом 2,7 литра и шестиступенчатой механической трансмиссией китайской JAC. Пока это только пробная партия, на которой партнеры УАЗа будут обкатывать работу электроники. Затем будет выпущена еще одна для проведения полномасштабных тестов.",
+    "image": "https://motor.ru/imgs/2025/09/17/13/6894964/6425d0b03d4bf07794631603c34b3b63245ab051.webp",
+    "published_at": "2025-09-17T16:43:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "В КНР начались продажи электрического Audi E5 Sportback",
+    "link": "https://motor.ru/news/audi-e5-sportback-17-09-2025.htm",
+    "summary": "Первенец совместного предприятия Audi и SAIC, электрический фастбек E5 Sportback, вышел на рынок КНР с установкой мощностью до 787 лошадиных сил и ценником от 235 900 юаней (2,8 миллиона рублей). Как сообщает портал Car News China, первый Audi без колец за первые полчаса заказали 10 153 китайских клиента. Для сравнения, конкурент E5 Sportback, Tesla Model 3, за весь август купили 17 739 человек.",
+    "image": "https://motor.ru/imgs/2025/09/17/09/6894781/e1536faa2cc505103d3736b41a783f7c48be8a10.jpg",
+    "published_at": "2025-09-17T14:58:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
     "title": "Грузовики FORLAND стали доступнее: новое ценовое предложение от АО «МБ РУС»",
     "link": "https://truckmix.ru/news/gryzoviki-forland-stali-dostypnee-novoe-cenovoe-predlojenie-ot-ao-mb-rys",
     "summary": "АО «МБ РУС» снизило цены на грузовики FORLAND: снижение составило от 400 тыс. до 1,2 млн руб. при сохранении субсидий на лизинг. Новое предложение делает FORLAND ещё доступнее для бизнеса, сохраняя надежность, качество и...",
     "image": "https://truckmix.ru/images/publications/9/3/4/68ca8a960fe8e.png",
     "published_at": "2025-09-17T10:16:54+00:00",
     "domain": "truckmix.ru"
+  },
+  {
+    "source": "source",
+    "title": "Стало известно, какие автомобили будут выпускать под маркой Volga",
+    "link": "https://motor.ru/news/geely-volga-17-09-2025.htm",
+    "summary": "Марку могут возродить при содействии китайской компании Geely, пишет «Коммерсантъ» со ссылкой на свои источники, а производство наладят в Нижнем Новгороде. Известны и кандидаты в первые модели Volga — это седан Emgrand и кроссовер Monjaro. В российском офисе Geely пока эту информацию не комментируют.",
+    "image": "https://motor.ru/imgs/2025/09/17/08/6894739/205c15e069ad3b025b0731de6847e5a8733036d6.webp",
+    "published_at": "2025-09-17T10:03:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Jetour запустил продажи T1. Раскрыта стоимость",
+    "link": "https://motor.ru/news/jetour-t1-17-09-2025.htm",
+    "summary": "«Кроссовер повышенной проходимости» вышел на российский рынок без официальной премьеры. На первых порах T1 будет доступен россиянам только в «топовой» версии с двухлитровым турбомотором и полным приводом. Комплектаций при этом две — Comfort и Luxury, а стоимость стартует с 3,77 миллиона рублей без учета скидок и акций.",
+    "image": "https://motor.ru/imgs/2025/09/17/06/6894708/6464d3231ddabbe357f9d8790df447492585f116.webp",
+    "published_at": "2025-09-17T07:11:23+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Новый Haval H7 вышел на рынок Китая",
+    "link": "https://motor.ru/news/haval-h7-16-09-2025.htm",
+    "summary": "Great Wall запустил продажи новинки — кроссовера Haval Big Dog Plus, известного россиянам как Haval H7. В КНР позиционируется как вторая генерация Big Dog (он же Dargo), и чтобы развести модели, новинке решили добавить приставку Plus. Она предлагается с ДВС либо с подключаемой гибридной установкой и стоит от 135 800 до 183 800 юаней (1,6–2,2 миллиона рублей).",
+    "image": "https://motor.ru/imgs/2025/09/16/14/6894503/04725c685530598276e1e1f0bbc3413a6e2892b6.jpg",
+    "published_at": "2025-09-16T17:23:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Названа новая максимальная ставка утильсбора",
+    "link": "https://motor.ru/news/utilsbor-16-09-2025.htm",
+    "summary": "Минпромторг России собирается снова скорректировать механизм расчета утилизационного сбора. С 1 ноября в расчет пойдет мощность двигателя: льготные ставки оставят только для машин с моторами, выдающими менее 160 лошадиных сил. Согласно новому проекту, максимальный платеж с 2030 года может превысить 10 миллионов рублей, пишут «Известия».",
+    "image": "https://motor.ru/imgs/2025/09/16/10/6894207/f377a458008af2ae5fade435af8c3c45c68115cf.jpg",
+    "published_at": "2025-09-16T12:58:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Toyota показала электробус e-Palette для 17 пассажиров",
+    "link": "https://motor.ru/news/toyota-e-palette-16-09-2025.htm",
+    "summary": "Компания представила в Японии электрический шаттл с размещенным по центру водительским сиденьем, большими раздвижными дверями и полуавтопилотом. Оценили новинку в 29 миллионов иен (16,3 миллиона рублей), что делает ее самой дорогой моделью в линейке Toyota на родине. Привлекательнее для заказчиков она должна стать благодаря щедрым субсидиям Министерства окружающей среды Японии, которые снизят цену почти на 16 миллионов иен.",
+    "image": "https://motor.ru/imgs/2025/09/16/07/6894158/1a858298a77689bac97ba629c018890c3e544431.png",
+    "published_at": "2025-09-16T10:02:00+00:00",
+    "domain": "motor.ru"
   },
   {
     "source": "source",
@@ -235,12 +901,138 @@
   },
   {
     "source": "source",
+    "title": "Новые электрокары Volkswagen задерживаются, включая ID.Golf",
+    "link": "https://motor.ru/news/new-golf-delayed-16-09-2025.htm",
+    "summary": "Немецкий автогигант придерживается планов по расширению «батарейной» линейки, подкрепляя свои намерения концептами — к примеру, недавним [ID.Cross](https://motor.ru/news/vw-id-cross-08-09-2025.htm). Однако, по данным газеты Handelsblatt, не все они доберутся до конвейера в намеченный срок. Так, ID.Roc и ID.Golf не будут представлены в этом десятилетии из-за финансовых проблем концерна.",
+    "image": "https://motor.ru/imgs/2025/09/16/05/6894104/67424a0a2035d1b1b8f38938c72521890c41d849.jpeg",
+    "published_at": "2025-09-16T05:29:56+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Belgee запустила продажи рестайлингового X70. Но пока не в России",
+    "link": "https://motor.ru/news/belgee-x70-15-09-2025.htm",
+    "summary": "Кроссовер с индексом X70 (он же&nbsp;Geely Atlas Pro) белорусской сборки пережил обновление: у него слегка изменился внешний вид, расширился функционал мультимедийной системы, сократилось число комплектаций и выросла цена. Дореформенный X70 можно было купить в Белоруссии за 72 900 местных рублей (1,8 миллиона российских), а теперь минимальна стоимость — 77 900 рублей (1,9 миллиона).",
+    "image": "https://motor.ru/imgs/2025/09/15/14/6893924/3bc0d81782aad057c28dbfe3867ebb9d4c94b4fb.jpg",
+    "published_at": "2025-09-15T17:19:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Omoda C7 теперь собирают в России",
+    "link": "https://motor.ru/news/omoda-c7-russia-15-09-2025.htm",
+    "summary": "Сборку китайского кроссовера наладили на мощностях завода «Автотор» в Калининграде. Как сообщает портал «Китайские автомобили», Одобрение типа транспортного средства (ОТТС) на C7 локальной сборки — документ, необходимый для продажи модели на российском рынке, — уже получено. Однако производство началось раньше: первые C7 сошли с калининградского конвейера в августе.",
+    "image": "https://motor.ru/imgs/2025/09/15/10/6893744/85fb54d170e1d74bb06b406e8245fa83d1a79ba0.jpeg",
+    "published_at": "2025-09-15T15:29:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "В BMW раскрыли причину появления огромных «ноздрей» в дизайне",
+    "link": "https://motor.ru/news/bmw-huge-grille-15-09-2025.htm",
+    "summary": "Недавно баварская марка представила первенца семейства Neue Klasse — электрический кроссовер [iX3](https://motor.ru/news/bmw-ix3-05-09-2025.htm). Он продемонстрировал новый стиль BMW и, в частности, отход от одного из самых критикуемых элементов — увеличенной решетки радиатора. Однако в BMW ни о чем не жалеют, а эпоху гигантских «ноздрей» объясняют трендами на некоторых рынках.",
+    "image": "https://motor.ru/imgs/2025/09/15/06/6893601/70477b88d38190e89640864c49eb36c76a673e2a.jpeg",
+    "published_at": "2025-09-15T12:29:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Стало известно, как в России назовут первый подключаемый гибрид Geely",
+    "link": "https://motor.ru/news/geely-hybrid-15-09-2025.htm",
+    "summary": "Китайская марка готовится вывести на российский рынок новый кроссовер, который станет первой PHEV-моделью в линейке. Автомобиль, известный в Китае как Galaxy Starship 7 EM-i, у нас будет продаваться под индексом EX5 EM-i. Такое имя выбрано, чтобы показать родство с уже известным россиянам электрокаром [Geely EX5](https://motor.ru/news/geely-ex5-prices-20-02-2025.htm), построенным на той же архитектуре.",
+    "image": "https://motor.ru/imgs/2025/09/15/08/6893633/f4dde12504d609206e1da0c0afab510cac97d538.jpg",
+    "published_at": "2025-09-15T09:26:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Solaris обошел популярные китайские марки на российском рынке",
+    "link": "https://motor.ru/news/solaris-sales-15-09-2025.htm",
+    "summary": "С января по август 2025 года в России было продано 17 474 машин Solaris — то есть Hyundai и Kia с другими шильдиками. Результат оказался на 123 процента лучше, чем за тот же период прошлого года, сообщает в своем Telegram глава агентства «Автостат» Сергей Целиков. Впрочем, стоит отметить, что с января по февраль 2024-го Solaris не продавались. Бренд вышел на рынок только в марте.",
+    "image": "https://motor.ru/imgs/2025/09/15/06/6893591/7c2a75813d66cc6e5ad3f950c55c3725f3102fe7.jpg",
+    "published_at": "2025-09-15T06:09:07+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Составлен рейтинг самых покупаемых машин за 3–5 млн рублей в России",
+    "link": "https://motor.ru/news/rating-12-09-2025.htm",
+    "summary": "Составлен рейтинг самых покупаемых машин за 3-5 млн рублей в России. В нынешнем году средняя стоимость новой иномарки не опускалась ниже 3,5 миллиона рублей, а потому ценовой сегмент от трех до пяти миллионов — самый массовый на рынке. К концу августа доля предложений о продаже таких автомобилей выросла с 45 до 47 процентов, подсчитали в «Авто.ру». Наиболее популярный среди них — китайский кроссовер Jaecoo J7.",
+    "image": "https://motor.ru/imgs/2025/09/12/07/6892661/435127ef2b18b1e3acc12e0d9dfd8a9e8898b69e.jpeg",
+    "published_at": "2025-09-12T15:42:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Tenet объявил о старте продаж третьей модели",
+    "link": "https://motor.ru/news/tenet-t8-start-12-09-2025.htm",
+    "summary": "Это кроссовер T8 — самая крупная модель в пока небольшой линейке новой марки, запущенной совместными силами российской компании AGR и китайской Defetoo, и аналог Chery Tiggo 8 Plus. Как и другие Tenet, ее [собирают](https://motor.ru/news/tenet-t8-02-09-2025.htm) на мощностях завода&nbsp;«АГР Холдинг»&nbsp;в Калуге. Стоимость семейного кроссовера, доступного в двух комплектациях с двухлитровым мотором, стартует с 3 540 000 рублей.",
+    "image": "https://motor.ru/imgs/2025/09/12/11/6892754/db1656f4765bab20c1d846c9b38849bcbe3fdd19.jpg",
+    "published_at": "2025-09-12T12:26:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Финал сезона главной супергонки: GT Cup. Гран-При Радио Максимум на «Moscow Raceway»!",
+    "link": "https://motor.ru/news/gt-cup-12-09-2025.htm",
+    "summary": "21 сентября на автодроме «Moscow Raceway» пройдет финал сезона главных соревнований гоночных суперкаров по кольцевым автогонкам – GT Cup. Гран-При Радио Максимум. На территории автодрома состоится гоночный праздник, который подарит всем гостям отдых, полный незабываемых эмоций и соревновательных страстей.",
+    "image": "https://motor.ru/imgs/2025/09/12/10/6892733/cb051ee404bcd9f51d791b95e289ba13af890ac0.jpg",
+    "published_at": "2025-09-12T10:41:16+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Еще одна китайская фирма готовится войти в автопром",
+    "link": "https://motor.ru/news/dreame-12-09-2025.htm",
+    "summary": "Dreame Technology, известная гаджетами для дома, показала рендеры своей первой машины — роскошного электрокара, который собирается показать на выставке бытовой электроники (CES) в США в январе следующего года. Дизайн почти копирует Bugatti, и в Dreame этого не стесняются: китайцы даже подчеркивают, что вдохновлялись гиперкарами европейской марки.",
+    "image": "https://motor.ru/imgs/2025/09/12/06/6892643/b7d3710fcca7bceccb278627b088347f08afff52.png",
+    "published_at": "2025-09-12T09:03:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "В России стали чаще угонять автомобили",
+    "link": "https://motor.ru/news/car-theft-12-09-2025.htm",
+    "summary": "По итогам января-августа 2025 года число автоугонов выросло на шесть процентов. Как и раньше, больше всего угонщиков интересуют Hyundai и Kia — на эти марки приходится по 17 процентов всех происшествий, подсчитали в «Страховом доме ВСК». Третье место занимают Lexus с 14-процентной долей краж.",
+    "image": "https://motor.ru/imgs/2025/09/12/05/6892635/fc6137837d62286f928c7eb595acb14ecae03fd6.webp",
+    "published_at": "2025-09-12T05:56:46+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Voyah представила флагманский кроссовер Taishan",
+    "link": "https://motor.ru/news/voyah-taishan-11-09-2025.htm",
+    "summary": "Это SUV длиной 5,2 метра с шестиместным салоном и гибридной силовой установкой, которому обещаны до 1120 километров хода без дозаправки и подзарядки батареи. На рынке Китая он будет стоить, по оценкам местных СМИ, от 450 000 юаней (5,4 миллиона рублей) и составит конкуренцию полноразмерным [Aito M9](https://motor.ru/news/aito-m5-m9-21-03-2025.htm) и [Zeekr 9X](https://motor.ru/news/zeekr-9x-29-08-2025.htm). Заказы в КНР начнут принимать до конца сентября.",
+    "image": "https://motor.ru/imgs/2025/09/11/15/6892409/f3ed6e10af24d11ba40ad4bf0a96f5c5f5d940bf.jpg",
+    "published_at": "2025-09-11T17:04:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Названы самые востребованные машины с пробегом",
+    "link": "https://motor.ru/news/used-11-09-2025.htm",
+    "summary": "В августе 2025 года лидерами спроса среди отечественных автомобилей оказались Niva Travel, Lada Largus и Lada Granta, подсчитали аналитики «Авто.ру бизнес». В целом быстрее прочих находили новых хозяев машины марок Renault, Hyundai, Skoda, Kia, Volkswagen, Lada, Mercedes-Benz, Audi, Nissan и BMW. Объявления об их продаже оставались активными не более пары дней.",
+    "image": "https://motor.ru/imgs/2025/09/11/07/6892019/ad487579bb3dafbd7a13420d477d8ad931e25943.jpeg",
+    "published_at": "2025-09-11T15:29:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
     "title": "Открытие новой ремзоны Мэйджор Трак Центр и нового дилерского проекта с брендом Форланд",
     "link": "https://truckmix.ru/news/otkritie-novoi-remzoni-meidjor-trak-centr-i-novogo-dilerskogo-proekta-s-brendom-forland",
     "summary": "28 августа в Мэйджор Трак Центр - официальном мультибрендовом дилерском центре по продажам и обслуживанию грузовых автомобилей и спецтехники – было ознаменовано сразу двумя большими событиями: состоялось официальное открытие...",
     "image": "https://truckmix.ru/images/publications/6/8/8/68c2ceeb6d190.jpg",
     "published_at": "2025-09-11T13:30:19+00:00",
     "domain": "truckmix.ru"
+  },
+  {
+    "source": "source",
+    "title": "Более мощный Evolute i-Space обрел рублевый ценник",
+    "link": "https://motor.ru/news/evolute-i-space-11-09-2025.htm",
+    "summary": "Два месяца назад в России [представили](https://motor.ru/news/evolute-i-space-new-07-07-2025.htm) рестайлинговый Evolute i-Space. Кроссовер обновился как снаружи, так и внутри, а также получил улучшенную «начинку». Электромотор стал мощнее, а тяговая батарея — крупнее, благодаря чему заметно вырос запас хода. Стоимость гибридного SUV, который собирают в Липецке, стартует с 2 490 000 рублей с учетом 35-процентной скидки (не более 925 тысяч) по программе господдержки. Семиместный вариант можно купить за 2 590 000 рублей.",
+    "image": "https://motor.ru/imgs/2025/09/11/09/6892104/db44f56b4e03b4992a3bfe681f366326d188da24.jpg",
+    "published_at": "2025-09-11T12:41:00+00:00",
+    "domain": "motor.ru"
   },
   {
     "source": "source",
@@ -253,6 +1045,231 @@
   },
   {
     "source": "source",
+    "title": "Skoda анонсировала новый флагманский кроссовер с семью местами",
+    "link": "https://motor.ru/news/skoda-new-bev-11-09-2025.htm",
+    "summary": "В следующем году марка представит серийную версию концепт-кара [Vision 7S](https://motor.ru/news/skoda-vision-7s-new-logo-31-08-2022.htm), дебютировавшего в 2022 году. Он станет флагманом «батарейной» линейки с семиместным салоном и займет нишу выше Elroq,&nbsp;Enyaq&nbsp;и будущего&nbsp;[Epiq](https://motor.ru/news/skoda-epic-08-09-2025.htm). Предварительная стоимость уже озвучена, и она будет непривычной для Skoda — более 50 тысяч долларов (3,4 миллиона рублей).",
+    "image": "https://motor.ru/imgs/2025/09/11/06/6892008/932d3b796e841f3d5ffd9ee59f105be29248d1a1.jpg",
+    "published_at": "2025-09-11T08:57:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Стало известно, когда Great Wall откроет в России завод автокомпонентов",
+    "link": "https://motor.ru/news/gwm-russia-11-09-2025.htm",
+    "summary": "Китайский концерн GWM, который выпускает под Тулой автомобили Haval, готовится открыть в регионе новый завод. В индустриальном парке «Узловая» в 2026 году начнут производить автокомпоненты для машин марок, входящих в состав GWM. Об этом губернатор Тульской области Дмитрий Миляев в своем Telegram.",
+    "image": "https://motor.ru/imgs/2025/09/11/05/6891997/a18de5696ecc5bb10948357fcdfe5359b8f99036.webp",
+    "published_at": "2025-09-11T06:05:26+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Пиксели, яркий салон и цифровой помощник: Hyundai показал новый Ioniq",
+    "link": "https://motor.ru/news/hyundai-concept-3-10-09-2025.htm",
+    "summary": "На автосалоне в Мюнхене Hyundai представил первый концепт компактного электрокара под суббрендом Ioniq. Уже в следующем году он может переродиться в серийный автомобиль, который будет выглядеть почти идентично. О технической части информации пока нет, но ожидаются двухмоторная установка и запас хода более 600 километров.",
+    "image": "https://motor.ru/imgs/2025/09/10/12/6891609/3f67b36b6e001f9add3db251b2f5123c4ebc873a.png",
+    "published_at": "2025-09-10T16:45:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Belgee раскрыла срок старта продаж нового гибридного кроссовера",
+    "link": "https://motor.ru/news/belgee-x80-phev-10-09-2025.htm",
+    "summary": "До конца сентября в линейке белорусско-китайской марки появится уже четвертая модель — X80 PHEV. Среднеразмерный кроссовер, оборудованный последовательно-параллельной гибридной силовой установкой, представляет собой [Geely Galaxy Starship 7](https://motor.ru/news/geely-galaxy-starship-7-em-i-22-07-2025.htm) с другими шильдиками и будет доступен в единственной комплектации Max. Предзаказ откроют 15 сентября, а «живые» продажи начнутся чуть позже.",
+    "image": "https://motor.ru/imgs/2025/09/10/07/6891503/e707245739ff80bb0150644f7a43e5655938b13c.webp",
+    "published_at": "2025-09-10T12:35:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Шеф-дизайнер Mercedes назвал салон нового концепта Audi устаревшим",
+    "link": "https://motor.ru/news/mb-vs-audi-10-09-2025.htm",
+    "summary": "Audi приготовила для автовыставки в Мюнхене необычный шоу-кар [Concept C](https://motor.ru/news/audi-concept-c-03-09-2025.htm) — родстер с жесткой складной крышей и электрической силовой установкой. В Audi придерживались минимализма, однако подчеркнуто лаконичное оформление интерьера и маленький дисплей не пришлись по вкусу главе дизайна Mercedes-Benz Гордену Вагенеру. По его мнению, салон «выглядит так, будто его разработали в 1995 году».",
+    "image": "https://motor.ru/imgs/2025/09/10/06/6891488/f04b966c8a83c43be1fa1d88b79b174f1c749b53.webp",
+    "published_at": "2025-09-10T09:53:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "GAC назвал стоимость полноприводного GS4",
+    "link": "https://motor.ru/news/gac-gs4-awd-10-09-2025.htm",
+    "summary": "В России стартовали продажи новой версии GS4 AWD, которую предлагают с двухлитровым двигателем, как у флагманского GS8, и в двух уровнях оснащения. Их стоимость — 3 499 000 и 3 649 000 рублей соответственно без учета акций. Для сравнения, моноприводный вариант GS4 без скидок оценивается в 2 999 000 рублей.",
+    "image": "https://motor.ru/imgs/2025/09/10/05/6891474/02a246bf476346961d58846465c44b79c303015f.jpg",
+    "published_at": "2025-09-10T06:20:43+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Кроссовер Belgee обошел прочие иномарки на рынке России",
+    "link": "https://motor.ru/news/belgee-09-09-2025.htm",
+    "summary": "На неделе с 1 по 7 сентября модель белорусско-китайской марки впервые выбилась в лидеры российских продаж новых иномарок. За 36-ю неделю кроссовер Belgee X50 (он же дорестайлинговый Geely Coolray) купили 1399 россиян, подсчитали в аналитическом агентстве «Автостат». Таким образом, в общем рейтинге новых легковушек он уступил только бестселлеру АвтоВАЗа — Lada Granta.",
+    "image": "https://motor.ru/imgs/2025/09/09/09/6891107/07111b9a5a64594382478617ec4cfba401b894e6.png",
+    "published_at": "2025-09-09T16:21:33+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "16 августа в НКП Русь в Подмосковье прошел фестиваль ЖиФест",
+    "link": "https://motor.ru/news/vaz-fest-09-09-2025.htm",
+    "summary": "Пять тысяч человек окунулись в море драйва, неожиданных событий и ярких побед на ЖиФесте! Многие из них приехали колоннами из пятидесяти регионов страны под руководством региональных представителей.&nbsp;В рамках фестиваля ЖиФест прошел 3-й этап чемпионата по дрифту на мокром асфальте Wet Drift Series. Победу одержал Кирилл Шолдан, а Даниил Бадаев получил заслуженные 100 из 100 баллов в квалификации.",
+    "image": "https://motor.ru/imgs/2025/09/09/16/6891367/375bf7e80680c93dad26e382dd71c5ca155bac34.jpg",
+    "published_at": "2025-09-09T16:20:37+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "11 лет эмоций и драйва: Сириус Автодром приглашает на фестиваль!",
+    "link": "https://motor.ru/news/sirius-avtodrom-09-09-2025.htm",
+    "summary": "Федеральная территория «Сириус», Сириус Автодром, 20 сентября 2025 года отмечает свой одиннадцатый день рождения! В этот день гостей ждет яркая и насыщенная праздничная программа, которая объединит автоспортивные традиции, искусство, современную музыку, науку и развлечения для всей семьи.",
+    "image": "https://motor.ru/imgs/2025/09/09/16/6891359/26142bb2a0febf73231b8fab5c2e5af0a0035921.jpg",
+    "published_at": "2025-09-09T16:10:04+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Lexus IS пережил рестайлинг",
+    "link": "https://motor.ru/news/lexus-is-09-09-2025.htm",
+    "summary": "В Японии дебютировала обновленная версия четырехдверки IS, которой слегка подправили внешность, перенастроили рулевое управление и добавили новых функций. При этом будут предложены только две модификации — IS 300h и IS 350. Продажи стартуют в начале 2026 года.",
+    "image": "https://motor.ru/imgs/2025/09/09/08/6891074/b5300bc40baf9d344b689622073b4fcff65dca99.jpg",
+    "published_at": "2025-09-09T14:59:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Казань принимает топовые гонки страны",
+    "link": "https://motor.ru/lab/smp-rskg-kzn-2-preview.htm",
+    "summary": "13-14 сентября трасса в столице Татарстана во второй раз в этом году примет заезды Российской серии кольцевых гонок. И на этот раз всё будет особенно серьезно: сезон вступил в решающую фазу...",
+    "image": "https://motor.ru/imgs/2025/09/09/12/6891225/c924dea4b8d55e0212e3128152db555e56e7b8b7.jpg",
+    "published_at": "2025-09-09T13:43:27+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Хэтчбек Renault Clio сменил поколение",
+    "link": "https://motor.ru/news/renault-clio-09-09-2025.htm",
+    "summary": "На автосалоне в Мюнхене французская марка представила Clio нового, уже шестого поколения. Хэтч с 35-летней историей построен на платформе CMF-B, как и модель [предыдущей генерации](https://motor.ru/news/newclio-29-01-2019.htm), а при оформлении внешнего вида дизайнеры Renault обращались к прошлогоднему концепту [Emblème](https://motor.ru/news/renault-embleme-04-10-2024.htm). На старте будут доступны только гибрид и ДВС, но полностью электрический Clio EV уже в разработке.",
+    "image": "https://motor.ru/imgs/2025/09/09/06/6891016/ae919734a13c867bd0f84f35869c45bdabdebb03.jpg",
+    "published_at": "2025-09-09T11:45:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "В России хотят наладить производство автомобилей Changan",
+    "link": "https://motor.ru/news/changan-09-09-2025.htm",
+    "summary": "Китайская компания нацелена на локализацию сборки в России и уже провела все необходимые переговоры для старта производства, сказал исполнительный директор ООО «Чанъань Моторс Рус» Александр Кулагин в интервью «Интерфаксу». Кроме того, он поделился планами на расширение местной модельной линейки.",
+    "image": "https://motor.ru/imgs/2025/09/09/05/6891001/5c09b0c63f6cb96e35116c5116e1ad06ad7b8b73.jpg",
+    "published_at": "2025-09-09T09:46:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Skoda представила концепт Vision O, который переродится в Octavia",
+    "link": "https://motor.ru/news/skoda-vision-o-09-09-2025.htm",
+    "summary": "Skoda готовится подвергнуть революции свой бестселлер Octavia: через пару лет модель станет полностью электрической и породнится с будущим Volkswagen Golf. На ее внешность и наполнение проливает свет универсал Vision O с распашными дверями, который чехи привезли на автосалон в Мюнхене.",
+    "image": "https://motor.ru/imgs/2025/09/09/05/6890994/8a7b0318ab5cc99652dc38d34f4316ab25c7dcd7.jpg",
+    "published_at": "2025-09-09T06:00:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Объявлен отзыв 23 тысяч автомобилей Lada Niva",
+    "link": "https://motor.ru/news/lada-niva-recall-08-09-2025.htm",
+    "summary": "Федеральное агентство по техническому регулированию и метрологии (Росстандарт) согласовало отзывную кампанию, под которую подпадают более 14 тысяч внедорожников Lada Niva Travel и почти девять тысяч Niva Legend. Первую в рамках отзыва оборудуют блокомуправления системой вызова экстренных оперативных служб (СВЭОС), а классической «Ниве» помимо него установят блок управления системой надувных подушек безопасности (СНПБ).",
+    "image": "https://motor.ru/imgs/2025/09/08/14/6890830/32c73ad829199f18316ec792979480df38f865eb.jpeg",
+    "published_at": "2025-09-08T16:50:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Представлен Skoda Epic, который будет стоить как «топливный» Kamiq",
+    "link": "https://motor.ru/news/skoda-epic-08-09-2025.htm",
+    "summary": "Volkswagen AG в Мюнхен привезет не только [ID.Cross](https://motor.ru/news/vw-id-cross-08-09-2025.htm): еще одной важной премьерой станет Epic — новый маленький электрокроссовер Skoda в почти серийном варианте, который первым «полностью воплотит» дизайнерский язык Modern Solid. Чешская марка обещает, что по цене он будет сравним с [Kamiq](https://motor.ru/news/skoda-kamiq-kz-12-01-2025.htm), то есть будет стоить около 25 тысяч евро (2,4 миллиона рублей).",
+    "image": "https://motor.ru/imgs/2025/09/08/08/6890615/123a2d8e26226d4b24229208c9e65ab3aa623e3d.jpg",
+    "published_at": "2025-09-08T15:14:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Mercedes-Benz представил «батарейный» GLC",
+    "link": "https://motor.ru/news/mb-glc-eq-08-09-2025.htm",
+    "summary": "Компания рассекретила новый электрокроссовер, который привезет на автосалон в Мюнхене. Как и собирался, бренд отказался [от индекса EQ](https://motor.ru/news/mb-eq-12-01-2023.htm): новинка названа GLC, но с приставкой with EQ Technology. У нее крупная заглушка спереди, батарея, обеспечивающая до 713 пробега, 489-сильная установка и гигантский экран Hyperscreen в салоне. Она придет на смену непопулярному EQC и будет продаваться параллельно с топливным GLC.",
+    "image": "https://motor.ru/imgs/2025/09/08/08/6890572/07641ff180ccc85a8479dd425f4dbff6274fddfb.jpg",
+    "published_at": "2025-09-08T12:09:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Стало известно, когда возродится «Волга»",
+    "link": "https://motor.ru/news/volga-revival-08-09-2025.htm",
+    "summary": "Больше года назад, в мае 2024-го, в России представили прототипы новых автомобилей под маркой Volga. Это были два кроссовера и седан, в которых распознали модели китайского бренда Changan. Однако проект был [поставлен на паузу](https://motor.ru/news/volga-reborn-27-05-2025.htm), так и не дойдя до этапа производства. Теперь же стало известно, что воскрешением советской марки займется ГАЗ. По словам вице-премьера Дениса Мантурова, первые «Волги» планируется поставить на конвейер к весне 2026 года.",
+    "image": "https://motor.ru/imgs/2025/09/08/05/6890543/e0b11de134fb23aac9d44555a909f93831e031ad.webp",
+    "published_at": "2025-09-08T09:07:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Volkswagen представил новый электрический кроссовер ID.Cross",
+    "link": "https://motor.ru/news/vw-id-cross-08-09-2025.htm",
+    "summary": "За день до открытия автовыставки &nbsp;IAA&nbsp;Mobility&nbsp;в Мюнхене Volkswagen рассекретил новинку — очередного члена семейства ID. Пока это только концепт, а серийный вариант обещают представить летом 2026 года. Продаваться он будет параллельно с топливным [T-Cross](https://motor.ru/news/t-cross-05-07-2023.htm), с которым, однако, у него мало общего: ID.Cross построен на платформе MEB+ — обновленной версии MEB для новых электрокаров.",
+    "image": "https://motor.ru/imgs/2025/09/08/05/6890534/d13942baa340c5a899e526584478eb0d82b8fc7f.jpg",
+    "published_at": "2025-09-08T05:43:15+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "BMW показала электрокроссовер iX3 с запасом хода 805 километров",
+    "link": "https://motor.ru/news/bmw-ix3-05-09-2025.htm",
+    "summary": "Баварская марка открыла новую главу в своей истории, представив первенца семейства Neue Klasse. Это новая генерация кроссовера iX3, которая «примерила» свежую стилистику BMW, получила двухмоторную силовую установку, новейшие технические наработки и передовую батарею, обеспечивающую до 805 километров хода без подзарядки. Прогнозируемая цена — до 60 тысяч долларов (4,9 миллиона в рублях), что выгодно выделит новинку на фоне конкурентов.",
+    "image": "https://motor.ru/imgs/2025/09/05/12/6889738/d5e503ff92df6c491b2f099101a1a3d017c9a2af.jpg",
+    "published_at": "2025-09-05T17:07:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Mercedes-Benz G-Class получит новую модификацию: первый тизер",
+    "link": "https://motor.ru/news/mb-g-class-05-09-2025.htm",
+    "summary": "Mercedes-Benz, недавно признавший [провал](https://motor.ru/news/mb-g580-eq-07-06-2025.htm) электрического «Гелика», занялся расширением линейки топливного. Производитель опубликовал затемненный тизер с силуэтом Gelandewagen, у которого складная крыша, похоже, начинается сразу за передней оконной стойкой. Дату премьеры Mercedes-Benz не озвучил. Она может состояться в рамках мюнхенского автосалона, который стартует уже на следующей неделе.",
+    "image": "https://motor.ru/imgs/2025/09/05/07/6889538/bd6f3693cab9a45ef7bfdeaeb2aea7e64746c32e.webp",
+    "published_at": "2025-09-05T13:38:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Россия и Китай взаимно признают водительские права",
+    "link": "https://motor.ru/news/china-russia-05-09-2025.htm",
+    "summary": "Страны работают над этим, сообщает ТАСС со ссылкой на главу Минтранса РФ Андрея Никитина, однако конкретных сроков пока нет. Если российские права признают в Китае и наоборот, граждане на легковых автомобилях смогут беспрепятственно совершать индивидуальные поездки через границу.",
+    "image": "https://motor.ru/imgs/2025/09/05/06/6889534/720d0adf4df2c2df662f081324c3cad708b1950c.jpg",
+    "published_at": "2025-09-05T10:12:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "GAC рассказал, какими будут комплектации полноприводного GS4",
+    "link": "https://motor.ru/news/gac-gs4-05-09-2025.htm",
+    "summary": "Весной 2025 года китайский бренд привез в Россию семейный SUV GS4. Пока он доступен исключительно с передним приводом, но скоро дебютирует AWD-версия с двухлитровым мотором, которую предложат в двух комплектациях — GB AWD и GL AWD. Обеим обещано богатое оснащение, но цены GAC пока не раскрывает. За переднеприводный вариант просят 2 999 000 рублей.",
+    "image": "https://motor.ru/imgs/2025/09/05/06/6889526/a638fe6f1fef1f676d6e685ba593648b54c0fedb.jpg",
+    "published_at": "2025-09-05T06:26:04+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Автомобили Bestune стали доступнее для россиян",
+    "link": "https://motor.ru/news/bestune-discounts-04-09-2025.htm",
+    "summary": "Марка Bestune, входящая в китайский госконцерн FAW, объявила об увеличении скидок в России. Три модели —  кроссоверы Т90 и Т55, а также новый лифтбек В70 — теперь предлагают с прямой скидкой до 700 тысяч рублей. Еще больше можно сэкономить, если оформить кредит и сдать старую машину в трейд-ин — это увеличит выгоду еще на 150 тысяч рублей.",
+    "image": "https://motor.ru/imgs/2025/09/04/12/6889222/93d91af12468b3acb3e2469b5d2c06d4b855561b.webp",
+    "published_at": "2025-09-04T16:44:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Skoda показала последний тизер предвестника новой Octavia",
+    "link": "https://motor.ru/news/skoda-vision-o-04-09-2025.htm",
+    "summary": "Skoda показала последний тизер предвестника новой Octavia. Чешская марка завершила тизерную кампанию, предваряющую дебют концептуального универсала Vision O. На последнем тизере она показала дизайнерские скетчи, проливающие свет на новинку, которая, как ожидается, переродится в электрическую Octavia нового поколения. Полностью Vision O рассекретят онлайн 8 сентября, а вживую покажут на автосалоне в Мюнхене 9-го.",
+    "image": "https://motor.ru/imgs/2025/09/04/11/6889153/a922bbea2f5259fcc5e462a6beb870d0c1664f3c.png",
+    "published_at": "2025-09-04T15:16:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
     "title": "Опубликованы фотографии АвтоКластера",
     "link": "https://comautotrans.moscow/tpost/scag7d5r61-opublikovani-fotografii-avtoklastera",
     "summary": "",
@@ -262,12 +1279,39 @@
   },
   {
     "source": "source",
+    "title": "Спрос на «Москвичи» упал в августе на 42 процента",
+    "link": "https://motor.ru/news/moskvich-sales-04-09-2025.htm",
+    "summary": "Столичному заводу удалось реализовать в августе только 1124 автомобиля возрожденной марки. В августе 2024-го, для сравнения, было продано примерно 1,9 тысячи единиц. Результат июля 2025 года — 1268 автомобилей. То есть за месяц продажи «Москвичей» снизились на 13 процентов.",
+    "image": "https://motor.ru/imgs/2025/09/04/11/6889167/b12b8923d6e9b30af31164b4bebefcc309e1de27.png",
+    "published_at": "2025-09-04T12:03:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
+    "title": "Раскрыта дата российского дебюта седана Belgee",
+    "link": "https://motor.ru/news/belgee-s50-04-09-2025.htm",
+    "summary": "Третья модель белорусско-китайской марки — седан S50 — выйдет на российский рынок до конца сентября, сообщает портал Quto со ссылкой на представителей Belgee. S50 представляет собой Geely Emgrand с другими шильдиками, выпускаемый заводом «БелДжи» под Минском. В российском модельном ряду он присоединится к кроссоверам X50 (он же Coolray) и&nbsp;X70 (Atlas Pro).",
+    "image": "https://motor.ru/imgs/2025/09/04/05/6888998/6db325289c22d29e4aa137109cb98aaada0857ab.png",
+    "published_at": "2025-09-04T08:54:00+00:00",
+    "domain": "motor.ru"
+  },
+  {
+    "source": "source",
     "title": "Завершился АвтоКластер отраслевых выставок",
     "link": "https://comautotrans.moscow/tpost/fcy8dxgy31-zavershilsya-avtoklaster-otraslevih-vist",
     "summary": "",
     "image": "https://static.tildacdn.com/tild3462-3264-4135-a666-356461366438/CAT_780x600.png",
     "published_at": "2025-08-22T13:15:00+00:00",
     "domain": "comautotrans.moscow"
+  },
+  {
+    "source": "source",
+    "title": "Китайская Shacman согласовала с Росстандартом отзыв неисправных грузовиков",
+    "link": "https://www.vedomosti.ru/auto/articles/2025/08/22/1133397-kitaiskaya-shacman-soglasovala-s-rosstandartom-otziv-gruzovikov",
+    "summary": "За компанией могут последовать и другие автобренды из КНР, попавшие под ограничения ведомства",
+    "image": "https://cdn.vdmsti.ru/image/2025/6h/1ej48z/normal-1thk.jpg",
+    "published_at": "2025-08-21T21:14:47+00:00",
+    "domain": "www.vedomosti.ru"
   },
   {
     "source": "source",
@@ -442,6 +1486,15 @@
   },
   {
     "source": "source",
+    "title": "Компания президента РоАД Подщеколдина остановила выпуск фургонов",
+    "link": "https://www.vedomosti.ru/auto/articles/2025/08/12/1130891-kompaniya-prezidenta-road-ostanovila-vipusk-furgonov",
+    "summary": "Слабый рынок и высокая ключевая ставка делают такой бизнес нерентабельным",
+    "image": "https://cdn.vdmsti.ru/image/2025/67/1dhidl/normal-1s4u.jpg",
+    "published_at": "2025-08-11T21:28:52+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
     "title": "Закончились слоты на первый день тест-драйва",
     "link": "https://comautotrans.moscow/tpost/o3i41mccm1-zakonchilis-sloti-na-pervii-den-test-dra",
     "summary": "",
@@ -502,6 +1555,15 @@
     "image": "https://static.tildacdn.com/tild3066-3164-4036-b535-336464373832/DSC05607_2.png",
     "published_at": "2025-07-31T12:50:00+00:00",
     "domain": "comautotrans.moscow"
+  },
+  {
+    "source": "source",
+    "title": "Росстандарт запретил продажу китайских грузовиков четырех марок",
+    "link": "https://www.vedomosti.ru/auto/articles/2025/07/31/1128153-rosstandart-zapretil-prodazhu-kitaiskih-gruzovikov-chetireh-marok",
+    "summary": "На фоне резкого спада на рынке ситуация не будет критичной для транспортных компаний",
+    "image": "https://cdn.vdmsti.ru/image/2025/5v/1d8loe/normal-1rta.jpg",
+    "published_at": "2025-07-30T21:46:07+00:00",
+    "domain": "www.vedomosti.ru"
   },
   {
     "source": "source",
@@ -595,6 +1657,24 @@
   },
   {
     "source": "source",
+    "title": "Продажи тяжелых грузовиков в первом полугодии снизились более чем вдвое",
+    "link": "https://www.vedomosti.ru/auto/articles/2025/07/07/1122462-prodazhi-tyazhelih-gruzovikov-snizilis",
+    "summary": "Основные потребители не спешат покупать технику в условиях замедления экономики",
+    "image": "https://cdn.vdmsti.ru/image/2025/58/3re8y/normal-4vh.jpg",
+    "published_at": "2025-07-06T22:45:46+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "На Чукотке запустят эксперимент по использованию беспилотных самосвалов",
+    "link": "https://www.vedomosti.ru/technology/articles/2025/07/03/1121718-na-chukotke-zapustyat-eksperiment-po-ispolzovaniyu-bespilotnih-samosvalov",
+    "summary": "На крупнейшем за Полярным кругом Баимском ГОКе протестируют 50 автономных грузовиков",
+    "image": "https://cdn.vdmsti.ru/image/2025/53/1dkpgp/normal-1s8z.jpg",
+    "published_at": "2025-07-02T23:46:21+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
     "title": "Главные темы развития транспортной отрасли сегодня",
     "link": "https://comautotrans.moscow/tpost/pjosvr6le1-glavnie-temi-razvitiya-transportnoi-otra",
     "summary": "",
@@ -649,6 +1729,24 @@
   },
   {
     "source": "source",
+    "title": "«АвтоВАЗ» планирует выделить коммерческие автомобили в отдельный бренд",
+    "link": "https://www.vedomosti.ru/auto/articles/2025/01/15/1086446-avtovaz-planiruet-videlit-kommercheskie-avtomobili-v-otdelnii-brend",
+    "summary": "Компания намерена наращивать продажи в этом сегменте",
+    "image": "https://cdn.vdmsti.ru/image/2025/f/185eue/normal-1l7w.jpg",
+    "published_at": "2025-01-15T17:37:14+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Wildberries запустила производство автомобильных полуприцепов",
+    "link": "https://www.vedomosti.ru/business/articles/2024/12/12/1080864-wildberries-zapustila-proizvodstvo-avtomobilnih-polupritsepov",
+    "summary": "Компания экономит на торговой наценке продавцов техники, но может столкнуться с проблемой качества",
+    "image": "https://cdn.vdmsti.ru/image/2024/9m/1d1fwt/normal-1rk0.jpg",
+    "published_at": "2024-12-11T22:40:46+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
     "title": "Эксклюзивная концепция, меняющая правила игры",
     "link": "https://comautotrans.moscow/tpost/p8p6syy2s1-eksklyuzivnaya-kontseptsiya-menyayuschay",
     "summary": "Впервые в России классический формат статичной экспозиции будет объединен с динамичным тест-драйвом и ярким транспортным шоу",
@@ -673,6 +1771,15 @@
     "image": "https://static.tildacdn.com/tild3632-3135-4064-a562-393532393232/1_-_.png",
     "published_at": "2024-10-20T21:13:00+00:00",
     "domain": "comautotrans.moscow"
+  },
+  {
+    "source": "source",
+    "title": "Парк автобусов в России вырос на 10% за пять лет",
+    "link": "https://www.vedomosti.ru/business/articles/2024/07/08/1048657-avtobusov-viros-10",
+    "summary": "Возраст транспорта поднялся на 3% до 17,5 года, но рост производства должен замедлить старение",
+    "image": "https://cdn.vdmsti.ru/image/2024/5a/wbrj7/normal-15w8.jpg",
+    "published_at": "2024-07-08T18:15:49+00:00",
+    "domain": "www.vedomosti.ru"
   },
   {
     "source": "source",
@@ -766,6 +1873,24 @@
   },
   {
     "source": "source",
+    "title": "Производители автоцистерн просят отменить международную сертификацию",
+    "link": "https://www.vedomosti.ru/business/articles/2023/12/13/1010735-proizvoditeli-avtotsistern-prosyat-otmenit-mezhdunarodnuyu-sertifikatsiyu",
+    "summary": "Но сейчас к этому не готовы ни бизнес, ни государство",
+    "image": "https://cdn.vdmsti.ru/image/2023/9m/1c4dr7/normal-1qd7.jpg",
+    "published_at": "2023-12-12T21:22:00+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Почему таксисты просят не заставлять их покупать автомобили российской сборки",
+    "link": "https://www.vedomosti.ru/auto/articles/2023/07/31/987632-pochemu-taksisti-prosyat-ne-zastavlyat-ih-pokupat-avtomobili-rossiiskoi-sborki",
+    "summary": "Это может привести к росту цен на машины и перевозки",
+    "image": "https://cdn.vdmsti.ru/image/2023/5v/1cenfk/normal-1qqi.jpg",
+    "published_at": "2023-07-30T21:22:46+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
     "title": "Стоимость эксплуатации автомобиля",
     "link": "https://sbsgroup-rus.ru/tpost/b5doea5p31-stoimost-ekspluatatsii-avtomobilya",
     "summary": "Как рассчитать стоимость использования автомобиля на 1 км пробега?",
@@ -835,5 +1960,1202 @@
     "image": "https://static.tildacdn.com/tild3931-3936-4532-b032-343933393534/_.jpg",
     "published_at": "2022-01-27T11:30:00+00:00",
     "domain": "sbsgroup-rus.ru"
+  },
+  {
+    "source": "source",
+    "title": "Самоуправляемые автомобили будут доставлять онлайн-заказы в Калифорнии",
+    "link": "https://www.vedomosti.ru/auto/articles/2020/04/18/828364-avtomobili",
+    "summary": "Китайский стартап запустил сервис на фоне пандемии коронавируса",
+    "image": "https://cdn.vdmsti.ru/image/2020/30/144tsn/normal-1g0h.jpg",
+    "published_at": "2020-04-18T12:30:07+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Машины сбились с пути",
+    "link": "https://www.vedomosti.ru/auto/articles/2020/03/19/825679-mashini-sbilis",
+    "summary": "Эксперты не исключают падения продаж коммерческих автомобилей в этом году",
+    "image": "https://cdn.vdmsti.ru/image/2020/27/10kig4/normal-1be7.jpg",
+    "published_at": "2020-03-19T16:18:05+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Франция переходит на электропривод",
+    "link": "https://www.vedomosti.ru/auto/articles/2020/03/19/825682-frantsiya-perehodit",
+    "summary": "Крупнейший в Европе рынок коммерческих автомобилей увеличивает долю экологичных машин",
+    "image": "https://cdn.vdmsti.ru/image/2020/27/10n6so/normal-1bho.jpg",
+    "published_at": "2020-03-19T16:08:12+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Продажи грузовиков в России снизились после трех лет роста",
+    "link": "https://www.vedomosti.ru/auto/articles/2020/01/14/820580-prodazhi-gruzovikov-snizilis",
+    "summary": "Рынок легких коммерческих автомобилей сумел удержаться на уровне 2018 года",
+    "image": "https://cdn.vdmsti.ru/image/2020/e/174x1w/normal-1jwl.jpg",
+    "published_at": "2020-01-14T17:31:37+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» выпустит грузовики с бортовой системой от «Вымпелкома»",
+    "link": "https://www.vedomosti.ru/technology/articles/2019/11/12/816065-kamaz",
+    "summary": "Она будет следить за состоянием водителя и груза",
+    "image": "https://cdn.vdmsti.ru/image/2019/8s/w9z9u/normal-15ty.jpg",
+    "published_at": "2019-11-12T12:25:52+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Понемногу люди начинают задумываться об экологии",
+    "link": "https://www.vedomosti.ru/auto/characters/2019/10/15/813824-zadumivatsya-ekologii",
+    "summary": "Гендиректор Mercedes-Benz Vans в России – о рынке LCV и пикапов, приостановке выпуска Sprinter Classic и сотрудничестве с кузовостроителями",
+    "image": "https://cdn.vdmsti.ru/image/2019/80/1cpb4e/normal-1r4a.jpg",
+    "published_at": "2019-10-15T21:12:02+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Продажи коммерческого транспорта по итогам года упадут",
+    "link": "https://www.vedomosti.ru/auto/articles/2019/10/15/813823-prodazhi-upadut",
+    "summary": "Ожидаемый рост продаж в оставшиеся месяцы не сможет компенсировать падение в первом полугодии, считают эксперты и участники рынка",
+    "image": "https://cdn.vdmsti.ru/image/2019/80/1cm549/normal-1r06.jpg",
+    "published_at": "2019-10-15T19:54:23+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Группа ГАЗ разработала новое поколение легкого грузовика «Газель»",
+    "link": "https://www.vedomosti.ru/auto/articles/2019/09/02/810272-novoe-pokolenie-gazel",
+    "summary": "Автомобиль сможет оснащаться электродвигателем, в продаже он появится в 2021 году",
+    "image": "https://cdn.vdmsti.ru/image/2019/6u/n5x38/normal-u0s.jpg",
+    "published_at": "2019-09-02T21:07:52+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Mail.ru Group с партнером купила каршеринг YouDrive",
+    "link": "https://www.vedomosti.ru/business/articles/2019/08/22/809378-mailru-group",
+    "summary": "Сервис войдет в совместное предприятие со Сбербанком",
+    "image": "https://cdn.vdmsti.ru/image/2019/6i/nkg1u/normal-ujm.jpg",
+    "published_at": "2019-08-22T08:00:11+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Бюджет может выделить 25 млрд рублей на замену старых машин",
+    "link": "https://www.vedomosti.ru/auto/articles/2019/06/19/804601-25-mlrd-zamenu",
+    "summary": "Экологически вредных коммерческих автомобилей в России почти треть парка",
+    "image": "https://cdn.vdmsti.ru/image/2019/4q/1di37q/normal-1s5l.jpg",
+    "published_at": "2019-06-19T21:44:15+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Завод Volvo Trucks в Калуге может получить преференции при доступе к господдержке",
+    "link": "https://www.vedomosti.ru/auto/articles/2019/03/26/797446-zavod-volvo-gospodderzhke",
+    "summary": "Требования по локализации производства к предприятию будут смягчены",
+    "image": "https://cdn.vdmsti.ru/image/2019/2d/17goqi/normal-1kbv.jpg",
+    "published_at": "2019-03-26T17:17:34+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Заместитель гендиректора «Камаза»: XXI век точно станет веком систем общественного транспорта",
+    "link": "https://www.vedomosti.ru/auto/characters/2019/03/11/796108-xxi-vek-tochno-stanet-vekom-sistem-obschestvennogo-transporta",
+    "summary": "Николай Пронин рассказывает, как «Камаз» стал поставщиком электробусов для Москвы, что думает о критиках нового вида транспорта и как собирается развивать его производство",
+    "image": "https://cdn.vdmsti.ru/image/2019/1y/166i7c/normal-1io0.jpg",
+    "published_at": "2019-03-11T19:53:38+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Продажи коммерческого транспорта в 2019 году могут уйти в минус",
+    "link": "https://www.vedomosti.ru/auto/articles/2019/03/11/796119-dfadsfasf",
+    "summary": "Рост российского рынка коммерческих автомобилей продолжался три года подряд. Он восстанавливается после провальных 2013–2015 годов, но так и не достиг пиковых показателей 2012 года",
+    "image": "https://cdn.vdmsti.ru/image/2019/1y/14ryv4/normal-1guh.jpg",
+    "published_at": "2019-03-11T19:52:43+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Муниципалитеты не смогут использовать лизинг для покупки иностранной техники",
+    "link": "https://www.vedomosti.ru/business/articles/2019/02/22/794829-tehniki",
+    "summary": "Это будет наиболее чувствительно для сегмента коммунальной техники",
+    "image": "https://cdn.vdmsti.ru/image/2019/1g/1e2ceg/normal-1svu.jpg",
+    "published_at": "2019-02-21T21:04:47+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Почему московские таксисты недовольны агрегаторами, несмотря на взрывной рост перевозок",
+    "link": "https://www.vedomosti.ru/business/articles/2019/01/28/792639-rost",
+    "summary": "Агрегаторы не только приводят клиентов, но еще диктуют цены и взимают существенные комиссионные",
+    "image": "https://cdn.vdmsti.ru/image/2019/s/1czl55/normal-1rhm.jpg",
+    "published_at": "2019-01-28T20:36:41+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Москва закупила еще 100 электробусов",
+    "link": "https://www.vedomosti.ru/business/articles/2019/01/25/792488-100-elektrobusov",
+    "summary": "Три контракта на новый вид транспорта обойдутся городу почти в 20 млрд рублей",
+    "image": "https://cdn.vdmsti.ru/image/2019/p/15nuiu/normal-1hzs.jpg",
+    "published_at": "2019-01-25T16:29:17+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Чиновники хотят оснащать новые грузовики специальными датчиками с 2024 года",
+    "link": "https://www.vedomosti.ru/business/articles/2018/12/23/790087-novie-gruzoviki-spetsialnimi-datchikami",
+    "summary": "Усиление контроля за весом и габаритом грузовиков приведет и к усилению нагрузки на бизнес, опасаются перевозчики",
+    "image": "https://cdn.vdmsti.ru/image/2018/9x/1fchio/normal-1ujn.jpg",
+    "published_at": "2018-12-23T21:06:39+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Volkswagen представил концепт компактного пикапа",
+    "link": "https://www.vedomosti.ru/auto/galleries/2018/11/07/785707-volkswagen-tarok",
+    "summary": "Серийная версия Tarok будет выпускаться для Бразилии и может появиться на других рынках",
+    "image": "https://cdn.vdmsti.ru/image/2018/8m/1b3vxr/normal-1p1w.jpg",
+    "published_at": "2018-11-06T23:18:44+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Группа ГАЗ пытается освободиться от санкций США",
+    "link": "https://www.vedomosti.ru/business/articles/2018/10/21/784235-gruppa-gaz-pitaetsya-osvoboditsya-ot-sanktsii-ssha",
+    "summary": "Но для нее попадание в санкционный список в отличие от другой компании Дерипаски – UC Rusal далеко не так драматично",
+    "image": "https://cdn.vdmsti.ru/image/2018/86/1cjyxk/normal-1qxd.jpg",
+    "published_at": "2018-10-21T20:07:04+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "CarPrice начала торговать грузовиками",
+    "link": "https://www.vedomosti.ru/auto/articles/2018/10/12/783556-carprice",
+    "summary": "Крупнейший в России онлайн-аукцион машин с пробегом надеется, что новый проект поможет ему стать прибыльным",
+    "image": "https://cdn.vdmsti.ru/image/2018/7x/z27be/normal-19ft.jpg",
+    "published_at": "2018-10-12T13:31:49+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» будет выпускать двигатели для судов",
+    "link": "https://www.vedomosti.ru/business/articles/2018/09/11/780578-kamaz",
+    "summary": "Партнером в проекте станет китайская Weichai Power Co.",
+    "image": "https://cdn.vdmsti.ru/image/2018/72/106mxa/normal-1aw8.jpg",
+    "published_at": "2018-09-11T13:59:35+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Москва будет закупать по 800 электробусов в год",
+    "link": "https://www.vedomosti.ru/business/articles/2018/09/04/779901-moskva-elektrobusov",
+    "summary": "Сейчас каждый автобус на электротяге обходится городу более чем в 30 млн рублей",
+    "image": "https://cdn.vdmsti.ru/image/2018/6v/1d0ly3/normal-1rix.jpg",
+    "published_at": "2018-09-04T17:32:09+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "УАЗ показал прототип первого в России гибридного коммерческого автомобиля",
+    "link": "https://www.vedomosti.ru/auto/galleries/2018/07/09/774981-uaz-pokazal-gibridnogo-legkovogo-avtomobilya",
+    "summary": "Он сделан на базе серийной модели «УАЗ профи»",
+    "image": "https://cdn.vdmsti.ru/image/2018/5a/wvjlz/normal-16lw.jpg",
+    "published_at": "2018-07-09T12:32:19+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Каботажный континент",
+    "link": "https://www.vedomosti.ru/newspaper/articles/2018/05/30/771221-kabotazhnii-kontinent",
+    "summary": "Европейский рынок автомобильных грузоперевозок непрерывно растет с 2014 года",
+    "image": "https://cdn.vdmsti.ru/image/2018/46/1iggw/normal-1yl.jpg",
+    "published_at": "2018-05-29T22:50:56+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Московские власти закупят по 100 электробусов у «Камаза» и ГАЗа",
+    "link": "https://www.vedomosti.ru/business/articles/2018/05/04/768659-moskovskie-vlasti-zakupyat-elektrobusov",
+    "summary": "Они победили в конкурсах общей стоимостью 12,7 млрд рублей",
+    "image": "https://cdn.vdmsti.ru/image/2018/3h/4qg2x/normal-64w.jpg",
+    "published_at": "2018-05-04T19:34:12+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» возвращается к докризисной прибыли",
+    "link": "https://www.vedomosti.ru/auto/articles/2018/05/04/768505-kamaz-dokrizisnoi-pribili",
+    "summary": "За год она выросла в 5 раз за счет роста рынка и продаж более дорогих автомобилей",
+    "image": "https://cdn.vdmsti.ru/image/2018/3g/2bd6s/normal-301.jpg",
+    "published_at": "2018-05-03T22:06:02+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "У государства закончились средства на льготный автолизинг",
+    "link": "https://www.vedomosti.ru/auto/articles/2018/04/08/756143-zakonchilis-sredstva-na-avtolizing",
+    "summary": "Израсходованы 4 млрд рублей, запланированные на 2018 год, но денег могут добавить",
+    "image": "https://cdn.vdmsti.ru/image/2018/2q/12cel7/normal-1dp1.jpg",
+    "published_at": "2018-04-09T15:23:34+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Россия проиграла апелляцию по антидемпинговым пошлинам на фургоны",
+    "link": "https://www.vedomosti.ru/auto/articles/2018/03/23/754791-rossiya-proigrala-appelyatsiyu",
+    "summary": "Правда, за время разбирательств в ВТО действие этих пошлин почти завершилось",
+    "image": "https://cdn.vdmsti.ru/image/2018/2a/1b7982/normal-1p69.jpg",
+    "published_at": "2018-03-23T19:02:58+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Рынок LCV в Европе: не самый большой, но очень конкурентный",
+    "link": "https://www.vedomosti.ru/auto/articles/2018/03/21/754393-rinok-lcv",
+    "summary": "Чтобы сохранить прибыль, конкурирующие автопроизводители объединяются для выпуска коммерческой техники",
+    "image": "https://cdn.vdmsti.ru/image/2018/27/1etm0m/normal-1tv6.jpg",
+    "published_at": "2018-03-20T22:18:35+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Мы однозначно будем двигаться в сторону гибридных автомобилей»",
+    "link": "https://www.vedomosti.ru/auto/characters/2018/03/21/754391-dvigatsya-gibridnih-avtomobilei",
+    "summary": "Заместитель гендиректора по продажам и маркетингу Ульяновского автозавода Сергей Травкин о новых моделях УАЗа",
+    "image": "https://cdn.vdmsti.ru/image/2018/27/1et2kz/normal-1tuh.jpg",
+    "published_at": "2018-03-20T22:08:42+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Продажи грузовиков в России в феврале подскочили на 40%",
+    "link": "https://www.vedomosti.ru/auto/articles/2018/03/13/753299-prodazhi-gruzovikov-podskochili",
+    "summary": "Эксперты сравнивают этот показатель с индикатором состояния промышленности",
+    "image": "https://cdn.vdmsti.ru/image/2018/1z/1f5j24/normal-1uam.jpg",
+    "published_at": "2018-03-12T21:46:53+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Ростех» снизит долю в «Камазе» до 43%",
+    "link": "https://www.vedomosti.ru/business/articles/2018/02/21/751748-rosteh-kamaze",
+    "summary": "После этого госкорпорация перестанет быть контролирующим акционером компании",
+    "image": "https://cdn.vdmsti.ru/image/2018/1g/1bvarf/normal-1q1e.jpg",
+    "published_at": "2018-02-21T19:20:39+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Mercedes-Benz выпускает новое поколение легкого грузовика Sprinter",
+    "link": "https://www.vedomosti.ru/auto/galleries/2018/02/09/750387-mercedes-benz-sprinter",
+    "summary": "Машина оснащена постоянным подключением к интернету и системами помощи водителю от легковушек",
+    "image": "https://cdn.vdmsti.ru/image/2018/13/13mwzc/normal-1fdb.jpg",
+    "published_at": "2018-02-09T03:34:19+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "В Москве впервые за три года подорожал километр поездки на такси",
+    "link": "https://www.vedomosti.ru/business/articles/2018/02/06/750071-v-moskve-vpervie-za-tri-goda-podorozhal-taksi",
+    "summary": "Этому могли способствовать фиксированные тарифы и слияние служб заказа",
+    "image": "https://cdn.vdmsti.ru/image/2018/11/pnrms/normal-x98.jpg",
+    "published_at": "2018-02-06T09:04:39+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Легендарной «буханке» исполнилось 60 лет",
+    "link": "https://www.vedomosti.ru/auto/galleries/2018/01/31/749571-legendarnoi-buhanke-ispolnilos",
+    "summary": "Первый серийный автомобиль УАЗ-450 сошел с конвейера Ульяновского завода в 1958 году",
+    "image": "https://cdn.vdmsti.ru/image/2018/v/17nmup/normal-1kku.jpg",
+    "published_at": "2018-01-31T18:02:22+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» разделит производство дорогих и дешевых грузовиков",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/11/08/740863-kamaz-razdelit-proizvodstvo",
+    "summary": "Доля премиальных автомобилей в общем производстве «Камаза» утроилась благодаря повышенному спросу",
+    "image": "https://cdn.vdmsti.ru/image/2017/8n/1f3ew2/normal-1u7w.jpg",
+    "published_at": "2017-11-07T21:44:07+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Volkswagen запретил продавать свои грузовики и автобусы в Крыму",
+    "link": "https://www.vedomosti.ru/business/articles/2017/10/11/737366-volkswagen-minuyut-krim",
+    "summary": "Концерн напомнил дилерам о «серьезных последствиях» за нарушение эмбарго",
+    "image": "https://cdn.vdmsti.ru/image/2017/7w/27zcm/normal-2vo.jpg",
+    "published_at": "2017-10-10T21:58:05+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Китай уже производит около 20% тяжелых грузовиков в мире и продолжает увеличивать свою долю",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/10/03/736255-kitai-uvelichivat-dolyu",
+    "summary": "В России продажи китайских грузовиков с 2013 года рухнули в 26 раз, но теперь растут вместе с рынком",
+    "image": "https://cdn.vdmsti.ru/image/2017/7o/5v24w/normal-7lj.jpg",
+    "published_at": "2017-10-02T23:13:34+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Спрос на технику сдвигается в сторону крупных игроков»",
+    "link": "https://www.vedomosti.ru/auto/characters/2017/10/03/736257-spros-na-tehniku",
+    "summary": "Питер Андерссон, генеральный директор «МАН трак энд бас рус»",
+    "image": "https://cdn.vdmsti.ru/image/2017/7o/5jyhs/normal-776.jpg",
+    "published_at": "2017-10-02T23:11:16+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Москва начнет формировать российский рынок электробусов",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/10/03/736256-moskva-nachnet-formirovat",
+    "summary": "Будущими тендерами города интересуются как локальные, так и иностранные производители",
+    "image": "https://cdn.vdmsti.ru/image/2017/7o/4io2h/normal-5ut.jpg",
+    "published_at": "2017-10-02T23:04:29+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Российский рынок коммерческих автомобилей растет второй год подряд",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/10/03/736258-rinok-kommercheskih-avtomobilei",
+    "summary": "В этом году тон задает премиальная техника, спрос на которую в сегменте грузовиков, например, вырос в разы",
+    "image": "https://cdn.vdmsti.ru/image/2017/7o/4k5yb/normal-5wr.jpg",
+    "published_at": "2017-10-02T22:59:29+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Перевозчик «Везу» потратит на 100 грузовиков «Скания» более 500 млн рублей",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/10/02/736080-perevozchik-vezu",
+    "summary": "Рынок грузовых автомобилей восстанавливается благодаря отложенному спросу",
+    "image": "https://cdn.vdmsti.ru/image/2017/7n/12huc/normal-1dx.jpg",
+    "published_at": "2017-10-01T22:38:33+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Высокий спрос на тягачи помог «Камазу» получить прибыль",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/08/29/731389-spros-tyagachi-kamazu",
+    "summary": "В первом полугодии компания получила 1 млрд рублей прибыли против убытка годом ранее",
+    "image": "https://cdn.vdmsti.ru/image/2017/6p/yejx/normal-18m.jpg",
+    "published_at": "2017-08-28T22:40:22+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Правительство Москвы готово субсидировать каршеринговые компании столицы",
+    "link": "https://www.vedomosti.ru/business/articles/2017/08/08/728544-karsheringovie",
+    "summary": "Возместить затраты компании смогут уже в конце 2017 года",
+    "image": "https://cdn.vdmsti.ru/image/2017/64/19bqbc/normal-1mqr.jpg",
+    "published_at": "2017-08-08T18:16:58+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Грузовики-иномарки снова пользуются спросом",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/08/08/728400-gruzoviki-inomarki-snova-polzuyutsya",
+    "summary": "Их доля в продажах вновь стала расти после четырех лет падения",
+    "image": "https://cdn.vdmsti.ru/image/2017/64/1zq4d/normal-2ky.jpg",
+    "published_at": "2017-08-07T21:48:13+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Продажи грузовиков Scania в Петербурге и Ленобласти выросли почти в два раза",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/08/04/727988-prodazhi-gruzovikov-virosli",
+    "summary": "Перевозчики начинают обновлять автопарк после длительного перерыва",
+    "image": "https://cdn.vdmsti.ru/image/2017/60/s0n3/normal-10b.jpg",
+    "published_at": "2017-08-03T22:13:43+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» планирует за пять лет утроить экспорт",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/07/17/723982-kamaz-eksport",
+    "summary": "Компания рассчитывает на новый модельный ряд и расширение списка зарубежных рынков",
+    "image": "https://cdn.vdmsti.ru/image/2017/5i/1crvt/normal-1r7.jpg",
+    "published_at": "2017-07-16T20:39:57+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» и Daimler меняют льготы на завод",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/07/13/722241-kamaz-daimler",
+    "summary": "Компании хотят заключить специнвестконтракт, чтобы построить завод кабин",
+    "image": "https://cdn.vdmsti.ru/image/2017/5e/1of06/normal-26a.jpg",
+    "published_at": "2017-07-12T21:20:57+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Программа субсидирования сельхозтехники остановлена",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/06/28/700187-subsidirovaniya",
+    "summary": "Общая сумма субсидий по заключенным контрактам составила 13,9 млрд рублей, всего на программу выделено 13,7 млрд рублей",
+    "image": "https://cdn.vdmsti.ru/image/2017/4z/n4yiv/normal-tzi.jpeg",
+    "published_at": "2017-06-28T07:49:26+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» с октября повысит зарплату своим работникам",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/06/23/695672-kamaz-zarplatu",
+    "summary": "В прошлом году компания на фоне возобновившегося роста рынка вернулась к прибыли",
+    "image": "https://cdn.vdmsti.ru/image/2017/4u/17s5c/normal-1kr.jpg",
+    "published_at": "2017-06-22T22:52:09+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» возвращается к долгосрочным контрактам",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/06/19/694906-kamaz",
+    "summary": "До этого из-за валютных скачков новые контракты заключались только на полгода-год",
+    "image": "https://cdn.vdmsti.ru/image/2017/4q/1ntng/normal-25k.jpg",
+    "published_at": "2017-06-18T21:11:28+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Группа ГАЗ и Volkswagen продлили соглашение о контрактной сборке до 2025 года",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/06/16/694656-gruppa-gaz-volkswagen",
+    "summary": "Среди новых проектов – закупка немецких двигателей для «Газелей» и, возможно, узлов для грузовой техники группы ГАЗ",
+    "image": "https://cdn.vdmsti.ru/image/2017/4n/25b75/normal-2s8.jpg",
+    "published_at": "2017-06-15T21:54:16+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Самые харизматичные грузовики Америки",
+    "link": "https://www.vedomosti.ru/auto/galleries/2017/05/31/692209-samie-gruzoviki-ameriki",
+    "summary": "Американские дальнобойщики любят свои машины и не скупятся на их улучшение и отделку",
+    "image": "https://cdn.vdmsti.ru/image/2017/46/19jkwo/normal-1n0x.jpg",
+    "published_at": "2017-05-31T17:21:42+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Главный транспорт Америки",
+    "link": "https://www.vedomosti.ru/business/articles/2017/05/30/692061-transport-ameriki",
+    "summary": "Большая часть грузов в США перевозится автомобильным транспортом, это огромный и демонополизированный рынок",
+    "image": "https://cdn.vdmsti.ru/image/2017/46/3h0tq/normal-4i2.jpg",
+    "published_at": "2017-05-29T22:32:30+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Дальнобойщики разогнали инфляцию",
+    "link": "https://www.vedomosti.ru/business/articles/2017/05/30/692057-dalnoboischiki-inflyatsiyu",
+    "summary": "В забастовке против «Платона» участвовало менее 0,01% всех грузоперевозчиков, но в некоторых регионах проблемы с доставкой товаров разогнали инфляцию",
+    "image": "https://cdn.vdmsti.ru/image/2017/46/3cubv/normal-4cm.jpg",
+    "published_at": "2017-05-29T22:22:12+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Исузу рус» предстоит потратить минимум 1,5 млрд рублей, чтобы остаться в программе господдержки",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/05/19/690542-isuzu-rus",
+    "summary": "Скорее всего, для нее потребуется локализация ключевого узла",
+    "image": "https://cdn.vdmsti.ru/image/2017/3v/12mwz/normal-1e3.jpg",
+    "published_at": "2017-05-18T21:01:34+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Рынок дорожно-строительной техники ожил",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/05/16/689973-rinok-tehniki",
+    "summary": "В I квартале он вырос на 29% и такой же рост ожидается по итогам года, по оценке Ассоциации европейского бизнеса",
+    "image": "https://cdn.vdmsti.ru/image/2017/3s/16l5f/normal-1j7.jpg",
+    "published_at": "2017-05-15T21:17:06+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» вернулся в Казахстан",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/05/15/689778-kamaz-kazahstan",
+    "summary": "Падение экспорта «Камаза» в страны ближнего зарубежья сменилось ростом в I квартале 2017 года",
+    "image": "https://cdn.vdmsti.ru/image/2017/3r/94tq/normal-bv.jpg",
+    "published_at": "2017-05-14T21:28:01+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» планирует выплатить сотрудникам годовые премии",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/04/27/687674-kamaz-godovie-premii",
+    "summary": "По итогам 2016 года компания получила прибыль и перевыполнила план по продажам",
+    "image": "https://cdn.vdmsti.ru/image/2017/39/2dte2/normal-337.jpg",
+    "published_at": "2017-04-26T21:55:35+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Ford Sollers запускает аналог будущих госпрограмм «Российский фермер» и «Свое дело»",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/04/26/687444-ford-sollers-analog-gosprogramm",
+    "summary": "Автопроизводитель будет давать дополнительные скидки",
+    "image": "https://cdn.vdmsti.ru/image/2017/38/xpvl/normal-17q.jpg",
+    "published_at": "2017-04-25T21:59:05+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Медиаконцерн Axel Springer инвестировал в Uber",
+    "link": "https://www.vedomosti.ru/business/articles/2017/04/20/686713-axel-springer-uber",
+    "summary": "Вложение в онлайн-сервис по вызову водителей носит исключительно финансовый характер",
+    "image": "https://cdn.vdmsti.ru/image/2017/32/19n1vp/normal-1n5f.jpg",
+    "published_at": "2017-04-20T18:19:00+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Производители коммерческой техники расширяют модельный ряд",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/03/22/682206-proizvoditeli-kommercheskoi-tehniki",
+    "summary": "«Камаз» выводит на рынок обновленный магистральный тягач, группа ГАЗ и УАЗ – машины с увеличенной грузоподъемностью",
+    "image": "https://cdn.vdmsti.ru/image/2017/29/48989/normal-5hc.jpg",
+    "published_at": "2017-03-21T22:41:18+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Будем расширять модельный ряд»",
+    "link": "https://www.vedomosti.ru/auto/characters/2017/03/22/682205-budem-rasshiryat",
+    "summary": "«Даймлер Камаз рус» собирается увеличивать число моделей грузовиков, выпускаемых в России, – как Mercedes-Benz, так и Fuso. Российский рынок восстановится к 2020 г., прогнозирует Хайко Шульце",
+    "image": "https://cdn.vdmsti.ru/image/2017/29/41vhl/normal-591.jpg",
+    "published_at": "2017-03-21T22:38:46+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Рост продаж коммерческой техники в России продолжится как минимум в 2017 году, считают компании",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/03/22/682202-prodazh-kommercheskoi-tehniki",
+    "summary": "Но до полного восстановления рынка еще далеко",
+    "image": "https://cdn.vdmsti.ru/image/2017/29/3b9oz/normal-4al.jpg",
+    "published_at": "2017-03-21T22:31:58+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Группа ГАЗ оказалась лучше рынка",
+    "link": "https://www.vedomosti.ru/business/articles/2017/03/17/681554-gaz-bolshe",
+    "summary": "Выручка группы выросла почти на четверть, операционный денежный поток – вчетверо. Помогла господдержка и новые модели LCV",
+    "image": "https://cdn.vdmsti.ru/image/2017/24/1ww8/normal-2i.jpg",
+    "published_at": "2017-03-16T20:48:21+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» в январе удвоил производство",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/02/28/679223-kamaz-proizvodstvo",
+    "summary": "Помог рост российского рынка, который продолжается с лета 2016 года, объясняет компания",
+    "image": "https://cdn.vdmsti.ru/image/2017/1m/1f1q96/normal-1u5p",
+    "published_at": "2017-02-27T20:41:39+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Mercedes-Benz отзывает в России 3236 легких коммерческих автомобилей Sprinter Classic",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/01/31/675652-mercedes-benz",
+    "summary": "Это больше половины общих продаж LCV этой марки на российском рынке в 2016 года",
+    "image": "https://cdn.vdmsti.ru/image/2017/v/1byo86/normal-1q5s.jpg",
+    "published_at": "2017-01-31T19:36:35+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "ГК «Мегаполис» и Iveco откроют грузовой дилерский центр",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/01/31/675505-gk-megapolis-gruzovoi-dilerskii-tsentr",
+    "summary": "Рынок грузовиков в самом начале восходящего тренда, считают партнеры",
+    "image": "https://cdn.vdmsti.ru/image/2017/v/tj4o/normal-12a.jpg",
+    "published_at": "2017-01-30T21:15:25+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Арбитраж ВТО: российские антидемпинговые пошлины на LCV незаконны",
+    "link": "https://www.vedomosti.ru/auto/articles/2017/01/30/675319-arbitrazh-vto",
+    "summary": "Еврокомиссия добилась признания введенных в 2013 году пошлин незаконными. Но продажи это уже не поддержит",
+    "image": "https://cdn.vdmsti.ru/image/2017/u/ssgsp/normal-11b9.jpg",
+    "published_at": "2017-01-29T20:10:25+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Правительство поддержит производство сельхозтехники в 2017 году",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/12/23/671021-pravitelstvo-prodolzhit-podderzhivat-proizvoditelei",
+    "summary": "Основными программами станут субсидирование скидок и компенсация части расходов при экспорте",
+    "image": "https://cdn.vdmsti.ru/image/2016/9y/vow7h/normal-152l.jpg",
+    "published_at": "2016-12-23T11:49:09+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Amazon работает над приложением для организации грузовых перевозок",
+    "link": "https://www.vedomosti.ru/business/articles/2016/12/19/670286-amazon-prilozheniem-gruzovih-perevozok",
+    "summary": "Это позволит компании конкурировать на рынке объемом $150 млрд",
+    "image": "https://cdn.vdmsti.ru/image/2016/9u/12vhsw/normal-1edr.jpg",
+    "published_at": "2016-12-19T15:23:12+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Volgabus получит полмиллиарда на проект выпуска электробусов",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/12/15/669688-volgabus-elektrobusov",
+    "summary": "Они будут производиться с 2018 года на новом заводе компании во Владимире",
+    "image": "https://cdn.vdmsti.ru/image/2016/9q/p7l3/normal-wo.jpg",
+    "published_at": "2016-12-14T21:12:25+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» прогнозирует рост российского рынка и собственных продаж в 2017 году",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/12/09/668884-kamaz-rost-rinka",
+    "summary": "Но экспорт компании уменьшится из-за низкого спроса в Казахстане",
+    "image": "https://cdn.vdmsti.ru/image/2016/9j/1ez32v/normal-1u29.jpg",
+    "published_at": "2016-12-08T20:26:15+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» перевыполнил бизнес-план",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/12/04/668053-kamaz-biznes-plan",
+    "summary": "Компания собирается завершить год с выручкой, превышающей план на 15–30%. Чистая прибыль может оказаться больше плана в 2–4 раза",
+    "image": "https://cdn.vdmsti.ru/image/2016/9f/1e1mfb/normal-1suw.jpg",
+    "published_at": "2016-12-04T19:50:33+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Правительство поможет продать LCV и автобусы",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/11/29/667274-pravitelstvo-pomozhet",
+    "summary": "Финансирование закупок автомобилей «скорой помощи» и школьных автобусов увеличено на 2 млрд рублей",
+    "image": "https://cdn.vdmsti.ru/image/2016/9a/hrua/normal-n1.jpg",
+    "published_at": "2016-11-28T20:56:42+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» возобновляет поставки техники на Кубу",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/11/17/665240-kamaz-kubu",
+    "summary": "Будет поставлено около 1700 грузовиков – это четверть годового экспорта компании и втрое больше всего кубинского рынка",
+    "image": "https://cdn.vdmsti.ru/image/2016/8y/1p51h/normal-278.jpg",
+    "published_at": "2016-11-16T21:27:57+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Рынок легких коммерческих автомобилей вновь растет после пяти месяцев падения",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/11/15/664853-rinok-avtomobilei-rastet",
+    "summary": "Помогло устранение дефицита на Lada Largus и господдержка",
+    "image": "https://cdn.vdmsti.ru/image/2016/8v/1fdlm6/normal-1ul2.jpg",
+    "published_at": "2016-11-14T20:28:23+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Mercedes-Benz определил пикап в новый X-Class",
+    "link": "https://www.vedomosti.ru/auto/galleries/2016/10/25/662373-mercedes-benz-opredelil-x-class",
+    "summary": "Концепт первого среднеразмерного пикапа марки превратится в серийную машину к концу 2017 года",
+    "image": "https://cdn.vdmsti.ru/image/2016/8b/1ashqn/normal-1on3.jpg",
+    "published_at": "2016-10-25T21:10:52+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Производители коммерческих автомобилей представили новинки в Ганновере",
+    "link": "https://www.vedomosti.ru/newspaper/articles/2016/10/11/660392-kooperatsiya-elektrifikatsiya",
+    "summary": "В серийных моделях прослеживается тенденция усиления кооперации между марками, в концептуальных – переход к электроприводам",
+    "image": "https://cdn.vdmsti.ru/image/2016/7x/46jl2/normal-5f3.jpg",
+    "published_at": "2016-10-10T22:24:04+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Мы перешли от традиционной платформы к современной»",
+    "link": "https://www.vedomosti.ru/auto/characters/2016/10/11/660391-mi-pereshli-ot-traditsionnoi-platformi-k-sovremennoi",
+    "summary": "Гендиректор «Русских машин» Манфред Айбек рассказывает о ситуации на домашнем и главных экспортных рынках для ГАЗа, ПАЗа и ЛиАЗа",
+    "image": "https://cdn.vdmsti.ru/image/2016/7x/3vvkv/normal-51a.jpg",
+    "published_at": "2016-10-10T22:22:00+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Продажи грузовиков и автобусов начали расти",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/10/11/660390-prodazhi-gruzovikov-i-avtobusov",
+    "summary": "Рынок легких коммерческих автомобилей остался на уровне августа 2016 года",
+    "image": "https://cdn.vdmsti.ru/image/2016/7x/3qkdq/normal-4uf.jpg",
+    "published_at": "2016-10-10T22:13:57+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» с июня работает с прибылью",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/09/29/658930-kamaz-pribilyu",
+    "summary": "Это позволило компании по итогам января – августа сократить убыток почти в три раза",
+    "image": "https://cdn.vdmsti.ru/image/2016/7l/44hs1/normal-5ch.jpg",
+    "published_at": "2016-09-28T20:41:51+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Правительство компенсирует производителям сельхозтехники транспортные расходы",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/09/28/658744-proizvoditelyam-selhoztehniki",
+    "summary": "При экспорте продукции наземным транспортом – до 80% затрат, морским – до 90%",
+    "image": "https://cdn.vdmsti.ru/image/2016/7k/1jtpb/normal-20d.jpg",
+    "published_at": "2016-09-27T20:55:21+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Владельцам и водителям грузовиков грозят миллионные штрафы",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/09/27/658600-gruzovikov-shtrafi",
+    "summary": "Один из кандидатов на создание системы контроля за весом грузовиков – оператор «Платона»",
+    "image": "https://cdn.vdmsti.ru/image/2016/7j/25l4g/normal-2sj.jpg",
+    "published_at": "2016-09-26T21:59:18+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Владельцам грузовиков грозят миллионные штрафы",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/09/26/658473-ves-gruzovikov-proverit-avtomaticheskaya",
+    "summary": "Вес большегрузов начнет проверять автоматическая система",
+    "image": "https://cdn.vdmsti.ru/image/2016/7i/pheqg/normal-x0z.jpg",
+    "published_at": "2016-09-26T08:55:04+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» вернулся на полную рабочую неделю",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/09/14/656827-kamaz-polnuyu-nedelyu",
+    "summary": "На фоне роста спроса компания увеличила план продаж примерно на 6% до 34 000 грузовиков",
+    "image": "https://cdn.vdmsti.ru/image/2016/75/1ewcw3/normal-1tyr.jpg",
+    "published_at": "2016-09-13T20:36:41+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«ПСМА рус» может начать выпуск микроавтобусов",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/09/08/656122-psma-rus-mikroavtobusov",
+    "summary": "Это снизит расходы и позволит участвовать в госзакупках",
+    "image": "https://cdn.vdmsti.ru/image/2016/70/9ml1/normal-ch.jpg",
+    "published_at": "2016-09-07T20:27:56+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Scania представила новое поколение грузовиков",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/08/26/654519-scania-novoe-pokolenie",
+    "summary": "Компания вложила в разработку модели 2 млрд евро",
+    "image": "https://cdn.vdmsti.ru/image/2016/6n/wqe0s/normal-16f6.jpg",
+    "published_at": "2016-08-26T13:44:12+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Еврокомиссия оштрафовала производителей грузовиков на рекордные 2,93 млрд евро",
+    "link": "https://www.vedomosti.ru/economics/articles/2016/07/19/649784-evrokomissiya-gruzovikov-rekordnie-293",
+    "summary": "Компания-осведомитель, участвовавшая в картельном сговоре, избежала выплаты 1,2 млрд евро",
+    "image": "https://cdn.vdmsti.ru/image/2016/5l/yxszd/normal-19a4.jpg",
+    "published_at": "2016-07-19T13:47:28+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Еврокомиссия готовит рекордный штраф за картельный сговор",
+    "link": "https://www.vedomosti.ru/economics/articles/2016/07/18/649630-evrokomissiya-rekordnii-shtraf",
+    "summary": "Крупнейшие производители грузовиков завышали цены и препятствовали борьбе с вредными выбросами с 1997 года",
+    "image": "https://cdn.vdmsti.ru/image/2016/5k/175nkp/normal-1jxj.jpg",
+    "published_at": "2016-07-18T17:09:17+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Группа ГАЗ улучшила прогноз продаж",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/06/06/643683-gruppa-gaz-uluchshila-prognoz-prodazh",
+    "summary": "Ранее компания рассчитывала сохранить реализацию на уровне 2015 года",
+    "image": "https://cdn.vdmsti.ru/image/2016/4d/1d6dvh/normal-1rqg.jpg",
+    "published_at": "2016-06-05T19:20:21+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Рынок легких коммерческих автомобилей растет второй месяц подряд",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/05/25/642281-rinok-legkih-kommercheskih-avtomobilei-rastet-vtoroi-mesyats-podryad",
+    "summary": "Основные причины – эффект низкой базы и господдержка",
+    "image": "https://cdn.vdmsti.ru/image/2016/41/1fbvf1/normal-1uiu.jpg",
+    "published_at": "2016-05-24T20:31:03+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Немецкая Claas обещает вложить в российский завод более 750 млн рублей",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/05/13/640849-claas-zavod",
+    "summary": "Взамен может получать субсидии и компенсацию утилизационного сбора",
+    "image": "https://cdn.vdmsti.ru/image/2016/3q/fz5m/normal-kp.jpg",
+    "published_at": "2016-05-12T20:55:08+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Продажи грузовиков в марте увеличились впервые за два года",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/04/11/637103-prodazhi-gruzovikov-marte-uvelichilis-vpervie-dva-goda",
+    "summary": "Но вряд ли это будет устойчивой тенденцией в 2016 году, считают эксперты",
+    "image": "https://cdn.vdmsti.ru/image/2016/2t/1d9bik/normal-1ru9.jpg",
+    "published_at": "2016-04-10T19:21:50+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Как «Камаз» сокращал расходы на 18 миллиардов",
+    "link": "https://www.vedomosti.ru/business/video/2016/03/30/635578-kamaz-sokraschal-na-18",
+    "summary": "Генеральный директор Сергей Когогин рассказывает, как можно экономить на всем",
+    "image": "https://cdn.vdmsti.ru/image/2016/2h/12nm22/normal-1e3j.jpg",
+    "published_at": "2016-03-30T00:04:50+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "ГИБДД оставит физлиц без грузовиков и автобусов",
+    "link": "https://www.vedomosti.ru/economics/articles/2016/03/15/633559-gibdd-ostavit-fizlits-bez-gruzovikov-avtobusov",
+    "summary": "В МВД предлагают регистрировать их только на компании",
+    "image": "https://cdn.vdmsti.ru/image/2016/23/1j9hq/normal-1zm.jpg",
+    "published_at": "2016-03-14T21:26:50+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Бывшего бизнес-партнера Аршавина арестовали в Петербурге",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/03/14/633455-biznes-partnera-arshavina",
+    "summary": "По версии следствия, совладелец группы «Балтавтотрейд» подал в Сбербанк фальшивый договор поручительства по кредиту",
+    "image": "https://cdn.vdmsti.ru/image/2016/22/xac0f/normal-1752.jpg",
+    "published_at": "2016-03-14T12:32:52+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Рольф» начал продажу машин с пробегом на онлайн-аукционах",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/03/02/632152-rolf-nachal-prodazhu-mashin-probegom-onlain-auktsionah",
+    "summary": "Пока компания продает авто только оптом, но к апрелю обещает сделать сервис доступным для частных лиц",
+    "image": "https://cdn.vdmsti.ru/image/2016/1q/2ip7h/normal-39k.jpg",
+    "published_at": "2016-03-01T21:06:21+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Дилеры стали терять клиентов автосервиса, машины которых уходят с гарантии",
+    "link": "https://www.vedomosti.ru/auto/articles/2016/02/26/631494-dileri-stali-teryat-klientov-avtoservisa-mashini-kotorih-uhodyat-s-garantii",
+    "summary": "Сервис – основной источник дохода для автодилеров",
+    "image": "https://cdn.vdmsti.ru/image/2016/1l/1748m/normal-1jw.jpg",
+    "published_at": "2016-02-25T21:13:20+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Мы не мальчики с белыми ленточками. Мы дальнобойщики",
+    "link": "https://www.vedomosti.ru/politics/video/2015/12/08/620091-mi-ne-malchiki-s-belimi-lentochkami-mi-dalnoboischiki",
+    "summary": "Протестующие против «Платона» водители-дальнобойщики обещают провести многотысячные митинги в Москве",
+    "image": "https://cdn.vdmsti.ru/image/2015/9i/sylaq/normal-11j7.jpg",
+    "published_at": "2015-12-08T10:36:16+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Peugeot и Toyota выпустят совместно новое поколение пассажирских минивэнов",
+    "link": "https://www.vedomosti.ru/auto/articles/2015/12/01/619135-peugeot-toyota-minivenov",
+    "summary": "Компании разделили расходы на разработку коммерческих фургонов",
+    "image": "https://cdn.vdmsti.ru/image/2015/9b/12nf9l/normal-1e3a.jpg",
+    "published_at": "2015-12-01T15:13:49+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Дальнобойщики в регионах вышли на дорогу в знак протеста",
+    "link": "https://www.vedomosti.ru/business/articles/2015/11/11/616399-dalnoboischiki-protesta",
+    "summary": "Они требуют отменить сбор за проезд большегрузов по федеральным трассам",
+    "image": "https://cdn.vdmsti.ru/image/2015/8r/r1hmp/normal-z1n.jpg",
+    "published_at": "2015-11-11T09:37:41+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Как  государство поддерживает автопром",
+    "link": "https://www.vedomosti.ru/auto/galleries/2015/10/13/612464-gosudarstvo-podderzhivaet-avtoprom",
+    "summary": "Расходы федерального бюджета на меры поддержки производства автомобилей в 2015 году",
+    "image": "https://cdn.vdmsti.ru/image/2015/7x/16bdie/normal-1iua.jpg",
+    "published_at": "2015-10-12T22:26:29+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Новинки производителей грузовиков и автобусов на выставке  «Комтранс»",
+    "link": "https://www.vedomosti.ru/auto/galleries/2015/10/12/612505-novinki-rossiiskih-proizvoditelei",
+    "summary": "Из-за падения курса рубля у отечественных компаний появился шанс увеличить рыночную долю",
+    "image": "https://cdn.vdmsti.ru/image/2015/7y/2vof3/normal-3qd.jpg",
+    "published_at": "2015-10-12T22:00:18+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Главными героями выставки «Комтранс» в Москве стали отечественные автопроизводители",
+    "link": "https://www.vedomosti.ru/auto/articles/2015/10/13/612545-komtrans-otechestvennie-avtoproizvoditeli",
+    "summary": "Группа ГАЗ презентовала новый бренд, а «Камаз» показал перспективную кабину-трансформер",
+    "image": "https://cdn.vdmsti.ru/image/2015/7y/1sfyv/normal-2bi.jpg",
+    "published_at": "2015-10-12T21:36:11+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Возможно, дно мы увидим в начале 2016 года»",
+    "link": "https://www.vedomosti.ru/auto/characters/2015/10/13/612544-dno-uvidim",
+    "summary": "Гендиректор «Скания-Русь» Ханс Тарделль о перспективах российского рынка грузовых автомобилей и автобусов",
+    "image": "https://cdn.vdmsti.ru/image/2015/7y/1nbta/normal-24w.jpg",
+    "published_at": "2015-10-12T21:30:14+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Производители коммерческой техники ждут стабилизации спроса в 2016 году",
+    "link": "https://www.vedomosti.ru/auto/articles/2015/10/13/612543-stabilizatsii-sprosa-2016",
+    "summary": "Господдержка и обновление модельного ряда должны помочь им пережить кризисный год",
+    "image": "https://cdn.vdmsti.ru/image/2015/7y/1kr8g/normal-21l.jpg",
+    "published_at": "2015-10-12T21:25:53+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» завершит текущий год с убытком",
+    "link": "https://www.vedomosti.ru/auto/articles/2015/09/18/609266-kamaz-zavershit-etot-god-ubitkom",
+    "summary": "Несмотря на оживление спроса и рост экспорта",
+    "image": "https://cdn.vdmsti.ru/image/2015/79/siyt/normal-10y.jpg",
+    "published_at": "2015-09-17T21:19:37+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Урал» сохранит производство, увеличив экспорт",
+    "link": "https://www.vedomosti.ru/business/articles/2015/09/11/608364-ural-sohranit-proizvodstvo-uvelichiv-eksport",
+    "summary": "Чтобы удержать производство на падающем рынке, завод наращивает поставки за рубеж",
+    "image": "https://cdn.vdmsti.ru/image/2015/72/2m20m/normal-3dx.jpg",
+    "published_at": "2015-09-10T21:17:16+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Покупатели российских машин за рубежом могут получить льготы",
+    "link": "https://www.vedomosti.ru/auto/articles/2015/09/10/608190-pokupateli-rossiiskih-mashin-za-rubezhom-mogut-poluchit-lgoti",
+    "summary": "Росэксимбанк и группа ГАЗ работают над программой льготного автокредитования для поддержки экспорта машин",
+    "image": "https://cdn.vdmsti.ru/image/2015/71/7ewr/normal-9l.jpg",
+    "published_at": "2015-09-09T20:09:41+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Группа ГАЗ обновила логотип",
+    "link": "https://www.vedomosti.ru/business/articles/2015/09/08/607904-gruppa-gaz-obnovila-logotip",
+    "summary": "Более лаконичное изображение поможет продвигать машины группы за рубежом",
+    "image": "https://cdn.vdmsti.ru/image/2015/6z/sogh/normal-116.jpg",
+    "published_at": "2015-09-07T20:58:10+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Группа ГАЗ хотела получить прибыль в 2016 году",
+    "link": "https://www.vedomosti.ru/business/articles/2015/08/31/606793-gruppa-gaz-hotela-poluchit-pribil-v-2016-godu",
+    "summary": "Производитель LCV рассчитывал, что получение госгарантий поможет компании улучшить финансовые результаты",
+    "image": "https://cdn.vdmsti.ru/image/2015/6q/1dwlat/normal-1sod.jpg",
+    "published_at": "2015-08-30T19:57:05+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» надеется удвоить продажи грузовиков во втором полугодии",
+    "link": "https://www.vedomosti.ru/auto/articles/2015/07/21/601436-kamaz-nadeetsya-udvoit-prodazhi-gruzovikov-vo-vtorom-polugodii",
+    "summary": "Но это не избавит его от падения по итогам года",
+    "image": "https://cdn.vdmsti.ru/image/2015/5m/1udq2/normal-2e1.jpg",
+    "published_at": "2015-07-20T21:45:15+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Грузовики «Камаза» будут ездить на СПГ",
+    "link": "https://www.vedomosti.ru/business/articles/2015/06/23/597535-gruzoviki-kamaza-budut-ezdit-na-spg",
+    "summary": "Первые машины, работающие на этом топливе, будут возить металл для «Камаза» из Магнитогорска",
+    "image": "https://cdn.vdmsti.ru/image/2015/4u/29s72/normal-2xz.jpg",
+    "published_at": "2015-06-22T21:17:05+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Российские продажи LCV УАЗа выросли в 1,5 раза на фоне 33%-ного падения рынка",
+    "link": "https://www.vedomosti.ru/auto/articles/2015/06/17/596651-rossiiskie-prodazhi-lcv-uaza-virosli-v-15-raza-na-fone-33-nogo-padeniya-rinka",
+    "summary": "Продажи помогла увеличить госпрограмма поддержки спроса на российскую автотехнику",
+    "image": "https://cdn.vdmsti.ru/image/2015/4o/2hb7e/normal-37r.jpg",
+    "published_at": "2015-06-16T21:27:29+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Впервые разрешено использовать самоуправляемый грузовик",
+    "link": "https://www.vedomosti.ru/auto/articles/2015/05/06/nevada-pervoi-v-mire-razreshila-ispolzovanie-samoupravlyaemogo-gruzovika",
+    "summary": "Трейлер автокомпании Daimler теперь может без участия водителя перевозить грузы по дорогам штата Невада",
+    "image": "https://cdn.vdmsti.ru/image/2015/3i/vpn6y/normal-153l.jpg",
+    "published_at": "2015-05-06T11:51:22+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Самоуправляемый грузовик Freightliner Inspiration от Daimler",
+    "link": "https://www.vedomosti.ru/auto/galleries/2015/05/06/freightliner-inspiration",
+    "summary": "Штат Невада первым в мире разрешил передвижение грузовика-робота по своим дорогам",
+    "image": "https://cdn.vdmsti.ru/image/2015/3i/udyfv/normal-13ds.jpg",
+    "published_at": "2015-05-06T11:27:14+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Ford Sollers поставил на конвейер в Елабуге новый Ford Transit",
+    "link": "https://www.vedomosti.ru/auto/articles/2015/04/22/ford-sollers-postavil-na-konveier-v-elabuge-novii-ford-transit",
+    "summary": "Это LCV, маршрутные и школьные автобусы, автомобили скорой помощи",
+    "image": "https://cdn.vdmsti.ru/image/2015/33/1em8uk/normal-1tln.jpg",
+    "published_at": "2015-04-21T20:15:43+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Европейские производители легких коммерческих автомобилей обновили свои развозные фургоны",
+    "link": "https://www.vedomosti.ru/auto/articles/2015/04/13/evropeiskie-proizvoditeli-legkih-kommercheskih-avtomobilei-obnovili-etoi-vesnoi-svoi-razvoznie-furgoni",
+    "summary": "Обошелся без изменений только Renault Kangoo",
+    "image": "https://cdn.vdmsti.ru/image/2015/2v/350h7/normal-42g.jpg",
+    "published_at": "2015-04-12T21:35:30+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Наша цель – довести локализацию до 60%»",
+    "link": "https://www.vedomosti.ru/auto/characters/2015/04/13/nasha-tsel-dovesti-lokalizatsiyu-do-60",
+    "summary": "Руководитель Mercedes-Benz Vans Фолькер Морнинвег рассказывает, за счет чего марка увеличивает рыночную долю в России",
+    "image": "https://cdn.vdmsti.ru/image/2015/2v/2lame/normal-3cw.jpg",
+    "published_at": "2015-04-12T21:33:36+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Производители коммерческой техники снижают издержки и расширяют экспорт",
+    "link": "https://www.vedomosti.ru/auto/articles/2015/04/13/proizvoditeli-kommercheskoi-tehniki-snizhayut-izderzhki-i-rasshiryayut-eksport",
+    "summary": "В условиях сокращения российского рынка",
+    "image": "https://cdn.vdmsti.ru/image/2015/2v/26qzy/normal-2u2.jpg",
+    "published_at": "2015-04-12T21:25:07+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Mercedes-Benz собирается выпустить пикап",
+    "link": "https://www.vedomosti.ru/auto/articles/2015/03/28/mercedes-benz-sobiraetsya-vipustit-pikap",
+    "summary": "Немецкая компания собирается вторгнуться на территорию, где традиционно доминируют производители массового сектора",
+    "image": "https://cdn.vdmsti.ru/image/2015/2f/11dz0/normal-1ch.jpg",
+    "published_at": "2015-03-27T21:32:21+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Казани показалось дорого покупать автобусы «НефАЗ» на метане",
+    "link": "https://www.vedomosti.ru/auto/articles/2015/03/26/kazani-pokazalos-dorogo-pokupat-avtobusi-nefaz-na-metane",
+    "summary": "Машины уедут в Набережные Челны",
+    "image": "https://cdn.vdmsti.ru/image/2015/2d/pakoo/normal-ws3.jpg",
+    "published_at": "2015-03-26T10:03:57+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Курс акций «Камаза» вырос на 30%",
+    "link": "https://www.vedomosti.ru/auto/articles/2015/02/25/kurs-aktsii-kamaza-viros-na-30",
+    "summary": "Еврокомиссия одобрила объединение совместных предприятий «Камаза» и Daimler AG",
+    "image": "https://cdn.vdmsti.ru/image/2015/1k/u9mjx/normal-1386.jpg",
+    "published_at": "2015-02-25T11:07:37+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» планирует этой весной удержать производство на прошлогоднем уровне",
+    "link": "https://www.vedomosti.ru/newspaper/articles/2015/02/20/kamaz-gotovitsya-k-vesne",
+    "summary": "Его доля на отечественном рынке грузовиков может превысить 50%",
+    "image": "https://cdn.vdmsti.ru/image/2015/1f/5sdlf/normal-7i2.jpg",
+    "published_at": "2015-02-19T23:29:33+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "ГАЗ въедет в Европу через Балканы",
+    "link": "https://www.vedomosti.ru/auto/articles/2015/02/18/gaz-vedet-v-evropu-cherez-balkani",
+    "summary": "Европейский рынок поможет российскому производителю сгладить последствия кризиса внутреннего рынка, говорят эксперты",
+    "image": "https://cdn.vdmsti.ru/image/2015/1d/1sq3m/normal-2bv.jpg",
+    "published_at": "2015-02-17T21:34:51+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Калужский завод Volvo остановится на неопределенный срок",
+    "link": "https://www.vedomosti.ru/newspaper/articles/2015/02/09/volvo-ne-hvatilo-zakazov",
+    "summary": "Предприятию не хватает заказов",
+    "image": "https://cdn.vdmsti.ru/image/2015/14/xopqa/normal-17no.jpg",
+    "published_at": "2015-02-08T21:00:00+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "«Камаз» актуализировал программу развития до 2020 года",
+    "link": "https://www.vedomosti.ru/auto/articles/2014/12/25/kamaz-obnovil-celi",
+    "summary": "«Камаз» пересмотрел долгосрочную стратегию развития, снизив план продаж и увеличив инвестиции в расчете на рост издержек",
+    "image": "https://cdn.vdmsti.ru/image/2015/10/16x5xp/normal-1jmj.jpg",
+    "published_at": "2014-12-25T00:26:23+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "ЕС раскрыл 14-летний сговор крупнейших европейских производителей грузовиков",
+    "link": "https://www.vedomosti.ru/auto/articles/2014/12/24/krupnejshie-evropejskie-proizvoditeli-gruzovikov",
+    "summary": "DAF, Daimler, Iveco, Scania, Volvo и MAN договаривались о торможении развития технологий по уменьшению выбросов в окружающую среду вредных веществ, пишет FT",
+    "image": "https://cdn.vdmsti.ru/image/2015/10/17t46i/normal-1krx.jpg",
+    "published_at": "2014-12-24T12:13:40+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Новинки рынка: тягачи от «Камаза», среднетоннажные грузовики «ГАЗон Next»",
+    "link": "https://www.vedomosti.ru/auto/articles/2014/10/14/privivka-optimizma",
+    "summary": "Российский рынок коммерческой техники лихорадит, но разработка новых автомобилей не прекращается",
+    "image": "https://cdn.vdmsti.ru/image/2015/11/m6dzw/normal-sqp.jpg",
+    "published_at": "2014-10-13T20:19:29+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Автопроизводители озабочены доходностью своих подразделений LCV",
+    "link": "https://www.vedomosti.ru/auto/articles/2014/10/14/proizvoditeli-lcv-zhmut-na-gaz",
+    "summary": "При нестабильных рынках особое значение для автоконцернов приобретают высокоприбыльные подразделения легких коммерческих автомобилей",
+    "image": "https://cdn.vdmsti.ru/image/2015/11/m6dkf/normal-sqp.jpg",
+    "published_at": "2014-10-13T20:17:33+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "На ГАЗе будут делать Mercedes-Benz",
+    "link": "https://www.vedomosti.ru/auto/articles/2012/06/22/na_gaze_budut_delat",
+    "summary": "Производство малотоннажного автобуса Sprinter начнется в Нижнем Новгороде в 2013 году",
+    "image": "https://cdn.vdmsti.ru/image/2015/14/682ob/normal-82e.jpg",
+    "published_at": "2012-06-22T11:22:25+00:00",
+    "domain": "www.vedomosti.ru"
+  },
+  {
+    "source": "source",
+    "title": "Производство грузовиков в России не успевает за ростом рынка",
+    "link": "https://www.vedomosti.ru/auto/articles/2012/03/27/spasenie_ot_vto",
+    "summary": "Российские производители коммерческих автомобилей опасаются, что после вступления в ВТО им придется сворачивать производство: резкое падение ввозных пошлин приведет к тому, что в страну хлынет поток подержанной импортной техники. Чиновники обещают защитить российский автопром",
+    "image": null,
+    "published_at": "2012-03-27T08:20:18+00:00",
+    "domain": "www.vedomosti.ru"
   }
 ]
