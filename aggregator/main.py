@@ -168,6 +168,8 @@ def main() -> None:
     log("INFO", f"existing in file: {len(existing)}")
     merged = dedup_by_link(fresh + existing)
     merged = sort_by_date(merged)
+    new_count = len(merged) - len(existing)
+    log("INFO", f"new items this run: {new_count}")
     if len(merged) > 5000:
         merged = merged[:5000]
     log("INFO", f"merged total (<= 5000): {len(merged)}")
