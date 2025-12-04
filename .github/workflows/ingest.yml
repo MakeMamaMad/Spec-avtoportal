@@ -71,7 +71,8 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_MAX_POSTS: "10"
+          TELEGRAM_MAX_POSTS: "50"      # сколько старых новостей за один прогон
+          TELEGRAM_FORCE_ALL: "1"       # ВРЕМЕННО: считаем все новости новыми
         run: |
           python aggregator/post_to_telegram.py || echo "Telegram step failed, but continuing"
 
