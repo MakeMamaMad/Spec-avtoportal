@@ -40,16 +40,6 @@ sources:
       - коммерческий транспорт
       - рынок
 
-  - id: stkt-magazine
-    enabled: true
-    kind: rss
-    title: "Журнал «СпецТехника и Коммерческий Транспорт»"
-    url: "https://st-kt.ru/rss"
-    tags:
-      - спецтехника
-      - коммерческий транспорт
-      - полуприцепы
-
   - id: comautotrans-news
     enabled: true
     kind: rss
@@ -60,15 +50,17 @@ sources:
       - коммерческий транспорт
       - прицепы
 
-  - id: sbsgroup-telematics
+  # Новый источник: авто/грузовая техника, журналы и спецвыпуски
+  - id: techjournals-auto
     enabled: true
     kind: rss
-    title: "SBS Group — мониторинг и цифровизация транспорта"
-    url: "https://sbsgroup-rus.ru/rss-feed-704478702641.xml"
+    title: "Tech-Journals — авто и мото журналы"
+    url: "https://www.tech-journals.ru/journals/auto/rss.xml"
     tags:
-      - телематика
-      - мониторинг
-      - коммерческий транспорт
+      - авто
+      - грузовики
+      - журналы
+      - техника
 
 youtube:
   - channel_id: "UC0SAWzOPY-BiS5NVv3vdTFw"
