@@ -50,7 +50,14 @@ def make_key(item):
 
 
 def get_new_items(prev, current):
-    prev_keys = {make_key(i) for i in prev}
+    # Специальный режим: TELEGRAM_FORCE_ALL=1 → считаем все новости новыми
+    force_all = os.environ.get("TELEGRAM_FORCE_ALL") == "1"
+    if force_all:
+        print("TELEGRAM_FORCE_ALL=1 → считаем все новости новыми.", file=sys.stderr)
+        prev_keys = set()
+    else:
+        prev_keys = {make_key(i) for i in prev}
+
     unique = [i for i in current if make_key(i) not in prev_keys]
 
     def get_date(it):
