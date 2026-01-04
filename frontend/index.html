@@ -11,7 +11,6 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon">
   <link rel="shortcut icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon">
-
 </head>
 <body>
   <header class="site-header">
@@ -30,6 +29,18 @@
         <a href="guides.html" class="nav-link">Гайды и регламенты</a>
         <a href="video.html" class="nav-link">Видео</a>
       </nav>
+
+      <!-- Кнопка Telegram в шапке -->
+      <a
+        href="https://t.me/specavtoportal
+        class="tg-badge"
+        target="_blank"
+        rel="noopener"
+      >
+        <span class="tg-badge__icon">✈️</span>
+        <span class="tg-badge__text">Новости в Telegram</span>
+      </a>
+      <!-- /Кнопка Telegram -->
     </div>
   </header>
 
@@ -66,22 +77,42 @@
       </div>
     </section>
 
-     <section class="container layout">
-          
+    <section class="container layout">
+      <section>
+        <h2 class="section-title">Лента новостей</h2>
+        <div id="news-list" class="news-list"></div>
+        <div id="news-empty" class="empty-state" hidden>
+          По текущему фильтру новостей не найдено. Сбросьте поиск или выберите другую рубрику.
+        </div>
+        <div id="news-loading" class="loading">
+          Загрузка ленты…
+        </div>
+        <div id="news-error" class="error" hidden>
+          Не удалось загрузить новости. Попробуйте обновить страницу.
+        </div>
 
-        <section>
-          <h2 class="section-title">Лента новостей</h2>
-          <div id="news-list" class="news-list"></div>
-          <div id="news-empty" class="empty-state" hidden>
-            По текущему фильтру новостей не найдено. Сбросьте поиск или выберите другую рубрику.
-          </div>
-          <div id="news-loading" class="loading">
-            Загрузка ленты…
-          </div>
-          <div id="news-error" class="error" hidden>
-            Не удалось загрузить новости. Попробуйте обновить страницу.
+        <!-- Промо-блок Telegram под лентой -->
+        <section class="tg-promo">
+          <div class="tg-promo__inner">
+            <div class="tg-promo__text">
+              <h2>Ещё больше новостей — в Telegram</h2>
+              <p>
+                Оперативные обновления рынка спецтехники, без спама. Только важные новости,
+                обзоры и регламенты в одном канале.
+              </p>
+            </div>
+            <a
+              href="https://t.me/ИМЯ_ТВОЕГО_КАНАЛА"
+              class="tg-promo__button"
+              target="_blank"
+              rel="noopener"
+            >
+              Подписаться на канал
+            </a>
           </div>
         </section>
+        <!-- /Промо-блок Telegram -->
+      </section>
       </div>
 
       <aside class="layout-sidebar">
@@ -139,7 +170,6 @@
           localStorage.removeItem('lastScrollPosition');
       }
   };
-</script>
-
+  </script>
 </body>
 </html>
