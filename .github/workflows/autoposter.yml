@@ -33,17 +33,18 @@ jobs:
           cd tools/autoposter
           echo "${{ secrets.YOUTUBE_CLIENT_SECRETS_B64 }}" | base64 -d > client_secrets.json
           echo "${{ secrets.YOUTUBE_TOKEN_B64 }}" | base64 -d > youtube_token.json
-      - name: Debug:list and preview news.json
-        run: |
-          ls -la frontend || true
-          ls -la frontend/data || true
-          echo "---- head ----"
-          head -c 2000 frontend/data/news.json || true
 
+      - name: Debug: list and preview news.json
+        run: |
+          echo "workspace=$GITHUB_WORKSPACE"
+          ls -la "$GITHUB_WORKSPACE/frontend" || true
+          ls -la "$GITHUB_WORKSPACE/frontend/data" || true
+          echo "---- head ----"
+          head -c 2000 "$GITHUB_WORKSPACE/frontend/data/news.json" || true
 
       - name: Run autoposter (digest Top-3)
         env:
-          CONTENT_JSON_PATH: frontend/data/news.json
+          CONTENT_JSON_PATH: ${{ github.workspace }}/frontend/data/news.json
           SITE_URL: https://spec-avtoportal.ru/
           TELEGRAM_URL: https://t.me/specavtoportal
           YOUTUBE_CLIENT_SECRETS: client_secrets.json
