@@ -11,10 +11,13 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -36,7 +39,7 @@ jobs:
 
       - name: Debug: list and preview news.json
         run: |
-          echo "workspace=$GITHUB_WORKSPACE"
+          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
           ls -la "$GITHUB_WORKSPACE/frontend" || true
           ls -la "$GITHUB_WORKSPACE/frontend/data" || true
           echo "---- head ----"
@@ -44,12 +47,11 @@ jobs:
 
       - name: Run autoposter (digest Top-3)
         env:
-          CONTENT_JSON_PATH: ${{ github.workspace }}/frontend/data/news.json
-          SITE_URL: https://spec-avtoportal.ru/
-          TELEGRAM_URL: https://t.me/specavtoportal
-          YOUTUBE_CLIENT_SECRETS: client_secrets.json
-          YOUTUBE_TOKEN_FILE: youtube_token.json
-          YOUTUBE_PRIVACY: public
+          SITE_URL: "https://spec-avtoportal.ru/"
+          TELEGRAM_URL: "https://t.me/specavtoportal"
+          YOUTUBE_CLIENT_SECRETS: "client_secrets.json"
+          YOUTUBE_TOKEN_FILE: "youtube_token.json"
+          YOUTUBE_PRIVACY: "public"
           VIDEO_WIDTH: "720"
           VIDEO_HEIGHT: "1280"
           FPS: "30"
@@ -58,6 +60,7 @@ jobs:
           SLIDE_CTA_SECONDS: "3"
         run: |
           cd tools/autoposter
+          export CONTENT_JSON_PATH="$GITHUB_WORKSPACE/frontend/data/news.json"
           python -m src.main
 
       - name: Commit state (posted.json)
