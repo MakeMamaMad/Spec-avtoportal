@@ -6,6 +6,7 @@ from .sources import ContentItem
 
 @dataclass
 class Slide:
+    image_url: str | None = None
     header: str
     lines: List[str]
     footer: str
@@ -33,6 +34,7 @@ def build_digest(items: List[ContentItem]) -> DigestPlan:
             lines=["Прицепы • Полуприцепы • Грузовики", "Инфраструктура • Госзакупки"],
             footer="Дайджест SpecAvtoPortal",
             seconds=cfg.SLIDE_TITLE_SECONDS,
+            image_url=item.image
         )
     ]
 
