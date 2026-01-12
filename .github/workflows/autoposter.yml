@@ -31,10 +31,13 @@ jobs:
           pip install -r requirements.txt
 
       - name: Restore YouTube secrets
+        env:
+          YT_CLIENT_B64: ${{ secrets.YOUTUBE_CLIENT_SECRETS_B64 }}
+          YT_TOKEN_B64: ${{ secrets.YOUTUBE_TOKEN_B64 }}
         run: |
           cd tools/autoposter
-          echo "${{ secrets.YOUTUBE_CLIENT_SECRETS_B64 }}" | base64 -d > client_secrets.json
-          echo "${{ secrets.YOUTUBE_TOKEN_B64 }}" | base64 -d > youtube_token.json
+          echo "$YT_CLIENT_B64" | base64 -d > client_secrets.json
+          echo "$YT_TOKEN_B64" | base64 -d > youtube_token.json
 
       - name: Debug: list and preview news.json
         run: |
