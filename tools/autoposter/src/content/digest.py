@@ -6,11 +6,11 @@ from .sources import ContentItem
 
 @dataclass
 class Slide:
-    image_url: str | None = None
     header: str
     lines: List[str]
     footer: str
     seconds: float
+    image_url: Optional[str] = None
 
 @dataclass
 class DigestPlan:
