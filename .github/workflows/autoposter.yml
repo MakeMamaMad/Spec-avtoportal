@@ -2,78 +2,9 @@ name: autoposter-youtube
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 9 * * 2,4,6"  # 09:00 UTC = 12:00 МСК (Вт/Чт/Сб)
-
-permissions:
-  contents: write
 
 jobs:
-  run:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install ffmpeg
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-
-      - name: Install deps
-        run: |
-          cd tools/autoposter
-          pip install -r requirements.txt
-
-      - name: Restore YouTube secrets
-        run: |
-          cd tools/autoposter
-          echo "${{ secrets.YOUTUBE_CLIENT_SECRETS_B64 }}" | base64 -d > client_secrets.json
-          echo "${{ secrets.YOUTUBE_TOKEN_B64 }}" | base64 -d > youtube_token.json
-
-      - name: Debug: list and preview news.json
-        run: |
-          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
-          ls -la "$GITHUB_WORKSPACE/frontend" || true
-          ls -la "$GITHUB_WORKSPACE/frontend/data" || true
-          echo "---- head ----"
-          head -c 2000 "$GITHUB_WORKSPACE/frontend/data/news.json" || true
-
-      - name: Run autoposter (digest Top-3)
-        env:
-          SITE_URL: "https://spec-avtoportal.ru/"
-          TELEGRAM_URL: "https://t.me/specavtoportal"
-          YOUTUBE_CLIENT_SECRETS: "client_secrets.json"
-          YOUTUBE_TOKEN_FILE: "youtube_token.json"
-          YOUTUBE_PRIVACY: "public"
-          VIDEO_WIDTH: "720"
-          VIDEO_HEIGHT: "1280"
-          FPS: "30"
-          SLIDE_TITLE_SECONDS: "2"
-          SLIDE_NEWS_SECONDS: "4"
-          SLIDE_CTA_SECONDS: "3"
-        run: |
-          cd tools/autoposter
-          export CONTENT_JSON_PATH="$GITHUB_WORKSPACE/frontend/data/news.json"
-          python -m src.main
-
-      - name: Commit state (posted.json)
-        run: |
-          git config user.name "specavto-autoposter"
-          git config user.email "actions@users.noreply.github.com"
-          git add tools/autoposter/state/posted.json || true
-          git commit -m "autoposter: update state" || echo "Nothing to commit"
-          git push || true
-
-      - name: Upload artifacts (video + caption for IG/TT)
-        uses: actions/upload-artifact@v4
-        with:
-          name: autoposter-output
-          path: tools/autoposter/out/*
-          if-no-files-found: ignore
+      - run: echo "workflow ok"
