@@ -4,7 +4,9 @@ on:
   push:
     branches: [ main ]
     paths-ignore:
-    - "tools/autoposter/**"
+      - ".github/workflows/autoposter.yml"
+      - "tools/autoposter/**"
+
 
   # Запуск после успешного Ingest & Publish
   workflow_run:
