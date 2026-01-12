@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List
-
+from typing import Optional
 from ..config import cfg
 from .sources import ContentItem
 
