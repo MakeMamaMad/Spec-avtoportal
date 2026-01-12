@@ -95,7 +95,7 @@ def render_digest_video(slides: List[Slide], out_mp4: Path):
     concat = work / "concat.txt"
     with open(concat, "w", encoding="utf-8") as f:
         for seg in segments:
-            f.write(f"file '{seg.as_posix()}'\n")
+           f.write(f"file '{seg_path.name}'\n")
 
     subprocess.check_call([
         "ffmpeg", "-y", "-loglevel", "error",
