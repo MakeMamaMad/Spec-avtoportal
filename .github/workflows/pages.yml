@@ -3,6 +3,8 @@ name: Pages
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+    - "tools/autoposter/**"
 
   # Запуск после успешного Ingest & Publish
   workflow_run:
