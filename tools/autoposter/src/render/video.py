@@ -37,35 +37,50 @@ def _ffmpeg_exists():
     subprocess.check_call(["ffmpeg", "-version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
-def _download_image(url: str, out_path: Path, timeout: int = 20) -> Optional[Path]:
+def _guess_ext_from_url(url: str) -> str:
+    # strip query params
+    base = url.split("?", 1)[0].split("#", 1)[0]
+    ext = Path(base).suffix.lower()
+    if ext in [".jpg", ".jpeg", ".png", ".webp"]:
+        return ext
+    return ".img"
+
+
+def _download_image(url: str, out_path: Path, timeout: int = 25) -> Optional[Path]:
     """
     Download image by URL. Returns saved path or None if failed.
     """
     try:
         out_path.parent.mkdir(parents=True, exist_ok=True)
+        print(f"[img] download: {url}")
         req = urllib.request.Request(
             url,
             headers={"User-Agent": "Mozilla/5.0 (SpecAvtoPortal Autoposter)"},
         )
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             data = resp.read()
+            status = getattr(resp, "status", "unknown")
+            ctype = resp.headers.get("Content-Type", "")
         out_path.write_bytes(data)
+        print(f"[img] ok: status={status} bytes={len(data)} content-type={ctype} -> {out_path.name}")
         return out_path
-    except Exception:
+    except Exception as e:
+        print(f"[img] FAILED: {url} err={e}")
         return None
 
 
 def _ensure_png(src_path: Path, dst_png: Path) -> Optional[Path]:
     """
-    Convert src image to PNG (for Pillow stability). Uses Pillow first, falls back to ffmpeg.
+    Convert src image to PNG. Pillow first, fallback to ffmpeg.
     """
     try:
         img = Image.open(src_path)
         img = img.convert("RGB")
         img.save(dst_png)
+        print(f"[img] pillow convert ok -> {dst_png.name}")
         return dst_png
-    except Exception:
-        # fallback via ffmpeg (handles webp reliably)
+    except Exception as e:
+        print(f"[img] pillow convert FAILED ({src_path.name}): {e}. Try ffmpeg...")
         try:
             subprocess.check_call([
                 "ffmpeg", "-y", "-loglevel", "error",
@@ -73,8 +88,10 @@ def _ensure_png(src_path: Path, dst_png: Path) -> Optional[Path]:
                 str(dst_png),
             ])
             if dst_png.exists():
+                print(f"[img] ffmpeg convert ok -> {dst_png.name}")
                 return dst_png
-        except Exception:
+        except Exception as e2:
+            print(f"[img] ffmpeg convert FAILED ({src_path.name}): {e2}")
             return None
     return None
 
@@ -119,36 +136,35 @@ def _render_slide_png(slide: Slide, out_png: Path):
         pad = 36
         line_h = 52
 
-    # --- background: either image or plain ---
+    # default background
     bg = Image.new("RGB", (W, H), (12, 12, 14))
 
     image_url = getattr(slide, "image_url", None)
     if image_url:
         work_dir = out_png.parent  # out/_work
-        raw_path = work_dir / "images" / (f"img_{out_png.stem}.bin")
+        ext = _guess_ext_from_url(image_url)
+        raw_path = work_dir / "images" / f"img_{out_png.stem}{ext}"
         saved = _download_image(image_url, raw_path)
         if saved:
-            png_path = work_dir / "images" / (f"img_{out_png.stem}.png")
+            png_path = work_dir / "images" / f"img_{out_png.stem}.png"
             ok_png = _ensure_png(saved, png_path)
             if ok_png:
                 try:
                     im = Image.open(ok_png).convert("RGB")
                     bg = _cover_crop(im, W, H)
-                except Exception:
-                    pass
+                    print(f"[img] applied as background for {out_png.name}")
+                except Exception as e:
+                    print(f"[img] open/apply FAILED ({ok_png.name}): {e}")
 
-    # switch to RGBA for overlays
+    # overlays
     img = bg.convert("RGBA")
     d = ImageDraw.Draw(img, "RGBA")
 
-    # overlays (semi-transparent)
     d.rectangle([0, 0, W, top_h], fill=(0, 0, 0, 170))
     d.rectangle([0, H - bot_h, W, H], fill=(0, 0, 0, 170))
 
-    # header
     d.text((pad, int(top_h * 0.25)), slide.header, font=title_font, fill=white)
 
-    # body
     y = int(H * 0.18)
     for line in slide.lines:
         for l in _wrap(d, line, body_font, W - pad * 2):
@@ -156,7 +172,6 @@ def _render_slide_png(slide: Slide, out_png: Path):
             y += line_h
         y += int(line_h * 0.35)
 
-    # footer
     d.text((pad, H - int(bot_h * 0.7)), slide.footer, font=footer_font, fill=muted)
     d.text((W - int(pad * 8.5), H - int(bot_h * 0.7)), "t.me/specavtoportal", font=footer_font, fill=muted)
 
@@ -186,7 +201,6 @@ def render_digest_video(slides: List[Slide], out_mp4: Path):
         ])
         segments.append(seg)
 
-    # concat list (IMPORTANT: write only filenames; run ffmpeg in work dir)
     concat = work / "concat.txt"
     with open(concat, "w", encoding="utf-8") as f:
         for seg in segments:
