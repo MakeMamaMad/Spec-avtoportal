@@ -33,6 +33,13 @@ jobs:
           cd tools/autoposter
           echo "${{ secrets.YOUTUBE_CLIENT_SECRETS_B64 }}" | base64 -d > client_secrets.json
           echo "${{ secrets.YOUTUBE_TOKEN_B64 }}" | base64 -d > youtube_token.json
+      - name: Debug: list and preview news.json
+        run: |
+          ls -la frontend || true
+          ls -la frontend/data || true
+          echo "---- head ----"
+          head -c 2000 frontend/data/news.json || true
+
 
       - name: Run autoposter (digest Top-3)
         env:
