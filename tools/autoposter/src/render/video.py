@@ -79,7 +79,7 @@ def render_digest_video(slides: List[Slide], out_mp4: Path):
         png = work / f"slide_{i:02d}.png"
         seg = work / f"seg_{i:02d}.mp4"
         _render_slide_png(s, png)
-        subprocess.check_call([
+        subprocess.check_call(cmd, cwd=work_dir)([
             "ffmpeg", "-y", "-loglevel", "error",
             "-loop", "1", "-i", str(png),
             "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
