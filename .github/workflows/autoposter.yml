@@ -21,16 +21,19 @@ jobs:
           python-version: "3.11"
 
       - name: Install ffmpeg
+        shell: bash
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
 
       - name: Install deps
+        shell: bash
         run: |
           cd tools/autoposter
           pip install -r requirements.txt
 
       - name: Restore YouTube secrets
+        shell: bash
         env:
           YT_CLIENT_B64: ${{ secrets.YOUTUBE_CLIENT_SECRETS_B64 }}
           YT_TOKEN_B64: ${{ secrets.YOUTUBE_TOKEN_B64 }}
@@ -39,7 +42,8 @@ jobs:
           echo "$YT_CLIENT_B64" | base64 -d > client_secrets.json
           echo "$YT_TOKEN_B64" | base64 -d > youtube_token.json
 
-      - name: Debug: list and preview news.json
+      - name: Debug list and preview news.json
+        shell: bash
         run: |
           echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
           ls -la "$GITHUB_WORKSPACE/frontend" || true
@@ -48,6 +52,7 @@ jobs:
           head -c 2000 "$GITHUB_WORKSPACE/frontend/data/news.json" || true
 
       - name: Run autoposter (digest Top-3)
+        shell: bash
         env:
           SITE_URL: "https://spec-avtoportal.ru/"
           TELEGRAM_URL: "https://t.me/specavtoportal"
@@ -66,6 +71,7 @@ jobs:
           python -m src.main
 
       - name: Commit state (posted.json)
+        shell: bash
         run: |
           git config user.name "specavto-autoposter"
           git config user.email "actions@users.noreply.github.com"
