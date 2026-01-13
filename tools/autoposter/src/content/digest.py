@@ -12,6 +12,8 @@ class Slide:
     footer: str
     seconds: float
     image_url: Optional[str] = None
+    # для стабильного выбора шаблона по хэшу
+    key: Optional[str] = None
 
 
 @dataclass
@@ -27,9 +29,24 @@ def build_digest(items: List[ContentItem]) -> DigestPlan:
     if not items:
         raise ValueError("No items for digest")
 
-    def cut(s: str, n: int = 78) -> str:
-        s = " ".join((s or "").split()).strip()
+    def clean(s: str) -> str:
+        return " ".join((s or "").replace("\xa0", " ").split()).strip()
+
+    def cut(s: str, n: int) -> str:
+        s = clean(s)
         return s if len(s) <= n else (s[: n - 1].rstrip() + "…")
+
+    def pick_summary(it: ContentItem) -> str:
+        # берём больше описания, без повтора заголовка
+        s = clean(getattr(it, "summary", "") or "")
+        if not s:
+            return "Коротко: подробности — по ссылке."
+        # если вдруг summary повторяет title — отрежем и оставим хвост
+        t = clean(it.title)
+        if t and s.lower().startswith(t.lower()):
+            s = s[len(t):].lstrip(" —:;,.")
+        # сделаем длиннее, чтобы снизу не было пустоты
+        return cut(s, 220)
 
     slides: List[Slide] = [
         Slide(
@@ -37,29 +54,38 @@ def build_digest(items: List[ContentItem]) -> DigestPlan:
             lines=["Прицепы • Полуприцепы • Грузовики", "Инфраструктура • Госзакупки"],
             footer="Дайджест SpecAvtoPortal",
             seconds=cfg.SLIDE_TITLE_SECONDS,
-            # титульный слайд можно без картинки (или можно взять картинку 1-й новости)
             image_url=getattr(items[0], "image", None),
+            key="title",
         )
     ]
 
     for i, it in enumerate(items, start=1):
         slides.append(
             Slide(
-                header=f"Новость #{i}",
-                lines=[cut(it.title)],
-                footer="Коротко: что важно рынку",
+                header=f"Новость {i}",  # без #
+                lines=[
+                    cut(it.title, 120),
+                    pick_summary(it),     # больше описания
+                ],
+                footer=(it.source or "").strip() or "SpecAvtoPortal",
                 seconds=cfg.SLIDE_NEWS_SECONDS,
-                image_url=getattr(it, "image", None),  # <-- КАРТИНКА НОВОСТИ
+                image_url=getattr(it, "image", None),
+                key=it.url,
             )
         )
 
     slides.append(
         Slide(
             header="Где читать",
-            lines=["Сайт: spec-avtoportal.ru", "TG: t.me/specavtoportal", "Ссылки — в профиле / шапке"],
+            lines=[
+                "Сайт: spec-avtoportal.ru",
+                "TG: t.me/specavtoportal",
+                "Ссылки — в профиле / шапке",
+            ],
             footer="Подписывайся / сохраняй",
             seconds=cfg.SLIDE_CTA_SECONDS,
             image_url=getattr(items[0], "image", None),
+            key="cta",
         )
     )
 
