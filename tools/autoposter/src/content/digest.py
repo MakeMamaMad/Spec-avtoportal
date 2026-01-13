@@ -46,7 +46,7 @@ def build_digest(items: List[ContentItem]) -> DigestPlan:
         if t and s.lower().startswith(t.lower()):
             s = s[len(t):].lstrip(" —:;,.")
         # сделаем длиннее, чтобы снизу не было пустоты
-        return cut(s, 220)
+        return cut(s, 320)
 
     slides: List[Slide] = [
         Slide(
@@ -65,7 +65,7 @@ def build_digest(items: List[ContentItem]) -> DigestPlan:
                 header=f"Новость {i}",  # без #
                 lines=[
                     cut(it.title, 120),
-                    pick_summary(it),     # больше описания
+                    pick_summary(it),
                 ],
                 footer=(it.source or "").strip() or "SpecAvtoPortal",
                 seconds=cfg.SLIDE_NEWS_SECONDS,
