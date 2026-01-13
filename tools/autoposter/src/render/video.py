@@ -132,52 +132,75 @@ def _choose_template(slide: Slide) -> str:
 
 # ----------------- Templates -----------------
 def _draw_topbar_common(img: Image.Image, d: ImageDraw.ImageDraw, W: int, pad: int, top_h: int, style: str, header: str):
+    """
+    Layout:
+    [LOGO][SpecAvtoPortal] .................................. [Новости]
+    """
     logo = _load_logo()
-    x = pad
 
-    brand_font = _font(int(top_h * 0.30), True)
-    news_font = _font(int(top_h * 0.36), True)
+    # Colors
+    brand_color = (20, 20, 20) if style == "D" else (255, 255, 255)
+    news_color = (20, 20, 20) if style == "D" else (255, 255, 255)
 
-    # logo
+    # Fonts
+    brand_font = _font(int(top_h * 0.34), True)
+    news_font = _font(int(top_h * 0.40), True)
+    badge_font = _font(int(top_h * 0.40), True)
+
+    # ----- LEFT BLOCK: logo + brand -----
+    x_left = pad
+
+    # make logo bigger => "wider" (keeps aspect ratio)
     if logo:
-        lw = int(top_h * 0.70)
+        target_h = int(top_h * 0.90)  # было ~0.70, теперь шире/крупнее
         try:
             ow, oh = logo.size
-            sc = lw / max(1, ow)
-            logo2 = logo.resize((lw, int(oh * sc)), Image.LANCZOS)
-            img.alpha_composite(logo2, (x, int((top_h - logo2.size[1]) / 2)))
-            x += lw + int(pad * 0.35)
+            sc = target_h / max(1, oh)
+            lw = int(ow * sc)
+            lh = int(oh * sc)
+            logo2 = logo.resize((lw, lh), Image.LANCZOS)
+            img.alpha_composite(logo2, (x_left, int((top_h - lh) / 2)))
+            x_left += lw + int(pad * 0.35)
         except Exception:
             pass
 
-    # brand
+    # brand text next to logo
     brand = "SpecAvtoPortal"
-    brand_color = (20, 20, 20) if style == "D" else (255, 255, 255)
-    d.text((x, int(top_h * 0.10)), brand, font=brand_font, fill=brand_color)
+    d.text((x_left, int(top_h * 0.26)), brand, font=brand_font, fill=brand_color)
 
-    # news line
+    # ----- RIGHT BLOCK: "Новости" aligned to right -----
     if "новость" in (header or "").lower():
         num = _news_num(header)
 
-        if style == "D":
-            d.text((x, int(top_h * 0.46)), "Новости", font=news_font, fill=(20, 20, 20))
-            if num:
-                d.text(
-                    (x + int(d.textlength("Новости", font=news_font)) + int(pad * 0.4), int(top_h * 0.46)),
-                    num,
-                    font=news_font,
-                    fill=(220, 120, 0),
-                )
+        right_margin = pad
+        news_text = "Новости"
+        news_w = int(d.textlength(news_text, font=news_font))
+
+        if num:
+            # orange badge size
+            bw = int(d.textlength(num, font=badge_font)) + int(pad * 0.7)
+            bh = int(top_h * 0.70)
+
+            # total right block width: Новости + gap + badge
+            gap = int(pad * 0.45)
+            total_w = news_w + gap + bw
+
+            x_block = W - right_margin - total_w
+            y_news = int(top_h * 0.22)
+
+            d.text((x_block, y_news), news_text, font=news_font, fill=news_color)
+
+            bx = x_block + news_w + gap
+            by = int((top_h - bh) / 2)
+
+            # badge
+            _rounded(d, [bx, by, bx + bw, by + bh], r=int(bh * 0.35), fill=(255, 140, 0, 235))
+            d.text((bx + int(pad * 0.25), by + int(bh * 0.10)), num, font=badge_font, fill=(15, 15, 15))
         else:
-            d.text((x, int(top_h * 0.44)), "Новости", font=news_font, fill=(255, 255, 255))
-            if num:
-                badge_font = _font(int(top_h * 0.38), True)
-                bw = int(d.textlength(num, font=badge_font)) + int(pad * 0.6)
-                bh = int(top_h * 0.62)
-                bx = x + int(d.textlength("Новости", font=news_font)) + int(pad * 0.5)
-                by = int(top_h * 0.40)
-                _rounded(d, [bx, by, bx + bw, by + bh], r=int(bh * 0.35), fill=(255, 140, 0, 235))
-                d.text((bx + int(pad * 0.25), by + int(bh * 0.10)), num, font=badge_font, fill=(15, 15, 15))
+            # no number — just right align "Новости"
+            x_news = W - right_margin - news_w
+            d.text((x_news, int(top_h * 0.22)), news_text, font=news_font, fill=news_color)
+
 
 
 def _render_A(slide: Slide, out_png: Path):
