@@ -2,12 +2,21 @@ import os
 import subprocess
 import urllib.request
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 from ..config import cfg
 from ..content.digest import Slide
+
+
+# ---------- styling ----------
+ACCENT = (255, 140, 0)       # оранжевый (под “СпецАвто”)
+ACCENT2 = (56, 189, 248)     # голубой (акцент)
+BG_DARK = (12, 18, 28)       # тёмно-синий
+PANEL = (20, 28, 44)         # панель снизу
+WHITE = (255, 255, 255)
+MUTED = (190, 200, 210)
 
 
 def _font(size: int, bold: bool = False) -> ImageFont.ImageFont:
@@ -92,7 +101,7 @@ def _ensure_png(src_path: Path, dst_png: Path) -> Optional[Path]:
 def _cover_crop(im: Image.Image, W: int, H: int) -> Image.Image:
     iw, ih = im.size
     if iw == 0 or ih == 0:
-        return Image.new("RGB", (W, H), (12, 12, 14))
+        return Image.new("RGB", (W, H), BG_DARK)
 
     scale = max(W / iw, H / ih)
     nw, nh = int(iw * scale), int(ih * scale)
@@ -103,34 +112,71 @@ def _cover_crop(im: Image.Image, W: int, H: int) -> Image.Image:
     return im2.crop((left, top, left + W, top + H))
 
 
+def _rounded_rect(draw: ImageDraw.ImageDraw, box, radius: int, fill):
+    try:
+        draw.rounded_rectangle(box, radius=radius, fill=fill)
+    except Exception:
+        draw.rectangle(box, fill=fill)
+
+
+def _load_logo() -> Optional[Image.Image]:
+    # ожидаем, что лого лежит здесь: tools/autoposter/assets/logo.png
+    logo_path = Path(__file__).resolve().parent.parent / "assets" / "logo.png"
+    if logo_path.exists():
+        try:
+            return Image.open(logo_path).convert("RGBA")
+        except Exception:
+            return None
+    return None
+
+
+def _parse_news_number(header: str) -> Optional[str]:
+    # "Новость 2" -> "2"
+    digits = "".join([c for c in header if c.isdigit()])
+    return digits or None
+
+
+def _is_news_slide(slide: Slide) -> bool:
+    h = (slide.header or "").lower()
+    return "новость" in h
+
+
+def _is_cta_slide(slide: Slide) -> bool:
+    return (slide.header or "").strip().lower() in ["где читать", "где читать?"]
+
+
 def _render_slide_png(slide: Slide, out_png: Path):
     W, H = cfg.VIDEO_WIDTH, cfg.VIDEO_HEIGHT
 
-    white = (255, 255, 255)
-    muted = (210, 210, 210)
-
+    # размеры шрифтов под 720x1280 и 1080x1920
     if W >= 1080:
-        title_font = _font(72, True)
-        body_font = _font(54, False)
-        footer_font = _font(38, False)
-        top_h = 170
-        bot_h = 150
+        top_font = _font(44, True)
+        num_font = _font(54, True)
+        title_font = _font(56, True)
+        body_font = _font(40, False)
+        footer_font = _font(34, False)
         pad = 60
-        line_h = 76
+        radius = 34
     else:
-        title_font = _font(52, True)
-        body_font = _font(38, False)
-        footer_font = _font(28, False)
-        top_h = 110
-        bot_h = 110
+        top_font = _font(30, True)
+        num_font = _font(38, True)
+        title_font = _font(40, True)
+        body_font = _font(30, False)
+        footer_font = _font(26, False)
         pad = 36
-        line_h = 52
+        radius = 26
 
-    bg = Image.new("RGB", (W, H), (12, 12, 14))
+    # layout: верхняя картинка ~55%, низ — панель с текстом
+    img_h = int(H * 0.55)
+    panel_y = img_h
 
+    # фон по умолчанию
+    base = Image.new("RGB", (W, H), BG_DARK)
+
+    # ---------- верхняя картинка ----------
     image_url = getattr(slide, "image_url", None)
     if image_url:
-        work_dir = out_png.parent  # out/_work
+        work_dir = out_png.parent
         ext = _guess_ext_from_url(image_url)
         raw_path = work_dir / "images" / f"img_{out_png.stem}{ext}"
         saved = _download_image(image_url, raw_path)
@@ -140,40 +186,92 @@ def _render_slide_png(slide: Slide, out_png: Path):
             if ok_png:
                 try:
                     im = Image.open(ok_png).convert("RGB")
-                    bg = _cover_crop(im, W, H)
-
-                    # soften and darken background to prevent conflicts with text
-                    bg = bg.filter(ImageFilter.GaussianBlur(radius=6))
-                    overlay = Image.new("RGB", (W, H), (0, 0, 0))
-                    bg = Image.blend(bg, overlay, alpha=0.35)
-
-                    print(f"[img] applied as background for {out_png.name}")
+                    top_img = _cover_crop(im, W, img_h)
+                    base.paste(top_img, (0, 0))
                 except Exception as e:
                     print(f"[img] open/apply FAILED ({ok_png.name}): {e}")
 
-    img = bg.convert("RGBA")
+    # если картинки нет — делаем мягкий градиент
+    if not image_url:
+        grad = Image.new("RGB", (W, img_h), BG_DARK)
+        g = ImageDraw.Draw(grad)
+        for y in range(img_h):
+            t = y / max(1, img_h - 1)
+            col = (
+                int(BG_DARK[0] * (1 - t) + ACCENT2[0] * t * 0.25),
+                int(BG_DARK[1] * (1 - t) + ACCENT2[1] * t * 0.25),
+                int(BG_DARK[2] * (1 - t) + ACCENT2[2] * t * 0.25),
+            )
+            g.line([(0, y), (W, y)], fill=col)
+        base.paste(grad, (0, 0))
+
+    # слегка блюрим верх, чтобы не спорил с текстом/лого
+    top_region = base.crop((0, 0, W, img_h)).filter(ImageFilter.GaussianBlur(radius=2))
+    base.paste(top_region, (0, 0))
+
+    img = base.convert("RGBA")
     d = ImageDraw.Draw(img, "RGBA")
 
-    # stronger top/bottom bars
-    d.rectangle([0, 0, W, top_h], fill=(0, 0, 0, 210))
-    d.rectangle([0, H - bot_h, W, H], fill=(0, 0, 0, 210))
+    # ---------- нижняя панель ----------
+    d.rectangle([0, panel_y, W, H], fill=(PANEL[0], PANEL[1], PANEL[2], 255))
 
-    # central panel for body text
-    body_top = int(H * 0.16)
-    body_bot = int(H * 0.78)
-    d.rectangle([int(pad * 0.6), body_top, W - int(pad * 0.6), body_bot], fill=(0, 0, 0, 140))
+    # декоративная линия-акцент
+    d.rectangle([0, panel_y, W, panel_y + int(pad * 0.18)], fill=(ACCENT[0], ACCENT[1], ACCENT[2], 255))
 
-    d.text((pad, int(top_h * 0.25)), slide.header, font=title_font, fill=white)
+    # ---------- топ-бар на картинке ----------
+    topbar_h = int(pad * 1.6)
+    d.rectangle([0, 0, W, topbar_h], fill=(0, 0, 0, 120))
 
-    y = int(H * 0.18)
+    # logo
+    logo = _load_logo()
+    logo_w = int(topbar_h * 0.78)
+    x = pad
+    if logo:
+        try:
+            lw, lh = logo.size
+            scale = logo_w / max(1, lw)
+            logo2 = logo.resize((logo_w, int(lh * scale)), Image.LANCZOS)
+            img.alpha_composite(logo2, (x, int((topbar_h - logo2.size[1]) / 2)))
+            x += logo_w + int(pad * 0.35)
+        except Exception:
+            pass
+
+    # надпись "Новости" + номер
+    if _is_news_slide(slide):
+        num = _parse_news_number(slide.header) or ""
+        d.text((x, int(topbar_h * 0.22)), "Новости", font=top_font, fill=WHITE)
+        if num:
+            nx = x + int(d.textlength("Новости", font=top_font)) + int(pad * 0.35)
+            # маленький цветной бейдж под номер
+            badge_w = int(d.textlength(num, font=num_font)) + int(pad * 0.7)
+            badge_h = int(topbar_h * 0.8)
+            badge_y = int((topbar_h - badge_h) / 2)
+            _rounded_rect(d, [nx - int(pad * 0.25), badge_y, nx - int(pad * 0.25) + badge_w, badge_y + badge_h], radius=int(radius * 0.75), fill=(ACCENT[0], ACCENT[1], ACCENT[2], 230))
+            d.text((nx + int(pad * 0.05), int(topbar_h * 0.15)), num, font=num_font, fill=(10, 10, 10))
+    else:
+        # для титула/CTA просто заголовок
+        d.text((x, int(topbar_h * 0.22)), slide.header, font=top_font, fill=WHITE)
+
+    # ---------- текст в нижней панели ----------
+    panel_pad = pad
+    text_x = panel_pad
+    text_y = panel_y + int(panel_pad * 0.6)
+    max_w = W - panel_pad * 2
+
+    # основной текст (slide.lines)
     for line in slide.lines:
-        for l in _wrap(d, line, body_font, W - pad * 2):
-            d.text((pad, y), l, font=body_font, fill=(245, 245, 245, 255))
-            y += line_h
-        y += int(line_h * 0.35)
+        for l in _wrap(d, line, title_font if _is_news_slide(slide) else body_font, max_w):
+            d.text((text_x, text_y), l, font=title_font if _is_news_slide(slide) else body_font, fill=WHITE)
+            text_y += int((title_font.size if _is_news_slide(slide) else body_font.size) * 1.25)
+        text_y += int(pad * 0.2)
 
-    d.text((pad, H - int(bot_h * 0.7)), slide.footer, font=footer_font, fill=muted)
-    d.text((W - int(pad * 8.5), H - int(bot_h * 0.7)), "t.me/specavtoportal", font=footer_font, fill=muted)
+    # footer
+    d.text((text_x, H - int(pad * 1.5)), slide.footer, font=footer_font, fill=MUTED)
+
+    # tg справа снизу
+    tg = "t.me/specavtoportal"
+    tw = int(d.textlength(tg, font=footer_font))
+    d.text((W - pad - tw, H - int(pad * 1.5)), tg, font=footer_font, fill=MUTED)
 
     img.convert("RGB").save(out_png)
 
