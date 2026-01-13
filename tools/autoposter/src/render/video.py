@@ -4,7 +4,7 @@ import urllib.request
 from pathlib import Path
 from typing import List, Optional
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 from ..config import cfg
 from ..content.digest import Slide
@@ -38,7 +38,6 @@ def _ffmpeg_exists():
 
 
 def _guess_ext_from_url(url: str) -> str:
-    # strip query params
     base = url.split("?", 1)[0].split("#", 1)[0]
     ext = Path(base).suffix.lower()
     if ext in [".jpg", ".jpeg", ".png", ".webp"]:
@@ -47,9 +46,6 @@ def _guess_ext_from_url(url: str) -> str:
 
 
 def _download_image(url: str, out_path: Path, timeout: int = 25) -> Optional[Path]:
-    """
-    Download image by URL. Returns saved path or None if failed.
-    """
     try:
         out_path.parent.mkdir(parents=True, exist_ok=True)
         print(f"[img] download: {url}")
@@ -70,9 +66,6 @@ def _download_image(url: str, out_path: Path, timeout: int = 25) -> Optional[Pat
 
 
 def _ensure_png(src_path: Path, dst_png: Path) -> Optional[Path]:
-    """
-    Convert src image to PNG. Pillow first, fallback to ffmpeg.
-    """
     try:
         img = Image.open(src_path)
         img = img.convert("RGB")
@@ -97,9 +90,6 @@ def _ensure_png(src_path: Path, dst_png: Path) -> Optional[Path]:
 
 
 def _cover_crop(im: Image.Image, W: int, H: int) -> Image.Image:
-    """
-    Resize image to cover W x H and crop center.
-    """
     iw, ih = im.size
     if iw == 0 or ih == 0:
         return Image.new("RGB", (W, H), (12, 12, 14))
@@ -136,7 +126,6 @@ def _render_slide_png(slide: Slide, out_png: Path):
         pad = 36
         line_h = 52
 
-    # default background
     bg = Image.new("RGB", (W, H), (12, 12, 14))
 
     image_url = getattr(slide, "image_url", None)
@@ -152,16 +141,27 @@ def _render_slide_png(slide: Slide, out_png: Path):
                 try:
                     im = Image.open(ok_png).convert("RGB")
                     bg = _cover_crop(im, W, H)
+
+                    # soften and darken background to prevent conflicts with text
+                    bg = bg.filter(ImageFilter.GaussianBlur(radius=6))
+                    overlay = Image.new("RGB", (W, H), (0, 0, 0))
+                    bg = Image.blend(bg, overlay, alpha=0.35)
+
                     print(f"[img] applied as background for {out_png.name}")
                 except Exception as e:
                     print(f"[img] open/apply FAILED ({ok_png.name}): {e}")
 
-    # overlays
     img = bg.convert("RGBA")
     d = ImageDraw.Draw(img, "RGBA")
 
-    d.rectangle([0, 0, W, top_h], fill=(0, 0, 0, 170))
-    d.rectangle([0, H - bot_h, W, H], fill=(0, 0, 0, 170))
+    # stronger top/bottom bars
+    d.rectangle([0, 0, W, top_h], fill=(0, 0, 0, 210))
+    d.rectangle([0, H - bot_h, W, H], fill=(0, 0, 0, 210))
+
+    # central panel for body text
+    body_top = int(H * 0.16)
+    body_bot = int(H * 0.78)
+    d.rectangle([int(pad * 0.6), body_top, W - int(pad * 0.6), body_bot], fill=(0, 0, 0, 140))
 
     d.text((pad, int(top_h * 0.25)), slide.header, font=title_font, fill=white)
 
