@@ -437,7 +437,7 @@ def render_digest_video(slides: List[Slide], out_mp4: Path):
             "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
             "-t", str(s.seconds),
             "-r", str(cfg.FPS),
-            "-c:v", "libx264", "-preset", "medium", "-crf", "stillimage","18",
+            "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-tune", "stillimage",
             "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-shortest",
             str(seg),
