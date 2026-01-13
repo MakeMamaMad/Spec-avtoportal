@@ -15,8 +15,8 @@ class Config:
 
     CONTENT_JSON_PATH: str = _get("CONTENT_JSON_PATH", "frontend/data/news.json")
 
-    VIDEO_WIDTH: int = int(_get("VIDEO_WIDTH", "720"))
-    VIDEO_HEIGHT: int = int(_get("VIDEO_HEIGHT", "1280"))
+    VIDEO_WIDTH: int = int(_get("VIDEO_WIDTH", "1080"))
+    VIDEO_HEIGHT: int = int(_get("VIDEO_HEIGHT", "1920"))
     FPS: int = int(_get("FPS", "30"))
 
     SLIDE_TITLE_SECONDS: float = float(_get("SLIDE_TITLE_SECONDS", "2"))
