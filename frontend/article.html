@@ -9,14 +9,13 @@
   <link rel="shortcut icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon">
 </head>
 <body class="article-page">
-  <!-- ТА ЖЕ ШАПКА, ЧТО И НА ГЛАВНОЙ -->
   <header class="site-header">
     <div class="container header-inner">
-      <a href="./index.html" class="logo">
-        <img src="assets/logo.svg" alt="СпецАвтоПортал" class="logo-img" />
-        <span class="logo-text">
-          СпецАвтоПортал
-          <span class="logo-sub">Новости спецтехники</span>
+      <a href="./index.html" class="site-logo">
+        <img src="./assets/logo.png" alt="СпецАвтоПортал" class="site-logo__img" />
+        <span class="site-logo__text">
+          <span class="site-logo__title">СпецАвтоПортал</span>
+          <span class="site-logo__subtitle">Новости спецтехники</span>
         </span>
       </a>
 
@@ -27,7 +26,6 @@
         <a href="./video.html" class="nav-link">Видео</a>
       </nav>
 
-      <!-- Кнопка Telegram в шапке статьи -->
       <a
         href="https://t.me/specavtoportal"
         class="tg-badge"
@@ -37,22 +35,15 @@
         <span class="tg-badge__icon">✈️</span>
         <span class="tg-badge__text">Новости в Telegram</span>
       </a>
-      <!-- /Кнопка Telegram -->
     </div>
   </header>
 
   <main class="page-main">
     <div class="container article-layout">
-      <!-- СЮДА article.js подставляет контент статьи -->
       <article id="article" class="article"></article>
 
       <aside class="article-sidebar">
-        <section class="sidebar-block">
-          <h3 class="sidebar-title">Другие материалы</h3>
-          <div id="related" class="related-list"></div>
-        </section>
-
-        <!-- Блок про Telegram в сайдбаре статьи -->
+        <!-- Сначала Telegram-блок -->
         <section class="sidebar-block">
           <h3 class="sidebar-title">Telegram-канал</h3>
           <p class="sidebar-text">
@@ -67,7 +58,12 @@
             Подписаться
           </a>
         </section>
-        <!-- /Блок про Telegram -->
+
+        <!-- А уже под ним — другие материалы -->
+        <section class="sidebar-block">
+          <h3 class="sidebar-title">Другие материалы</h3>
+          <div id="related" class="related-list"></div>
+        </section>
       </aside>
     </div>
   </main>
@@ -80,6 +76,34 @@
   </footer>
 
   <script src="./article.js"></script>
+
+  <!-- Скрипт, который превращает две последние ссылки в «таб-кнопки» -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const article = document.getElementById('article');
+      if (!article) return;
+
+      const links = article.querySelectorAll('a');
+      if (links.length < 2) return;
+
+      // считаем, что две последние ссылки в статье —
+      // это «Читать в источнике» и «Назад к ленте»
+      const sourceLink = links[links.length - 2];
+      const backLink = links[links.length - 1];
+
+      const parent = sourceLink.parentNode;
+      if (!parent || parent !== backLink.parentNode) return;
+
+      const actions = document.createElement('div');
+      actions.className = 'article-actions';
+
+      sourceLink.classList.add('article-action', 'article-action-primary');
+      backLink.classList.add('article-action', 'article-action-secondary');
+
+      parent.insertBefore(actions, sourceLink);
+      actions.appendChild(sourceLink);
+      actions.appendChild(backLink);
+    });
+  </script>
 </body>
 </html>
-
