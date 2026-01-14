@@ -16,7 +16,7 @@
   <header class="site-header">
     <div class="container header-inner">
       <a href="index.html" class="logo">
-        <span class="logo-mark">ST</span>
+        <img src="assets/logo.svg" alt="СпецТрейлеры" class="logo-img" />
         <span class="logo-text">
           СпецТрейлеры
           <span class="logo-sub">Новости, ГОСТы и гайды</span>
@@ -78,7 +78,7 @@
     </section>
 
     <section class="container layout">
-      <section>
+      <section class="layout-main">
         <h2 class="section-title">Лента новостей</h2>
         <div id="news-list" class="news-list"></div>
         <div id="news-empty" class="empty-state" hidden>
@@ -113,7 +113,6 @@
         </section>
         <!-- /Промо-блок Telegram -->
       </section>
-      </div>
 
       <aside class="layout-sidebar">
         <section class="sidebar-block">
@@ -157,19 +156,21 @@
 
   <script src="news.js"></script>
   <script>
-  // Сохраняем текущую позицию на странице
-  if (window.location.hash) {
+    // сохранение позиции (оставляю как есть)
+    if (window.location.hash) {
       localStorage.setItem('lastScrollPosition', window.location.hash);
-  }
+    }
 
-  // При загрузке страницы проверяем, была ли сохранена позиция и восстанавливаем
-  window.onload = function() {
+    window.onload = function () {
       const scrollPosition = localStorage.getItem('lastScrollPosition');
       if (scrollPosition) {
-          window.scrollTo(0, document.querySelector(scrollPosition).offsetTop);
-          localStorage.removeItem('lastScrollPosition');
+        const el = document.querySelector(scrollPosition);
+        if (el) {
+          window.scrollTo(0, el.offsetTop);
+        }
+        localStorage.removeItem('lastScrollPosition');
       }
-  };
+    };
   </script>
 </body>
 </html>
