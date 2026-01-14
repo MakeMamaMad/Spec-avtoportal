@@ -82,12 +82,12 @@
       <footer class="article-footer">
         ${
           sourceUrl
-            ? `<a class="primary-btn" href="${sourceUrl}" target="_blank" rel="noopener noreferrer">
+            ? `<a class="nav-link-active" href="${sourceUrl}" target="_blank" rel="noopener noreferrer">
                  Читать в источнике
                </a>`
             : ""
         }
-        <a href="index.html" class="secondary-btn">Назад к ленте</a>
+        <a href="index.html" class="nav-link-active">Назад к ленте</a>
       </footer>
     `;
 
