@@ -1,161 +1,181 @@
-/* Рендер одной статьи. Ожидает query:
-   - id: стабильный id (из news.js/main.js)
-   - u : исходная ссылка (urlencoded)
-   - from: номер страницы ленты (для возврата)
-*/
+// article.js — страница одной статьи по индексу ?i=...
 
 (function () {
-  const BLOCKED_DOMAINS = new Set(['tass.ru','www.tass.ru']);
-  'use strict';
+  const NEWS_URLS = [
+    "data/news.json",
+    "frontend/data/news.json",
+  ];
 
-  const $ = (s, r = document) => r.querySelector(s);
+  const articleEl = document.getElementById("article");
+  const relatedEl = document.getElementById("related");
 
-  // ---------- url params ----------
-  const params = new URLSearchParams(location.search);
-  const idParam = params.get('id') || '';
-  const srcUrl = (() => {
-    try { return decodeURIComponent(params.get('u') || ''); } catch { return ''; }
-  })();
-  const fromPage = params.get('from');
-
-  // назначим ссылку «назад»
-  const backBtn = $('#backBtn');
-  if (fromPage) {
-    const u = new URL('index.html', location.href);
-    u.searchParams.set('page', fromPage);
-    backBtn.href = u.toString();
+  function fmtDate(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (Number.isNaN(+d)) return "";
+    const p = (n) => String(n).padStart(2, "0");
+    return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()}`;
   }
 
-  // кнопка «Читать в источнике»
-  const srcBtn = $('#srcBtn');
-  if (srcUrl) srcBtn.href = srcUrl;
-
-  // ---------- загрузка данных ----------
-  async function loadJson(path) {
-    const resp = await fetch(path, { cache: 'no-store' });
-    if (!resp.ok) throw new Error('fetch failed ' + path);
-    return await resp.json();
-  }
-
-  function normalizeItems(list) {
-    const out = [];
-    for (const it of list || []) {
-      if (!it) continue;
-      const date = it.published_at || it.date || it.publishedAt;
-      const d = date ? new Date(date) : null;
-      out.push({
-        _id: it._id || makeId(it),
-        title: it.title || '',
-        link: it.link || '',
-        domain: it.domain || (it.link ? new URL(it.link).hostname : ''),
-        date: d ? d.toISOString() : '',
-        image: it.image || null,
-        summary: it.summary || '',
-        content_html: it.content_html || it.content || ''
-      });
+  function getField(obj, candidates, fallback = "") {
+    for (const key of candidates) {
+      if (obj && obj[key] != null && obj[key] !== "") return obj[key];
     }
-    return out;
+    return fallback;
   }
 
-  // тот же FNV хэш, что и в news.js
-  function makeId(item) {
-    const base = (item.link || '') + '|' + (item.title || '') + '|' + (+new Date(item.published_at || item.date || '') || 0);
-    let h = 2166136261 >>> 0;
-    for (let i = 0; i < base.length; i++) {
-      h ^= base.charCodeAt(i);
-      h = Math.imul(h, 16777619) >>> 0;
-    }
-    return h.toString(16);
+  function renderNotFound(message) {
+    articleEl.innerHTML = `
+      <div class="empty-state">
+        <h1>Статья не найдена</h1>
+        <p>${message}</p>
+        <p><a href="index.html" class="news-card-link">Вернуться к ленте</a></p>
+      </div>
+    `;
   }
 
-  function pickItem(all) {
-    if (idParam) {
-      const found = all.find(n => n._id === idParam);
-      if (found) return found;
-    }
-    if (srcUrl) {
-      const found = all.find(n => n.link === srcUrl);
-      if (found) return found;
-    }
-    return null;
-  }
+  function renderArticle(item, allNews, index) {
+    const title = getField(item, ["title", "headline", "name"], "Без заголовка");
+    const summary = getField(item, ["summary", "lead", "description"], "");
+    const date = fmtDate(getField(item, ["published_at", "date", "pub_date"]));
+    const sourceName = getField(item, ["source_name", "source", "site"], "");
+    const sourceUrl = getField(item, ["url", "link", "source_url"], "");
+    const image = getField(item, ["image_url", "image", "img"], "");
+    const tags = item.tags || item.rubrics || [];
+    const bodyHtml =
+      getField(item, ["content_html", "body_html"]) ||
+      getField(item, ["content", "body", "text", "full_text", "article"], summary);
 
-  function sanitize(html) {
-    // Простой ограниченный беллист: убираем <script>, on* атрибуты и iframes.
-    const tpl = document.createElement('template');
-    tpl.innerHTML = html || '';
-    const bad = ['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'EMBED'];
-    const walker = document.createTreeWalker(tpl.content, NodeFilter.SHOW_ELEMENT, null);
-    let node;
-    while ((node = walker.nextNode())) {
-      if (bad.includes(node.tagName)) {
-        node.remove();
-        continue;
+    document.title = `${title} — СпецТрейлеры`;
+
+    articleEl.innerHTML = `
+      <header class="article-header">
+        <p class="article-breadcrumbs">
+          <a href="index.html">Новости</a>
+          ${
+            tags && tags.length
+              ? ` · <span>${tags.map((t) => String(t)).join(", ")}</span>`
+              : ""
+          }
+        </p>
+        <h1 class="article-title">${title}</h1>
+        <div class="article-meta">
+          ${date ? `<span class="article-meta-item">${date}</span>` : ""}
+          ${sourceName ? `<span class="article-meta-item">${sourceName}</span>` : ""}
+        </div>
+      </header>
+
+      ${
+        image
+          ? `<div class="article-image-wrap"><img src="${image}" alt="" class="article-image"/></div>`
+          : ""
       }
-      // вычистим on* обработчики
-      [...node.attributes].forEach(a => {
-        if (/^on/i.test(a.name)) node.removeAttribute(a.name);
-      });
-      // изображения: загружаем «лениво»
-      if (node.tagName === 'IMG' && !node.hasAttribute('loading')) {
-        node.setAttribute('loading', 'lazy');
-      }
-    }
-    return tpl.innerHTML;
+
+      <section class="article-body">
+        ${
+          bodyHtml && /<\/?[a-z][\s\S]*>/i.test(bodyHtml)
+            ? bodyHtml
+            : `<p>${(bodyHtml || "").replace(/\n{2,}/g, "</p><p>")}</p>`
+        }
+      </section>
+
+      <footer class="article-footer">
+        ${
+          sourceUrl
+            ? `<a class="primary-btn" href="${sourceUrl}" target="_blank" rel="noopener noreferrer">
+                 Читать в источнике
+               </a>`
+            : ""
+        }
+        <a href="index.html" class="secondary-btn">Назад к ленте</a>
+      </footer>
+    `;
+
+    /* ===== БЛОК "ДРУГИЕ МАТЕРИАЛЫ" С КАРТИНКОЙ ===== */
+
+    if (!relatedEl) return;
+
+    relatedEl.innerHTML = "";
+
+    // Собираем кандидатов, исключая текущую новость
+    const candidates = allNews
+      .map((newsItem, idx) => ({ newsItem, idx }))
+      .filter(({ idx }) => idx !== index);
+
+    if (!candidates.length) return;
+
+    // Перемешиваем и берём до трёх
+    candidates.sort(() => Math.random() - 0.5);
+    const selected = candidates.slice(0, 3);
+
+    selected.forEach(({ newsItem, idx: rIndex }) => {
+      const rTitle = getField(newsItem, ["title", "headline", "name"], "Без заголовка");
+      const rDate = fmtDate(getField(newsItem, ["published_at", "date", "pub_date"]));
+      const rImage = getField(newsItem, ["image_url", "image", "img"], "");
+
+      const a = document.createElement("a");
+      a.className = "related-card";
+      a.href = `article.html?i=${encodeURIComponent(rIndex)}`;
+      a.innerHTML = `
+        <div class="related-card__thumb">
+          ${rImage ? `<img src="${rImage}" alt="">` : ""}
+        </div>
+        <div>
+          <p class="related-card__title">${rTitle}</p>
+          ${rDate ? `<p class="related-card__meta">${rDate}</p>` : ""}
+        </div>
+      `;
+      relatedEl.appendChild(a);
+    });
   }
 
-  function fmtDate(d) {
-    if (!d) return '';
-    try {
-      const dd = new Date(d);
-      const pad = n => String(n).padStart(2, '0');
-      return `${pad(dd.getDate())}.${pad(dd.getMonth()+1)}.${dd.getFullYear()}, ${pad(dd.getHours())}:${pad(dd.getMinutes())}`;
-    } catch { return ''; }
-  }
+  async function init() {
+    const params = new URLSearchParams(window.location.search);
+    const iParam = params.get("i");
 
-  function render(item) {
-    const post = $('#post');
-    const nf = $('#nf');
-    const actions = $('#bottom-actions');
-
-    if (!item || BLOCKED_DOMAINS.has(item.domain || '')) {
-      nf.hidden = false;
-      actions.hidden = false; // показать «назад»
-      post.innerHTML = "";
+    const index = parseInt(iParam, 10);
+    if (!Number.isFinite(index) || index < 0) {
+      renderNotFound("Некорректный параметр ?i в адресе страницы.");
       return;
     }
 
-    // helpers
-    const dd = new Date(item.date || Date.now());
-    const pad = (n) => String(n).padStart(2,'0');
-    const dateStr = isNaN(dd) ? "" : `${pad(dd.getDate())}.${pad(dd.getMonth()+1)}.${dd.getFullYear()}, ${pad(dd.getHours())}:${pad(dd.getMinutes())}`;
-
-    // Build HTML: title + meta + cover + summary only
-    const html = `
-      <h1 class="title">${item.title || ''}</h1>
-      <div class="meta">
-        ${item.domain ? `<span>${item.domain}</span>` : ''}
-        ${dateStr ? `<span>•</span><time>${dateStr}</time>` : ''}
-      </div>
-      ${item.image ? `<div class="cover"><img src="${item.image}" loading="eager" alt=""></div>` : ''}
-      ${item.summary ? `<p class="lead">${item.summary}</p>` : ''}
-    `;
-    post.innerHTML = html;
-
-    // показать нижние кнопки
-    actions.hidden = false;
-  }
-
-  async function main() {
-    try {
-      const data = await loadJson('data/news.json');
-      const all = normalizeItems(data);
-      render(pickItem(all));
-    } catch (e) {
-      console.error(e);
-      render(null);
+    let news = [];
+    for (const url of NEWS_URLS) {
+      try {
+        const resp = await fetch(url, { cache: "no-store" });
+        if (!resp.ok) continue;
+        const data = await resp.json();
+        news = Array.isArray(data) ? data : data.items || [];
+        break;
+      } catch {
+        // пробуем следующий URL
+      }
     }
+
+    if (!news.length) {
+      renderNotFound("Не удалось загрузить базу новостей.");
+      return;
+    }
+
+    // Сортировка должна полностью совпадать с news.js
+    news.sort((a, b) => {
+      const da = new Date(
+        getField(a, ["published_at", "date", "pub_date"]) || 0
+      ).getTime();
+      const db = new Date(
+        getField(b, ["published_at", "date", "pub_date"]) || 0
+      ).getTime();
+      return db - da;
+    });
+
+    if (index >= news.length) {
+      renderNotFound("Новость с таким индексом не найдена.");
+      return;
+    }
+
+    const item = news[index];
+    renderArticle(item, news, index);
   }
 
-  main();
+  document.addEventListener("DOMContentLoaded", init);
 })();
