@@ -13,15 +13,16 @@
   --bg-soft: #f9fafb;
   --bg-chip: #f3f4f6;
 
-  --border-subtle: #e5e7eb;
-  --border-strong: #111827;
+  /* ЛИНИИ ДЕЛАЕМ ЧЁРНЫМИ */
+  --border-subtle: #000000;
+  --border-strong: #000000;
 
   --accent: #f97316;
   --accent-soft: #ffedd5;
   --accent-strong: #ea580c;
 
   --text-main: #111827;
-  --text-muted: #6b7280;
+  --text-muted: #4b5563;
   --text-soft: #9ca3af;
   --text-invert: #ffffff;
 
@@ -181,6 +182,8 @@ h4 {
 
 .hero {
   padding: 22px 0 6px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .hero .container {
@@ -220,7 +223,6 @@ h4 {
 /* ========== ФИЛЬТРЫ ========== */
 
 .filters {
-  border-top: 1px solid var(--border-subtle);
   border-bottom: 1px solid var(--border-subtle);
   background: #ffffff;
 }
@@ -317,30 +319,52 @@ h4 {
 .news-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
-/* предполагаем, что news.js создаёт элементы с классом .news-card */
+/* КАРТОЧКА: ФОТО СЛЕВА — ТЕКСТ СПРАВА */
 
 .news-card {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-card);
-  padding: 14px 16px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 2fr);
+  column-gap: 18px;
+  row-gap: 6px;
+  align-items: stretch;
 }
 
+/* блок с картинкой */
+
+.news-card__image-wrap {
+  grid-column: 1;
+  grid-row: 1 / 4;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  max-height: 260px;
+  align-self: stretch;
+}
+
+.news-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* текстовые блоки */
+
 .news-card__header {
+  grid-column: 2;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
 .news-card__title {
-  font-size: 15px;
+  font-size: 16px;
   margin: 0;
 }
 
@@ -366,6 +390,7 @@ h4 {
 }
 
 .news-card__body {
+  grid-column: 2;
   font-size: 13px;
   color: var(--text-muted);
 }
@@ -375,7 +400,8 @@ h4 {
 }
 
 .news-card__footer {
-  margin-top: 6px;
+  grid-column: 2;
+  margin-top: 4px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -390,20 +416,6 @@ h4 {
 .news-card__more:hover,
 .news-card__link:hover {
   text-decoration: underline;
-}
-
-/* изображение, если есть */
-
-.news-card__image-wrap {
-  margin-bottom: 6px;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  max-height: 220px;
-}
-
-.news-card__image {
-  width: 100%;
-  height: auto;
 }
 
 /* состояния */
@@ -570,6 +582,25 @@ h4 {
   .tg-promo__inner {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 700px) {
+  /* карточка на мобильном — картинка сверху */
+  .news-card {
+    grid-template-columns: 1fr;
+  }
+
+  .news-card__image-wrap {
+    grid-column: 1;
+    grid-row: 1;
+    max-height: 220px;
+  }
+
+  .news-card__header,
+  .news-card__body,
+  .news-card__footer {
+    grid-column: 1;
   }
 }
 
