@@ -2,33 +2,34 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <title>Статья — СпецТрейлеры</title>
+  <title>Статья — СпецАвтоПортал</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="./styles.css" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon">
   <link rel="shortcut icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon">
 </head>
 <body class="article-page">
+  <!-- ТА ЖЕ ШАПКА, ЧТО И НА ГЛАВНОЙ -->
   <header class="site-header">
     <div class="container header-inner">
       <a href="./index.html" class="logo">
-        <span class="logo-mark">ST</span>
+        <img src="assets/logo.svg" alt="СпецАвтоПортал" class="logo-img" />
         <span class="logo-text">
-          СпецТрейлеры
-          <span class="logo-sub">Новости, ГОСТы и гайды</span>
+          СпецАвтоПортал
+          <span class="logo-sub">Новости спецтехники</span>
         </span>
       </a>
 
       <nav class="main-nav">
         <a href="./index.html" class="nav-link nav-link-active">Новости</a>
-        <a href="./index.html#law" class="nav-link">Законодательство / ГОСТы</a>
-        <a href="./index.html#guides" class="nav-link">Гайды и регламенты</a>
-        <a href="./index.html#video" class="nav-link">Видео</a>
+        <a href="./law.html" class="nav-link">Законодательство / ГОСТы</a>
+        <a href="./guides.html" class="nav-link">Гайды и регламенты</a>
+        <a href="./video.html" class="nav-link">Видео</a>
       </nav>
 
       <!-- Кнопка Telegram в шапке статьи -->
       <a
-        href="https://t.me/specavtoportal
+        href="https://t.me/specavtoportal"
         class="tg-badge"
         target="_blank"
         rel="noopener"
@@ -42,6 +43,7 @@
 
   <main class="page-main">
     <div class="container article-layout">
+      <!-- СЮДА article.js подставляет контент статьи -->
       <article id="article" class="article"></article>
 
       <aside class="article-sidebar">
@@ -57,7 +59,7 @@
             Свежие новости спецтехники, дайджесты и обзоры выходят в нашем Telegram-канале.
           </p>
           <a
-            href="https://t.me/ИМЯ_ТВОЕГО_КАНАЛА"
+            href="https://t.me/specavtoportal"
             class="tg-promo__button"
             target="_blank"
             rel="noopener"
@@ -72,7 +74,7 @@
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <span>© СпецТрейлеры.</span>
+      <span>© СпецАвтоПортал.</span>
       <a href="./index.html" class="footer-link">Вернуться на главную</a>
     </div>
   </footer>
