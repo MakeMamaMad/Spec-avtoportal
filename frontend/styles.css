@@ -698,4 +698,56 @@ h4 {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+/* Кнопки "Читать в источнике" / "Назад к ленте" в статье */
+
+.article-actions {
+  margin-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.article-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  border-bottom-width: 3px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  background-color: #ffffff;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.05s ease;
+}
+
+/* Основная (оранжевая) кнопка — "Читать в источнике" */
+.article-action-primary {
+  color: #ff7a00;
+  border-color: #ff7a00;
+  background-color: #fff8f0;
+}
+
+.article-action-primary:hover {
+  background-color: #ffe4c2;
+}
+
+/* Вторая, более спокойная — "Назад к ленте" */
+.article-action-secondary {
+  color: #333333;
+  border-color: #dddddd;
+  background-color: #ffffff;
+}
+
+.article-action-secondary:hover {
+  background-color: #f5f5f5;
+  border-color: #c7c7c7;
+}
+
 
