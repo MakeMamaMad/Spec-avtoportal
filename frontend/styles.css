@@ -586,3 +586,116 @@ h4 {
     padding-inline: 12px;
   }
 }
+/* ========== ARTICLE PAGE ========== */
+
+.article-page .page-main {
+  padding-top: 20px;
+}
+
+/* Лейаут статьи: статья слева, сайдбар справа */
+.article-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2.5fr) minmax(260px, 1fr);
+  gap: 24px;
+  align-items: flex-start;
+}
+
+/* Карточка статьи */
+.article {
+  background: var(--bg-card);
+  border-radius: 16px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card);
+  padding: 20px 22px 22px;
+}
+
+/* Заголовок статьи (article.js обычно рендерит h1 внутри) */
+.article h1 {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+/* Мета-информация, если article.js создаёт блок .article-meta */
+.article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-soft);
+  margin-bottom: 14px;
+}
+
+.article-meta__date {
+  opacity: 0.9;
+}
+
+.article-meta__source {
+  padding-left: 10px;
+  border-left: 1px solid var(--border-subtle);
+}
+
+/* Картинка статьи, если article.js делает .article-image */
+.article-image {
+  margin: 10px 0 16px;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.article-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Основной текст */
+.article-content {
+  font-size: 15px;
+  color: var(--text-main);
+}
+
+.article-content p {
+  margin: 0 0 0.8em;
+}
+
+/* Ссылка на исходник статьи */
+.article-source-link {
+  display: inline-flex;
+  margin-top: 14px;
+  font-size: 14px;
+  color: var(--accent-strong);
+}
+
+/* Сайдбар статьи уже использует .sidebar-block из главной */
+
+.article-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Список связанных материалов */
+.related-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.related-item {
+  font-size: 13px;
+}
+
+.related-item a {
+  color: var(--accent-strong);
+}
+
+.related-item a:hover {
+  text-decoration: underline;
+}
+
+/* Адаптив для статьи */
+@media (max-width: 900px) {
+  .article-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
