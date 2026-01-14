@@ -91,25 +91,52 @@
       </footer>
     `;
 
-    // Простейшие "похожие материалы": соседние по списку
+    /* ===== БЛОК "ДРУГИЕ МАТЕРИАЛЫ" С КАРТИНКОЙ ===== */
+
+    if (!relatedEl) return;
     relatedEl.innerHTML = "";
-    const related = [];
 
-    if (index > 0) related.push(allNews[index - 1]);
-    if (index + 1 < allNews.length) related.push(allNews[index + 1]);
+    // 1) сначала берём соседей (как было раньше)
+    const selected = [];
+    const usedIndexes = new Set();
 
-    related.forEach((r, idx) => {
-      const rIndex =
-        idx === 0 && index > 0 ? index - 1 : index + 1;
+    if (index > 0) {
+      selected.push({ item: allNews[index - 1], idx: index - 1 });
+      usedIndexes.add(index - 1);
+    }
+    if (index + 1 < allNews.length) {
+      selected.push({ item: allNews[index + 1], idx: index + 1 });
+      usedIndexes.add(index + 1);
+    }
+
+    // 2) добиваем до 3 случайными из остальных
+    const candidates = allNews
+      .map((newsItem, idx) => ({ newsItem, idx }))
+      .filter(({ idx }) => idx !== index && !usedIndexes.has(idx));
+
+    candidates.sort(() => Math.random() - 0.5);
+    for (const c of candidates) {
+      if (selected.length >= 3) break;
+      selected.push({ item: c.newsItem, idx: c.idx });
+    }
+
+    // 3) отрисовываем карточки
+    selected.forEach(({ item: r, idx: rIndex }) => {
       const rTitle = getField(r, ["title", "headline", "name"], "Без заголовка");
       const rDate = fmtDate(getField(r, ["published_at", "date", "pub_date"]));
+      const rImage = getField(r, ["image_url", "image", "img"], "");
 
       const a = document.createElement("a");
-      a.className = "related-item";
+      a.className = "related-card";
       a.href = `article.html?i=${encodeURIComponent(rIndex)}`;
       a.innerHTML = `
-        <span class="related-title">${rTitle}</span>
-        ${rDate ? `<span class="related-date">${rDate}</span>` : ""}
+        <div class="related-card__thumb">
+          ${rImage ? `<img src="${rImage}" alt="">` : ""}
+        </div>
+        <div>
+          <p class="related-card__title">${rTitle}</p>
+          ${rDate ? `<p class="related-card__meta">${rDate}</p>` : ""}
+        </div>
       `;
       relatedEl.appendChild(a);
     });
