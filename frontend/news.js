@@ -146,7 +146,7 @@
           </header>
           ${summary ? `<p class="news-card-summary">${summary}</p>` : ""}
           <div class="news-card-footer">
-            <a class="nav-link" href="article.html?i=${encodeURIComponent(idx)}">Читать полностью</a>
+            <a class="nav-link nav-link-active" href="article.html?i=${encodeURIComponent(idx)}">Читать полностью</a>
             <div class="news-card-tags">
               ${
                 Array.isArray(tags)
