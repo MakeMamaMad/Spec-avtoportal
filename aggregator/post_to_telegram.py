@@ -5,8 +5,42 @@ import subprocess
 import sys
 import urllib.parse
 import urllib.request
+import re
+import html as html_lib
 
 NEWS_PATH = "frontend/data/news.json"
+
+TAG_RE = re.compile(r"<[^>]+>")
+IMG_RE = re.compile(r'<img[^>]+src=["\']([^"\']+)["\']', re.IGNORECASE)
+
+
+def strip_html(s: str) -> str:
+    """Убирает HTML-теги, декодирует entities, нормализует пробелы/переносы."""
+    if not s:
+        return ""
+    s = str(s)
+
+    # переносы для типичных блочных тегов
+    s = re.sub(r"</(p|div|figure|li|h\d)>", "\n", s, flags=re.IGNORECASE)
+    s = re.sub(r"<br\s*/?>", "\n", s, flags=re.IGNORECASE)
+
+    # убрать остальные теги
+    s = TAG_RE.sub(" ", s)
+
+    # entities -> символы
+    s = html_lib.unescape(s)
+
+    # нормализация
+    s = re.sub(r"[ \t]+", " ", s)
+    s = re.sub(r"\n\s*\n+", "\n", s)
+    return s.strip()
+
+
+def clamp(text: str, max_len: int) -> str:
+    text = (text or "").strip()
+    if len(text) <= max_len:
+        return text
+    return text[: max_len - 1].rstrip() + "…"
 
 
 def load_current():
@@ -83,8 +117,15 @@ def build_text(item):
     else:
         rubrics_list = []
 
+    # ✅ summary (может быть HTML) — чистим и обрезаем
+    raw_summary = item.get("summary") or item.get("description") or ""
+    summary = clamp(strip_html(raw_summary), 550)
+
     line1 = f"📰 <b>{title}</b>"
     parts = [line1]
+
+    if summary:
+        parts.append(summary)
 
     if rubrics_list:
         parts.append("🏷 " + " · ".join(rubrics_list))
@@ -143,6 +184,9 @@ def main():
 
     max_posts = int(os.environ.get("TELEGRAM_MAX_POSTS", "10"))
 
+    # ✅ опционально: можно отключить превью ссылок, чтобы не показывался немецкий/английский сниппет
+    disable_preview = os.environ.get("TELEGRAM_DISABLE_PREVIEW") == "1"
+
     try:
         current = load_current()
     except FileNotFoundError:
@@ -167,7 +211,7 @@ def main():
         print(f" → {title!r}")
         text = build_text(item)
         try:
-            send_message(token, chat_id, text)
+            send_message(token, chat_id, text, disable_preview=disable_preview)
         except Exception as e:
             errors += 1
             print(f"Ошибка отправки в Telegram: {e}", file=sys.stderr)
