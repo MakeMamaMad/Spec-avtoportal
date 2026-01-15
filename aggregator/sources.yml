@@ -1,4 +1,5 @@
 sources:
+  # ===== Твои русскоязычные источники (оставил только прицепную/полуприцепную тематику) =====
   - id: truckmix-industry
     enabled: true
     kind: rss
@@ -8,6 +9,7 @@ sources:
       - спецтехника
       - грузовики
       - прицепы
+      - полуприцепы
 
   - id: gruzovoy-main
     enabled: true
@@ -29,16 +31,8 @@ sources:
       - коммерческий транспорт
       - экономика
       - грузовики
-
-  - id: motor-general
-    enabled: true
-    kind: rss
-    title: "Motor.ru — автоновости"
-    url: "https://motor.ru/exports/rss"
-    tags:
-      - авто
-      - коммерческий транспорт
-      - рынок
+      - прицепы
+      - полуприцепы
 
   - id: comautotrans-news
     enabled: true
@@ -49,18 +43,70 @@ sources:
       - выставки
       - коммерческий транспорт
       - прицепы
+      - полуприцепы
 
-  # Новый источник: авто/грузовая техника, журналы и спецвыпуски
-  - id: techjournals-auto
+  # ===== 5 иностранных источников (для теста перевода title/summary) =====
+  - id: globaltrailer-main
     enabled: true
     kind: rss
-    title: "Tech-Journals — авто и мото журналы"
-    url: "https://www.tech-journals.ru/journals/auto/rss.xml"
+    title: "Global Trailer — новости индустрии полуприцепов"
+    url: "https://www.globaltrailermag.com/feed/"
     tags:
-      - авто
-      - грузовики
-      - журналы
-      - техника
+      - полуприцепы
+      - прицепы
+      - иностранные
+      - производители
+
+  - id: krone-news
+    enabled: true
+    kind: rss
+    title: "KRONE Trailer — новости производителя"
+    url: "https://www.krone-trailer.com/en/news/rss-feed"
+    tags:
+      - полуприцепы
+      - прицепы
+      - иностранные
+      - производители
+      - krone
+
+  - id: koegel-pressebox
+    enabled: true
+    kind: rss
+    title: "Kögel — пресс-релизы (PresseBox)"
+    url: "https://www.pressebox.de/rss/pressemitteilungen/newsroom/koegel-trailer-gmbh-cokg"
+    tags:
+      - полуприцепы
+      - прицепы
+      - иностранные
+      - производители
+      - пресс-релизы
+      - koegel
+
+  - id: wielton-stockwatch
+    enabled: true
+    kind: rss
+    title: "Wielton — официальные сообщения (StockWatch)"
+    url: "https://www.stockwatch.pl/komunikaty-spolek/rss.aspx?t=WIELTON"
+    tags:
+      - полуприцепы
+      - прицепы
+      - иностранные
+      - производители
+      - официально
+      - wielton
+
+  - id: trailertechnician-main
+    enabled: true
+    kind: rss
+    title: "Trailer Technician — новости полуприцепной индустрии"
+    url: "https://trailertechnician.com/feed/"
+    tags:
+      - полуприцепы
+      - прицепы
+      - иностранные
+      - компоненты
+      - сервис
+
 
 youtube:
   - channel_id: "UC0SAWzOPY-BiS5NVv3vdTFw"
