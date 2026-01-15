@@ -11,7 +11,6 @@ import html as html_lib
 NEWS_PATH = "frontend/data/news.json"
 
 TAG_RE = re.compile(r"<[^>]+>")
-IMG_RE = re.compile(r'<img[^>]+src=["\']([^"\']+)["\']', re.IGNORECASE)
 
 
 def strip_html(s: str) -> str:
@@ -105,9 +104,15 @@ def get_new_items(prev, current):
     return unique
 
 
-def build_text(item):
-    title = item.get("title") or "(без заголовка)"
-    src = item.get("source") or item.get("source_name") or ""
+def build_site_url(site_base: str, idx: int) -> str:
+    # article.html?i=... — как у тебя сейчас устроено
+    return f"{site_base}article.html?i={idx}"
+
+
+def build_text(item, site_url: str):
+    # Важно: parse_mode=HTML → всё экранируем
+    title = html_lib.escape((item.get("title") or "(без заголовка)").strip())
+    src = html_lib.escape((item.get("source") or item.get("source_name") or "").strip())
 
     rubrics = item.get("rubrics") or item.get("tags") or []
     if isinstance(rubrics, str):
@@ -116,13 +121,22 @@ def build_text(item):
         rubrics_list = [str(x) for x in rubrics if x]
     else:
         rubrics_list = []
+    rubrics_list = [html_lib.escape(x.strip()) for x in rubrics_list if x.strip()]
 
-    # ✅ summary (может быть HTML) — чистим и обрезаем
+    # summary (может быть HTML) — чистим и обрезаем
     raw_summary = item.get("summary") or item.get("description") or ""
-    summary = clamp(strip_html(raw_summary), 550)
+    summary_clean = clamp(strip_html(raw_summary), 550)
+    summary = html_lib.escape(summary_clean)
 
-    line1 = f"📰 <b>{title}</b>"
-    parts = [line1]
+    # оригинальная ссылка (первоисточник)
+    orig_url = (
+        item.get("canonical_url")
+        or item.get("url")
+        or item.get("link")
+        or ""
+    ).strip()
+
+    parts = [f"📰 <b>{title}</b>"]
 
     if summary:
         parts.append(summary)
@@ -133,17 +147,15 @@ def build_text(item):
     if src:
         parts.append(f"🌐 {src}")
 
-    # Ссылка: сначала пробуем на оригинал, потом на что вообще есть
-    url = (
-        item.get("canonical_url")
-        or item.get("url")
-        or item.get("link")
-        or ""
-    )
-
-    if url:
+    # ✅ Ссылка для превью — НА ТВОЙ САЙТ (должна быть первой ссылкой в сообщении)
+    if site_url:
         parts.append("")
-        parts.append(url)
+        parts.append(site_url)
+
+    # ✅ Первоисточник отдельной строкой (второй ссылкой)
+    if orig_url:
+        safe_orig = html_lib.escape(orig_url, quote=True)
+        parts.append(f'Источник: <a href="{safe_orig}">первоисточник</a>')
 
     text = "\n".join(parts)
 
@@ -168,7 +180,7 @@ def send_message(token: str, chat_id: str, text: str, disable_preview: bool = Fa
     req = urllib.request.Request(api_url, data=data)
 
     with urllib.request.urlopen(req, timeout=15) as resp:
-        resp.read()  # главное, чтобы запрос прошёл
+        resp.read()
 
 
 def main():
@@ -184,14 +196,25 @@ def main():
 
     max_posts = int(os.environ.get("TELEGRAM_MAX_POSTS", "10"))
 
-    # ✅ опционально: можно отключить превью ссылок, чтобы не показывался немецкий/английский сниппет
+    # По умолчанию превью ВКЛЮЧЕНО (нам оно нужно, чтобы показывался твой сайт)
     disable_preview = os.environ.get("TELEGRAM_DISABLE_PREVIEW") == "1"
+
+    # База сайта для ссылок-превью
+    site_base = os.environ.get("SITE_URL", "https://spec-avtoportal.ru/").rstrip("/") + "/"
 
     try:
         current = load_current()
     except FileNotFoundError:
         print(f"{NEWS_PATH} не найден, нечего постить.", file=sys.stderr)
         return
+
+    # карта ключ -> индекс в общем массиве current (чтобы строить article.html?i=...)
+    key_to_index = {}
+    for idx, it in enumerate(current):
+        try:
+            key_to_index[make_key(it)] = idx
+        except Exception:
+            pass
 
     prev = load_previous()
     new_items = get_new_items(prev, current)
@@ -207,9 +230,14 @@ def main():
 
     errors = 0
     for item in new_items:
-        title = (item.get("title") or "")[:80]
-        print(f" → {title!r}")
-        text = build_text(item)
+        title_dbg = (item.get("title") or "")[:80]
+        print(f" → {title_dbg!r}")
+
+        idx = key_to_index.get(make_key(item))
+        site_url = build_site_url(site_base, idx) if isinstance(idx, int) else ""
+
+        text = build_text(item, site_url)
+
         try:
             send_message(token, chat_id, text, disable_preview=disable_preview)
         except Exception as e:
