@@ -10,7 +10,6 @@ on:
       - 'aggregator/**'
       - '.github/workflows/ingest.yml'
 
-# важно для push из GitHub Actions (особенно для public репо)
 permissions:
   contents: write
 
@@ -38,7 +37,7 @@ jobs:
             pip install -r aggregator/requirements.txt
           fi
 
-          # опционально: отдельные зависимости для перевода (если ты вынес их отдельно)
+          # если у тебя есть отдельный файл переводных зависимостей — ставим его тоже
           if [ -f "tools/translate-requirements.txt" ]; then
             pip install -r tools/translate-requirements.txt
           fi
@@ -77,6 +76,8 @@ jobs:
           NEWS_PATH: frontend/data/news.json
         run: |
           if [ -f "aggregator/translate_news.py" ]; then
+            # ✅ страховка: если translate-зависимости не поставились через файлы выше — ставим их тут
+            python -m pip install -q argostranslate langdetect
             python aggregator/translate_news.py
           else
             echo "No translate script found at aggregator/translate_news.py — skipping translation."
