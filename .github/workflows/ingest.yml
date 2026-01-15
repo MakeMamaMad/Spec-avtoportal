@@ -10,6 +10,10 @@ on:
       - 'aggregator/**'
       - '.github/workflows/ingest.yml'
 
+# важно для push из GitHub Actions (особенно для public репо)
+permissions:
+  contents: write
+
 jobs:
   ingest:
     runs-on: ubuntu-latest
@@ -27,9 +31,19 @@ jobs:
 
       - name: Install deps if present
         run: |
+          python -m pip install --upgrade pip
+
+          # основной requirements агрегатора
           if [ -f "aggregator/requirements.txt" ]; then
-            python -m pip install --upgrade pip
             pip install -r aggregator/requirements.txt
+          fi
+
+          # опционально: отдельные зависимости для перевода (если ты вынес их отдельно)
+          if [ -f "tools/translate-requirements.txt" ]; then
+            pip install -r tools/translate-requirements.txt
+          fi
+          if [ -f "aggregator/translate-requirements.txt" ]; then
+            pip install -r aggregator/translate-requirements.txt
           fi
 
       - name: Quick YAML check (aggregator/sources.yml)
@@ -58,6 +72,16 @@ jobs:
             --sources aggregator/sources.yml \
             --output frontend/data/news.json
 
+      - name: Translate title & summary for foreign sources only
+        env:
+          NEWS_PATH: frontend/data/news.json
+        run: |
+          if [ -f "aggregator/translate_news.py" ]; then
+            python aggregator/translate_news.py
+          else
+            echo "No translate script found at aggregator/translate_news.py — skipping translation."
+          fi
+
       - name: Preview output
         run: |
           ls -R
@@ -72,7 +96,6 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_MAX_POSTS: "50"      # сколько старых новостей за один прогон
-   
         run: |
           python aggregator/post_to_telegram.py || echo "Telegram step failed, but continuing"
 
@@ -94,5 +117,5 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Update data json (automated ingest)"
+          git commit -m "Update data json (automated ingest + translation)"
           git push origin main
