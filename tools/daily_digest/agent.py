@@ -2,6 +2,7 @@ import os
 import json    
 import random
 import re
+import html
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 
@@ -130,29 +131,27 @@ def pick_items(news: list[dict], used_urls: set[str]) -> list[dict]:
 
     return random.sample(top_pool, PICK_N)
 
-def escape_md2(s: str) -> str:
-    for ch in r"_*[]()~`>#+-=|{}.!":
-        s = s.replace(ch, f"\\{ch}")
-    return s
+def esc_html(s: str) -> str:
+    return html.escape(s, quote=False)
 
 def make_digest_post(items: list[dict]) -> str:
     today = datetime.now().strftime("%d.%m.%Y")
-    lines = [f"🚛 *Главное по тягачам и полуприцепам — {today}*", ""]
+    lines = [f"🚛 <b>Главное по тягачам и полуприцепам — {today}</b>", ""]
 
     for i, it in enumerate(items, 1):
-        title = extract_title(it)
+        title = esc_html(extract_title(it))
         url = extract_url(it)
 
-        # “Что это значит” — пока правилами (без LLM), но уже полезно
         meaning = "Что это значит: проверь влияние на цены, сроки поставок и эксплуатацию. Ссылки — ниже."
 
-        lines.append(f"{i}️⃣ *{escape_md2(title)}*")
-        lines.append(f"{escape_md2(meaning)}")
+        lines.append(f"{i}️⃣ <b>{title}</b>")
+        lines.append(esc_html(meaning))
         lines.append(f"🔗 {url}")
         lines.append("")
 
     lines.append("📌 Это ежедневная сводка: без спама, только важное + выводы.")
     return "\n".join(lines).strip()
+
 def tg_send(text: str):
     if not BOT_TOKEN or not CHAT_ID:
         raise RuntimeError("Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID")
@@ -161,7 +160,7 @@ def tg_send(text: str):
     payload = {
         "chat_id": CHAT_ID,
         "text": text,
-        "parse_mode": "MarkdownV2",
+        "parse_mode": "HTML",
         "disable_web_page_preview": False,
     }
     r = requests.post(api, json=payload, timeout=30)
