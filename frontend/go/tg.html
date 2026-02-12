@@ -3,7 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Переход в Telegram</title>
+  <title>Redirect</title>
+  <style>
+    /* ничего не показываем */
+    html, body { margin:0; padding:0; background:#fff; }
+  </style>
 
   <!-- Yandex.Metrika counter -->
   <script type="text/javascript">
@@ -23,24 +27,33 @@
   <noscript><div><img src="https://mc.yandex.ru/watch/106240080" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 </head>
 
-<body style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; padding:24px;">
-  <h2 style="margin:0 0 12px;">Открыть Telegram-канал</h2>
-  <p style="margin:0 0 16px; opacity:.75;">Клик засчитается в Метрике и канал откроется в новой вкладке.</p>
+<body>
+<script>
+  const tgUrl = "https://t.me/specavtoportal";
+  let redirected = false;
 
-  <a id="tgLink"
-     href="https://t.me/specavtoportal"
-     target="_blank"
-     rel="noopener"
-     style="display:inline-block;padding:12px 16px;background:#2AABEE;color:#fff;border-radius:10px;text-decoration:none;">
-    Перейти в Telegram
-  </a>
+  function redirectNow() {
+    if (redirected) return;
+    redirected = true;
+    // редирект в этой же вкладке (как ты хочешь)
+    window.location.replace(tgUrl);
+  }
 
-  <script>
-    document.getElementById("tgLink").addEventListener("click", function () {
-      if (typeof ym === "function") {
-        ym(106240080, "reachGoal", "tg_click_go");
-      }
-    });
-  </script>
+  // Пытаемся отправить цель и только потом редирект
+  if (typeof ym === "function") {
+    try {
+      ym(106240080, "reachGoal", "tg_click_go", {}, function () {
+        redirectNow();
+      });
+    } catch (e) {
+      // если что-то пошло не так — всё равно ведём в TG
+      redirectNow();
+    }
+    // запасной таймер, если callback не сработает
+    setTimeout(redirectNow, 900);
+  } else {
+    redirectNow();
+  }
+</script>
 </body>
 </html>
