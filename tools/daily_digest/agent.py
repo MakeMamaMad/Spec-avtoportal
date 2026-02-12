@@ -153,7 +153,6 @@ def make_digest_post(items: list[dict]) -> str:
 
     lines.append("📌 Это ежедневная сводка: без спама, только важное + выводы.")
     return "\n".join(lines).strip()
-
 def tg_send(text: str):
     if not BOT_TOKEN or not CHAT_ID:
         raise RuntimeError("Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID")
@@ -166,10 +165,20 @@ def tg_send(text: str):
         "disable_web_page_preview": False,
     }
     r = requests.post(api, json=payload, timeout=30)
+
+    # Покажем телу ошибки Telegram (очень важно)
+    try:
+        j = r.json()
+    except Exception:
+        j = {"raw": r.text}
+
+    print("Telegram status:", r.status_code)
+    print("Telegram response:", j)
+
     r.raise_for_status()
-    j = r.json()
     if not j.get("ok"):
-        raise RuntimeError(f"Telegram error: {j}")
+        raise RuntimeError(f"Telegram API error: {j}")
+
 
 def main():
     state = load_state()
