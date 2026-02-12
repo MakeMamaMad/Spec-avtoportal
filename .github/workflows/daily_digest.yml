@@ -3,7 +3,8 @@ name: Daily Digest (Telegram)
 on:
   workflow_dispatch:
   schedule:
-    - cron: '30 6 * * *'  # каждый день 06:30 UTC (~09:30 МСК)
+    - cron: '30 6 * * *'
+    - cron: '10 21 * * *'
 
 permissions:
   contents: write
