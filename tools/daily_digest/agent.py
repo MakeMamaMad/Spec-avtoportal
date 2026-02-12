@@ -51,6 +51,12 @@ def extract_url(item: dict) -> str:
         if isinstance(v, str) and v.startswith("http"):
             return v.strip()
     return ""
+def with_utm(url: str) -> str:
+    if "utm_" in url:
+        return url
+    sep = "&" if "?" in url else "?"
+    return f"{url}{sep}utm_source=telegram&utm_medium=digest&utm_campaign=daily"
+
 
 def extract_title(item: dict) -> str:
     for k in ("title", "headline", "name"):
@@ -140,9 +146,11 @@ def make_digest_post(items: list[dict]) -> str:
 
     for i, it in enumerate(items, 1):
         title = esc_html(extract_title(it))
-        url = extract_url(it)
+       url = with_utm(extract_url(it))
 
-        meaning = "Что это значит: проверь влияние на цены, сроки поставок и эксплуатацию. Ссылки — ниже."
+
+        meaning = meaning_for(extract_title(it))
+
 
         lines.append(f"{i}️⃣ <b>{title}</b>")
         lines.append(esc_html(meaning))
@@ -177,6 +185,32 @@ def tg_send(text: str):
     r.raise_for_status()
     if not j.get("ok"):
         raise RuntimeError(f"Telegram API error: {j}")
+        
+def meaning_for(title: str) -> str:
+    t = title.lower()
+
+    # цены / рынок
+    if any(k in t for k in ["дешев", "подорож", "цена", "стоимост", "рынок", "продаж", "спрос"]):
+        return "Что это значит: возможны изменения цен на технику и запчасти. Если планируешь покупку/обновление — сравни предложения и сроки поставок."
+
+    # производство / завод / выпуск
+    if any(k in t for k in ["выпуск", "производств", "завод", "сократ", "рост выпуск", "серия"]):
+        return "Что это значит: при изменении производства могут меняться сроки поставок и наличие. Держи в уме планирование парка и заказов заранее."
+
+    # новые модели / презентации / выставки
+    if any(k in t for k in ["представ", "презент", "новинк", "модель", "выставк", "форум"]):
+        return "Что это значит: появляются новые комплектации и решения. Проверь, есть ли у новинки плюсы по грузоподъёмности, сервису и стоимости владения."
+
+    # нормативка / штрафы / контроль
+    if any(k in t for k in ["штраф", "контроль", "инспекц", "требован", "закон", "правил", "сертиф"]):
+        return "Что это значит: повышается риск штрафов и простоев. Проверь документы, крепёж, свет/разъёмы и состояние узлов перед рейсом."
+
+    # сервис / поломки / эксплуатация
+    if any(k in t for k in ["ремонт", "сервис", "поломк", "неисправ", "тормоз", "ось", "подвеск", "шины"]):
+        return "Что это значит: обрати внимание на обслуживание узлов. Признаки проблемы лучше ловить заранее — это дешевле, чем простой на линии."
+
+    # дефолт
+    return "Что это значит: держи в фокусе влияние на эксплуатацию, сроки и затраты. Ссылки и детали — ниже."
 
 
 def main():
@@ -191,6 +225,9 @@ def main():
     used = set(state.get("used_urls", []))
     news = read_news()
     picked = pick_items(news, used)
+    if len(picked) < 3:
+    print(f"Too few items for digest: {len(picked)}. Exit.")
+    return
 
     if not picked:
         print("No suitable items found (topic/freshness/duplicates). Exit.")
