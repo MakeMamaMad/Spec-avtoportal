@@ -110,6 +110,8 @@ def extract_date(item: dict) -> datetime | None:
 
 
 def is_on_topic(item: dict) -> bool:
+    title = extract_title(item).lower()
+    if any(w in title for w in TOPIC_WORDS):
         return True
 
     tags = item.get("tags") or item.get("categories")
@@ -119,6 +121,7 @@ def is_on_topic(item: dict) -> bool:
             return True
 
     return False
+
 
 
 def pick_items(news: list[dict], used_urls: set[str]) -> list[dict]:
