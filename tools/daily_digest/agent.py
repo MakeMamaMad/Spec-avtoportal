@@ -110,8 +110,6 @@ def extract_date(item: dict) -> datetime | None:
 
 
 def is_on_topic(item: dict) -> bool:
-    title = extract_title(item).lower()
-    if any(w in title for w in TOPIC_WORDS):
         return True
 
     tags = item.get("tags") or item.get("categories")
@@ -205,7 +203,7 @@ def make_digest_post(items: list[dict], slot: str) -> str:
         footer = "📌 Утро: собрали главное и короткие выводы. Вечером — итоги дня."
     else:
         header = f"🚛 <b>Вечерняя сводка по тягачам и полуприцепам — {today}</b>"
-        footer = "📌 Вечер: итоги дня без спама — только важное + выводы."
+        footer = "📌 Вечер: итоги дня"
 
     lines = [header, ""]
 
