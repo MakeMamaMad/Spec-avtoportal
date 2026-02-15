@@ -125,47 +125,38 @@ def is_on_topic(item: dict) -> bool:
 
 
 def pick_items(news: list[dict], used_urls: set[str]) -> list[dict]:
-    now = datetime.now(timezone.utc)
-    cutoff = now - timedelta(hours=LOOKBACK_HOURS)
-
-    fresh: list[tuple[int, dict]] = []
+    fresh = []
     for it in news:
         if not isinstance(it, dict):
             continue
-
         url = extract_url(it)
         title = extract_title(it)
         if not url or not title:
             continue
-
         if url in used_urls:
             continue
+        fresh.append(it)
 
-        if not is_on_topic(it):
-            continue
-
-        d = extract_date(it)
-        score = 0
-        if d:
-            if d < cutoff:
+    # Если всё “съедено” used_urls — разрешаем повтор (иначе канал умрёт)
+    if len(fresh) < 3:
+        fresh = []
+        for it in news:
+            if not isinstance(it, dict):
                 continue
-            age_hours = (now - d).total_seconds() / 3600
-            score = max(0, int(100 - age_hours))
-        else:
-            # если даты нет — низкий приоритет, но допускаем
-            score = 10
+            url = extract_url(it)
+            title = extract_title(it)
+            if not url or not title:
+                continue
+            fresh.append(it)
 
-        fresh.append((score, it))
+    if not fresh:
+        return []
 
-    fresh.sort(key=lambda x: x[0], reverse=True)
-
-    # берём верхнюю часть по “новизне”, а выбор внутри делаем рандомом
-    top_pool = [it for _, it in fresh[: max(20, PICK_N * 4)]]
-
-    if len(top_pool) <= PICK_N:
-        return top_pool
-
-    return random.sample(top_pool, PICK_N)
+    # Берём 5 или сколько есть
+    n = min(PICK_N, len(fresh))
+    if len(fresh) <= n:
+        return fresh
+    return random.sample(fresh, n)
 
 
 def esc_html(s: str) -> str:
