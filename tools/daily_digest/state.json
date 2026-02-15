@@ -1,16 +1,22 @@
 {
   "used_urls": [
+    "http://gruzovoy.ru/news/industry/3104_vistavka_kommercheskogo_transporta_i_tehnologii_comvex_zapyskaet_podkast_comvex_talks.html",
+    "http://gruzovoy.ru/news/industry/3160_v_2025_gody_pricepnaya_tehnika_deshevela_a_teper_nachala_dorojat.html",
+    "https://www.vedomosti.ru/auto/articles/2016/03/14/633455-biznes-partnera-arshavina",
+    "http://gruzovoy.ru/news/industry/3162_kompaniya_dongfeng_ne_namerena_yhodit_s_rossiiskogo_rinka.html",
+    "https://www.vedomosti.ru/auto/articles/2025/08/12/1130891-kompaniya-prezidenta-road-ostanovila-vipusk-furgonov",
     "https://www.pressebox.de/pressemitteilung/koegel-trailer-gmbh-cokg/Yusen-Logistics-Czech-vertraut-auf-Kgel-Trailer-und-kauft-intermodale-Auflieger/boxid/1195169",
     "https://www.vedomosti.ru/economics/articles/2016/07/19/649784-evrokomissiya-gruzovikov-rekordnie-293",
-    "https://www.vedomosti.ru/auto/articles/2016/03/14/633455-biznes-partnera-arshavina",
+    "https://www.krone-trailer.com/en/news/detail-1/pema-erweitert-fuhrpark-mit-nutzfahrzeugen-von-krone/",
+    "https://truckmix.ru/news/foton-podvodit-itogi-2025-goda-ekskluzivnii-statys-i-rasshirenie-modelnogo-ryada",
     "https://motor.ru/news/iz-za-oshibki-na-konveiere-budut-otozvany-novye-porsche-i-lamborghini-29-09-2025.htm",
-    "http://gruzovoy.ru/news/industry/3160_v_2025_gody_pricepnaya_tehnika_deshevela_a_teper_nachala_dorojat.html",
-    "http://gruzovoy.ru/news/industry/3162_kompaniya_dongfeng_ne_namerena_yhodit_s_rossiiskogo_rinka.html"
+    "https://motor.ru/news/samyi-populyarnyi-pikap-v-rossii-poluchil-mnogorychazhnuyu-podvesku-11-01-2026.htm"
   ],
   "last_post_date": "2026-02-12",
   "last_post": {
     "2026-02-15": {
-      "am": true
+      "am": true,
+      "pm": true
     }
   }
 }
