@@ -7,6 +7,7 @@ import subprocess
 from pathlib import Path
 from datetime import datetime, timezone
 from urllib.parse import urlparse, urlencode, urlunparse, parse_qsl
+import html as html_std
 
 import requests
 from dateutil import parser as dtparser
@@ -31,13 +32,12 @@ TOTAL_SECONDS = float(os.getenv("TOTAL_SECONDS", "30"))
 INTRO_SECONDS = float(os.getenv("INTRO_SECONDS", "1.5"))
 OUTRO_SECONDS = float(os.getenv("OUTRO_SECONDS", "2.5"))
 
-PICK_TARGET = int(os.getenv("PICK_TARGET", "4"))  # будем резать до 3 при длинной озвучке
+PICK_TARGET = int(os.getenv("PICK_TARGET", "4"))  # будет резать до 3 при длинной озвучке
 
 VOICE = os.getenv("VOICE", "ru-RU-DmitryNeural").strip()
 TTS_RATE = os.getenv("TTS_RATE", "-10%").strip()
 
 SUMMARY_MAX = int(os.getenv("SUMMARY_MAX", "120"))
-
 LOGO_PATH = os.getenv("LOGO_PATH", "frontend/spec_avtoportal_favicon.ico").strip()
 
 STATE_PATH = Path("tools/autoposter/state/posted.json")
@@ -66,6 +66,10 @@ def run(cmd: list[str]) -> str:
 
 def clean_text(s: str) -> str:
     s = (s or "").strip()
+    # ✅ убираем HTML сущности типа &nbsp;
+    s = html_std.unescape(s)
+    s = s.replace("\xa0", " ")
+    s = s.replace("\u200b", "")  # zero-width
     s = " ".join(s.split())
     return s
 
@@ -180,7 +184,7 @@ IMPORTANT_WORDS = [
 
 
 def score_item(item: dict) -> float:
-    title = pick_title(item).lower()
+    title = clean_text(pick_title(item)).lower()
     s = 0.0
     for w in IMPORTANT_WORDS:
         if w in title:
@@ -278,7 +282,7 @@ MEANING_BANK = {
 
 
 def classify(title: str) -> str:
-    t = (title or "").lower()
+    t = clean_text(title).lower()
     if any(k in t for k in ["штраф", "контроль", "закон", "регламент", "гост", "санкц", "сертиф", "провер"]):
         return "rules"
     if any(k in t for k in ["цена", "подорож", "дешев", "рынок", "спрос", "продаж", "пошлин", "инфляц"]):
@@ -298,11 +302,11 @@ def meaning_for(title: str) -> str:
 
 
 def build_voice_text(items: list[dict]) -> str:
-    parts = ["Новости по тягачам и полуприцепам. Коротко."]
+    parts = ["Главные новости по коммерческому транспорту. Коротко."]
     for it in items:
         title = clean_text(pick_title(it))
         parts.append(f"Новость: {title}. {meaning_for(title)}")
-    parts.append("Подробности и ссылки — в телеграм. Архив — на сайте Спек Автопортал.")
+    parts.append("Ссылки и детали — в телеграм. Архив — на сайте Спек Автопортал.")
     return " ".join(parts)
 
 
@@ -312,7 +316,7 @@ def estimate_speech_seconds(text: str) -> float:
 
 
 # -----------------------------
-# CARD RENDER (Pillow)
+# CARD RENDER (Pillow) — REDESIGN v2 (YouTube-aggressive)
 # -----------------------------
 def ensure_font(candidates: list[str], size: int) -> ImageFont.FreeTypeFont:
     for p in candidates:
@@ -355,7 +359,7 @@ def load_logo_rgba() -> Image.Image:
     raise RuntimeError(f"Logo not found. Tried: {[str(c) for c in candidates]}")
 
 
-def wrap_words(text: str, max_chars: int) -> list[str]:
+def wrap_by_chars(text: str, max_chars: int) -> list[str]:
     words = clean_text(text).split()
     lines, cur = [], ""
     for w in words:
@@ -370,10 +374,33 @@ def wrap_words(text: str, max_chars: int) -> list[str]:
     return lines
 
 
+def add_bottom_gradient(img: Image.Image, start_y: int, end_y: int, color=(0, 0, 0), max_alpha=220) -> Image.Image:
+    """Градиент снизу: прозрачный -> чёрный."""
+    w, h = img.size
+    overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    px = overlay.load()
+    start_y = max(0, min(h - 1, start_y))
+    end_y = max(0, min(h, end_y))
+    if end_y <= start_y:
+        return img
+
+    for y in range(start_y, end_y):
+        t = (y - start_y) / max(1, (end_y - start_y))
+        a = int(t * max_alpha)
+        for x in range(w):
+            px[x, y] = (color[0], color[1], color[2], a)
+
+    out = Image.alpha_composite(img.convert("RGBA"), overlay)
+    return out.convert("RGB")
+
+
 def make_card(idx: int, item: dict, logo: Image.Image, out_png: Path):
     W, H = VIDEO_WIDTH, VIDEO_HEIGHT
-    title = truncate(pick_title(item), 95)
-    summary = truncate(pick_summary(item), SUMMARY_MAX)
+
+    # агрессивнее: титул чуть короче, summary 1 строка
+    title = truncate(pick_title(item), 88)
+    summary = truncate(pick_summary(item), min(SUMMARY_MAX, 90))
+
     url = pick_url(item)
     domain = ""
     try:
@@ -381,131 +408,166 @@ def make_card(idx: int, item: dict, logo: Image.Image, out_png: Path):
     except Exception:
         domain = ""
 
-    base = Image.new("RGB", (W, H), (16, 18, 22))
-    draw = ImageDraw.Draw(base)
+    # цвета
+    BG = (10, 12, 16)
+    WHITE = (255, 255, 255)
+    GRAY = (210, 210, 210)
+    YELLOW = (255, 196, 0)
 
+    base = Image.new("RGB", (W, H), BG)
+
+    # фон: картинка размытой подложкой (если есть)
     img_url = pick_image(item)
     img_path = ASSETS_DIR / f"img_{idx:02d}.bin"
-    has_img = False
     news_img = None
-
     if img_url and download_image(img_url, img_path):
         try:
             news_img = Image.open(img_path).convert("RGB")
-            has_img = True
         except Exception:
-            has_img = False
+            news_img = None
 
-    if has_img and news_img is not None:
+    if news_img is not None:
         bg = news_img.copy().resize((W, H))
-        bg = bg.filter(ImageFilter.GaussianBlur(radius=18))
-        base = Image.blend(base, bg, alpha=0.55)
-        draw = ImageDraw.Draw(base)
+        bg = bg.filter(ImageFilter.GaussianBlur(radius=16))
+        base = Image.blend(base, bg, alpha=0.62)
 
-        pic_w = int(W * 0.90)
-        pic_h = int(H * 0.42)
+        # основной кадр: без жирной рамки, просто аккуратный "карточный" блок
         pic = news_img.copy()
-        pic.thumbnail((pic_w, pic_h))
+        pic.thumbnail((int(W * 0.92), int(H * 0.55)))
         px = (W - pic.size[0]) // 2
         py = int(H * 0.12)
 
-        frame = Image.new("RGBA", (pic.size[0] + 14, pic.size[1] + 14), (0, 0, 0, 160))
-        base.paste(frame, (px - 7, py - 7), frame)
-        base.paste(pic, (px, py))
+        # легкая тень
+        shadow = Image.new("RGBA", (pic.size[0] + 30, pic.size[1] + 30), (0, 0, 0, 0))
+        sd = ImageDraw.Draw(shadow)
+        sd.rectangle([15, 15, 15 + pic.size[0], 15 + pic.size[1]], fill=(0, 0, 0, 140))
+        shadow = shadow.filter(ImageFilter.GaussianBlur(radius=10))
+        base_rgba = base.convert("RGBA")
+        base_rgba.paste(shadow, (px - 15, py - 15), shadow)
+        base_rgba.paste(pic, (px, py))
+        base = base_rgba.convert("RGB")
     else:
-        overlay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-        od = ImageDraw.Draw(overlay)
-        od.rectangle([0, int(H * 0.10), W, int(H * 0.56)], fill=(0, 0, 0, 130))
-        base = Image.alpha_composite(base.convert("RGBA"), overlay).convert("RGB")
-        draw = ImageDraw.Draw(base)
+        # если нет картинки — просто фон + градиент
+        pass
 
-    font_paths = [
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-    ]
-    f_title = ensure_font(font_paths, 58)
-    f_body = ensure_font(font_paths, 40)
-    f_small = ensure_font(font_paths, 34)
+    # градиент снизу под текст
+    base = add_bottom_gradient(base, start_y=int(H * 0.52), end_y=H, max_alpha=235)
 
-    bar_h = 96
+    draw = ImageDraw.Draw(base)
+
+    # шрифты
+    font_paths_bold = ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"]
+    font_paths_reg = ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]
+    f_brand = ensure_font(font_paths_bold, 40)
+    f_sub = ensure_font(font_paths_reg, 30)
+    f_title = ensure_font(font_paths_bold, 64)   # крупнее
+    f_sum = ensure_font(font_paths_reg, 38)
+    f_small = ensure_font(font_paths_reg, 30)
+
+    # верхняя "лента" компактнее
+    bar_h = 82
     draw.rectangle([0, 0, W, bar_h], fill=(0, 0, 0))
 
     lg = logo.copy()
-    lg.thumbnail((64, 64))
-    base.paste(lg, (24, 16), lg)
-    draw.text((100, 26), "SpecAvtoPortal", font=f_small, fill=(255, 255, 255))
+    lg.thumbnail((54, 54))
+    base.paste(lg, (20, 14), lg)
 
-    badge_r = 34
-    bx, by = W - 24 - badge_r * 2, 14
-    draw.ellipse([bx, by, bx + badge_r * 2, by + badge_r * 2], fill=(255, 196, 0))
-    draw.text((bx + 22, by + 14), str(idx), font=f_small, fill=(0, 0, 0))
+    draw.text((86, 14), "SpecAvtoPortal", font=f_brand, fill=WHITE)
+    draw.text((86, 48), "Shorts • Новости рынка", font=f_sub, fill=(170, 170, 170))
 
-    y0 = int(H * 0.58)
-    draw.rectangle([40, y0 - 20, W - 40, H - 170], fill=(0, 0, 0, 145))
+    # номер в желтом кружке (оставляем)
+    badge_r = 30
+    bx, by = W - 20 - badge_r * 2, 11
+    draw.ellipse([bx, by, bx + badge_r * 2, by + badge_r * 2], fill=YELLOW)
+    draw.text((bx + 21, by + 12), str(idx), font=f_brand, fill=(0, 0, 0))
 
-    pad_x = 72
-    ty = y0 + 16
+    # текстовая зона (агрессивный стиль)
+    left = 56
+    y = int(H * 0.62)
 
-    t_lines = wrap_words(title, 26)[:3]
-    s_lines = wrap_words(summary, 32)[:2] if summary else []
-
+    # заголовок: 2 строки макс
+    t_lines = wrap_by_chars(title.upper(), 22)[:2]
     for ln in t_lines:
-        draw.text((pad_x, ty), ln, font=f_title, fill=(255, 255, 255))
-        ty += 66
+        draw.text((left, y), ln, font=f_title, fill=WHITE)
+        y += 76
 
-    if s_lines:
-        ty += 10
-        for ln in s_lines:
-            draw.text((pad_x, ty), ln, font=f_body, fill=(230, 230, 230))
-            ty += 48
+    # summary: 1 строка макс
+    if summary:
+        y += 6
+        s_line = wrap_by_chars(summary, 40)[:1]
+        for ln in s_line:
+            draw.text((left, y), ln, font=f_sum, fill=GRAY)
+            y += 48
 
+    # нижний акцент: желтая линия + CTA
+    line_y = H - 140
+    draw.rectangle([left, line_y, W - left, line_y + 6], fill=YELLOW)
+
+    draw.text((left, H - 118), "Подробности — в Telegram • Архив — на сайте", font=f_small, fill=WHITE)
+
+    # источник
     if domain:
-        draw.text((pad_x, H - 205), f"Источник: {domain}", font=f_small, fill=(220, 220, 220))
+        draw.text((left, H - 78), f"Источник: {domain}", font=f_small, fill=(190, 190, 190))
 
     base.save(out_png, "PNG")
 
 
 def make_intro_card(logo: Image.Image, out_png: Path):
     W, H = VIDEO_WIDTH, VIDEO_HEIGHT
-    img = Image.new("RGB", (W, H), (0, 0, 0))
+    BG = (0, 0, 0)
+    YELLOW = (255, 196, 0)
+    WHITE = (255, 255, 255)
+
+    img = Image.new("RGB", (W, H), BG)
     draw = ImageDraw.Draw(img)
 
-    font_paths = ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"]
-    f1 = ensure_font(font_paths, 74)
-    f2 = ensure_font(font_paths, 44)
+    font_paths_bold = ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"]
+    font_paths_reg = ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]
+    f1 = ensure_font(font_paths_bold, 92)
+    f2 = ensure_font(font_paths_bold, 54)
+    f3 = ensure_font(font_paths_reg, 40)
 
     lg = logo.copy()
-    lg.thumbnail((170, 170))
-    img.paste(lg, (int(W * 0.5 - lg.size[0] / 2), int(H * 0.30)), lg)
+    lg.thumbnail((160, 160))
+    img.paste(lg, (70, 120), lg)
 
-    draw.text((int(W * 0.10), int(H * 0.55)), "ГЛАВНОЕ ЗА ДЕНЬ", font=f1, fill=(255, 255, 255))
-    draw.text((int(W * 0.10), int(H * 0.63)), "тягачи • полуприцепы • рынок", font=f2, fill=(210, 210, 210))
+    draw.text((70, 320), "НОВОСТИ", font=f1, fill=WHITE)
+    draw.text((70, 420), "ТЯГАЧИ • ПОЛУПРИЦЕПЫ", font=f2, fill=WHITE)
+    draw.rectangle([70, 510, 520, 518], fill=YELLOW)
+    draw.text((70, 540), "за 30 секунд • без воды", font=f3, fill=(210, 210, 210))
 
     img.save(out_png, "PNG")
 
 
 def make_outro_card(logo: Image.Image, out_png: Path):
     W, H = VIDEO_WIDTH, VIDEO_HEIGHT
-    img = Image.new("RGB", (W, H), (8, 10, 14))
+    BG = (8, 10, 14)
+    YELLOW = (255, 196, 0)
+    WHITE = (255, 255, 255)
+
+    img = Image.new("RGB", (W, H), BG)
     draw = ImageDraw.Draw(img)
 
-    font_paths = ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"]
-    f1 = ensure_font(font_paths, 70)
-    f2 = ensure_font(font_paths, 46)
-    f3 = ensure_font(font_paths, 40)
+    font_paths_bold = ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"]
+    font_paths_reg = ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]
+    f1 = ensure_font(font_paths_bold, 72)
+    f2 = ensure_font(font_paths_bold, 46)
+    f3 = ensure_font(font_paths_reg, 40)
 
     lg = logo.copy()
     lg.thumbnail((130, 130))
     img.paste(lg, (70, 90), lg)
 
-    draw.text((70, 260), "Ссылки и детали:", font=f1, fill=(255, 255, 255))
-    draw.text((70, 380), "Telegram:", font=f2, fill=(230, 230, 230))
-    draw.text((70, 450), TELEGRAM_URL, font=f3, fill=(255, 196, 0))
+    draw.text((70, 260), "Ссылки и детали", font=f1, fill=WHITE)
+    draw.rectangle([70, 350, 520, 358], fill=YELLOW)
 
-    draw.text((70, 560), "Сайт:", font=f2, fill=(230, 230, 230))
-    draw.text((70, 630), SITE_URL, font=f3, fill=(255, 196, 0))
+    draw.text((70, 400), "Telegram:", font=f2, fill=WHITE)
+    draw.text((70, 470), TELEGRAM_URL, font=f3, fill=YELLOW)
 
-    draw.text((70, 760), "Подписывайся — новости без воды", font=f3, fill=(220, 220, 220))
+    draw.text((70, 580), "Сайт:", font=f2, fill=WHITE)
+    draw.text((70, 650), SITE_URL, font=f3, fill=YELLOW)
+
+    draw.text((70, 780), "Подписывайся — 6 роликов в сутки", font=f3, fill=(210, 210, 210))
 
     img.save(out_png, "PNG")
 
@@ -522,6 +584,9 @@ def compute_slide_durations(n_items: int) -> list[float]:
     return durs
 
 
+# -----------------------------
+# TTS: edge-tts -> fallback gTTS
+# -----------------------------
 async def edge_tts_to_wav(text: str, out_wav: Path):
     communicate = edge_tts.Communicate(text=text, voice=VOICE, rate=TTS_RATE)
     await communicate.save(str(out_wav))
@@ -535,19 +600,19 @@ def gtts_to_wav(text: str, out_wav: Path):
 
 
 def tts_generate(text: str, out_wav: Path):
-    # 1) пробуем edge-tts
     try:
         asyncio.run(edge_tts_to_wav(text, out_wav))
         print("[TTS] edge-tts OK")
         return
     except Exception as e:
         print("[TTS] edge-tts failed, fallback to gTTS:", repr(e))
-
-    # 2) fallback gTTS
     gtts_to_wav(text, out_wav)
     print("[TTS] gTTS OK")
 
 
+# -----------------------------
+# VIDEO (ffmpeg slideshow)
+# -----------------------------
 def ffmpeg_slideshow(pngs: list[Path], durations: list[float], audio_wav: Path, out_mp4: Path):
     if len(pngs) != len(durations):
         raise ValueError("pngs and durations must match")
@@ -579,7 +644,7 @@ def ffmpeg_slideshow(pngs: list[Path], durations: list[float], audio_wav: Path, 
 
 
 # -----------------------------
-# YOUTUBE UPLOAD + THUMBNAIL
+# YOUTUBE upload + thumbnail
 # -----------------------------
 def youtube_upload(video_path: Path, title: str, description: str, privacy: str = "public") -> str:
     from googleapiclient.discovery import build
@@ -677,6 +742,7 @@ def main():
     outro_png = CARDS_DIR / "99_outro.png"
     make_outro_card(logo, outro_png)
 
+    # thumbnail: первая карточка
     thumb_png = OUT_DIR / "thumbnail.png"
     Image.open(slide_pngs[0]).save(thumb_png, "PNG")
 
