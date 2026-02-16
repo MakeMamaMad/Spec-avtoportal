@@ -338,11 +338,33 @@ def download_image(url: str, out: Path) -> bool:
 
 
 def load_logo_rgba() -> Image.Image:
-    p = Path(LOGO_PATH)
-    if not p.exists():
-        raise RuntimeError(f"Logo not found: {LOGO_PATH}")
-    img = Image.open(p).convert("RGBA")
-    return img
+    raw = (LOGO_PATH or "").strip()
+
+    # раскрываем $VARS и ~
+    raw = os.path.expandvars(os.path.expanduser(raw))
+
+    candidates = []
+
+    # 1) как есть (относительно cwd)
+    if raw:
+        candidates.append(Path(raw))
+
+    # 2) относительно корня репо (GITHUB_WORKSPACE)
+    ws = os.getenv("GITHUB_WORKSPACE", "").strip()
+    if ws and raw:
+        candidates.append(Path(ws) / raw.lstrip("/\\"))
+        candidates.append(Path(ws) / raw.replace("\\", "/").lstrip("/"))
+
+    # 3) на всякий случай: если запуск из tools/autoposter и указали frontend/...
+    if ws:
+        candidates.append(Path(ws) / "frontend" / "spec_avtoportal_favicon.ico")
+
+    for p in candidates:
+        if p.exists():
+            return Image.open(p).convert("RGBA")
+
+    raise RuntimeError(f"Logo not found. Tried: {[str(c) for c in candidates]}")
+
 
 
 def wrap_words(text: str, max_chars: int) -> list[str]:
