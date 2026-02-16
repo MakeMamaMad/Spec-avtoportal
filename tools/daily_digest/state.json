@@ -1,21 +1,26 @@
 {
   "used_urls": [
-    "http://gruzovoy.ru/news/industry/3162_kompaniya_dongfeng_ne_namerena_yhodit_s_rossiiskogo_rinka.html",
-    "https://www.vedomosti.ru/newspaper/articles/2018/05/30/771221-kabotazhnii-kontinent",
-    "https://www.krone-trailer.com/en/news/detail-1/krone-introduces-new-generation-of-tyres/",
-    "https://truckmix.ru/news/foton-podvodit-itogi-2025-goda-ekskluzivnii-statys-i-rasshirenie-modelnogo-ryada",
-    "https://motor.ru/news/iz-za-oshibki-na-konveiere-budut-otozvany-novye-porsche-i-lamborghini-29-09-2025.htm",
     "https://motor.ru/news/dreame-12-09-2025.htm",
-    "https://www.pressebox.de/pressemitteilung/koegel-trailer-gmbh-cokg/Yusen-Logistics-Czech-vertraut-auf-Kgel-Trailer-und-kauft-intermodale-Auflieger/boxid/1195169",
-    "https://www.krone-trailer.com/en/news/detail-1/pema-erweitert-fuhrpark-mit-nutzfahrzeugen-von-krone/",
     "https://www.krone-trailer.com/en/news/detail-1/krone-world-premiere-of-the-box-liner-automatic/",
-    "https://motor.ru/news/samyi-populyarnyi-pikap-v-rossii-poluchil-mnogorychazhnuyu-podvesku-11-01-2026.htm",
     "https://www.vedomosti.ru/auto/articles/2016/03/14/633455-biznes-partnera-arshavina",
-    "http://gruzovoy.ru/news/industry/3160_v_2025_gody_pricepnaya_tehnika_deshevela_a_teper_nachala_dorojat.html",
-    "https://www.krone-trailer.com/en/news/detail-1/unternehmerpersoenlichkeit-dr-bernard-krone-verstorben/",
-    "https://www.vedomosti.ru/economics/articles/2016/07/19/649784-evrokomissiya-gruzovikov-rekordnie-293",
     "http://gruzovoy.ru/news/industry/3104_vistavka_kommercheskogo_transporta_i_tehnologii_comvex_zapyskaet_podkast_comvex_talks.html",
-    "https://www.vedomosti.ru/auto/articles/2025/08/12/1130891-kompaniya-prezidenta-road-ostanovila-vipusk-furgonov"
+    "https://truckmix.ru/news/hit-mashineri-predostavlyaet-2-goda-garantii-na-novie-ekskavatori-hitachi",
+    "https://motor.ru/news/samyi-populyarnyi-pikap-v-rossii-poluchil-mnogorychazhnuyu-podvesku-11-01-2026.htm",
+    "https://www.pressebox.de/pressemitteilung/koegel-trailer-gmbh-cokg/Yusen-Logistics-Czech-vertraut-auf-Kgel-Trailer-und-kauft-intermodale-Auflieger/boxid/1195169",
+    "https://www.vedomosti.ru/economics/articles/2016/07/19/649784-evrokomissiya-gruzovikov-rekordnie-293",
+    "https://www.krone-trailer.com/en/news/detail-1/krone-und-trailer-partner-gewinnen-leserwahl-top-slovakia/",
+    "https://www.vedomosti.ru/auto/articles/2025/08/12/1130891-kompaniya-prezidenta-road-ostanovila-vipusk-furgonov",
+    "https://www.krone-trailer.com/en/news/detail-1/unternehmerpersoenlichkeit-dr-bernard-krone-verstorben/",
+    "https://truckmix.ru/news/foton-podvodit-itogi-2025-goda-ekskluzivnii-statys-i-rasshirenie-modelnogo-ryada",
+    "https://www.vedomosti.ru/auto/characters/2016/10/11/660391-mi-pereshli-ot-traditsionnoi-platformi-k-sovremennoi",
+    "https://www.krone-trailer.com/en/news/detail-1/pema-erweitert-fuhrpark-mit-nutzfahrzeugen-von-krone/",
+    "http://gruzovoy.ru/news/industry/3162_kompaniya_dongfeng_ne_namerena_yhodit_s_rossiiskogo_rinka.html",
+    "https://www.krone-trailer.com/en/news/detail-1/comtrans-2017-moskau/",
+    "https://trailertechnician.com/2025/10/hyundai-xcient-fuel-cell-trucks-north-america/?utm_source=rss&utm_medium=rss&utm_campaign=hyundai-xcient-fuel-cell-trucks-north-america",
+    "https://www.krone-trailer.com/en/news/detail-1/krone-introduces-new-generation-of-tyres/",
+    "https://www.vedomosti.ru/newspaper/articles/2018/05/30/771221-kabotazhnii-kontinent",
+    "https://motor.ru/news/iz-za-oshibki-na-konveiere-budut-otozvany-novye-porsche-i-lamborghini-29-09-2025.htm",
+    "http://gruzovoy.ru/news/industry/3160_v_2025_gody_pricepnaya_tehnika_deshevela_a_teper_nachala_dorojat.html"
   ],
   "last_post_date": "2026-02-12",
   "last_post": {
@@ -24,7 +29,8 @@
       "pm": true
     },
     "2026-02-16": {
-      "am": true
+      "am": true,
+      "pm": true
     }
   }
 }
