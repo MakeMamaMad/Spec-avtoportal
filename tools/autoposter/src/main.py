@@ -35,7 +35,11 @@ OUTRO_SECONDS = float(os.getenv("OUTRO_SECONDS", "2.5"))
 PICK_TARGET = int(os.getenv("PICK_TARGET", "4"))  # будет резать до 3 при длинной озвучке
 
 VOICE = os.getenv("VOICE", "ru-RU-DmitryNeural").strip()
-TTS_RATE = os.getenv("TTS_RATE", "-10%").strip()
+# ✅ ВАЖНО: по умолчанию ускоряем, а не замедляем
+TTS_RATE = os.getenv("TTS_RATE", "+15%").strip()
+
+# если 1 — подгоняем аудио под TOTAL_SECONDS (ускоряем при необходимости)
+AUDIO_FIT = os.getenv("AUDIO_FIT", "1").strip() == "1"
 
 SUMMARY_MAX = int(os.getenv("SUMMARY_MAX", "120"))
 LOGO_PATH = os.getenv("LOGO_PATH", "frontend/spec_avtoportal_favicon.ico").strip()
@@ -64,12 +68,25 @@ def run(cmd: list[str]) -> str:
     return out
 
 
+def ffprobe_duration(path: Path) -> float:
+    out = run([
+        "ffprobe", "-v", "error",
+        "-show_entries", "format=duration",
+        "-of", "json",
+        str(path)
+    ])
+    j = json.loads(out)
+    try:
+        return float(j["format"]["duration"])
+    except Exception:
+        return 0.0
+
+
 def clean_text(s: str) -> str:
     s = (s or "").strip()
-    # ✅ убираем HTML сущности типа &nbsp;
     s = html_std.unescape(s)
     s = s.replace("\xa0", " ")
-    s = s.replace("\u200b", "")  # zero-width
+    s = s.replace("\u200b", "")
     s = " ".join(s.split())
     return s
 
@@ -251,32 +268,32 @@ def pick_news_items(news: list[dict], st: dict) -> list[dict]:
 
 
 # -----------------------------
-# COPYWRITING ("what it means")
+# COPYWRITING (чуть короче, чтобы успевало)
 # -----------------------------
 MEANING_BANK = {
     "rules": [
-        "Что это значит: выше риск проверок и штрафов — проверь документы, свет, крепёж и узлы перед рейсом.",
-        "Что это значит: возможны новые требования — подготовь технику и документы заранее, чтобы не ловить простой.",
+        "Что это значит: выше риск проверок и штрафов — проверь документы и узлы.",
+        "Что это значит: возможны новые требования — готовь технику заранее.",
     ],
     "market": [
-        "Что это значит: рынок качает — это влияет на цены и сроки. Закладывай запас по бюджету и планируй закупки заранее.",
-        "Что это значит: возможны изменения стоимости владения — проверь цены на технику и расходники.",
+        "Что это значит: рынок влияет на цену и сроки — планируй закупки заранее.",
+        "Что это значит: стоимость владения может вырасти — следи за ценами на расходники.",
     ],
     "supply": [
-        "Что это значит: могут измениться сроки и наличие — держи альтернативы и планируй ремонты заранее.",
-        "Что это значит: цепочки поставок меняются — уточняй сроки у поставщиков и не тяни с заказами.",
+        "Что это значит: сроки и наличие могут меняться — держи альтернативы.",
+        "Что это значит: поставки перестраиваются — не тяни с заказами.",
     ],
     "ops": [
-        "Что это значит: это про эксплуатацию — проверь узлы и регламент ТО, чтобы не встать в рейсе.",
-        "Что это значит: проблему лучше поймать заранее — диагностика дешевле простоя.",
+        "Что это значит: это про эксплуатацию — проверяй узлы, чтобы не встать в рейсе.",
+        "Что это значит: диагностика дешевле простоя — следи за симптомами.",
     ],
     "logistics": [
-        "Что это значит: меняются условия перевозок — это влияет на сроки и расходы на рейс.",
-        "Что это значит: возможна перестройка маршрутов — держи альтернативные окна и направления.",
+        "Что это значит: может измениться маршрут и стоимость рейса — учитывай заранее.",
+        "Что это значит: сроки доставки могут сдвигаться — держи запас по времени.",
     ],
     "other": [
-        "Что это значит: новость смежная — оцени влияние на перевозки и рынок техники.",
-        "Что это значит: влияние неочевидно — смотри детали по ссылке.",
+        "Что это значит: влияние неочевидно — детали по ссылке.",
+        "Что это значит: оцени влияние на перевозки и рынок техники.",
     ],
 }
 
@@ -302,21 +319,16 @@ def meaning_for(title: str) -> str:
 
 
 def build_voice_text(items: list[dict]) -> str:
-    parts = ["Главные новости по коммерческому транспорту. Коротко."]
+    parts = ["Новости коммерческого транспорта. Коротко."]
     for it in items:
         title = clean_text(pick_title(it))
-        parts.append(f"Новость: {title}. {meaning_for(title)}")
-    parts.append("Ссылки и детали — в телеграм. Архив — на сайте Спек Автопортал.")
+        parts.append(f"{title}. {meaning_for(title)}")
+    parts.append("Ссылки — в телеграм. Архив — на сайте.")
     return " ".join(parts)
 
 
-def estimate_speech_seconds(text: str) -> float:
-    words = len(text.split())
-    return max(10.0, words / 2.4)
-
-
 # -----------------------------
-# CARD RENDER (Pillow) — REDESIGN v2 (YouTube-aggressive)
+# CARD RENDER (Pillow) — v2 YouTube-aggressive
 # -----------------------------
 def ensure_font(candidates: list[str], size: int) -> ImageFont.FreeTypeFont:
     for p in candidates:
@@ -375,7 +387,6 @@ def wrap_by_chars(text: str, max_chars: int) -> list[str]:
 
 
 def add_bottom_gradient(img: Image.Image, start_y: int, end_y: int, color=(0, 0, 0), max_alpha=220) -> Image.Image:
-    """Градиент снизу: прозрачный -> чёрный."""
     w, h = img.size
     overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     px = overlay.load()
@@ -397,7 +408,6 @@ def add_bottom_gradient(img: Image.Image, start_y: int, end_y: int, color=(0, 0,
 def make_card(idx: int, item: dict, logo: Image.Image, out_png: Path):
     W, H = VIDEO_WIDTH, VIDEO_HEIGHT
 
-    # агрессивнее: титул чуть короче, summary 1 строка
     title = truncate(pick_title(item), 88)
     summary = truncate(pick_summary(item), min(SUMMARY_MAX, 90))
 
@@ -408,7 +418,6 @@ def make_card(idx: int, item: dict, logo: Image.Image, out_png: Path):
     except Exception:
         domain = ""
 
-    # цвета
     BG = (10, 12, 16)
     WHITE = (255, 255, 255)
     GRAY = (210, 210, 210)
@@ -416,7 +425,6 @@ def make_card(idx: int, item: dict, logo: Image.Image, out_png: Path):
 
     base = Image.new("RGB", (W, H), BG)
 
-    # фон: картинка размытой подложкой (если есть)
     img_url = pick_image(item)
     img_path = ASSETS_DIR / f"img_{idx:02d}.bin"
     news_img = None
@@ -431,13 +439,11 @@ def make_card(idx: int, item: dict, logo: Image.Image, out_png: Path):
         bg = bg.filter(ImageFilter.GaussianBlur(radius=16))
         base = Image.blend(base, bg, alpha=0.62)
 
-        # основной кадр: без жирной рамки, просто аккуратный "карточный" блок
         pic = news_img.copy()
         pic.thumbnail((int(W * 0.92), int(H * 0.55)))
         px = (W - pic.size[0]) // 2
         py = int(H * 0.12)
 
-        # легкая тень
         shadow = Image.new("RGBA", (pic.size[0] + 30, pic.size[1] + 30), (0, 0, 0, 0))
         sd = ImageDraw.Draw(shadow)
         sd.rectangle([15, 15, 15 + pic.size[0], 15 + pic.size[1]], fill=(0, 0, 0, 140))
@@ -446,25 +452,18 @@ def make_card(idx: int, item: dict, logo: Image.Image, out_png: Path):
         base_rgba.paste(shadow, (px - 15, py - 15), shadow)
         base_rgba.paste(pic, (px, py))
         base = base_rgba.convert("RGB")
-    else:
-        # если нет картинки — просто фон + градиент
-        pass
 
-    # градиент снизу под текст
     base = add_bottom_gradient(base, start_y=int(H * 0.52), end_y=H, max_alpha=235)
-
     draw = ImageDraw.Draw(base)
 
-    # шрифты
     font_paths_bold = ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"]
     font_paths_reg = ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]
     f_brand = ensure_font(font_paths_bold, 40)
     f_sub = ensure_font(font_paths_reg, 30)
-    f_title = ensure_font(font_paths_bold, 64)   # крупнее
+    f_title = ensure_font(font_paths_bold, 64)
     f_sum = ensure_font(font_paths_reg, 38)
     f_small = ensure_font(font_paths_reg, 30)
 
-    # верхняя "лента" компактнее
     bar_h = 82
     draw.rectangle([0, 0, W, bar_h], fill=(0, 0, 0))
 
@@ -475,23 +474,19 @@ def make_card(idx: int, item: dict, logo: Image.Image, out_png: Path):
     draw.text((86, 14), "SpecAvtoPortal", font=f_brand, fill=WHITE)
     draw.text((86, 48), "Shorts • Новости рынка", font=f_sub, fill=(170, 170, 170))
 
-    # номер в желтом кружке (оставляем)
     badge_r = 30
     bx, by = W - 20 - badge_r * 2, 11
     draw.ellipse([bx, by, bx + badge_r * 2, by + badge_r * 2], fill=YELLOW)
     draw.text((bx + 21, by + 12), str(idx), font=f_brand, fill=(0, 0, 0))
 
-    # текстовая зона (агрессивный стиль)
     left = 56
     y = int(H * 0.62)
 
-    # заголовок: 2 строки макс
     t_lines = wrap_by_chars(title.upper(), 22)[:2]
     for ln in t_lines:
         draw.text((left, y), ln, font=f_title, fill=WHITE)
         y += 76
 
-    # summary: 1 строка макс
     if summary:
         y += 6
         s_line = wrap_by_chars(summary, 40)[:1]
@@ -499,13 +494,10 @@ def make_card(idx: int, item: dict, logo: Image.Image, out_png: Path):
             draw.text((left, y), ln, font=f_sum, fill=GRAY)
             y += 48
 
-    # нижний акцент: желтая линия + CTA
     line_y = H - 140
     draw.rectangle([left, line_y, W - left, line_y + 6], fill=YELLOW)
-
     draw.text((left, H - 118), "Подробности — в Telegram • Архив — на сайте", font=f_small, fill=WHITE)
 
-    # источник
     if domain:
         draw.text((left, H - 78), f"Источник: {domain}", font=f_small, fill=(190, 190, 190))
 
@@ -567,25 +559,13 @@ def make_outro_card(logo: Image.Image, out_png: Path):
     draw.text((70, 580), "Сайт:", font=f2, fill=WHITE)
     draw.text((70, 650), SITE_URL, font=f3, fill=YELLOW)
 
-    draw.text((70, 780), "Подписывайся — 6 роликов в сутки", font=f3, fill=(210, 210, 210))
+    draw.text((70, 780), "Подписывайся — ролики каждые 4 часа", font=f3, fill=(210, 210, 210))
 
     img.save(out_png, "PNG")
 
 
-def compute_slide_durations(n_items: int) -> list[float]:
-    available = TOTAL_SECONDS - INTRO_SECONDS - OUTRO_SECONDS
-    per = available / max(1, n_items)
-    per = min(10.0, max(6.0, per))
-    durs = [per] * n_items
-    s = sum(durs)
-    if s != 0:
-        factor = available / s
-        durs = [x * factor for x in durs]
-    return durs
-
-
 # -----------------------------
-# TTS: edge-tts -> fallback gTTS
+# TTS: edge-tts -> fallback gTTS + FIT audio to TOTAL_SECONDS
 # -----------------------------
 async def edge_tts_to_wav(text: str, out_wav: Path):
     communicate = edge_tts.Communicate(text=text, voice=VOICE, rate=TTS_RATE)
@@ -599,20 +579,82 @@ def gtts_to_wav(text: str, out_wav: Path):
     run(["ffmpeg", "-y", "-i", str(mp3_path), "-ar", "44100", "-ac", "1", str(out_wav)])
 
 
-def tts_generate(text: str, out_wav: Path):
-    try:
-        asyncio.run(edge_tts_to_wav(text, out_wav))
-        print("[TTS] edge-tts OK")
+def atempo_filter(speed: float) -> str:
+    # atempo поддерживает 0.5..2.0, для больших значений цепляем несколько
+    # speed > 1 => ускоряем
+    parts = []
+    s = speed
+    while s > 2.0:
+        parts.append("atempo=2.0")
+        s /= 2.0
+    while s < 0.5 and s > 0:
+        parts.append("atempo=0.5")
+        s /= 0.5
+    parts.append(f"atempo={s:.4f}")
+    return ",".join(parts)
+
+
+def fit_audio_to_target(in_wav: Path, out_wav: Path, target_sec: float):
+    dur = ffprobe_duration(in_wav)
+    if dur <= 0.01:
+        shutil.copyfile(in_wav, out_wav)
         return
+
+    # если уже влезает — просто копируем
+    if dur <= target_sec:
+        shutil.copyfile(in_wav, out_wav)
+        return
+
+    speed = dur / target_sec  # > 1 => надо ускорить
+    # не делаем слишком «бурундука»
+    speed = min(speed, 1.35)
+
+    af = atempo_filter(speed)
+    run(["ffmpeg", "-y", "-i", str(in_wav), "-filter:a", af, "-ar", "44100", "-ac", "1", str(out_wav)])
+
+
+def tts_generate(text: str, out_wav: Path):
+    tmp = out_wav.with_name(out_wav.stem + "_raw.wav")
+
+    try:
+        asyncio.run(edge_tts_to_wav(text, tmp))
+        print("[TTS] edge-tts OK", "rate=", TTS_RATE)
     except Exception as e:
         print("[TTS] edge-tts failed, fallback to gTTS:", repr(e))
-    gtts_to_wav(text, out_wav)
-    print("[TTS] gTTS OK")
+        gtts_to_wav(text, tmp)
+        print("[TTS] gTTS OK")
+
+    if AUDIO_FIT:
+        target_audio = max(5.0, TOTAL_SECONDS - 0.25)  # маленький запас
+        fit_audio_to_target(tmp, out_wav, target_audio)
+        print("[TTS] audio fit:", ffprobe_duration(tmp), "->", ffprobe_duration(out_wav))
+    else:
+        shutil.copyfile(tmp, out_wav)
+
+    tmp.unlink(missing_ok=True)
 
 
 # -----------------------------
-# VIDEO (ffmpeg slideshow)
+# VIDEO (ffmpeg slideshow) — durations from AUDIO
 # -----------------------------
+def compute_durations_from_audio(n_items: int, audio_sec: float) -> list[float]:
+    # хотим, чтобы видео длилось примерно как аудио, но не превышало TOTAL_SECONDS
+    target_total = min(TOTAL_SECONDS, max(audio_sec, 10.0))
+
+    # intro/outro сохраняем, остальное делим на карточки
+    available = max(3.0, target_total - INTRO_SECONDS - OUTRO_SECONDS)
+    per = available / max(1, n_items)
+    per = min(10.0, max(5.5, per))
+
+    durs = [per] * n_items
+    s = sum(durs)
+    if s > 0:
+        factor = available / s
+        durs = [x * factor for x in durs]
+
+    return [INTRO_SECONDS] + durs + [OUTRO_SECONDS]
+
+
 def ffmpeg_slideshow(pngs: list[Path], durations: list[float], audio_wav: Path, out_mp4: Path):
     if len(pngs) != len(durations):
         raise ValueError("pngs and durations must match")
@@ -724,9 +766,6 @@ def main():
     items = pick_news_items(news, st)
 
     voice_text = build_voice_text(items)
-    if estimate_speech_seconds(voice_text) > TOTAL_SECONDS + 2 and len(items) >= 4:
-        items = items[:3]
-        voice_text = build_voice_text(items)
 
     logo = load_logo_rgba()
 
@@ -742,16 +781,15 @@ def main():
     outro_png = CARDS_DIR / "99_outro.png"
     make_outro_card(logo, outro_png)
 
-    # thumbnail: первая карточка
     thumb_png = OUT_DIR / "thumbnail.png"
     Image.open(slide_pngs[0]).save(thumb_png, "PNG")
 
-    slide_durs = compute_slide_durations(len(items))
-    pngs = [intro_png] + slide_pngs + [outro_png]
-    durs = [INTRO_SECONDS] + slide_durs + [OUTRO_SECONDS]
-
     audio_wav = TMP_DIR / "voice.wav"
     tts_generate(voice_text, audio_wav)
+    audio_sec = ffprobe_duration(audio_wav)
+
+    pngs = [intro_png] + slide_pngs + [outro_png]
+    durs = compute_durations_from_audio(len(items), audio_sec)
 
     out_video = OUT_DIR / "shorts_news.mp4"
     ffmpeg_slideshow(pngs, durs, audio_wav, out_video)
@@ -787,7 +825,7 @@ def main():
     st["used_ids"] = used_ids[-2000:]
     save_state(st)
 
-    print("[OK] Generated and uploaded:", out_video, "video_id=", video_id)
+    print("[OK] audio_sec=", audio_sec, "video=", out_video, "video_id=", video_id)
 
 
 if __name__ == "__main__":
