@@ -58,7 +58,7 @@ jobs:
           TELEGRAM_URL: "https://t.me/specavtoportal"
           CONTENT_JSON_PATH: "$GITHUB_WORKSPACE/frontend/data/news.json"
 
-          LOGO_PATH: "$GITHUB_WORKSPACE/frontend/spec_avtoportal_favicon.ico"
+          LOGO_PATH: "frontend/spec_avtoportal_favicon.ico"
 
           TOTAL_SECONDS: "30"
           INTRO_SECONDS: "1.5"
