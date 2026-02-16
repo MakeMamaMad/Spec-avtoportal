@@ -13,6 +13,7 @@ from dateutil import parser as dtparser
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 import edge_tts
+from gtts import gTTS
 
 
 # -----------------------------
@@ -113,12 +114,10 @@ def pick_summary(item: dict) -> str:
 
 
 def pick_image(item: dict) -> str:
-    # прямые поля
     for k in ("image", "image_url", "thumbnail", "thumb", "og_image", "cover"):
         v = item.get(k)
         if isinstance(v, str) and v.startswith("http"):
             return v.strip()
-    # вложенные
     media = item.get("media")
     if isinstance(media, dict):
         for k in ("image", "thumbnail", "url"):
@@ -181,7 +180,6 @@ IMPORTANT_WORDS = [
 
 
 def score_item(item: dict) -> float:
-    # мягкий приоритет, но по сути рандом
     title = pick_title(item).lower()
     s = 0.0
     for w in IMPORTANT_WORDS:
@@ -213,7 +211,6 @@ def pick_news_items(news: list[dict], st: dict) -> list[dict]:
             continue
         candidates.append(it)
 
-    # если база маленькая — разрешаем повтор по id, но стараемся не повторять url
     if len(candidates) < 3:
         candidates = []
         for it in news:
@@ -228,7 +225,6 @@ def pick_news_items(news: list[dict], st: dict) -> list[dict]:
             candidates.append(it)
 
     if len(candidates) < 3:
-        # крайний случай: совсем разрешаем повторы
         candidates = [it for it in news if isinstance(it, dict) and pick_title(it) and pick_url(it)]
 
     if len(candidates) < 3:
@@ -311,7 +307,6 @@ def build_voice_text(items: list[dict]) -> str:
 
 
 def estimate_speech_seconds(text: str) -> float:
-    # грубо: 2.4 слова/сек
     words = len(text.split())
     return max(10.0, words / 2.4)
 
@@ -339,23 +334,17 @@ def download_image(url: str, out: Path) -> bool:
 
 def load_logo_rgba() -> Image.Image:
     raw = (LOGO_PATH or "").strip()
-
-    # раскрываем $VARS и ~
     raw = os.path.expandvars(os.path.expanduser(raw))
 
     candidates = []
-
-    # 1) как есть (относительно cwd)
     if raw:
         candidates.append(Path(raw))
 
-    # 2) относительно корня репо (GITHUB_WORKSPACE)
     ws = os.getenv("GITHUB_WORKSPACE", "").strip()
     if ws and raw:
         candidates.append(Path(ws) / raw.lstrip("/\\"))
         candidates.append(Path(ws) / raw.replace("\\", "/").lstrip("/"))
 
-    # 3) на всякий случай: если запуск из tools/autoposter и указали frontend/...
     if ws:
         candidates.append(Path(ws) / "frontend" / "spec_avtoportal_favicon.ico")
 
@@ -364,7 +353,6 @@ def load_logo_rgba() -> Image.Image:
             return Image.open(p).convert("RGBA")
 
     raise RuntimeError(f"Logo not found. Tried: {[str(c) for c in candidates]}")
-
 
 
 def wrap_words(text: str, max_chars: int) -> list[str]:
@@ -393,11 +381,9 @@ def make_card(idx: int, item: dict, logo: Image.Image, out_png: Path):
     except Exception:
         domain = ""
 
-    # base
     base = Image.new("RGB", (W, H), (16, 18, 22))
     draw = ImageDraw.Draw(base)
 
-    # bg image if available
     img_url = pick_image(item)
     img_path = ASSETS_DIR / f"img_{idx:02d}.bin"
     has_img = False
@@ -433,7 +419,6 @@ def make_card(idx: int, item: dict, logo: Image.Image, out_png: Path):
         base = Image.alpha_composite(base.convert("RGBA"), overlay).convert("RGB")
         draw = ImageDraw.Draw(base)
 
-    # fonts
     font_paths = [
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
@@ -442,7 +427,6 @@ def make_card(idx: int, item: dict, logo: Image.Image, out_png: Path):
     f_body = ensure_font(font_paths, 40)
     f_small = ensure_font(font_paths, 34)
 
-    # top bar
     bar_h = 96
     draw.rectangle([0, 0, W, bar_h], fill=(0, 0, 0))
 
@@ -451,13 +435,11 @@ def make_card(idx: int, item: dict, logo: Image.Image, out_png: Path):
     base.paste(lg, (24, 16), lg)
     draw.text((100, 26), "SpecAvtoPortal", font=f_small, fill=(255, 255, 255))
 
-    # badge idx
     badge_r = 34
     bx, by = W - 24 - badge_r * 2, 14
     draw.ellipse([bx, by, bx + badge_r * 2, by + badge_r * 2], fill=(255, 196, 0))
     draw.text((bx + 22, by + 14), str(idx), font=f_small, fill=(0, 0, 0))
 
-    # text box
     y0 = int(H * 0.58)
     draw.rectangle([40, y0 - 20, W - 40, H - 170], fill=(0, 0, 0, 145))
 
@@ -531,10 +513,8 @@ def make_outro_card(logo: Image.Image, out_png: Path):
 def compute_slide_durations(n_items: int) -> list[float]:
     available = TOTAL_SECONDS - INTRO_SECONDS - OUTRO_SECONDS
     per = available / max(1, n_items)
-    # ограничим в пределах 6..10
     per = min(10.0, max(6.0, per))
     durs = [per] * n_items
-    # подгоняем сумму под available
     s = sum(durs)
     if s != 0:
         factor = available / s
@@ -542,9 +522,30 @@ def compute_slide_durations(n_items: int) -> list[float]:
     return durs
 
 
-async def tts_to_wav(text: str, out_wav: Path):
+async def edge_tts_to_wav(text: str, out_wav: Path):
     communicate = edge_tts.Communicate(text=text, voice=VOICE, rate=TTS_RATE)
     await communicate.save(str(out_wav))
+
+
+def gtts_to_wav(text: str, out_wav: Path):
+    mp3_path = out_wav.with_suffix(".mp3")
+    tts = gTTS(text=text, lang="ru")
+    tts.save(str(mp3_path))
+    run(["ffmpeg", "-y", "-i", str(mp3_path), "-ar", "44100", "-ac", "1", str(out_wav)])
+
+
+def tts_generate(text: str, out_wav: Path):
+    # 1) пробуем edge-tts
+    try:
+        asyncio.run(edge_tts_to_wav(text, out_wav))
+        print("[TTS] edge-tts OK")
+        return
+    except Exception as e:
+        print("[TTS] edge-tts failed, fallback to gTTS:", repr(e))
+
+    # 2) fallback gTTS
+    gtts_to_wav(text, out_wav)
+    print("[TTS] gTTS OK")
 
 
 def ffmpeg_slideshow(pngs: list[Path], durations: list[float], audio_wav: Path, out_mp4: Path):
@@ -586,7 +587,6 @@ def youtube_upload(video_path: Path, title: str, description: str, privacy: str 
     from google.oauth2.credentials import Credentials
     from google.auth.transport.requests import Request
 
-    client_secrets = os.getenv("YOUTUBE_CLIENT_SECRETS", "client_secrets.json")
     token_file = os.getenv("YOUTUBE_TOKEN_FILE", "youtube_token.json")
     privacy = os.getenv("YOUTUBE_PRIVACY", privacy)
 
@@ -646,7 +646,6 @@ def youtube_set_thumbnail(video_id: str, thumb_path: Path):
 # MAIN
 # -----------------------------
 def main():
-    # reset tmp
     if TMP_DIR.exists():
         shutil.rmtree(TMP_DIR)
     TMP_DIR.mkdir(parents=True, exist_ok=True)
@@ -664,7 +663,6 @@ def main():
         items = items[:3]
         voice_text = build_voice_text(items)
 
-    # cards
     logo = load_logo_rgba()
 
     intro_png = CARDS_DIR / "00_intro.png"
@@ -679,24 +677,19 @@ def main():
     outro_png = CARDS_DIR / "99_outro.png"
     make_outro_card(logo, outro_png)
 
-    # thumbnail: берём карточку №1 как превью (самый простой и понятный вариант)
     thumb_png = OUT_DIR / "thumbnail.png"
     Image.open(slide_pngs[0]).save(thumb_png, "PNG")
 
-    # durations
     slide_durs = compute_slide_durations(len(items))
     pngs = [intro_png] + slide_pngs + [outro_png]
     durs = [INTRO_SECONDS] + slide_durs + [OUTRO_SECONDS]
 
-    # tts
     audio_wav = TMP_DIR / "voice.wav"
-    asyncio.run(tts_to_wav(voice_text, audio_wav))
+    tts_generate(voice_text, audio_wav)
 
-    # video
     out_video = OUT_DIR / "shorts_news.mp4"
     ffmpeg_slideshow(pngs, durs, audio_wav, out_video)
 
-    # description
     today = datetime.now().strftime("%d.%m.%Y")
     title = f"Новости тягачей и полуприцепов — {today}"
 
@@ -718,11 +711,9 @@ def main():
     description = "\n".join(lines)
     (OUT_DIR / "caption.txt").write_text(description, encoding="utf-8")
 
-    # upload
     video_id = youtube_upload(out_video, title=title, description=description, privacy=os.getenv("YOUTUBE_PRIVACY", "public"))
     youtube_set_thumbnail(video_id, thumb_png)
 
-    # update state
     used_urls = list(dict.fromkeys(st.get("used_urls", []) + [pick_url(it) for it in items if pick_url(it)]))
     used_ids = list(dict.fromkeys([str(x) for x in st.get("used_ids", [])] + [str(it.get("id")) for it in items if it.get("id") is not None]))
 
