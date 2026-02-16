@@ -67,7 +67,8 @@ jobs:
           SUMMARY_MAX: "120"
 
           VOICE: "ru-RU-DmitryNeural"
-          TTS_RATE: "-10%"
+          TTS_RATE: "+15%"
+          AUDIO_FIT: "1"
     
           YOUTUBE_CLIENT_SECRETS: "client_secrets.json"
           YOUTUBE_TOKEN_FILE: "youtube_token.json"
