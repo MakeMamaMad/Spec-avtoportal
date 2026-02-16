@@ -3,7 +3,7 @@ name: autoposter-youtube
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */3 * * *'  # 09:00 UTC = 12:00 МСК (Вт/Чт/Сб)
+    - cron: '0 */4 * * *'  # 09:00 UTC = 12:00 МСК (Вт/Чт/Сб)
 
 permissions:
   contents: write
@@ -56,15 +56,27 @@ jobs:
         env:
           SITE_URL: "https://spec-avtoportal.ru/"
           TELEGRAM_URL: "https://t.me/specavtoportal"
+          CONTENT_JSON_PATH: "$GITHUB_WORKSPACE/frontend/data/news.json"
+
+          LOGO_PATH: "$GITHUB_WORKSPACE/frontend/spec_avtoportal_favicon.ico"
+
+          TOTAL_SECONDS: "30"
+          INTRO_SECONDS: "1.5"
+          OUTRO_SECONDS: "2.5"
+          PICK_TARGET: "4"
+          SUMMARY_MAX: "120"
+
+          VOICE: "ru-RU-DmitryNeural"
+          TTS_RATE: "-10%"
+    
           YOUTUBE_CLIENT_SECRETS: "client_secrets.json"
           YOUTUBE_TOKEN_FILE: "youtube_token.json"
           YOUTUBE_PRIVACY: "public"
+
           VIDEO_WIDTH: "1080"
           VIDEO_HEIGHT: "1920"
           FPS: "30"
-          SLIDE_TITLE_SECONDS: "2"
-          SLIDE_NEWS_SECONDS: "4"
-          SLIDE_CTA_SECONDS: "3"
+
         run: |
           cd tools/autoposter
           export CONTENT_JSON_PATH="$GITHUB_WORKSPACE/frontend/data/news.json"
