@@ -16,10 +16,15 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import edge_tts
 from gtts import gTTS
 
+# ✅ новый модуль эконом-шаблонов
+from .economic_templates import pick_random_episode, Slide as EconSlide
+
 
 # -----------------------------
 # CONFIG (env)
 # -----------------------------
+MODE = os.getenv("MODE", "news").strip().lower()  # "news" | "economics"
+
 SITE_URL = os.getenv("SITE_URL", "https://spec-avtoportal.ru/").strip()
 TELEGRAM_URL = os.getenv("TELEGRAM_URL", "https://t.me/specavtoportal").strip()
 CONTENT_JSON_PATH = os.getenv("CONTENT_JSON_PATH", "frontend/data/news.json").strip()
@@ -32,10 +37,15 @@ TOTAL_SECONDS = float(os.getenv("TOTAL_SECONDS", "30"))
 INTRO_SECONDS = float(os.getenv("INTRO_SECONDS", "1.5"))
 OUTRO_SECONDS = float(os.getenv("OUTRO_SECONDS", "2.5"))
 
-PICK_TARGET = int(os.getenv("PICK_TARGET", "4"))  # будет резать до 3 при длинной озвучке
+# news-mode picks
+PICK_TARGET = int(os.getenv("PICK_TARGET", "4"))  # 3-4 новостей
+
+# economics-mode
+ECON_SEED = os.getenv("ECON_SEED", "").strip()
+ECON_ALLOWED = os.getenv("ECON_ALLOWED", "").strip()  # например: "downtime,tires,axle"
+ECON_FORCE_KEY = os.getenv("ECON_FORCE_KEY", "").strip()  # например: "downtime"
 
 VOICE = os.getenv("VOICE", "ru-RU-DmitryNeural").strip()
-# ✅ ВАЖНО: по умолчанию ускоряем, а не замедляем
 TTS_RATE = os.getenv("TTS_RATE", "+15%").strip()
 
 # если 1 — подгоняем аудио под TOTAL_SECONDS (ускоряем при необходимости)
@@ -110,6 +120,16 @@ def with_utm(url: str, source="youtube", medium="shorts", campaign="news_digest"
         return url
 
 
+def read_news() -> list[dict]:
+    p = Path(CONTENT_JSON_PATH)
+    if not p.exists():
+        raise RuntimeError(f"news.json not found: {CONTENT_JSON_PATH}")
+    data = json.loads(p.read_text(encoding="utf-8"))
+    if not isinstance(data, list):
+        raise RuntimeError("news.json must be a list")
+    return data
+
+
 def pick_url(item: dict) -> str:
     for k in ("url", "link", "href", "source_url"):
         v = item.get(k)
@@ -169,28 +189,24 @@ def pick_date(item: dict):
 def load_state() -> dict:
     if STATE_PATH.exists():
         try:
-            return json.loads(STATE_PATH.read_text(encoding="utf-8"))
+            st = json.loads(STATE_PATH.read_text(encoding="utf-8"))
         except Exception:
-            pass
-    return {"used_urls": [], "used_ids": []}
+            st = {}
+    else:
+        st = {}
+
+    st.setdefault("used_urls", [])
+    st.setdefault("used_ids", [])
+    st.setdefault("used_eps", [])  # economics episodes
+    return st
 
 
 def save_state(st: dict):
     STATE_PATH.write_text(json.dumps(st, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def read_news() -> list[dict]:
-    p = Path(CONTENT_JSON_PATH)
-    if not p.exists():
-        raise RuntimeError(f"news.json not found: {CONTENT_JSON_PATH}")
-    data = json.loads(p.read_text(encoding="utf-8"))
-    if not isinstance(data, list):
-        raise RuntimeError("news.json must be a list")
-    return data
-
-
 # -----------------------------
-# PICK NEWS (random, no repeats)
+# NEWS PICKING (for MODE=news)
 # -----------------------------
 IMPORTANT_WORDS = [
     "полуприцеп", "прицеп", "тягач", "грузовик", "фура", "шасси",
@@ -232,19 +248,7 @@ def pick_news_items(news: list[dict], st: dict) -> list[dict]:
             continue
         candidates.append(it)
 
-    if len(candidates) < 3:
-        candidates = []
-        for it in news:
-            if not isinstance(it, dict):
-                continue
-            title = pick_title(it)
-            url = pick_url(it)
-            if not title or not url:
-                continue
-            if url in used_urls:
-                continue
-            candidates.append(it)
-
+    # fallback: если все "съели" — разрешаем повторы (иначе тишина)
     if len(candidates) < 3:
         candidates = [it for it in news if isinstance(it, dict) and pick_title(it) and pick_url(it)]
 
@@ -268,7 +272,36 @@ def pick_news_items(news: list[dict], st: dict) -> list[dict]:
 
 
 # -----------------------------
-# COPYWRITING (чуть короче, чтобы успевало)
+# ECONOMICS: image pool from news.json
+# -----------------------------
+def build_image_pool(news: list[dict], min_pool: int = 30) -> list[str]:
+    imgs = []
+    for it in news:
+        img = pick_image(it)
+        if img:
+            imgs.append(img)
+    # уникализируем
+    uniq = list(dict.fromkeys(imgs))
+    # если мало — всё равно вернём что есть
+    if len(uniq) >= min_pool:
+        return uniq[:min_pool]
+    return uniq
+
+
+def pick_images_for_slides(pool: list[str], n: int, rng: random.Random) -> list[str]:
+    if not pool:
+        return [""] * n
+    if len(pool) >= n:
+        return rng.sample(pool, n)
+    # если картинок мало — повторяем
+    out = []
+    for i in range(n):
+        out.append(pool[i % len(pool)])
+    return out
+
+
+# -----------------------------
+# COPYWRITING (for MODE=news)
 # -----------------------------
 MEANING_BANK = {
     "rules": [
@@ -318,12 +351,12 @@ def meaning_for(title: str) -> str:
     return random.choice(MEANING_BANK.get(c, MEANING_BANK["other"]))
 
 
-def build_voice_text(items: list[dict]) -> str:
+def build_voice_text_news(items: list[dict]) -> str:
     parts = ["Новости коммерческого транспорта. Коротко."]
     for it in items:
         title = clean_text(pick_title(it))
         parts.append(f"{title}. {meaning_for(title)}")
-    parts.append("Ссылки — в телеграм. Архив — на сайте.")
+    parts.append("Ссылки — в описании. Архив — на сайте, детали — в телеграм.")
     return " ".join(parts)
 
 
@@ -339,7 +372,7 @@ def ensure_font(candidates: list[str], size: int) -> ImageFont.FreeTypeFont:
 
 def download_image(url: str, out: Path) -> bool:
     try:
-        r = requests.get(url, timeout=20)
+        r = requests.get(url, timeout=20, headers={"User-Agent": "Mozilla/5.0"})
         if r.status_code != 200 or not r.content:
             return False
         out.write_bytes(r.content)
@@ -405,18 +438,26 @@ def add_bottom_gradient(img: Image.Image, start_y: int, end_y: int, color=(0, 0,
     return out.convert("RGB")
 
 
-def make_card(idx: int, item: dict, logo: Image.Image, out_png: Path):
+def make_card_generic(
+    idx: int,
+    title: str,
+    subtitle: str,
+    image_url: str,
+    source_url: str,
+    logo: Image.Image,
+    out_png: Path
+):
     W, H = VIDEO_WIDTH, VIDEO_HEIGHT
 
-    title = truncate(pick_title(item), 88)
-    summary = truncate(pick_summary(item), min(SUMMARY_MAX, 90))
+    title = truncate(title, 88)
+    subtitle = truncate(subtitle, min(SUMMARY_MAX, 90))
 
-    url = pick_url(item)
     domain = ""
-    try:
-        domain = urlparse(url).netloc.replace("www.", "")
-    except Exception:
-        domain = ""
+    if source_url:
+        try:
+            domain = urlparse(source_url).netloc.replace("www.", "")
+        except Exception:
+            domain = ""
 
     BG = (10, 12, 16)
     WHITE = (255, 255, 255)
@@ -425,14 +466,14 @@ def make_card(idx: int, item: dict, logo: Image.Image, out_png: Path):
 
     base = Image.new("RGB", (W, H), BG)
 
-    img_url = pick_image(item)
-    img_path = ASSETS_DIR / f"img_{idx:02d}.bin"
     news_img = None
-    if img_url and download_image(img_url, img_path):
-        try:
-            news_img = Image.open(img_path).convert("RGB")
-        except Exception:
-            news_img = None
+    if image_url:
+        img_path = ASSETS_DIR / f"img_{idx:02d}.bin"
+        if download_image(image_url, img_path):
+            try:
+                news_img = Image.open(img_path).convert("RGB")
+            except Exception:
+                news_img = None
 
     if news_img is not None:
         bg = news_img.copy().resize((W, H))
@@ -472,7 +513,7 @@ def make_card(idx: int, item: dict, logo: Image.Image, out_png: Path):
     base.paste(lg, (20, 14), lg)
 
     draw.text((86, 14), "SpecAvtoPortal", font=f_brand, fill=WHITE)
-    draw.text((86, 48), "Shorts • Новости рынка", font=f_sub, fill=(170, 170, 170))
+    draw.text((86, 48), "Shorts • Экономика владения", font=f_sub, fill=(170, 170, 170))
 
     badge_r = 30
     bx, by = W - 20 - badge_r * 2, 11
@@ -487,16 +528,16 @@ def make_card(idx: int, item: dict, logo: Image.Image, out_png: Path):
         draw.text((left, y), ln, font=f_title, fill=WHITE)
         y += 76
 
-    if summary:
+    if subtitle:
         y += 6
-        s_line = wrap_by_chars(summary, 40)[:1]
+        s_line = wrap_by_chars(subtitle, 40)[:1]
         for ln in s_line:
             draw.text((left, y), ln, font=f_sum, fill=GRAY)
             y += 48
 
     line_y = H - 140
     draw.rectangle([left, line_y, W - left, line_y + 6], fill=YELLOW)
-    draw.text((left, H - 118), "Подробности — в Telegram • Архив — на сайте", font=f_small, fill=WHITE)
+    draw.text((left, H - 118), "Разбор и чек-листы — в Telegram • Архив — на сайте", font=f_small, fill=WHITE)
 
     if domain:
         draw.text((left, H - 78), f"Источник: {domain}", font=f_small, fill=(190, 190, 190))
@@ -523,10 +564,10 @@ def make_intro_card(logo: Image.Image, out_png: Path):
     lg.thumbnail((160, 160))
     img.paste(lg, (70, 120), lg)
 
-    draw.text((70, 320), "НОВОСТИ", font=f1, fill=WHITE)
-    draw.text((70, 420), "ТЯГАЧИ • ПОЛУПРИЦЕПЫ", font=f2, fill=WHITE)
+    draw.text((70, 320), "ЭКОНОМИКА", font=f1, fill=WHITE)
+    draw.text((70, 420), "ПОЛУПРИЦЕПЫ • ПРИЦЕПЫ", font=f2, fill=WHITE)
     draw.rectangle([70, 510, 520, 518], fill=YELLOW)
-    draw.text((70, 540), "за 30 секунд • без воды", font=f3, fill=(210, 210, 210))
+    draw.text((70, 540), "коротко • с цифрами • без воды", font=f3, fill=(210, 210, 210))
 
     img.save(out_png, "PNG")
 
@@ -559,13 +600,11 @@ def make_outro_card(logo: Image.Image, out_png: Path):
     draw.text((70, 580), "Сайт:", font=f2, fill=WHITE)
     draw.text((70, 650), SITE_URL, font=f3, fill=YELLOW)
 
-    draw.text((70, 780), "Подписывайся — ролики каждые 4 часа", font=f3, fill=(210, 210, 210))
-
     img.save(out_png, "PNG")
 
 
 # -----------------------------
-# TTS: edge-tts -> fallback gTTS + FIT audio to TOTAL_SECONDS
+# TTS + AUDIO FIT
 # -----------------------------
 async def edge_tts_to_wav(text: str, out_wav: Path):
     communicate = edge_tts.Communicate(text=text, voice=VOICE, rate=TTS_RATE)
@@ -580,8 +619,6 @@ def gtts_to_wav(text: str, out_wav: Path):
 
 
 def atempo_filter(speed: float) -> str:
-    # atempo поддерживает 0.5..2.0, для больших значений цепляем несколько
-    # speed > 1 => ускоряем
     parts = []
     s = speed
     while s > 2.0:
@@ -600,14 +637,12 @@ def fit_audio_to_target(in_wav: Path, out_wav: Path, target_sec: float):
         shutil.copyfile(in_wav, out_wav)
         return
 
-    # если уже влезает — просто копируем
     if dur <= target_sec:
         shutil.copyfile(in_wav, out_wav)
         return
 
-    speed = dur / target_sec  # > 1 => надо ускорить
-    # не делаем слишком «бурундука»
-    speed = min(speed, 1.35)
+    speed = dur / target_sec  # >1 => ускоряем
+    speed = min(speed, 1.35)  # не делаем “бурундука”
 
     af = atempo_filter(speed)
     run(["ffmpeg", "-y", "-i", str(in_wav), "-filter:a", af, "-ar", "44100", "-ac", "1", str(out_wav)])
@@ -615,17 +650,16 @@ def fit_audio_to_target(in_wav: Path, out_wav: Path, target_sec: float):
 
 def tts_generate(text: str, out_wav: Path):
     tmp = out_wav.with_name(out_wav.stem + "_raw.wav")
-
     try:
         asyncio.run(edge_tts_to_wav(text, tmp))
-        print("[TTS] edge-tts OK", "rate=", TTS_RATE)
+        print("[TTS] edge-tts OK rate=", TTS_RATE)
     except Exception as e:
         print("[TTS] edge-tts failed, fallback to gTTS:", repr(e))
         gtts_to_wav(text, tmp)
         print("[TTS] gTTS OK")
 
     if AUDIO_FIT:
-        target_audio = max(5.0, TOTAL_SECONDS - 0.25)  # маленький запас
+        target_audio = max(5.0, TOTAL_SECONDS - 0.25)
         fit_audio_to_target(tmp, out_wav, target_audio)
         print("[TTS] audio fit:", ffprobe_duration(tmp), "->", ffprobe_duration(out_wav))
     else:
@@ -635,18 +669,16 @@ def tts_generate(text: str, out_wav: Path):
 
 
 # -----------------------------
-# VIDEO (ffmpeg slideshow) — durations from AUDIO
+# VIDEO (durations from AUDIO)
 # -----------------------------
-def compute_durations_from_audio(n_items: int, audio_sec: float) -> list[float]:
-    # хотим, чтобы видео длилось примерно как аудио, но не превышало TOTAL_SECONDS
+def compute_durations_from_audio(n_slides: int, audio_sec: float) -> list[float]:
     target_total = min(TOTAL_SECONDS, max(audio_sec, 10.0))
-
-    # intro/outro сохраняем, остальное делим на карточки
     available = max(3.0, target_total - INTRO_SECONDS - OUTRO_SECONDS)
-    per = available / max(1, n_items)
+
+    per = available / max(1, n_slides)
     per = min(10.0, max(5.5, per))
 
-    durs = [per] * n_items
+    durs = [per] * n_slides
     s = sum(durs)
     if s > 0:
         factor = available / s
@@ -709,7 +741,7 @@ def youtube_upload(video_path: Path, title: str, description: str, privacy: str 
             "title": title,
             "description": description,
             "categoryId": "19",
-            "tags": ["полуприцеп", "тягач", "грузовик", "логистика", "перевозки", "новости"],
+            "tags": ["полуприцеп", "прицеп", "тягач", "грузовик", "логистика", "перевозки", "экономика"],
         },
         "status": {"privacyStatus": privacy, "selfDeclaredMadeForKids": False},
     }
@@ -753,6 +785,7 @@ def youtube_set_thumbnail(video_id: str, thumb_path: Path):
 # MAIN
 # -----------------------------
 def main():
+    # clean tmp
     if TMP_DIR.exists():
         shutil.rmtree(TMP_DIR)
     TMP_DIR.mkdir(parents=True, exist_ok=True)
@@ -762,70 +795,165 @@ def main():
 
     st = load_state()
     news = read_news()
-
-    items = pick_news_items(news, st)
-
-    voice_text = build_voice_text(items)
-
     logo = load_logo_rgba()
 
+    # always build image pool (for economics pictures)
+    img_pool = build_image_pool(news, min_pool=30)
+
+    # ---- SELECT CONTENT ----
+    yt_title = ""
+    voice_text = ""
+    caption_lines: list[str] = []
+
+    slides_to_render: list[dict] = []
+    used_urls_add: list[str] = []
+    used_ids_add: list[str] = []
+    used_eps_add: list[str] = []
+
+    if MODE == "economics":
+        seed = int(ECON_SEED) if ECON_SEED.isdigit() else None
+        allowed = [x.strip() for x in ECON_ALLOWED.split(",") if x.strip()] if ECON_ALLOWED else None
+
+        # исключаем повторы эпизодов (мягко)
+        used_eps = set(st.get("used_eps", []))
+        rng = random.Random(seed if seed is not None else random.randrange(1_000_000_000))
+
+        if ECON_FORCE_KEY:
+            # принудительно: один и тот же выпуск (для теста)
+            ep = pick_random_episode(seed=seed, tg_url=TELEGRAM_URL, site_url=SITE_URL, allowed=[ECON_FORCE_KEY])
+        else:
+            # пробуем несколько раз выбрать неиспользованный key
+            ep = None
+            for _ in range(10):
+                cand = pick_random_episode(seed=rng.randrange(1_000_000_000), tg_url=TELEGRAM_URL, site_url=SITE_URL, allowed=allowed)
+                if cand.key not in used_eps:
+                    ep = cand
+                    break
+            if ep is None:
+                ep = pick_random_episode(seed=rng.randrange(1_000_000_000), tg_url=TELEGRAM_URL, site_url=SITE_URL, allowed=allowed)
+
+        used_eps_add.append(ep.key)
+
+        yt_title = ep.title
+        voice_text = ep.voice_text
+        caption_lines = ep.description_lines[:]
+
+        # картинки из пула news.json (рандом без повторов внутри выпуска)
+        imgs = pick_images_for_slides(img_pool, len(ep.slides), rng)
+
+        for i, s in enumerate(ep.slides, 1):
+            assert isinstance(s, EconSlide)
+            slides_to_render.append({
+                "idx": i,
+                "title": s.title,
+                "subtitle": s.subtitle or "",
+                "image_url": imgs[i - 1] if imgs else "",
+                "source_url": "",  # можно пусто
+            })
+
+        # источники картинок (опционально): добавим ссылку на сайт/телеграм
+        caption_lines += ["", f"Telegram: {TELEGRAM_URL}", f"Сайт: {SITE_URL}"]
+
+    else:
+        # MODE=news
+        items = pick_news_items(news, st)
+        voice_text = build_voice_text_news(items)
+        today = datetime.now().strftime("%d.%m.%Y")
+        yt_title = f"Новости тягачей и полуприцепов — {today}"
+
+        for i, it in enumerate(items, 1):
+            slides_to_render.append({
+                "idx": i,
+                "title": pick_title(it),
+                "subtitle": truncate(pick_summary(it), min(SUMMARY_MAX, 90)),
+                "image_url": pick_image(it),
+                "source_url": pick_url(it),
+            })
+
+            u = pick_url(it)
+            if u:
+                used_urls_add.append(u)
+            if it.get("id") is not None:
+                used_ids_add.append(str(it.get("id")))
+
+        # caption + sources
+        site_link = with_utm(SITE_URL, source="youtube", medium="shorts", campaign="news_short")
+        tg_link = with_utm(TELEGRAM_URL, source="youtube", medium="shorts", campaign="news_short")
+
+        caption_lines = [
+            "Короткая сводка: 3–4 новости + что это значит для эксплуатации.",
+            "",
+            f"Telegram (детали): {tg_link}",
+            f"Сайт (архив): {site_link}",
+            "",
+            "Источники:",
+        ]
+        for it in items:
+            u = pick_url(it)
+            if u:
+                caption_lines.append(with_utm(u, source="youtube", medium="shorts", campaign="news_short"))
+
+    # ---- RENDER CARDS ----
     intro_png = CARDS_DIR / "00_intro.png"
     make_intro_card(logo, intro_png)
 
     slide_pngs = []
-    for i, it in enumerate(items, 1):
-        out_png = CARDS_DIR / f"{i:02d}.png"
-        make_card(i, it, logo, out_png)
+    for s in slides_to_render:
+        out_png = CARDS_DIR / f"{s['idx']:02d}.png"
+        make_card_generic(
+            idx=int(s["idx"]),
+            title=str(s["title"]),
+            subtitle=str(s["subtitle"]),
+            image_url=str(s["image_url"]),
+            source_url=str(s["source_url"]),
+            logo=logo,
+            out_png=out_png
+        )
         slide_pngs.append(out_png)
 
     outro_png = CARDS_DIR / "99_outro.png"
     make_outro_card(logo, outro_png)
 
+    # thumbnail = first slide
     thumb_png = OUT_DIR / "thumbnail.png"
     Image.open(slide_pngs[0]).save(thumb_png, "PNG")
 
+    # ---- AUDIO ----
     audio_wav = TMP_DIR / "voice.wav"
     tts_generate(voice_text, audio_wav)
     audio_sec = ffprobe_duration(audio_wav)
 
+    # durations from audio
     pngs = [intro_png] + slide_pngs + [outro_png]
-    durs = compute_durations_from_audio(len(items), audio_sec)
+    durs = compute_durations_from_audio(len(slides_to_render), audio_sec)
 
+    # ---- VIDEO ----
     out_video = OUT_DIR / "shorts_news.mp4"
     ffmpeg_slideshow(pngs, durs, audio_wav, out_video)
 
-    today = datetime.now().strftime("%d.%m.%Y")
-    title = f"Новости тягачей и полуприцепов — {today}"
-
-    site_link = with_utm(SITE_URL, source="youtube", medium="shorts", campaign="news_short")
-    tg_link = with_utm(TELEGRAM_URL, source="youtube", medium="shorts", campaign="news_short")
-
-    lines = [
-        "Короткая сводка: 3–4 новости + что это значит для эксплуатации.",
-        "",
-        f"Telegram (детали): {tg_link}",
-        f"Сайт (архив): {site_link}",
-        "",
-        "Источники:",
-    ]
-    for it in items:
-        u = pick_url(it)
-        lines.append(with_utm(u, source="youtube", medium="shorts", campaign="news_short"))
-
-    description = "\n".join(lines)
+    # ---- CAPTION ----
+    description = "\n".join(caption_lines).strip()
     (OUT_DIR / "caption.txt").write_text(description, encoding="utf-8")
 
-    video_id = youtube_upload(out_video, title=title, description=description, privacy=os.getenv("YOUTUBE_PRIVACY", "public"))
+    # ---- UPLOAD ----
+    video_id = youtube_upload(out_video, title=yt_title, description=description, privacy=os.getenv("YOUTUBE_PRIVACY", "public"))
     youtube_set_thumbnail(video_id, thumb_png)
 
-    used_urls = list(dict.fromkeys(st.get("used_urls", []) + [pick_url(it) for it in items if pick_url(it)]))
-    used_ids = list(dict.fromkeys([str(x) for x in st.get("used_ids", [])] + [str(it.get("id")) for it in items if it.get("id") is not None]))
+    # ---- UPDATE STATE ----
+    # news repeats
+    used_urls = list(dict.fromkeys(st.get("used_urls", []) + used_urls_add))
+    used_ids = list(dict.fromkeys([str(x) for x in st.get("used_ids", [])] + used_ids_add))
+
+    # economics repeats
+    used_eps = list(dict.fromkeys([str(x) for x in st.get("used_eps", [])] + used_eps_add))
 
     st["used_urls"] = used_urls[-2000:]
     st["used_ids"] = used_ids[-2000:]
+    st["used_eps"] = used_eps[-500:]
+
     save_state(st)
 
-    print("[OK] audio_sec=", audio_sec, "video=", out_video, "video_id=", video_id)
+    print("[OK] MODE=", MODE, "audio_sec=", audio_sec, "video=", out_video, "video_id=", video_id, "title=", yt_title)
 
 
 if __name__ == "__main__":
