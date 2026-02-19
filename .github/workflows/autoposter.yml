@@ -60,16 +60,13 @@ jobs:
 
           LOGO_PATH: "frontend/spec_avtoportal_favicon.ico"
 
-          TOTAL_SECONDS: "30"
-          INTRO_SECONDS: "1.5"
-          OUTRO_SECONDS: "2.5"
-          PICK_TARGET: "4"
-          SUMMARY_MAX: "120"
-
-          VOICE: "ru-RU-DmitryNeural"
+          MODE: "economics"
           TTS_RATE: "+15%"
           AUDIO_FIT: "1"
-    
+          TOTAL_SECONDS: "30"
+          ECON_ALLOWED: "downtime,tires,axle"
+
+          VOICE: "ru-RU-DmitryNeural"
           YOUTUBE_CLIENT_SECRETS: "client_secrets.json"
           YOUTUBE_TOKEN_FILE: "youtube_token.json"
           YOUTUBE_PRIVACY: "public"
