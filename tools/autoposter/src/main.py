@@ -16,7 +16,6 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import edge_tts
 from gtts import gTTS
 
-# ✅ новый модуль эконом-шаблонов
 from .economic_templates import pick_random_episode, Slide as EconSlide
 
 
@@ -248,7 +247,6 @@ def pick_news_items(news: list[dict], st: dict) -> list[dict]:
             continue
         candidates.append(it)
 
-    # fallback: если все "съели" — разрешаем повторы (иначе тишина)
     if len(candidates) < 3:
         candidates = [it for it in news if isinstance(it, dict) and pick_title(it) and pick_url(it)]
 
@@ -280,9 +278,7 @@ def build_image_pool(news: list[dict], min_pool: int = 30) -> list[str]:
         img = pick_image(it)
         if img:
             imgs.append(img)
-    # уникализируем
     uniq = list(dict.fromkeys(imgs))
-    # если мало — всё равно вернём что есть
     if len(uniq) >= min_pool:
         return uniq[:min_pool]
     return uniq
@@ -293,7 +289,6 @@ def pick_images_for_slides(pool: list[str], n: int, rng: random.Random) -> list[
         return [""] * n
     if len(pool) >= n:
         return rng.sample(pool, n)
-    # если картинок мало — повторяем
     out = []
     for i in range(n):
         out.append(pool[i % len(pool)])
@@ -361,7 +356,51 @@ def build_voice_text_news(items: list[dict]) -> str:
 
 
 # -----------------------------
-# CARD RENDER (Pillow) — v2 YouTube-aggressive
+# ECONOMICS: bullet helper (more text on cards)
+# -----------------------------
+ECON_BULLETS = {
+    "tires": [
+        ["Проверь давление", "Смотри износ по краю", "Учитывай углы/схождение"],
+        ["Комплект — дорогой актив", "Низкое давление убивает ресурс", "Контроль = экономия"],
+        ["Простой из-за резины — боль", "Меняй вовремя, не «в ноль»", "Держи запас по рейсу"],
+        ["Чек-лист контроля — в TG", "Сайт: архив разборов", "Без воды, с цифрами"],
+    ],
+    "downtime": [
+        ["Потери растут каждый день", "Рейс не случился — минус деньги", "Плюс расходы на стоянку"],
+        ["Проверь причины простоев", "ТО дешевле, чем простой", "Симптомы — ловить заранее"],
+        ["3 дня простоя — уже удар", "Планируй ремонт заранее", "Следи за критичными узлами"],
+        ["Чек-лист «до рейса» — в TG", "Сайт: архив", "Схемы и короткие выводы"],
+    ],
+    "axle": [
+        ["Ось/ступица = риск простоя", "Диагностика дешевле ремонта", "Не игнорируй шум/люфт"],
+        ["Смотри нагрев ступицы", "Проверяй смазку/уплотнения", "Контроль — по регламенту"],
+        ["Эвакуатор + простой", "Плюс ремонт и сроки", "Лучше предотвратить заранее"],
+        ["Чек-лист по оси — в TG", "Сайт: архив", "Практика без воды"],
+    ],
+    "overweight": [
+        ["Перегруз = штраф + простой", "Риски по маршруту", "Документы и вес — под контроль"],
+        ["Смотри распределение веса", "Не грузись «на глаз»", "Проверяй осевые нагрузки"],
+        ["Одна ошибка — дорого", "Простой ломает экономику", "Дисциплина = прибыль"],
+        ["Чек-лист по перегрузу — в TG", "Сайт: архив", "Коротко и по делу"],
+    ],
+    "used_buy": [
+        ["Цена — не главное", "Скрытый ремонт съедает маржу", "Плюс простой на подготовке"],
+        ["Смотри оси/тормоза/раму", "Пневматика и утечки", "Следы ремонта/перекоса"],
+        ["Не покупай без проверки", "Диагностика окупается", "Торг — только с фактами"],
+        ["Чек-лист осмотра — в TG", "Сайт: архив", "Без воды, по пунктам"],
+    ],
+}
+
+
+def econ_subtitle(ep_key: str, slide_idx_1based: int, fallback: str) -> str:
+    bullets = ECON_BULLETS.get(ep_key)
+    if bullets and 1 <= slide_idx_1based <= len(bullets):
+        return "\n".join(bullets[slide_idx_1based - 1][:3])
+    return fallback or ""
+
+
+# -----------------------------
+# CARD RENDER (Pillow)
 # -----------------------------
 def ensure_font(candidates: list[str], size: int) -> ImageFont.FreeTypeFont:
     for p in candidates:
@@ -438,6 +477,18 @@ def add_bottom_gradient(img: Image.Image, start_y: int, end_y: int, color=(0, 0,
     return out.convert("RGB")
 
 
+def parse_bullets(subtitle: str) -> list[str]:
+    subtitle = (subtitle or "").strip()
+    if not subtitle:
+        return []
+    # если пришло с \n — считаем это пунктами
+    if "\n" in subtitle:
+        lines = [clean_text(x) for x in subtitle.split("\n") if clean_text(x)]
+        return lines[:3]
+    # иначе: делаем 2-3 строки авто-переносом
+    return wrap_by_chars(subtitle, 36)[:3]
+
+
 def make_card_generic(
     idx: int,
     title: str,
@@ -450,7 +501,9 @@ def make_card_generic(
     W, H = VIDEO_WIDTH, VIDEO_HEIGHT
 
     title = truncate(title, 88)
-    subtitle = truncate(subtitle, min(SUMMARY_MAX, 90))
+
+    # subtitle в economics будет буллетами; в news — обрежем и тоже сделаем читаемо
+    subtitle = truncate(subtitle, min(SUMMARY_MAX, 140))
 
     domain = ""
     if source_url:
@@ -494,7 +547,8 @@ def make_card_generic(
         base_rgba.paste(pic, (px, py))
         base = base_rgba.convert("RGB")
 
-    base = add_bottom_gradient(base, start_y=int(H * 0.52), end_y=H, max_alpha=235)
+    # усиливаем читаемость низа
+    base = add_bottom_gradient(base, start_y=int(H * 0.50), end_y=H, max_alpha=240)
     draw = ImageDraw.Draw(base)
 
     font_paths_bold = ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"]
@@ -502,9 +556,10 @@ def make_card_generic(
     f_brand = ensure_font(font_paths_bold, 40)
     f_sub = ensure_font(font_paths_reg, 30)
     f_title = ensure_font(font_paths_bold, 64)
-    f_sum = ensure_font(font_paths_reg, 38)
+    f_bul = ensure_font(font_paths_reg, 40)
     f_small = ensure_font(font_paths_reg, 30)
 
+    # top bar
     bar_h = 82
     draw.rectangle([0, 0, W, bar_h], fill=(0, 0, 0))
 
@@ -515,6 +570,7 @@ def make_card_generic(
     draw.text((86, 14), "SpecAvtoPortal", font=f_brand, fill=WHITE)
     draw.text((86, 48), "Shorts • Экономика владения", font=f_sub, fill=(170, 170, 170))
 
+    # badge idx
     badge_r = 30
     bx, by = W - 20 - badge_r * 2, 11
     draw.ellipse([bx, by, bx + badge_r * 2, by + badge_r * 2], fill=YELLOW)
@@ -523,18 +579,27 @@ def make_card_generic(
     left = 56
     y = int(H * 0.62)
 
+    # title lines
     t_lines = wrap_by_chars(title.upper(), 22)[:2]
     for ln in t_lines:
         draw.text((left, y), ln, font=f_title, fill=WHITE)
         y += 76
 
-    if subtitle:
+    # bullets (2-3)
+    bullets = parse_bullets(subtitle)
+    if bullets:
         y += 6
-        s_line = wrap_by_chars(subtitle, 40)[:1]
-        for ln in s_line:
-            draw.text((left, y), ln, font=f_sum, fill=GRAY)
-            y += 48
+        for b in bullets[:3]:
+            b = clean_text(b)
+            if not b:
+                continue
+            # небольшой авто-перенос внутри буллета
+            sublines = wrap_by_chars(b, 34)[:1]
+            for sl in sublines:
+                draw.text((left, y), f"• {sl}", font=f_bul, fill=GRAY)
+                y += 54
 
+    # bottom CTA
     line_y = H - 140
     draw.rectangle([left, line_y, W - left, line_y + 6], fill=YELLOW)
     draw.text((left, H - 118), "Разбор и чек-листы — в Telegram • Архив — на сайте", font=f_small, fill=WHITE)
@@ -567,7 +632,7 @@ def make_intro_card(logo: Image.Image, out_png: Path):
     draw.text((70, 320), "ЭКОНОМИКА", font=f1, fill=WHITE)
     draw.text((70, 420), "ПОЛУПРИЦЕПЫ • ПРИЦЕПЫ", font=f2, fill=WHITE)
     draw.rectangle([70, 510, 520, 518], fill=YELLOW)
-    draw.text((70, 540), "коротко • с цифрами • без воды", font=f3, fill=(210, 210, 210))
+    draw.text((70, 540), "коротко • по пунктам • без воды", font=f3, fill=(210, 210, 210))
 
     img.save(out_png, "PNG")
 
@@ -641,8 +706,8 @@ def fit_audio_to_target(in_wav: Path, out_wav: Path, target_sec: float):
         shutil.copyfile(in_wav, out_wav)
         return
 
-    speed = dur / target_sec  # >1 => ускоряем
-    speed = min(speed, 1.35)  # не делаем “бурундука”
+    speed = dur / target_sec
+    speed = min(speed, 1.35)
 
     af = atempo_filter(speed)
     run(["ffmpeg", "-y", "-i", str(in_wav), "-filter:a", af, "-ar", "44100", "-ac", "1", str(out_wav)])
@@ -669,7 +734,7 @@ def tts_generate(text: str, out_wav: Path):
 
 
 # -----------------------------
-# VIDEO (durations from AUDIO)
+# VIDEO
 # -----------------------------
 def compute_durations_from_audio(n_slides: int, audio_sec: float) -> list[float]:
     target_total = min(TOTAL_SECONDS, max(audio_sec, 10.0))
@@ -785,7 +850,6 @@ def youtube_set_thumbnail(video_id: str, thumb_path: Path):
 # MAIN
 # -----------------------------
 def main():
-    # clean tmp
     if TMP_DIR.exists():
         shutil.rmtree(TMP_DIR)
     TMP_DIR.mkdir(parents=True, exist_ok=True)
@@ -796,11 +860,8 @@ def main():
     st = load_state()
     news = read_news()
     logo = load_logo_rgba()
-
-    # always build image pool (for economics pictures)
     img_pool = build_image_pool(news, min_pool=30)
 
-    # ---- SELECT CONTENT ----
     yt_title = ""
     voice_text = ""
     caption_lines: list[str] = []
@@ -814,15 +875,12 @@ def main():
         seed = int(ECON_SEED) if ECON_SEED.isdigit() else None
         allowed = [x.strip() for x in ECON_ALLOWED.split(",") if x.strip()] if ECON_ALLOWED else None
 
-        # исключаем повторы эпизодов (мягко)
         used_eps = set(st.get("used_eps", []))
         rng = random.Random(seed if seed is not None else random.randrange(1_000_000_000))
 
         if ECON_FORCE_KEY:
-            # принудительно: один и тот же выпуск (для теста)
             ep = pick_random_episode(seed=seed, tg_url=TELEGRAM_URL, site_url=SITE_URL, allowed=[ECON_FORCE_KEY])
         else:
-            # пробуем несколько раз выбрать неиспользованный key
             ep = None
             for _ in range(10):
                 cand = pick_random_episode(seed=rng.randrange(1_000_000_000), tg_url=TELEGRAM_URL, site_url=SITE_URL, allowed=allowed)
@@ -838,24 +896,23 @@ def main():
         voice_text = ep.voice_text
         caption_lines = ep.description_lines[:]
 
-        # картинки из пула news.json (рандом без повторов внутри выпуска)
         imgs = pick_images_for_slides(img_pool, len(ep.slides), rng)
 
         for i, s in enumerate(ep.slides, 1):
             assert isinstance(s, EconSlide)
+            # ✅ больше текста: 2–3 буллета снизу (без цифр на первом слайде)
+            sub = econ_subtitle(ep.key, i, s.subtitle or "")
             slides_to_render.append({
                 "idx": i,
                 "title": s.title,
-                "subtitle": s.subtitle or "",
+                "subtitle": sub,
                 "image_url": imgs[i - 1] if imgs else "",
-                "source_url": "",  # можно пусто
+                "source_url": "",
             })
 
-        # источники картинок (опционально): добавим ссылку на сайт/телеграм
         caption_lines += ["", f"Telegram: {TELEGRAM_URL}", f"Сайт: {SITE_URL}"]
 
     else:
-        # MODE=news
         items = pick_news_items(news, st)
         voice_text = build_voice_text_news(items)
         today = datetime.now().strftime("%d.%m.%Y")
@@ -865,7 +922,7 @@ def main():
             slides_to_render.append({
                 "idx": i,
                 "title": pick_title(it),
-                "subtitle": truncate(pick_summary(it), min(SUMMARY_MAX, 90)),
+                "subtitle": truncate(pick_summary(it), min(SUMMARY_MAX, 140)),
                 "image_url": pick_image(it),
                 "source_url": pick_url(it),
             })
@@ -876,7 +933,6 @@ def main():
             if it.get("id") is not None:
                 used_ids_add.append(str(it.get("id")))
 
-        # caption + sources
         site_link = with_utm(SITE_URL, source="youtube", medium="shorts", campaign="news_short")
         tg_link = with_utm(TELEGRAM_URL, source="youtube", medium="shorts", campaign="news_short")
 
@@ -899,7 +955,7 @@ def main():
 
     slide_pngs = []
     for s in slides_to_render:
-        out_png = CARDS_DIR / f"{s['idx']:02d}.png"
+        out_png = CARDS_DIR / f"{int(s['idx']):02d}.png"
         make_card_generic(
             idx=int(s["idx"]),
             title=str(s["title"]),
@@ -940,11 +996,8 @@ def main():
     youtube_set_thumbnail(video_id, thumb_png)
 
     # ---- UPDATE STATE ----
-    # news repeats
     used_urls = list(dict.fromkeys(st.get("used_urls", []) + used_urls_add))
     used_ids = list(dict.fromkeys([str(x) for x in st.get("used_ids", [])] + used_ids_add))
-
-    # economics repeats
     used_eps = list(dict.fromkeys([str(x) for x in st.get("used_eps", [])] + used_eps_add))
 
     st["used_urls"] = used_urls[-2000:]
