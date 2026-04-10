@@ -1,6 +1,24 @@
 [
   {
     "source": "source",
+    "title": "За год средние цены на подержанные грузовики и прицепы снизились",
+    "link": "http://gruzovoy.ru/news/industry/3226_za_god_srednie_ceni_na_poderjannie_gryzoviki_i_pricepi_snizilis.html",
+    "summary": "Маркетинговое агентство НАПИ проанализировало динамику средних цен на подержанную (не старше 20 лет) коммерческую технику",
+    "image": "https://cdna.gruzovoy.ru/c/13078b0bfd12009b8bc537380ffd3306.jpg",
+    "published_at": "2026-04-10T09:44:52+00:00",
+    "domain": "gruzovoy.ru"
+  },
+  {
+    "source": "source",
+    "title": "Новый эвакуатор на шасси «КАМАЗ-65951» выведен на рынок",
+    "link": "http://gruzovoy.ru/news/industry/3225_novii_evakyator_na_shassi_kamaz-65951_viveden_na_rinok.html",
+    "summary": "ПАО «КАМАЗ» и ООО «Кузовостроитель» вывели на российский рынок автоэвакуатор на четырёхосном шасси грузовика «КАМАЗ-65951»",
+    "image": null,
+    "published_at": "2026-04-10T09:36:18+00:00",
+    "domain": "gruzovoy.ru"
+  },
+  {
+    "source": "source",
     "title": "Завод двигателей «КАМАЗ» проходит модернизацию",
     "link": "http://gruzovoy.ru/news/industry/3224_zavod_dvigatelei_kamaz_prohodit_modernizaciu.html",
     "summary": "ПАО «КАМАЗ» с начала текущего года проводит модернизацию производства на своём заводе моторов",
@@ -928,7 +946,7 @@
   },
   {
     "source": "source",
-    "title": "Новый KRONE Liner",
+    "title": "Новый KRONE Cool Liner",
     "link": "https://www.krone-trailer.com/en/news/detail-1/new-krone-liner/",
     "summary": "Доказанные сильные стороны развивались целенаправленно.",
     "image": "https://www.krone-trailer.com/fileadmin/_processed_/f/0/csm_new_KRONE_Cool_Liner_82a8d517c5.jpg",
@@ -6085,9 +6103,9 @@
   },
   {
     "source": "source",
-    "title": "Solutrans 2023 in Lyon",
+    "title": "Solutrans 2023 в Лионе",
     "link": "https://www.krone-trailer.com/en/news/detail-1/solutrans-2023-in-lyon/",
-    "summary": "KRONE presents latest innovations",
+    "summary": "KRONE представляет новейшие инновации",
     "image": "https://www.krone-trailer.com/fileadmin/_processed_/d/b/csm_2023-10_eTrailer-Krone_f4b44ddd82.jpg",
     "published_at": "2023-10-24T05:56:30+00:00",
     "domain": "www.krone-trailer.com"
