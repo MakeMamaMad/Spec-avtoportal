@@ -1,0 +1,265 @@
+from __future__ import annotations
+
+import json
+import os
+import re
+from dataclasses import asdict, dataclass, field
+from typing import Any
+
+
+@dataclass
+class Scene:
+    id: str
+    seconds: float
+    overlay: str
+    narration: str
+    visual_prompt: str
+    highlight_words: list[str] = field(default_factory=list)
+    source_image_url: str = ""
+
+
+@dataclass
+class Storyboard:
+    version: int
+    format: str
+    title: str
+    hook: str
+    voiceover: str
+    instagram_caption: str
+    tiktok_caption: str
+    youtube_title: str
+    youtube_description: str
+    hashtags: list[str]
+    source_urls: list[str]
+    scenes: list[Scene]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+def _clean(value: Any) -> str:
+    return re.sub(r"\s+", " ", str(value or "")).strip()
+
+
+def _title(item: dict[str, Any]) -> str:
+    return _clean(item.get("title") or item.get("headline") or item.get("name"))
+
+
+def _summary(item: dict[str, Any]) -> str:
+    return _clean(item.get("summary") or item.get("description") or item.get("excerpt"))
+
+
+def _url(item: dict[str, Any]) -> str:
+    value = _clean(item.get("site_url") or item.get("canonical_url") or item.get("url") or item.get("link"))
+    return value if value.startswith("http") else ""
+
+
+def _image(item: dict[str, Any]) -> str:
+    value = _clean(item.get("image_url") or item.get("image") or item.get("thumbnail"))
+    return value if value.startswith("http") else ""
+
+
+def _scene_prompt(subject: str, angle: str) -> str:
+    return (
+        "Cinematic editorial photograph for a premium commercial-transport news reel. "
+        f"Subject: {subject}. Scene: {angle}. "
+        "Realistic European heavy truck / semi-trailer industry, physically plausible machinery, "
+        "charcoal industrial palette with restrained orange light accents, dramatic but credible lighting, "
+        "high detail, vertical composition, strong depth, clean negative space for editorial overlays. "
+        "No text, no captions, no logos, no watermarks, no fake brand marks, no readable license plates."
+    )
+
+
+def fallback_storyboard(item: dict[str, Any]) -> Storyboard:
+    title = _title(item) or "Главная новость отрасли"
+    summary = _summary(item) or "Разбираем, что произошло и почему это важно для рынка коммерческого транспорта."
+    url = _url(item)
+    image = _image(item)
+
+    hook = title
+    if len(hook) > 72:
+        hook = hook[:69].rsplit(" ", 1)[0] + "…"
+
+    sentences = [x.strip() for x in re.split(r"(?<=[.!?])\s+", summary) if x.strip()]
+    key_fact = sentences[0] if sentences else summary
+    why = sentences[1] if len(sentences) > 1 else "Это может повлиять на перевозчиков, стоимость эксплуатации и планы закупок."
+
+    scenes = [
+        Scene(
+            id="hook",
+            seconds=4.2,
+            overlay=hook,
+            narration=f"{title}.",
+            visual_prompt=_scene_prompt(title, "hero shot, immediate visual hook"),
+            highlight_words=[w for w in re.findall(r"[0-9+%]+|[А-ЯA-ZЁ]{3,}", title)[:3]],
+            source_image_url=image,
+        ),
+        Scene(
+            id="fact",
+            seconds=6.2,
+            overlay="ЧТО ПРОИЗОШЛО",
+            narration=key_fact,
+            visual_prompt=_scene_prompt(title, "documentary detail showing the core event"),
+            highlight_words=[],
+            source_image_url=image,
+        ),
+        Scene(
+            id="meaning",
+            seconds=6.4,
+            overlay="ПОЧЕМУ ЭТО ВАЖНО",
+            narration=why,
+            visual_prompt=_scene_prompt(title, "operational context: fleet, logistics, workshop or road transport"),
+            highlight_words=["важно"],
+            source_image_url=image,
+        ),
+        Scene(
+            id="impact",
+            seconds=6.0,
+            overlay="ДЛЯ РЫНКА",
+            narration="Следим за развитием темы и тем, как она отразится на технике, логистике и стоимости владения.",
+            visual_prompt=_scene_prompt(title, "wide industrial transport scene, analytical mood"),
+            highlight_words=["рынка"],
+            source_image_url=image,
+        ),
+        Scene(
+            id="cta",
+            seconds=4.2,
+            overlay="ПОДРОБНЕЕ НА САЙТЕ",
+            narration="Подробности — на СпецАвтоПортале.",
+            visual_prompt=_scene_prompt(title, "clean closing hero shot with dark negative space"),
+            highlight_words=["СпецАвтоПортале"],
+            source_image_url=image,
+        ),
+    ]
+    voiceover = " ".join(scene.narration for scene in scenes)
+    hashtags = ["#СпецАвтоПортал", "#грузовики", "#полуприцепы", "#логистика", "#автоновости"]
+    caption = f"{title}\n\n{key_fact}\n\nПодробности: {url or 'spec-avtoportal.ru'}\n\n{' '.join(hashtags)}"
+    return Storyboard(
+        version=2,
+        format="breaking",
+        title=title,
+        hook=hook,
+        voiceover=voiceover,
+        instagram_caption=caption,
+        tiktok_caption=f"{hook} — коротко разбираем, что это значит. {' '.join(hashtags[:4])}",
+        youtube_title=hook,
+        youtube_description=caption,
+        hashtags=hashtags,
+        source_urls=[url] if url else [],
+        scenes=scenes,
+    )
+
+
+def _extract_json(text: str) -> dict[str, Any]:
+    value = text.strip()
+    fence = chr(96) * 3
+    if value.startswith(fence):
+        first_newline = value.find("\n")
+        value = value[first_newline + 1 :] if first_newline >= 0 else value
+        if value.rstrip().endswith(fence):
+            value = value.rstrip()[:-3].rstrip()
+    start, end = value.find("{"), value.rfind("}")
+    if start >= 0 and end > start:
+        value = value[start : end + 1]
+    parsed = json.loads(value)
+    if not isinstance(parsed, dict):
+        raise ValueError("AI storyboard must be a JSON object")
+    return parsed
+
+
+def _validate_ai_storyboard(data: dict[str, Any], item: dict[str, Any]) -> Storyboard:
+    fallback = fallback_storyboard(item)
+    raw_scenes = data.get("scenes")
+    if not isinstance(raw_scenes, list) or not (4 <= len(raw_scenes) <= 6):
+        raise ValueError("AI storyboard must contain 4-6 scenes")
+
+    scenes: list[Scene] = []
+    for index, raw in enumerate(raw_scenes, 1):
+        if not isinstance(raw, dict):
+            raise ValueError("Invalid scene")
+        narration = _clean(raw.get("narration"))
+        overlay = _clean(raw.get("overlay"))
+        prompt = _clean(raw.get("visual_prompt"))
+        if not narration or not overlay or not prompt:
+            raise ValueError("Scene is missing narration/overlay/visual_prompt")
+        seconds = float(raw.get("seconds") or 5.5)
+        seconds = max(3.0, min(8.0, seconds))
+        highlights = raw.get("highlight_words") if isinstance(raw.get("highlight_words"), list) else []
+        scenes.append(Scene(
+            id=_clean(raw.get("id")) or f"scene-{index}",
+            seconds=seconds,
+            overlay=overlay[:90],
+            narration=narration[:340],
+            visual_prompt=prompt[:1600],
+            highlight_words=[_clean(x) for x in highlights[:5] if _clean(x)],
+            source_image_url=fallback.scenes[min(index - 1, len(fallback.scenes) - 1)].source_image_url,
+        ))
+
+    total = sum(x.seconds for x in scenes)
+    if total < 20 or total > 40:
+        factor = 30.0 / max(total, 1.0)
+        for scene in scenes:
+            scene.seconds = max(3.0, min(8.0, scene.seconds * factor))
+
+    hashtags = data.get("hashtags") if isinstance(data.get("hashtags"), list) else fallback.hashtags
+    hashtags = [str(x).strip() for x in hashtags if str(x).strip()][:8]
+    voiceover = " ".join(x.narration for x in scenes)
+    return Storyboard(
+        version=2,
+        format=_clean(data.get("format")) or "breaking",
+        title=_clean(data.get("title")) or fallback.title,
+        hook=_clean(data.get("hook")) or fallback.hook,
+        voiceover=voiceover,
+        instagram_caption=_clean(data.get("instagram_caption")) or fallback.instagram_caption,
+        tiktok_caption=_clean(data.get("tiktok_caption")) or fallback.tiktok_caption,
+        youtube_title=_clean(data.get("youtube_title")) or fallback.youtube_title,
+        youtube_description=_clean(data.get("youtube_description")) or fallback.youtube_description,
+        hashtags=hashtags or fallback.hashtags,
+        source_urls=fallback.source_urls,
+        scenes=scenes,
+    )
+
+
+def generate_storyboard(item: dict[str, Any]) -> Storyboard:
+    """Build an AI storyboard when configured, otherwise use a deterministic fallback."""
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    if not api_key or os.getenv("AI_SCRIPT", "1").strip() != "1":
+        return fallback_storyboard(item)
+
+    try:
+        from openai import OpenAI
+
+        model = os.getenv("OPENAI_TEXT_MODEL", "gpt-5.6-luna").strip()
+        client = OpenAI(api_key=api_key)
+        source = {
+            "title": _title(item),
+            "summary": _summary(item),
+            "url": _url(item),
+            "source": _clean(item.get("source") or item.get("domain")),
+            "tags": item.get("tags") or [],
+        }
+        system = (
+            "You are the short-form video editor for SpecAvtoPortal, a Russian professional media outlet about "
+            "commercial trucks, trailers, logistics and regulations. Create factual, compact vertical-video storyboards. "
+            "Never invent numbers, quotes, companies or consequences that are absent from the supplied source. "
+            "Aim for 24-34 seconds, 4-6 scenes, a strong factual hook in the first 2 seconds, then context and practical meaning. "
+            "Visual prompts must describe realistic premium editorial industrial photography and MUST request no text, logos or watermarks. "
+            "Return ONLY valid JSON with keys: format,title,hook,instagram_caption,tiktok_caption,youtube_title,"
+            "youtube_description,hashtags,scenes. Each scene must contain id,seconds,overlay,narration,visual_prompt,highlight_words."
+        )
+        user = "Source item:\n" + json.dumps(source, ensure_ascii=False)
+        response = client.responses.create(
+            model=model,
+            input=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ],
+            max_output_tokens=2600,
+        )
+        data = _extract_json(response.output_text)
+        board = _validate_ai_storyboard(data, item)
+        print(f"[AI] storyboard generated with {model}: {len(board.scenes)} scenes")
+        return board
+    except Exception as exc:
+        print(f"[AI] storyboard fallback: {exc}")
+        return fallback_storyboard(item)
