@@ -150,11 +150,11 @@ def render_scene_frame(
         y += int(getattr(title_font, "size", 64) * 1.12)
 
     # Supporting copy is part of the editorial frame, not karaoke subtitles.
-    body_font = _font(38, False)
-    body_lines = _wrap(draw, scene.narration, body_font, max_w, 3)
+    body_font = _font(34, False)
+    body_lines = _wrap(draw, scene.narration, body_font, max_w, 4)
     body_y = min(max(y + 34, 1370), 1550)
     if body_lines:
-        panel_h = len(body_lines) * 54 + 44
+        panel_h = len(body_lines) * 48 + 44
         draw.rounded_rectangle(
             (48, body_y - 18, WIDTH - 48, body_y + panel_h),
             radius=24,
@@ -163,7 +163,7 @@ def render_scene_frame(
         by = body_y
         for line in body_lines:
             draw.text((64, by), line, font=body_font, fill=(224, 228, 233, 255))
-            by += 54
+            by += 48
 
     draw.text((64, 1735), "spec-avtoportal.ru", font=small_font, fill=MUTED + (255,))
     draw.text((64, 1780), "рынок · техника · регламенты", font=small_font, fill=(128, 136, 146, 255))
