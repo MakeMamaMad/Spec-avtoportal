@@ -163,11 +163,11 @@ def source_image(item: dict[str, Any]) -> str:
     image = get_field(item, "image_url", "image", "img")
     if image.startswith(("http://", "https://")):
         return image
-    return ""
+    return f"{BASE_URL}/assets/news/image.jpg"
 
 
 def absolute_image(item: dict[str, Any]) -> str:
-    return source_image(item) or f"{BASE_URL}/assets/logo.png"
+    return source_image(item)
 
 
 def article_url(item: dict[str, Any]) -> str:
