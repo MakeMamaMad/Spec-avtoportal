@@ -1,0 +1,24 @@
+name: Cleanup Promotion Diagnostic Artifact
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/cleanup_promotion_artifact.yml'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete leaked diagnostic artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh api --method DELETE "repos/$REPO/actions/artifacts/10748471426"
+          echo "Deleted artifact 10748471426"
