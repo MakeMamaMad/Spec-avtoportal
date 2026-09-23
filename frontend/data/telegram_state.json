@@ -1,6 +1,63 @@
 {
   "schema": 1,
-  "welcome_message_id": null,
-  "welcome_sent_at": null,
-  "posts": {}
+  "welcome_message_id": 1467,
+  "welcome_sent_at": "2026-09-23T08:21:48+00:00",
+  "posts": {
+    "https://www.satpricep.by/o-zavode/news/pozdravlyaem-s-dnem-mashinostroitelya/": {
+      "message_id": 1469,
+      "sent_at": "2026-09-23T08:21:49+00:00",
+      "site_url": "https://spec-avtoportal.ru/news/den-mashinostroitelya-v-belarusi-v-2025-cf688d1e/?utm_source=telegram&utm_medium=social&utm_campaign=news&utm_content=den-mashinostroitelya-v-belarusi-v-2025-cf688d1e",
+      "title": "День машиностроителя в Беларуси в 2025",
+      "slug": "den-mashinostroitelya-v-belarusi-v-2025-cf688d1e"
+    },
+    "https://www.satpricep.by/o-zavode/news/samosvalnyy-polupritsep-dlya-zerna-na-selskokhozyaystvennoy-vystavke-ja-adala/": {
+      "message_id": 1470,
+      "sent_at": "2026-09-23T08:21:50+00:00",
+      "site_url": "https://spec-avtoportal.ru/news/vystavka-jaadala-v-kazahstane-i-ee-rezultaty-b40fcbdb/?utm_source=telegram&utm_medium=social&utm_campaign=news&utm_content=vystavka-jaadala-v-kazahstane-i-ee-rezultaty-b40fcbdb",
+      "title": "Выставка JańaDala в Казахстане и ее результаты",
+      "slug": "vystavka-jaadala-v-kazahstane-i-ee-rezultaty-b40fcbdb"
+    },
+    "https://www.satpricep.by/o-zavode/news/samosvalnyy-polupritsep-v-belarusi-sat545/": {
+      "message_id": 1471,
+      "sent_at": "2026-09-23T08:21:50+00:00",
+      "site_url": "https://spec-avtoportal.ru/news/novyy-polupritsep-samosval-599978ff/?utm_source=telegram&utm_medium=social&utm_campaign=news&utm_content=novyy-polupritsep-samosval-599978ff",
+      "title": "Новый полуприцеп самосвал",
+      "slug": "novyy-polupritsep-samosval-599978ff"
+    },
+    "https://www.satpricep.by/o-zavode/news/usilennyy-polupritsep-zernovoz-na-forume/": {
+      "message_id": 1472,
+      "sent_at": "2026-09-23T08:21:54+00:00",
+      "site_url": "https://spec-avtoportal.ru/news/usilennyy-polupritsep-zernovoz-bf845c7d/?utm_source=telegram&utm_medium=social&utm_campaign=news&utm_content=usilennyy-polupritsep-zernovoz-bf845c7d",
+      "title": "Усиленный полуприцеп зерновоз",
+      "slug": "usilennyy-polupritsep-zernovoz-bf845c7d"
+    },
+    "https://www.satpricep.by/o-zavode/news/trekhrusnyy-alyuminievyy-skotovoz/": {
+      "message_id": 1473,
+      "sent_at": "2026-09-23T08:21:54+00:00",
+      "site_url": "https://spec-avtoportal.ru/news/trehyarusnyy-alyuminievyy-svinovoz-5cd36224/?utm_source=telegram&utm_medium=social&utm_campaign=news&utm_content=trehyarusnyy-alyuminievyy-svinovoz-5cd36224",
+      "title": "Трехъярусный алюминиевый свиновоз",
+      "slug": "trehyarusnyy-alyuminievyy-svinovoz-5cd36224"
+    },
+    "https://www.satpricep.by/o-zavode/news/nizkoramnyy-polupritsep-kotoryy-ne-nuzhno-agregatirovat-s-tyagachom/": {
+      "message_id": 1474,
+      "sent_at": "2026-09-23T08:21:55+00:00",
+      "site_url": "https://spec-avtoportal.ru/news/nizkoramnik-dlya-perevozki-6d259d43/?utm_source=telegram&utm_medium=social&utm_campaign=news&utm_content=nizkoramnik-dlya-perevozki-6d259d43",
+      "title": "Низкорамник для перевозки",
+      "slug": "nizkoramnik-dlya-perevozki-6d259d43"
+    },
+    "https://www.globaltrailermag.com/hankook-partners-with-schmitz-cargobull/": {
+      "message_id": 1475,
+      "sent_at": "2026-09-23T08:21:55+00:00",
+      "site_url": "https://spec-avtoportal.ru/news/hankook-sotrudnichaet-s-schmitz-cargobull-a8a951d2/?utm_source=telegram&utm_medium=social&utm_campaign=news&utm_content=hankook-sotrudnichaet-s-schmitz-cargobull-a8a951d2",
+      "title": "Hankook сотрудничает с Schmitz Cargobull",
+      "slug": "hankook-sotrudnichaet-s-schmitz-cargobull-a8a951d2"
+    },
+    "http://gruzovoy.ru/news/industry/3375_kitaiskie_tyagachi_v_rossii_podorojali_pochti_na_50_za_god.html": {
+      "message_id": 1476,
+      "sent_at": "2026-09-23T08:21:56+00:00",
+      "site_url": "https://spec-avtoportal.ru/news/kitayskie-tyagachi-v-rossii-podorozhali-pochti-na-50-za-god-bd26064b/?utm_source=telegram&utm_medium=social&utm_campaign=news&utm_content=kitayskie-tyagachi-v-rossii-podorozhali-pochti-na-50-za-god-bd26064b",
+      "title": "Китайские тягачи в России подорожали почти на 50% за год",
+      "slug": "kitayskie-tyagachi-v-rossii-podorozhali-pochti-na-50-za-god-bd26064b"
+    }
+  }
 }
