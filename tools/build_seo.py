@@ -17,6 +17,7 @@ import html
 import json
 import re
 import shutil
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -24,6 +25,12 @@ from urllib.parse import urlparse
 from xml.sax.saxutils import escape as xml_escape
 
 ROOT = Path(__file__).resolve().parents[1]
+AGGREGATOR = ROOT / "aggregator"
+if str(AGGREGATOR) not in sys.path:
+    sys.path.insert(0, str(AGGREGATOR))
+
+from telegram_visual import render_social_card
+
 FRONTEND = ROOT / "frontend"
 NEWS_JSON = FRONTEND / "data" / "news.json"
 REGULATIONS_JSON = FRONTEND / "data" / "regulations.json"
@@ -33,6 +40,7 @@ TOPICS_DIR = FRONTEND / "topics"
 BRANDS_DIR = FRONTEND / "brands"
 REGULATIONS_DIR = FRONTEND / "regulations"
 KNOWLEDGE_DIR = FRONTEND / "knowledge"
+SOCIAL_DIR = FRONTEND / "social"
 BASE_URL = "https://spec-avtoportal.ru"
 
 BRAND_RULES = [
@@ -390,8 +398,9 @@ def source_image(item: dict[str, Any]) -> str:
 
 
 def absolute_image(item: dict[str, Any]) -> str:
-    """Image used by social metadata; branded logo is acceptable as invisible fallback."""
-    return source_image(item) or f"{BASE_URL}/assets/logo.png"
+    """Branded Open Graph image generated for each article."""
+    slug = str(item.get("slug") or "").strip()
+    return f"{BASE_URL}/social/{slug}.png" if slug else f"{BASE_URL}/assets/logo.png"
 
 
 def article_url(item: dict[str, Any]) -> str:
@@ -1768,6 +1777,10 @@ def main() -> None:
         shutil.rmtree(KNOWLEDGE_DIR)
     KNOWLEDGE_DIR.mkdir(parents=True, exist_ok=True)
 
+    if SOCIAL_DIR.exists():
+        shutil.rmtree(SOCIAL_DIR)
+    SOCIAL_DIR.mkdir(parents=True, exist_ok=True)
+
     knowledge_articles = load_knowledge_articles()
     knowledge_updated = str(knowledge_articles.get("updated_at") or "")
     for knowledge_item in knowledge_articles.get("items", []):
@@ -1796,6 +1809,7 @@ def main() -> None:
     for item in items:
         out_dir = NEWS_DIR / item["slug"]
         out_dir.mkdir(parents=True, exist_ok=True)
+        render_social_card(item, SOCIAL_DIR / f"{item['slug']}.png")
         (out_dir / "index.html").write_text(render_page(item, items, knowledge_articles), encoding="utf-8")
 
     topic_counts = {}
