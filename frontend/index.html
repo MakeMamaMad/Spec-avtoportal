@@ -14,7 +14,7 @@
   <meta property="og:url" content="https://spec-avtoportal.ru/" />
   <link rel="stylesheet" href="styles.css?v=16" />
   <link rel="stylesheet" href="styles/news-feed.css?v=1" />
-  <link rel="stylesheet" href="styles/home-columns.css?v=2" />
+  <link rel="stylesheet" href="styles/home-columns.css?v=3" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -156,20 +156,28 @@
       </aside>
 
       <section class="layout-main">
-        <div class="feed-heading">
-          <div>
-            <p class="section-kicker">Хронология</p>
-            <h2 class="section-title">Последние новости</h2>
+        <div
+          id="news-scroll"
+          class="news-scroll"
+          role="region"
+          aria-label="Лента последних новостей"
+          tabindex="0"
+        >
+          <div class="feed-heading">
+            <div>
+              <p class="section-kicker">Хронология</p>
+              <h2 class="section-title">Последние новости</h2>
+            </div>
+            <span id="result-count" class="result-count"></span>
           </div>
-          <span id="result-count" class="result-count"></span>
+
+          <div id="news-list" class="news-list"></div>
+
+          <div id="news-loading" class="loading">Загружаем свежую ленту…</div>
+          <div id="news-error" class="error" hidden>Не удалось загрузить новости. Попробуйте обновить страницу.</div>
+
+          <button id="load-more" class="load-more" type="button" hidden>Показать больше новостей</button>
         </div>
-
-        <div id="news-list" class="news-list"></div>
-
-        <div id="news-loading" class="loading">Загружаем свежую ленту…</div>
-        <div id="news-error" class="error" hidden>Не удалось загрузить новости. Попробуйте обновить страницу.</div>
-
-        <button id="load-more" class="load-more" type="button" hidden>Показать больше новостей</button>
 
         <section class="tg-promo">
           <div class="tg-promo__copy">
@@ -225,6 +233,6 @@
     </div>
   </footer>
 
-  <script src="news.js?v=12"></script>
+  <script src="news.js?v=13"></script>
 </body>
 </html>

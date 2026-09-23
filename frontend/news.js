@@ -15,7 +15,8 @@
     list: $("news-list"), loading: $("news-loading"), error: $("news-error"),
     search: $("search"), rubrics: $("rubric-filters"), topTags: $("top-tags"),
     primary: $("featured-primary"), secondary: $("featured-secondary"), featured: $("featured-section"),
-    newsCount: $("news-count"), latestDate: $("latest-date"), resultCount: $("result-count"), loadMore: $("load-more")
+    newsCount: $("news-count"), latestDate: $("latest-date"), resultCount: $("result-count"), loadMore: $("load-more"),
+    scroller: $("news-scroll")
   };
 
   let allNews = [];
@@ -275,12 +276,17 @@
       if (!entry || !entry.isIntersecting || els.loadMore.hidden) return;
       loadNextPage();
     }, {
-      root: null,
+      root: els.scroller || null,
       rootMargin: "500px 0px 200px",
       threshold: 0.01
     });
 
     loadObserver.observe(els.loadMore);
+  }
+
+  function resetFeedScroll() {
+    if (!els.scroller) return;
+    els.scroller.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function setRubric(tag) {
@@ -290,10 +296,16 @@
       chip.classList.toggle("chip-active", (chip.dataset.rubric || "") === (tag || ""));
     });
     render();
+    resetFeedScroll();
   }
 
   function setupEvents() {
-    els.search.addEventListener("input", function (e) { searchQuery = e.target.value || ""; visibleCount = PAGE_SIZE; render(); });
+    els.search.addEventListener("input", function (e) {
+      searchQuery = e.target.value || "";
+      visibleCount = PAGE_SIZE;
+      render();
+      resetFeedScroll();
+    });
     els.rubrics.addEventListener("click", function (e) {
       const btn = e.target.closest("button[data-rubric]"); if (btn) setRubric(btn.dataset.rubric || null);
     });
