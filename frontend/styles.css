@@ -147,20 +147,14 @@ button { color: inherit; }
 }
 .eyebrow { color: #c8cdd1; display: flex; align-items: center; gap: 9px; }
 .eyebrow span { width: 24px; height: 2px; background: var(--orange); }
-.masthead h1 {
+.masthead-title {
   margin: 0;
-  max-width: 820px;
-  font-size: clamp(44px, 7vw, 82px);
-  line-height: .94;
-  letter-spacing: -.055em;
+  max-width: 930px;
+  font-size: clamp(34px, 5.2vw, 64px);
+  line-height: 1.02;
+  letter-spacing: -.045em;
   font-weight: 800;
-}
-.masthead-lead {
-  max-width: 720px;
-  margin: 30px 0 0;
-  color: #cbd0d4;
-  font-size: 18px;
-  line-height: 1.55;
+  text-wrap: balance;
 }
 .masthead-meta {
   border-top: 1px solid #383e43;
@@ -302,6 +296,8 @@ button { color: inherit; }
   border-top: 1px solid var(--line);
 }
 .news-card:last-child { border-bottom: 1px solid var(--line); }
+.news-card--no-image { grid-template-columns: minmax(0, 1fr); }
+.news-card--no-image .news-card-body { max-width: 820px; }
 .news-card-image-wrap {
   overflow: hidden;
   border-radius: 12px;
@@ -486,8 +482,7 @@ button { color: inherit; }
   .site-header { position: relative; }
   .header-inner { flex-wrap: wrap; }
   .tg-badge { margin-left: auto; padding: 9px 11px; }
-  .masthead h1 { font-size: clamp(42px, 14vw, 64px); }
-  .masthead-lead { font-size: 16px; margin-top: 22px; }
+  .masthead-title { font-size: clamp(34px, 10.5vw, 52px); }
   .featured-section { padding-top: 36px; }
   .featured-primary { min-height: 380px; }
   .featured-secondary { grid-template-columns: 1fr; }

@@ -34,6 +34,26 @@
       .replaceAll('"', "&quot;").replaceAll("'", "&#039;");
   }
 
+  function cleanText(value) {
+    if (!value) return "";
+    const box = document.createElement("div");
+    box.innerHTML = String(value);
+    box.querySelectorAll("script, style, iframe, figure, img, figcaption").forEach(function (node) {
+      node.remove();
+    });
+    return (box.textContent || box.innerText || "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function clampText(value, limit) {
+    const text = cleanText(value);
+    if (text.length <= limit) return text;
+    const slice = text.slice(0, limit - 1);
+    const cleanCut = slice.replace(/\s+\S*$/, "").trim();
+    return (cleanCut || slice.trim()) + "…";
+  }
+
   function tags(item) {
     const value = item.tags || item.rubrics || [];
     return Array.isArray(value) ? value.filter(Boolean).map(String) : [];
@@ -127,7 +147,7 @@
     const q = searchQuery.trim().toLowerCase();
     return allNews.filter(function (item) {
       const title = String(field(item, ["title", "headline", "name"], "")).toLowerCase();
-      const summary = String(field(item, ["summary", "lead", "description"], "")).toLowerCase();
+      const summary = cleanText(field(item, ["summary", "lead", "description"], "")).toLowerCase();
       const itemTags = tags(item).map(function (t) { return t.toLowerCase(); });
       if (q && !title.includes(q) && !summary.includes(q) && !itemTags.some(function (t) { return t.includes(q); })) return false;
       if (activeRubric && !itemTags.includes(activeRubric.toLowerCase())) return false;
@@ -137,12 +157,12 @@
 
   function card(item) {
     const title = esc(field(item, ["title", "headline", "name"], "Без заголовка"));
-    const summary = esc(field(item, ["summary", "lead", "description"], ""));
+    const summary = esc(clampText(field(item, ["summary", "lead", "description"], ""), 260));
     const date = dateFmt(field(item, ["published_at", "date", "pub_date"], ""));
     const source = esc(field(item, ["source_name", "source", "site"], ""));
     const image = esc(field(item, ["image_url", "image", "img"], ""));
     const itemTags = tags(item).slice(0, 3);
-    let html = '<article class="news-card">';
+    let html = '<article class="news-card' + (image ? '' : ' news-card--no-image') + '">';
     if (image) html += '<a class="news-card-image-wrap" href="' + articleUrl(item) + '" aria-label="' + title + '"><img src="' + image + '" alt="" class="news-card-image" loading="lazy"></a>';
     html += '<div class="news-card-body"><div class="news-card-meta">';
     if (date) html += '<span>' + date + '</span>';
