@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import html
 import json
 import os
 import re
@@ -244,6 +245,34 @@ def open_article_form(page: Page) -> None:
 
 
 def fill_body(page: Page, body_text: str) -> bool:
+    # MEXZONA uses TinyMCE and hides textarea[name="content"].
+    content = page.locator('textarea[name="content"]')
+    if content.count():
+        editor_id = content.first.get_attribute("id") or ""
+        html_text = "<p>" + html.escape(body_text).replace("\n\n", "</p><p>").replace("\n", "<br>") + "</p>"
+        try:
+            page.evaluate(
+                """({editorId, plain, html}) => {
+                    const el = document.querySelector('textarea[name="content"]');
+                    if (!el) return false;
+                    el.value = plain;
+                    el.dispatchEvent(new Event('input', {bubbles: true}));
+                    el.dispatchEvent(new Event('change', {bubbles: true}));
+                    if (window.tinymce) {
+                        const editor = window.tinymce.get(editorId) || window.tinymce.activeEditor;
+                        if (editor) {
+                            editor.setContent(html);
+                            editor.save();
+                        }
+                    }
+                    return true;
+                }""",
+                {"editorId": editor_id, "plain": body_text, "html": html_text},
+            )
+            return True
+        except Exception:
+            pass
+
     selectors = [
         'textarea[name*="text" i]',
         'textarea[name*="content" i]',
@@ -391,6 +420,14 @@ def main() -> int:
                 print("PAGE_SUMMARY=" + json.dumps(safe_page_summary(page), ensure_ascii=False))
                 print("FORM_INVENTORY=" + json.dumps(safe_form_inventory(page), ensure_ascii=False))
                 raise RuntimeError("MEXZONA title field was not found")
+
+            preview_text = re.sub(r"\\s+", " ", body_text).strip()[:500]
+            fill_first(page, ['textarea[name="preview"]'], preview_text)
+            fill_first(
+                page,
+                ['input[name="keywords"]'],
+                "спецтехника, грузовая техника, грузовики, прицепы, полуприцепы",
+            )
 
             if not fill_body(page, body_text):
                 print("PAGE_SUMMARY=" + json.dumps(safe_page_summary(page), ensure_ascii=False))
