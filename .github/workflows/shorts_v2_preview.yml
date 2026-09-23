@@ -1,0 +1,107 @@
+name: Shorts v2 Preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      ai_script:
+        description: "Use OpenAI for storyboard (requires OPENAI_API_KEY)"
+        required: true
+        type: choice
+        options: ["1", "0"]
+        default: "1"
+      ai_images:
+        description: "Use OpenAI for scene images (requires OPENAI_API_KEY)"
+        required: true
+        type: choice
+        options: ["1", "0"]
+        default: "1"
+      image_quality:
+        description: "AI image quality"
+        required: true
+        type: choice
+        options: ["low", "medium", "high"]
+        default: "medium"
+      force_slug:
+        description: "Optional news slug to render"
+        required: false
+        type: string
+  push:
+    branches: [main]
+    paths:
+      - "tools/autoposter/src/ai/**"
+      - "tools/autoposter/src/render/short_v2.py"
+      - "tools/autoposter/src/v2_main.py"
+      - "tools/autoposter/requirements.txt"
+      - ".github/workflows/shorts_v2_preview.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shorts-v2-preview
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: tools/autoposter/requirements.txt
+
+      - name: Install ffmpeg and fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+
+      - name: Install autoposter deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r tools/autoposter/requirements.txt
+
+      - name: Run v2 self-test
+        run: |
+          cd tools/autoposter
+          python -m src.v2_main --self-test
+
+      - name: Render Short v2 preview
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AI_SCRIPT: ${{ github.event_name == 'workflow_dispatch' && inputs.ai_script || '0' }}
+          AI_IMAGES: ${{ github.event_name == 'workflow_dispatch' && inputs.ai_images || '0' }}
+          OPENAI_TEXT_MODEL: "gpt-5.6-luna"
+          OPENAI_IMAGE_MODEL: "gpt-image-2.5-sunburst"
+          OPENAI_IMAGE_QUALITY: ${{ github.event_name == 'workflow_dispatch' && inputs.image_quality || 'low' }}
+          V2_FORCE_SLUG: ${{ github.event_name == 'workflow_dispatch' && inputs.force_slug || '' }}
+          V2_MARK_USED: "0"
+          SITE_URL: "https://spec-avtoportal.ru/"
+          CONTENT_JSON_PATH: ${{ github.workspace }}/frontend/data/news.json
+          VOICE: "ru-RU-DmitryNeural"
+          TTS_RATE: "+8%"
+        run: |
+          cd tools/autoposter
+          python -m src.v2_main
+
+      - name: Inspect result
+        run: |
+          ffprobe -v error -show_entries stream=width,height -show_entries format=duration \
+            -of default=noprint_wrappers=1 tools/autoposter/out_v2/master.mp4
+          ls -lh tools/autoposter/out_v2/
+          test -s tools/autoposter/out_v2/scene_plan.json
+          test -s tools/autoposter/out_v2/master.mp4
+          test -s tools/autoposter/out_v2/thumbnail.png
+
+      - name: Upload preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: shorts-v2-preview
+          path: tools/autoposter/out_v2/*
+          if-no-files-found: error
+          retention-days: 7
