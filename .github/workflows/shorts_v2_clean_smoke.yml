@@ -69,3 +69,5 @@ jobs:
           name: shorts-v2-clean-preview
           path: tools/autoposter/out_v2/*
           retention-days: 7
+
+# final voice B validation
