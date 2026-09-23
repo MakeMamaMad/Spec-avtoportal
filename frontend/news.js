@@ -299,6 +299,25 @@
     resetFeedScroll();
   }
 
+  function setupScrollIsolation() {
+    if (!els.scroller) return;
+
+    els.scroller.addEventListener("wheel", function (event) {
+      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+
+      const maxScroll = els.scroller.scrollHeight - els.scroller.clientHeight;
+      if (maxScroll <= 0) return;
+
+      const current = els.scroller.scrollTop;
+      const next = Math.max(0, Math.min(maxScroll, current + event.deltaY));
+
+      if (next !== current) {
+        event.preventDefault();
+        els.scroller.scrollTop = next;
+      }
+    }, { passive: false });
+  }
+
   function setupEvents() {
     els.search.addEventListener("input", function (e) {
       searchQuery = e.target.value || "";
@@ -348,6 +367,7 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     setupEvents();
+    setupScrollIsolation();
     setupAutoLoad();
     loadNews();
   });
