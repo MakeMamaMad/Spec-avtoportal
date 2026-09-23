@@ -4,7 +4,7 @@
   const PAGE_SIZE = 12;
   const $ = (id) => document.getElementById(id);
   const els = {
-    list: $("news-list"), empty: $("news-empty"), loading: $("news-loading"), error: $("news-error"),
+    list: $("news-list"), loading: $("news-loading"), error: $("news-error"),
     search: $("search"), rubrics: $("rubric-filters"), topTags: $("top-tags"),
     primary: $("featured-primary"), secondary: $("featured-secondary"), featured: $("featured-section"),
     newsCount: $("news-count"), latestDate: $("latest-date"), resultCount: $("result-count"), loadMore: $("load-more")
@@ -127,8 +127,7 @@
       html += '<a class="featured-media" href="' + articleUrl(item) + '" aria-label="' + title + '">';
       html += '<img src="' + image + '" alt="" class="featured-image" loading="' + (primary ? "eager" : "lazy") + '" onerror="this.closest(\'.featured-media\').remove()"></a>';
     }
-    html += '<div class="featured-content"><div class="featured-topline"><span class="featured-tag">' + tag + '</span>';
-    html += '<span class="featured-index">' + (primary ? "01" : "0" + (item.__featuredPos || 2)) + '</span></div>';
+    html += '<div class="featured-content"><div class="featured-topline"><span class="featured-tag">' + tag + '</span></div>';
     html += '<h3><a href="' + articleUrl(item) + '">' + title + '</a></h3>';
     if (summary) html += '<p class="featured-summary">' + summary + '</p>';
     html += '<div class="featured-meta">';
@@ -179,11 +178,10 @@
     const source = esc(field(item, ["source_name", "source", "site"], ""));
     const itemTags = tags(item).slice(0, 3);
     const primaryTag = esc(itemTags[0] || "Новости");
-    const number = String(position + 1).padStart(2, "0");
     const lead = position === 0;
     const wide = position > 0 && position % 5 === 0;
     let html = '<article class="news-card' + (lead ? ' news-card--lead' : '') + (wide ? ' news-card--wide' : '') + '">';
-    html += '<div class="news-card-rail"><span class="news-card-number">' + number + '</span><span class="news-card-category">' + primaryTag + '</span></div>';
+    html += '<div class="news-card-rail"><span class="news-card-category">' + primaryTag + '</span></div>';
     html += '<div class="news-card-body"><div class="news-card-meta">';
     if (date) html += '<span>' + date + '</span>';
     if (source) html += '<span>' + source + '</span>';
@@ -202,9 +200,8 @@
     const visible = data.slice(0, visibleCount);
     els.resultCount.textContent = data.length ? data.length.toLocaleString("ru-RU") + " материалов" : "";
     els.list.innerHTML = visible.map(function (item, index) { return card(item, index); }).join("");
-    els.empty.hidden = data.length !== 0;
     els.loadMore.hidden = visibleCount >= data.length;
-    if (!els.loadMore.hidden) els.loadMore.textContent = "Показать ещё · " + Math.min(PAGE_SIZE, data.length - visibleCount);
+    if (!els.loadMore.hidden) els.loadMore.textContent = "Показать больше новостей";
   }
 
   function setRubric(tag) {
