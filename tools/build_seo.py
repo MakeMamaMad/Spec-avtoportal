@@ -524,7 +524,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
   <meta name="twitter:description" content="{description}" />
   <meta name="twitter:image" content="{image}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=14" />
+  <link rel="stylesheet" href="/styles.css?v=15" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{json_ld(item)}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -547,9 +547,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
       <nav class="main-nav" aria-label="Основная навигация">
         <a href="/" class="nav-link nav-link-active">Новости</a>
         <a href="/brands/" class="nav-link">Бренды</a>
-        <a href="/law.html" class="nav-link">ГОСТы и законы</a>
-        <a href="/guides.html" class="nav-link">Гайды</a>
-        <a href="/video.html" class="nav-link">Видео</a>
+        <a href="/knowledge.html" class="nav-link">База знаний</a>
       </nav>
       <a href="/go/tg.html?utm_source=article&utm_medium=header" class="tg-badge" target="_blank" rel="noopener">
         <span class="tg-badge__icon">↗</span><span>Telegram</span>
@@ -603,7 +601,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
   <footer class="site-footer">
     <div class="container footer-grid">
       <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
-      <div class="footer-nav"><a href="/law.html">ГОСТы и законы</a><a href="/guides.html">Гайды</a><a href="/video.html">Видео</a><a href="https://t.me/specavtoportal">Telegram ↗</a></div>
+      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/brands/">Бренды</a><a href="/law.html">Нормативы</a><a href="https://t.me/specavtoportal">Telegram ↗</a></div>
       <div class="footer-note">© СпецАвтоПортал</div>
     </div>
   </footer>
@@ -684,7 +682,7 @@ def render_brand_page(brand: dict[str, Any], brand_items: list[dict[str, Any]]) 
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=14" />
+  <link rel="stylesheet" href="/styles.css?v=15" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -707,9 +705,7 @@ def render_brand_page(brand: dict[str, Any], brand_items: list[dict[str, Any]]) 
       <nav class="main-nav" aria-label="Основная навигация">
         <a href="/" class="nav-link">Новости</a>
         <a href="/brands/" class="nav-link nav-link-active">Бренды</a>
-        <a href="/law.html" class="nav-link">ГОСТы и законы</a>
-        <a href="/guides.html" class="nav-link">Гайды</a>
-        <a href="/video.html" class="nav-link">Видео</a>
+        <a href="/knowledge.html" class="nav-link">База знаний</a>
       </nav>
       <a href="https://t.me/specavtoportal" class="tg-badge" target="_blank" rel="noopener"><span>Telegram ↗</span></a>
     </div>
@@ -806,7 +802,7 @@ def render_brand_directory(brand_counts: dict[str, int]) -> str:
   <meta property="og:title" content="Производители и бренды — СпецАвтоПортал" />
   <meta property="og:description" content="Архив новостей о производителях грузовой и прицепной техники." />
   <meta property="og:url" content="{BASE_URL}/brands/" />
-  <link rel="stylesheet" href="/styles.css?v=14" />
+  <link rel="stylesheet" href="/styles.css?v=15" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -827,9 +823,7 @@ def render_brand_directory(brand_counts: dict[str, int]) -> str:
       <nav class="main-nav" aria-label="Основная навигация">
         <a href="/" class="nav-link">Новости</a>
         <a href="/brands/" class="nav-link nav-link-active">Бренды</a>
-        <a href="/law.html" class="nav-link">ГОСТы и законы</a>
-        <a href="/guides.html" class="nav-link">Гайды</a>
-        <a href="/video.html" class="nav-link">Видео</a>
+        <a href="/knowledge.html" class="nav-link">База знаний</a>
       </nav>
       <a href="https://t.me/specavtoportal" class="tg-badge" target="_blank" rel="noopener"><span>Telegram ↗</span></a>
     </div>
@@ -915,7 +909,7 @@ def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) 
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=14" />
+  <link rel="stylesheet" href="/styles.css?v=15" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -938,9 +932,7 @@ def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) 
       <nav class="main-nav" aria-label="Основная навигация">
         <a href="/" class="nav-link">Новости</a>
         <a href="/brands/" class="nav-link">Бренды</a>
-        <a href="/law.html" class="nav-link">ГОСТы и законы</a>
-        <a href="/guides.html" class="nav-link">Гайды</a>
-        <a href="/video.html" class="nav-link">Видео</a>
+        <a href="/knowledge.html" class="nav-link">База знаний</a>
       </nav>
       <a href="https://t.me/specavtoportal" class="tg-badge" target="_blank" rel="noopener"><span>Telegram ↗</span></a>
     </div>
@@ -979,7 +971,7 @@ def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) 
   <footer class="site-footer">
     <div class="container footer-grid">
       <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
-      <div class="footer-nav"><a href="/law.html">ГОСТы и законы</a><a href="/guides.html">Гайды</a><a href="/video.html">Видео</a><a href="https://t.me/specavtoportal">Telegram ↗</a></div>
+      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/brands/">Бренды</a><a href="/law.html">Нормативы</a><a href="https://t.me/specavtoportal">Telegram ↗</a></div>
       <div class="footer-note">© СпецАвтоПортал</div>
     </div>
   </footer>
@@ -991,9 +983,9 @@ def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) 
 def write_sitemap(items: list[dict[str, Any]]) -> None:
     static_pages = [
         (f"{BASE_URL}/", ""),
+        (f"{BASE_URL}/knowledge.html", ""),
         (f"{BASE_URL}/law.html", ""),
         (f"{BASE_URL}/guides.html", ""),
-        (f"{BASE_URL}/video.html", ""),
     ]
     rows = []
     for url, lastmod in static_pages:
