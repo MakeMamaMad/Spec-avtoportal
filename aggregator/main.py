@@ -5,6 +5,8 @@ import html as html_lib
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Dict, Any, Optional
+from urllib.parse import urljoin, urlparse
+from bs4 import BeautifulSoup
 import requests, feedparser, yaml  # pip install requests feedparser pyyaml
 
 VER = "safe-collector v2.1"
@@ -132,7 +134,145 @@ def clean_summary(value: str) -> str:
     return text.strip()
 
 
-def normalize(entry, src_name: str) -> Dict[str, Any]:
+def _meta_content(soup: BeautifulSoup, attr: str, value: str) -> str:
+    tag = soup.find("meta", attrs={attr: value})
+    return str(tag.get("content") or "").strip() if tag else ""
+
+
+def _html_date(soup: BeautifulSoup) -> Optional[str]:
+    candidates = [
+        _meta_content(soup, "property", "article:published_time"),
+        _meta_content(soup, "name", "date"),
+    ]
+    time_tag = soup.find("time")
+    if time_tag:
+        candidates.append(str(time_tag.get("datetime") or time_tag.get_text(" ", strip=True)))
+    for script in soup.find_all("script", attrs={"type": "application/ld+json"}):
+        try:
+            payload = json.loads(script.string or "")
+            nodes = payload if isinstance(payload, list) else [payload]
+            for node in nodes:
+                if isinstance(node, dict) and node.get("datePublished"):
+                    candidates.append(str(node["datePublished"]))
+        except Exception:
+            pass
+    for value in candidates:
+        if not value:
+            continue
+        try:
+            dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
+            return dt.astimezone(timezone.utc).isoformat()
+        except Exception:
+            match = re.search(r"(20\d{2})[-./](\d{1,2})[-./](\d{1,2})", value)
+            if match:
+                try:
+                    dt = datetime(int(match.group(1)), int(match.group(2)), int(match.group(3)), tzinfo=timezone.utc)
+                    return dt.isoformat()
+                except Exception:
+                    pass
+    return None
+
+
+def _detail_summary(soup: BeautifulSoup, title: str, limit: int = 900) -> str:
+    for selector in ("article", ".news-detail", ".detail_text", ".detail-text", ".content", "main"):
+        node = soup.select_one(selector)
+        if not node:
+            continue
+        for junk in node.select("script,style,nav,footer,form,button,.breadcrumb,.breadcrumbs"):
+            junk.decompose()
+        text = " ".join(node.stripped_strings)
+        text = re.sub(r"\s+", " ", text).strip()
+        if title and text.lower().startswith(title.lower()):
+            text = text[len(title):].lstrip(" .:-")
+        if len(text) >= 80:
+            if len(text) > limit:
+                cut = text[:limit].rsplit(" ", 1)[0].rstrip(" ,.;:-")
+                text = (cut or text[:limit]).rstrip() + "…"
+            return text
+    return ""
+
+
+def _detail_image(soup: BeautifulSoup, page_url: str) -> Optional[str]:
+    for attr, name in (("property", "og:image"), ("name", "twitter:image")):
+        value = _meta_content(soup, attr, name)
+        if value:
+            return urljoin(page_url, value)
+    for selector in ("article img", ".news-detail img", ".detail_text img", ".content img", "main img"):
+        img = soup.select_one(selector)
+        if img:
+            src = img.get("src") or img.get("data-src") or img.get("data-lazy-src")
+            if src:
+                return urljoin(page_url, str(src))
+    return None
+
+
+def fetch_html_news(src: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Collect a public HTML news listing without copying full article text."""
+    index_url = str(src.get("url") or "").strip()
+    name = str(src.get("title") or src.get("name") or "source").strip()
+    tags = [str(tag) for tag in (src.get("tags") or []) if tag]
+    limit = max(1, min(int(src.get("limit") or 20), 50))
+    seed_urls = [str(url).strip() for url in (src.get("seed_urls") or []) if url]
+
+    urls: List[str] = []
+    try:
+        r = HTTP.get(index_url, timeout=(10, 20), allow_redirects=True)
+        r.raise_for_status()
+        soup = BeautifulSoup(r.text, "lxml")
+        base_host = urlparse(index_url).netloc
+        base_path = urlparse(index_url).path.rstrip("/")
+        for a in soup.find_all("a", href=True):
+            absolute = urljoin(index_url, str(a.get("href") or ""))
+            parsed = urlparse(absolute)
+            path = parsed.path.rstrip("/")
+            if parsed.netloc != base_host:
+                continue
+            if not path.startswith(base_path + "/") or path == base_path:
+                continue
+            if absolute not in urls:
+                urls.append(absolute)
+    except Exception as exc:
+        log("ERR", f"{name}: html listing: {exc.__class__.__name__}: {exc}")
+
+    for seed in seed_urls:
+        if seed not in urls:
+            urls.append(seed)
+
+    items: List[Dict[str, Any]] = []
+    for page_url in urls[:limit]:
+        try:
+            r = HTTP.get(page_url, timeout=(8, 15), allow_redirects=True)
+            r.raise_for_status()
+            soup = BeautifulSoup(r.text, "lxml")
+            title_node = soup.find("h1")
+            title = clean_summary(title_node.get_text(" ", strip=True) if title_node else "")
+            if not title:
+                title = clean_summary(_meta_content(soup, "property", "og:title"))
+            if not title:
+                continue
+
+            summary = clean_summary(_meta_content(soup, "name", "description")) or _detail_summary(soup, title)
+            image = _detail_image(soup, page_url)
+            items.append({
+                "source": name,
+                "title": title,
+                "link": page_url,
+                "summary": summary,
+                "content": "",
+                "image": image,
+                "published_at": _html_date(soup),
+                "domain": urlparse(page_url).netloc,
+                "tags": tags,
+                "partner": bool(src.get("partner")),
+            })
+        except Exception as exc:
+            log("ERR", f"{name}: detail {page_url}: {exc.__class__.__name__}: {exc}")
+
+    log("OK", f"{name}: +{len(items)} html-news")
+    return items
+
+
+def normalize(entry, src_name: str, src_tags: Optional[List[str]] = None) -> Dict[str, Any]:
     title = (entry.get("title") or "").strip() or "(без заголовка)"
     link = entry.get("link") or ""
     summary_raw = (entry.get("summary") or "").strip()
@@ -170,15 +310,22 @@ def normalize(entry, src_name: str) -> Dict[str, Any]:
         "image": img,
         "published_at": published,
         "domain": domain,
+        "tags": list(src_tags or []),
     }
 
 def collect(sources_cfg: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     items: List[Dict[str, Any]] = []
     for src in sources_cfg or []:
-        name = src.get("name") or "source"
+        if src.get("enabled") is False:
+            continue
+        name = src.get("title") or src.get("name") or "source"
         url = src.get("url") or src.get("link") or ""
         if not url:
             log("ERR", f"{name}: empty url")
+            continue
+        kind = str(src.get("kind") or "rss").lower()
+        if kind == "html_news":
+            items.extend(fetch_html_news(src))
             continue
         fp = fetch_rss(url)
         entries = []
@@ -189,7 +336,7 @@ def collect(sources_cfg: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         got = 0
         for e in entries:
             try:
-                items.append(normalize(e, name))
+                items.append(normalize(e, name, src.get("tags") or []))
                 got += 1
             except Exception as ex:
                 log("ERR", f"{name}: normalize error: {ex}")
@@ -222,7 +369,7 @@ def preserve_stable_identity(fresh: List[Dict[str, Any]], existing: List[Dict[st
         old = previous.get(item_key(it))
         if not old:
             continue
-        for field in ("id", "slug", "content", "image"):
+        for field in ("id", "slug", "content", "image", "published_at", "tags", "partner"):
             if old.get(field) and not it.get(field):
                 it[field] = old[field]
 
