@@ -196,7 +196,7 @@ def fit_voice_to_storyboard(audio: Path, planned_seconds: float) -> float:
     if current <= 0 or current <= planned_seconds + 1.5:
         return current
 
-    speed = min(1.35, current / max(planned_seconds, 1.0))
+    speed = min(1.12, current / max(planned_seconds, 1.0))
     tmp = audio.with_name(audio.stem + "_fit" + audio.suffix)
     proc = __import__("subprocess").run(
         [
