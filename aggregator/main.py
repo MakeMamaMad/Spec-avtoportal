@@ -1,6 +1,7 @@
 # aggregator/main.py
 from __future__ import annotations
-import json, sys, time
+import json, sys, time, re
+import html as html_lib
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Dict, Any, Optional
@@ -61,6 +62,23 @@ def first_image(entry) -> Optional[str]:
         if entry["image"].get("href"): return entry["image"]["href"]
     return None
 
+def clean_summary(value: str) -> str:
+    """Convert RSS HTML summaries into compact plain text for cards/search."""
+    if not value:
+        return ""
+    text = str(value)
+    text = re.sub(r"<\s*br\s*/?>", "\n", text, flags=re.IGNORECASE)
+    text = re.sub(r"</\s*(p|div|li|h[1-6])\s*>", "\n", text, flags=re.IGNORECASE)
+    text = re.sub(r"<\s*(figure|figcaption)[^>]*>.*?</\s*\1\s*>", " ", text, flags=re.IGNORECASE | re.DOTALL)
+    text = re.sub(r"<\s*(img|script|style|iframe)[^>]*>.*?</\s*\1\s*>", " ", text, flags=re.IGNORECASE | re.DOTALL)
+    text = re.sub(r"<\s*img[^>]*?/?>", " ", text, flags=re.IGNORECASE | re.DOTALL)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = html_lib.unescape(text)
+    text = re.sub(r"[ \t\r\f\v]+", " ", text)
+    text = re.sub(r"\n\s*\n+", "\n", text)
+    return text.strip()
+
+
 def normalize(entry, src_name: str) -> Dict[str, Any]:
     title = (entry.get("title") or "").strip() or "(без заголовка)"
     link = entry.get("link") or ""
@@ -68,6 +86,7 @@ def normalize(entry, src_name: str) -> Dict[str, Any]:
     contents = entry.get("content") or []
     if not summary and isinstance(contents, list) and contents:
         summary = (contents[0].get("value") or "").strip()
+    summary = clean_summary(summary)
     published = to_iso(entry.get("published_parsed")) or to_iso(entry.get("updated_parsed"))
     img = first_image(entry)
     domain = ""
