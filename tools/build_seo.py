@@ -171,11 +171,42 @@ def tags(item: dict[str, Any]) -> list[str]:
 def cover_label(item: dict[str, Any]) -> str:
     item_tags = tags(item)
     if item_tags:
-        return item_tags[0]
-    domain = get_field(item, "domain")
+        first = str(item_tags[0]).strip()
+        if first and first.lower() != "новости":
+            return first
+    return "Отраслевой материал"
+
+
+def source_domain(item: dict[str, Any]) -> str:
+    domain = get_field(item, "domain").strip()
     if domain:
         return domain.replace("www.", "")
-    return "Отраслевой материал"
+    url = source_url(item)
+    try:
+        return urlparse(url).netloc.replace("www.", "") or "СпецАвтоПортал"
+    except Exception:
+        return "СпецАвтоПортал"
+
+
+def cover_topic(item: dict[str, Any]) -> str:
+    title = get_field(item, "title", "headline", "name").lower()
+    rules = [
+        (("границ", "тамож"), "Контроль на границе"),
+        (("тамож",), "Таможня и логистика"),
+        (("тормоз",), "Тормозные системы"),
+        (("полуприцеп", "прицеп"), "Прицепная техника"),
+        (("маз", "камаз", "тягач", "грузовик"), "Грузовая техника"),
+        (("логист", "перевоз"), "Логистика"),
+        (("гост", "регламент", "закон", "требован"), "Регулирование"),
+        (("выстав", "форум", "конференц"), "События отрасли"),
+        (("электр", "водород", "батар"), "Новые технологии"),
+        (("рынок", "продаж", "производ"), "Рынок и производство"),
+    ]
+    for needles, label in rules:
+        if any(needle in title for needle in needles):
+            return label
+    label = cover_label(item)
+    return label if label != "Отраслевой материал" else "Отраслевой обзор"
 
 
 def source_image(item: dict[str, Any]) -> str:
@@ -238,7 +269,8 @@ def render_page(item: dict[str, Any]) -> str:
     item_tags = tags(item)
     first_tag = html.escape(item_tags[0]) if item_tags else "Новости"
     cover_tag = html.escape(cover_label(item))
-    cover_source = src_name or "СпецАвтоПортал"
+    cover_topic_text = html.escape(cover_topic(item))
+    cover_source = html.escape(source_domain(item))
 
     tag_html = "".join(
         f'<span class="tag-badge">{html.escape(tag)}</span>' for tag in item_tags[:5]
@@ -261,7 +293,8 @@ def render_page(item: dict[str, Any]) -> str:
           </div>
           <div class="article-cover__body">
             <span class="article-cover__category">{cover_tag}</span>
-            <strong class="article-cover__source">{cover_source}</strong>
+            <strong class="article-cover__topic">{cover_topic_text}</strong>
+            <span class="article-cover__source">Источник · {cover_source}</span>
           </div>
           <div class="article-cover__mark">САП</div>
         </div>
@@ -311,7 +344,7 @@ def render_page(item: dict[str, Any]) -> str:
   <meta name="twitter:description" content="{description}" />
   <meta name="twitter:image" content="{image}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=8" />
+  <link rel="stylesheet" href="/styles.css?v=9" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{json_ld(item)}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -346,7 +379,7 @@ def render_page(item: dict[str, Any]) -> str:
   <main class="page-main">
     <div class="container article-layout">
       <article class="article">
-        <p class="article-breadcrumbs"><a href="/">Новости</a> · <span>{first_tag}</span></p>
+        <p class="article-breadcrumbs"><a href="/">Новости</a>{f' · <span>{first_tag}</span>' if first_tag.lower() != 'новости' else ''}</p>
         <header class="article-header">
           <h1 class="article-title">{title}</h1>
           <div class="article-meta">
@@ -357,8 +390,12 @@ def render_page(item: dict[str, Any]) -> str:
         </header>
         {visual}
         <section class="article-body">
-          <p class="section-kicker">{body_label}</p>
-          {body}
+          <div class="article-body__heading">
+            <p class="section-kicker">{body_label}</p>
+            <span class="article-body__rule"></span>
+          </div>
+          {f'<p class="article-lead">{html.escape(summary_raw)}</p>' if has_full_text and summary_raw else ''}
+          <div class="article-copy">{body}</div>
         </section>
         <footer class="article-footer">
           {source_button}
