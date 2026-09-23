@@ -386,13 +386,16 @@ def send_message(token: str, chat_id: str, text: str, site_url: str) -> int:
 
 def build_digest_photo_caption(items: list[dict[str, Any]], slot: str, site_base: str) -> str:
     label = "Утренняя" if slot == "am" else "Вечерняя"
-    lines = [f"<b>{label} сводка СпецАвтоПортала</b>"]
+    lines = [
+        f"<b>{label} сводка СпецАвтоПортала</b>",
+        f"<i>{len(items)} материалов — главное к этому часу</i>",
+        "",
+    ]
     for index, item in enumerate(items[:5], 1):
-        title = html.escape(clamp(strip_html(str(item.get("title") or "Материал")), 120))
-        url = html.escape(build_site_url(site_base, item, slot), quote=True)
-        lines.append(f'{index}. <a href="{url}">{title}</a>')
-    caption = "\n".join(lines)
-    return caption[:1000]
+        title = html.escape(clamp(strip_html(str(item.get("title") or "Материал")), 105))
+        lines.append(f"{index}. {title}")
+    lines.extend(["", "🔗 Все материалы — по кнопке ниже"])
+    return "\n".join(lines)
 
 
 def send_photo(
