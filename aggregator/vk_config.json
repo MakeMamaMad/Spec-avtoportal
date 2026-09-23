@@ -15,5 +15,5 @@
     "19:40"
   ],
   "api_version": "5.199",
-  "note": "VK Editorial v1 is prepared but paused until VK_ACCESS_TOKEN and VK_GROUP_ID are connected. Activation should also move baseline_ref to the current clean start."
+  "note": "VK Editorial v1 is prepared but paused until VK_ACCESS_TOKEN is connected. The numeric community id is resolved automatically from community_screen_name; VK_GROUP_ID remains an optional override. Activation should also move baseline_ref to the current clean start."
 }
