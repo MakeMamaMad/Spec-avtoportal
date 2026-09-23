@@ -1,9 +1,12 @@
 name: Safe Auto Merge
 
 on:
-  workflow_run:
-    workflows: ["QA", "Ingest Unit Tests"]
-    types: [completed]
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: safe-auto-merge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -12,10 +15,11 @@ permissions:
 
 jobs:
   merge:
-    if: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - name: Merge owner PR after required checks
+      - name: Wait for required checks and merge owner PR
         env:
           GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
@@ -24,24 +28,24 @@ jobs:
           python - <<'PY'
           import json
           import os
-          import sys
+          import time
+          import urllib.error
           import urllib.parse
           import urllib.request
 
           token = os.environ["GH_TOKEN"]
           repo = os.environ["REPOSITORY"]
-          event_path = os.environ["EVENT_PATH"]
 
-          with open(event_path, "r", encoding="utf-8") as fh:
+          with open(os.environ["EVENT_PATH"], "r", encoding="utf-8") as fh:
               event = json.load(fh)
 
-          workflow_run = event.get("workflow_run") or {}
-          prs = workflow_run.get("pull_requests") or []
-          if not prs:
-              print("No pull request attached to workflow run; nothing to merge.")
+          event_pr = event.get("pull_request") or {}
+          pr_number = int(event_pr.get("number") or 0)
+          event_head_sha = ((event_pr.get("head") or {}).get("sha") or "")
+          if not pr_number or not event_head_sha:
+              print("No pull request context; skipping.")
               raise SystemExit(0)
 
-          pr_number = int(prs[0]["number"])
           api_root = f"https://api.github.com/repos/{repo}"
           headers = {
               "Authorization": f"Bearer {token}",
@@ -51,9 +55,7 @@ jobs:
           }
 
           def request(path, method="GET", payload=None):
-              data = None
-              if payload is not None:
-                  data = json.dumps(payload).encode("utf-8")
+              data = json.dumps(payload).encode("utf-8") if payload is not None else None
               req = urllib.request.Request(
                   api_root + path,
                   data=data,
@@ -61,9 +63,13 @@ jobs:
                   headers=headers,
               )
               with urllib.request.urlopen(req, timeout=30) as resp:
-                  return json.loads(resp.read().decode("utf-8"))
+                  body = resp.read().decode("utf-8")
+                  return json.loads(body) if body else {}
 
-          pr = request(f"/pulls/{pr_number}")
+          def current_pr():
+              return request(f"/pulls/{pr_number}")
+
+          pr = current_pr()
           if pr.get("state") != "open" or pr.get("draft"):
               print("PR is not an open non-draft PR; skipping.")
               raise SystemExit(0)
@@ -91,46 +97,74 @@ jobs:
           if needs_ingest_tests:
               required.add("Ingest Unit Tests")
 
-          head_sha = ((pr.get("head") or {}).get("sha") or "")
-          query = urllib.parse.urlencode({
-              "head_sha": head_sha,
-              "event": "pull_request",
-              "per_page": 100,
-          })
-          runs = request(f"/actions/runs?{query}").get("workflow_runs") or []
+          print("Required checks:", ", ".join(sorted(required)))
 
-          latest = {}
-          for run in runs:
-              name = str(run.get("name") or "")
-              if name not in required:
-                  continue
-              current = latest.get(name)
-              if current is None or int(run.get("run_number") or 0) > int(current.get("run_number") or 0):
-                  latest[name] = run
-
-          for name in sorted(required):
-              run = latest.get(name)
-              if not run:
-                  print(f"Required workflow {name!r} has not started yet; waiting.")
-                  raise SystemExit(0)
-              if run.get("status") != "completed":
-                  print(f"Required workflow {name!r} is still {run.get('status')}; waiting.")
-                  raise SystemExit(0)
-              if run.get("conclusion") != "success":
-                  print(f"Required workflow {name!r} concluded {run.get('conclusion')}; not merging.")
+          max_attempts = 80
+          for attempt in range(1, max_attempts + 1):
+              pr = current_pr()
+              if pr.get("state") != "open" or pr.get("draft"):
+                  print("PR closed or became draft; stopping.")
                   raise SystemExit(0)
 
-          result = request(
-              f"/pulls/{pr_number}/merge",
-              method="PUT",
-              payload={
-                  "merge_method": "squash",
-                  "sha": head_sha,
-              },
-          )
+              head_sha = ((pr.get("head") or {}).get("sha") or "")
+              if head_sha != event_head_sha:
+                  print("PR head changed; a newer auto-merge run will handle it.")
+                  raise SystemExit(0)
+
+              query = urllib.parse.urlencode({
+                  "head_sha": head_sha,
+                  "event": "pull_request",
+                  "per_page": 100,
+              })
+              runs = request(f"/actions/runs?{query}").get("workflow_runs") or []
+
+              latest = {}
+              for run in runs:
+                  name = str(run.get("name") or "")
+                  if name not in required:
+                      continue
+                  current = latest.get(name)
+                  if current is None or int(run.get("run_number") or 0) > int(current.get("run_number") or 0):
+                      latest[name] = run
+
+              waiting = []
+              for name in sorted(required):
+                  run = latest.get(name)
+                  if not run:
+                      waiting.append(f"{name}: not started")
+                      continue
+                  if run.get("status") != "completed":
+                      waiting.append(f"{name}: {run.get('status')}")
+                      continue
+                  if run.get("conclusion") != "success":
+                      raise SystemExit(
+                          f"Required workflow {name!r} concluded {run.get('conclusion')}; refusing auto-merge."
+                      )
+
+              if not waiting:
+                  print("All required checks passed.")
+                  break
+
+              print(f"Waiting ({attempt}/{max_attempts}): " + "; ".join(waiting))
+              time.sleep(15)
+          else:
+              raise SystemExit("Timed out waiting for required checks.")
+
+          try:
+              result = request(
+                  f"/pulls/{pr_number}/merge",
+                  method="PUT",
+                  payload={
+                      "merge_method": "squash",
+                      "sha": event_head_sha,
+                  },
+              )
+          except urllib.error.HTTPError as exc:
+              detail = exc.read().decode("utf-8", errors="replace")
+              raise SystemExit(f"Merge request failed: HTTP {exc.code}: {detail}")
+
           if not result.get("merged"):
-              print("Merge was not completed:", result)
-              raise SystemExit(1)
+              raise SystemExit(f"Merge was not completed: {result}")
 
           print(f"PR #{pr_number} merged automatically at {result.get('sha')}.")
           PY
