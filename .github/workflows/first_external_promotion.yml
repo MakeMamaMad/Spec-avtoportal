@@ -43,6 +43,7 @@ jobs:
       - name: Publish first external item to MEXZONA
         env:
           PROMOTION_LIVE: "1"
+          PROMOTION_FORCE_RETRY: "1"
           MEXZONA_LOGIN: ${{ secrets.MEXZONA_LOGIN }}
           MEXZONA_PASSWORD: ${{ secrets.MEXZONA_PASSWORD }}
         run: |
