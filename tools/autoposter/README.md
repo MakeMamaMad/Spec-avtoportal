@@ -91,3 +91,41 @@ v2 preview output (`tools/autoposter/out_v2/`):
 - `caption_tiktok.txt`;
 - `caption_youtube.txt`;
 - `manifest.json`.
+
+## Unified social publishing v2
+
+Production workflow: `.github/workflows/autoposter.yml`.
+
+One generated story now produces:
+- `out_v2/master.mp4` — branded master for Instagram Reels and YouTube Shorts;
+- `out_v2/tiktok.mp4` — TikTok-safe clean version without superimposed logo/site URL;
+- platform captions and a shared `scene_plan.json`.
+
+Publisher: `src/publish/social_v2.py`.
+
+Platform adapters:
+- `src/publish/youtube.py` — YouTube Shorts;
+- `src/publish/instagram.py` — Instagram Reels via Meta resumable local-file upload;
+- `src/publish/tiktok.py` — TikTok Content Posting API upload to creator inbox/drafts.
+
+Duplicate protection is stored in:
+- `state/v2.json` — stories already used by the v2 generator;
+- `state/social_v2.json` — per-platform publication IDs/statuses.
+
+### Production secrets
+
+Already used by YouTube/OpenAI:
+- `OPENAI_API_KEY`;
+- `YOUTUBE_CLIENT_SECRETS_B64`;
+- `YOUTUBE_TOKEN_B64`.
+
+Instagram:
+- `INSTAGRAM_ACCESS_TOKEN`;
+- `INSTAGRAM_IG_USER_ID`.
+
+The Instagram account must be a Professional account and the connected app/token must have content-publishing permission. Production targets Meta Graph API `v26.0`.
+
+TikTok:
+- `TIKTOK_ACCESS_TOKEN`.
+
+The initial TikTok integration uses the `video.upload` scope and sends the finished clean MP4 to TikTok Inbox/Drafts for final creator review. Public unattended Direct Post must not be enabled until the TikTok app has the required `video.publish` approval/audit and compliant creator-consent flow.
