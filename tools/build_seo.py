@@ -27,7 +27,47 @@ ROOT = Path(__file__).resolve().parents[1]
 FRONTEND = ROOT / "frontend"
 NEWS_JSON = FRONTEND / "data" / "news.json"
 NEWS_DIR = FRONTEND / "news"
+TOPICS_DIR = FRONTEND / "topics"
 BASE_URL = "https://spec-avtoportal.ru"
+
+TOPIC_RULES = [
+    {
+        "slug": "rynok-i-proizvodstvo",
+        "name": "Рынок и производство",
+        "description": "Новости производства, продаж, заводов и изменений на рынке грузовой и прицепной техники.",
+        "needles": ("рынок", "продаж", "производ", "завод", "manufactur"),
+    },
+    {
+        "slug": "gruzovaya-tehnika",
+        "name": "Грузовая техника",
+        "description": "Грузовики, тягачи, МАЗ, КАМАЗ и другие производители коммерческой техники.",
+        "needles": ("маз", "камаз", "тягач", "грузовик", "truck"),
+    },
+    {
+        "slug": "pritsepnaya-tehnika",
+        "name": "Прицепная техника",
+        "description": "Прицепы, полуприцепы, шасси, компоненты и технологии прицепной техники.",
+        "needles": ("полуприцеп", "прицеп", "trailer"),
+    },
+    {
+        "slug": "sobytiya-otrasli",
+        "name": "События отрасли",
+        "description": "Выставки, форумы, конференции и ключевые события рынка коммерческого транспорта.",
+        "needles": ("выстав", "форум", "конференц", "expo", "show"),
+    },
+    {
+        "slug": "novye-tehnologii",
+        "name": "Новые технологии",
+        "description": "Электрификация, автоматизация, цифровые решения и новые технологии в грузовой отрасли.",
+        "needles": ("электр", "водород", "батар", "автомат", "робот", "цифров"),
+    },
+    {
+        "slug": "tamozhnya-i-logistika",
+        "name": "Таможня и логистика",
+        "description": "Перевозки, логистика, таможня, границы и изменения в организации грузопотоков.",
+        "needles": ("тамож", "границ", "логист", "перевоз"),
+    },
+]
 
 RU_MAP = str.maketrans({
     "а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"e","ж":"zh","з":"z","и":"i","й":"y",
@@ -209,6 +249,21 @@ def cover_topic(item: dict[str, Any]) -> str:
     return label if label != "Отраслевой материал" else "Отраслевой обзор"
 
 
+def topics_for(item: dict[str, Any]) -> list[dict[str, Any]]:
+    haystack = " ".join([
+        get_field(item, "title", "headline", "name"),
+        summary_text(item),
+    ]).lower()
+    return [
+        topic for topic in TOPIC_RULES
+        if any(needle in haystack for needle in topic["needles"])
+    ]
+
+
+def topic_url(topic: dict[str, Any]) -> str:
+    return f"{BASE_URL}/topics/{topic['slug']}/"
+
+
 def source_image(item: dict[str, Any]) -> str:
     """Return only a real source image suitable for visible article media."""
     image = get_field(item, "image_url", "image", "img")
@@ -378,7 +433,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
   <meta name="twitter:description" content="{description}" />
   <meta name="twitter:image" content="{image}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=10" />
+  <link rel="stylesheet" href="/styles.css?v=11" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{json_ld(item)}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -446,11 +501,139 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
         </section>
         <section class="sidebar-block article-random-news">
           <p class="sidebar-eyebrow">Ещё новости</p>
-          <h3>Случайные материалы</h3>
           <div class="article-random-list">{related_html}</div>
         </section>
       </aside>
     </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
+      <div class="footer-nav"><a href="/law.html">ГОСТы и законы</a><a href="/guides.html">Гайды</a><a href="/video.html">Видео</a><a href="https://t.me/specavtoportal">Telegram ↗</a></div>
+      <div class="footer-note">© СпецАвтоПортал</div>
+    </div>
+  </footer>
+</body>
+</html>
+"""
+
+
+def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) -> str:
+    name = html.escape(topic["name"])
+    description = html.escape(topic["description"], quote=True)
+    canonical = topic_url(topic)
+
+    cards = []
+    for item in topic_items[:60]:
+        title = html.escape(get_field(item, "title", "headline", "name", default="Материал"))
+        date = display_date(get_field(item, "published_at", "date", "pub_date"))
+        source = html.escape(source_domain(item))
+        summary = html.escape(clamp(summary_text(item), 240))
+        meta = " · ".join(part for part in [date, source] if part)
+        cards.append(
+            '<article class="topic-card">'
+            f'<div class="topic-card__meta">{html.escape(meta)}</div>'
+            f'<h2><a href="{article_url(item)}">{title}</a></h2>'
+            + (f'<p>{summary}</p>' if summary else '')
+            + f'<a class="topic-card__link" href="{article_url(item)}">Открыть материал ↗</a>'
+            '</article>'
+        )
+
+    item_list = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": topic["name"],
+        "description": topic["description"],
+        "url": canonical,
+        "mainEntity": {
+            "@type": "ItemList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "url": article_url(item),
+                    "name": get_field(item, "title", "headline", "name", default="Материал"),
+                }
+                for index, item in enumerate(topic_items[:60])
+            ],
+        },
+    }
+    schema = json.dumps(item_list, ensure_ascii=False, separators=(",", ":")).replace("</", "<\/")
+
+    return f"""<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{name} — новости и материалы | СпецАвтоПортал</title>
+  <meta name="description" content="{description}" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <link rel="canonical" href="{canonical}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="СпецАвтоПортал" />
+  <meta property="og:title" content="{name} — СпецАвтоПортал" />
+  <meta property="og:description" content="{description}" />
+  <meta property="og:url" content="{canonical}" />
+  <meta name="theme-color" content="#111417" />
+  <link rel="stylesheet" href="/styles.css?v=11" />
+  <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
+  <script type="application/ld+json">{schema}</script>
+  <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head>
+<body class="topic-page">
+  <div class="topline">
+    <div class="container topline-inner">
+      <span>Профессиональное медиа о грузовой технике</span>
+      <span class="topline-dot"></span>
+      <span>Тематический раздел</span>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="brand" aria-label="СпецАвтоПортал — на главную">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
+        <span class="brand-copy"><strong>СпецАвтоПортал</strong><small>рынок · техника · регламенты</small></span>
+      </a>
+      <nav class="main-nav" aria-label="Основная навигация">
+        <a href="/" class="nav-link">Новости</a>
+        <a href="/law.html" class="nav-link">ГОСТы и законы</a>
+        <a href="/guides.html" class="nav-link">Гайды</a>
+        <a href="/video.html" class="nav-link">Видео</a>
+      </nav>
+      <a href="https://t.me/specavtoportal" class="tg-badge" target="_blank" rel="noopener"><span>Telegram ↗</span></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="topic-hero">
+      <div class="container topic-hero__inner">
+        <div>
+          <p class="section-kicker">Тематический раздел</p>
+          <h1>{name}</h1>
+          <p>{html.escape(topic["description"])}</p>
+        </div>
+        <div class="topic-hero__count">
+          <strong>{len(topic_items)}</strong>
+          <span>материалов</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="container topic-layout">
+      <div class="topic-feed">
+        {''.join(cards)}
+      </div>
+      <aside class="topic-sidebar">
+        <section class="sidebar-block sidebar-dark">
+          <p class="sidebar-eyebrow">Другие темы</p>
+          <div class="topic-nav">
+            {''.join(f'<a href="/topics/{other["slug"]}/">{html.escape(other["name"])} <span>→</span></a>' for other in TOPIC_RULES if other["slug"] != topic["slug"])}
+          </div>
+        </section>
+      </aside>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -476,6 +659,9 @@ def write_sitemap(items: list[dict[str, Any]]) -> None:
     for url, lastmod in static_pages:
         lm = f"<lastmod>{lastmod}</lastmod>" if lastmod else ""
         rows.append(f"  <url><loc>{xml_escape(url)}</loc>{lm}</url>")
+
+    for topic in TOPIC_RULES:
+        rows.append(f"  <url><loc>{xml_escape(topic_url(topic))}</loc></url>")
 
     for item in items:
         lastmod = iso_date(get_field(item, "published_at", "date", "pub_date"))
@@ -517,13 +703,26 @@ def main() -> None:
         shutil.rmtree(NEWS_DIR)
     NEWS_DIR.mkdir(parents=True, exist_ok=True)
 
+    if TOPICS_DIR.exists():
+        shutil.rmtree(TOPICS_DIR)
+    TOPICS_DIR.mkdir(parents=True, exist_ok=True)
+
     for item in items:
         out_dir = NEWS_DIR / item["slug"]
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / "index.html").write_text(render_page(item, items), encoding="utf-8")
 
+    topic_counts = {}
+    for topic in TOPIC_RULES:
+        topic_items = [item for item in items if topic in topics_for(item)]
+        topic_counts[topic["slug"]] = len(topic_items)
+        out_dir = TOPICS_DIR / topic["slug"]
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "index.html").write_text(render_topic_page(topic, topic_items), encoding="utf-8")
+
     write_sitemap(items)
     print(f"[SEO] generated {len(items)} static article pages")
+    print(f"[SEO] generated topic hubs: {topic_counts}")
     print(f"[SEO] sitemap: {FRONTEND / 'sitemap.xml'}")
     print(f"[SEO] robots: {FRONTEND / 'robots.txt'}")
 

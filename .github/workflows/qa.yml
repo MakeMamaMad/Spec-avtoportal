@@ -69,7 +69,25 @@ jobs:
           robots_text = robots.read_text("utf-8")
           assert "Sitemap: https://spec-avtoportal.ru/sitemap.xml" in robots_text
 
+          topic_slugs = [
+              "rynok-i-proizvodstvo",
+              "gruzovaya-tehnika",
+              "pritsepnaya-tehnika",
+              "sobytiya-otrasli",
+              "novye-tehnologii",
+              "tamozhnya-i-logistika",
+          ]
+          for slug in topic_slugs:
+              topic_page = root / "topics" / slug / "index.html"
+              assert topic_page.exists(), f"topic page not generated: {slug}"
+              topic_html = topic_page.read_text("utf-8")
+              for marker in ('rel="canonical"', 'application/ld+json', 'name="description"'):
+                  assert marker in topic_html, f"topic {slug} missing SEO marker: {marker}"
+
           urls = re.findall(r"<loc>(.*?)</loc>", sitemap.read_text("utf-8"))
-          assert len(urls) >= len(items), "sitemap missing article URLs"
-          print(f"QA OK: {len(items)} items, {len(pages)} pages, {len(urls)} sitemap URLs")
+          assert len(urls) >= len(items) + len(topic_slugs), "sitemap missing article/topic URLs"
+          for slug in topic_slugs:
+              assert f"https://spec-avtoportal.ru/topics/{slug}/" in urls, f"topic missing from sitemap: {slug}"
+
+          print(f"QA OK: {len(items)} items, {len(pages)} pages, {len(topic_slugs)} topic hubs, {len(urls)} sitemap URLs")
           PY

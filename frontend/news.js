@@ -2,6 +2,14 @@
 (function () {
   const NEWS_URLS = ["data/news.json", "frontend/data/news.json"];
   const PAGE_SIZE = 12;
+  const TOPICS = [
+    { slug: "rynok-i-proizvodstvo", name: "Рынок и производство", needles: ["рынок","продаж","производ","завод","manufactur"] },
+    { slug: "gruzovaya-tehnika", name: "Грузовая техника", needles: ["маз","камаз","тягач","грузовик","truck"] },
+    { slug: "pritsepnaya-tehnika", name: "Прицепная техника", needles: ["полуприцеп","прицеп","trailer"] },
+    { slug: "sobytiya-otrasli", name: "События отрасли", needles: ["выстав","форум","конференц","expo","show"] },
+    { slug: "novye-tehnologii", name: "Новые технологии", needles: ["электр","водород","батар","автомат","робот","цифров"] },
+    { slug: "tamozhnya-i-logistika", name: "Таможня и логистика", needles: ["тамож","границ","логист","перевоз"] }
+  ];
   const $ = (id) => document.getElementById(id);
   const els = {
     list: $("news-list"), loading: $("news-loading"), error: $("news-error"),
@@ -59,6 +67,16 @@
     return Array.isArray(value) ? value.filter(Boolean).map(String) : [];
   }
 
+  function topics(item) {
+    const haystack = (
+      String(field(item, ["title", "headline", "name"], "")) + " " +
+      cleanText(field(item, ["summary", "lead", "description"], ""))
+    ).toLowerCase();
+    return TOPICS.filter(function (topic) {
+      return topic.needles.some(function (needle) { return haystack.includes(needle); });
+    });
+  }
+
   function articleImage(item) {
     const value = String(field(item, ["image_url", "image", "img"], "") || "").trim();
     return /^https?:\/\//i.test(value) ? value : "";
@@ -83,7 +101,9 @@
   function counts() {
     const map = new Map();
     allNews.forEach(function (item) {
-      tags(item).forEach(function (tag) { map.set(tag, (map.get(tag) || 0) + 1); });
+      topics(item).forEach(function (topic) {
+        map.set(topic.name, (map.get(topic.name) || 0) + 1);
+      });
     });
     return map;
   }
@@ -108,9 +128,13 @@
     els.topTags.innerHTML = "";
     Array.from(map.entries()).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 10)
       .forEach(function (pair) {
+        const topic = TOPICS.find(function (item) { return item.name === pair[0]; });
+        if (!topic) return;
         const li = document.createElement("li");
-        li.textContent = pair[0] + " · " + pair[1];
-        li.dataset.tag = pair[0]; li.tabIndex = 0; li.setAttribute("role", "button");
+        const a = document.createElement("a");
+        a.href = "topics/" + topic.slug + "/";
+        a.textContent = pair[0] + " · " + pair[1];
+        li.appendChild(a);
         els.topTags.appendChild(li);
       });
   }
@@ -165,8 +189,9 @@
       const title = String(field(item, ["title", "headline", "name"], "")).toLowerCase();
       const summary = cleanText(field(item, ["summary", "lead", "description"], "")).toLowerCase();
       const itemTags = tags(item).map(function (t) { return t.toLowerCase(); });
-      if (q && !title.includes(q) && !summary.includes(q) && !itemTags.some(function (t) { return t.includes(q); })) return false;
-      if (activeRubric && !itemTags.includes(activeRubric.toLowerCase())) return false;
+      const itemTopics = topics(item).map(function (topic) { return topic.name.toLowerCase(); });
+      if (q && !title.includes(q) && !summary.includes(q) && !itemTags.some(function (t) { return t.includes(q); }) && !itemTopics.some(function (t) { return t.includes(q); })) return false;
+      if (activeRubric && !itemTopics.includes(activeRubric.toLowerCase())) return false;
       return true;
     });
   }
@@ -177,7 +202,8 @@
     const date = dateFmt(field(item, ["published_at", "date", "pub_date"], ""));
     const source = esc(field(item, ["source_name", "source", "site"], ""));
     const itemTags = tags(item).slice(0, 3);
-    const primaryTag = esc(itemTags[0] || "Новости");
+    const itemTopics = topics(item);
+    const primaryTag = esc((itemTopics[0] && itemTopics[0].name) || itemTags[0] || "Новости");
     const lead = position === 0;
     const wide = position > 0 && position % 5 === 0;
     let html = '<article class="news-card' + (lead ? ' news-card--lead' : '') + (wide ? ' news-card--wide' : '') + '">';
@@ -221,10 +247,6 @@
     els.list.addEventListener("click", function (e) {
       const btn = e.target.closest("button.tag-badge");
       if (btn) { setRubric(btn.dataset.tag || null); $("latest").scrollIntoView({ behavior: "smooth" }); }
-    });
-    els.topTags.addEventListener("click", function (e) {
-      const li = e.target.closest("li[data-tag]");
-      if (li) { setRubric(li.dataset.tag); $("latest").scrollIntoView({ behavior: "smooth" }); }
     });
     els.loadMore.addEventListener("click", function () { visibleCount += PAGE_SIZE; render(); });
     window.addEventListener("keydown", function (e) {
