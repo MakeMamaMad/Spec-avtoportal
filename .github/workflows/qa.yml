@@ -61,6 +61,16 @@ jobs:
           for marker in ('rel="canonical"', 'application/ld+json', 'property="og:title"', 'name="description"'):
               assert marker in sample, f"missing SEO marker: {marker}"
 
+          knowledge = root / "knowledge.html"
+          assert knowledge.exists(), "knowledge.html missing"
+          knowledge_html = knowledge.read_text("utf-8")
+          for marker in ('rel="canonical"', 'name="description"', 'База знаний'):
+              assert marker in knowledge_html, f"knowledge page missing marker: {marker}"
+
+          video_html = (root / "video.html").read_text("utf-8")
+          assert 'noindex,follow' in video_html, "video page must be noindex"
+          assert '/knowledge.html' in video_html, "video page must point to knowledge base"
+
           sitemap = root / "sitemap.xml"
           robots = root / "robots.txt"
           assert sitemap.exists(), "sitemap.xml not generated"
@@ -112,6 +122,8 @@ jobs:
           assert len(urls) >= len(items) + len(topic_slugs) + len(brand_slugs) + 1, "sitemap missing article/topic/brand URLs"
           for slug in topic_slugs:
               assert f"https://spec-avtoportal.ru/topics/{slug}/" in urls, f"topic missing from sitemap: {slug}"
+          assert "https://spec-avtoportal.ru/knowledge.html" in urls, "knowledge base missing from sitemap"
+          assert "https://spec-avtoportal.ru/video.html" not in urls, "video archive must not be in sitemap"
           assert "https://spec-avtoportal.ru/brands/" in urls, "brand directory missing from sitemap"
           for slug in brand_slugs:
               assert f"https://spec-avtoportal.ru/brands/{slug}/" in urls, f"brand missing from sitemap: {slug}"
