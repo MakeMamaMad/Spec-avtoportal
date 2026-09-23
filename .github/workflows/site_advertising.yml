@@ -9,6 +9,7 @@ on:
       - 'promotion/site_targets.json'
       - 'promotion/build_site_promo.py'
       - 'promotion/submit_popcat.py'
+      - 'promotion/submit_pdfcatalog.py'
       - '.github/workflows/site_advertising.yml'
 
 permissions:
@@ -42,11 +43,18 @@ jobs:
           pip install playwright
           python -m playwright install --with-deps chromium
 
-      - name: Submit SpecAvtoPortal to PopCat
+      - name: Try PopCat
+        continue-on-error: true
         env:
           PROMOTION_CONTACT_EMAIL: ${{ secrets.PROMOTION_CONTACT_EMAIL }}
         run: |
           python promotion/submit_popcat.py
+
+      - name: Submit SpecAvtoPortal to PDFcatalog
+        env:
+          PROMOTION_CONTACT_EMAIL: ${{ secrets.PROMOTION_CONTACT_EMAIL }}
+        run: |
+          python promotion/submit_pdfcatalog.py
 
       - name: Commit site-promotion state
         run: |
