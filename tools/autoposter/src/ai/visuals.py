@@ -84,7 +84,7 @@ def generate_scene_visual(scene: Scene, output: Path) -> str:
             result = client.images.generate(
                 model=model,
                 prompt=scene.visual_prompt,
-                size="1024x1536",
+                size=os.getenv("OPENAI_IMAGE_SIZE", "1024x1792").strip(),
                 quality=quality,
                 output_format="png",
             )
