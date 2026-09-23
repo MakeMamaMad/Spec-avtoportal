@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Publish new SpecAvtoPortal items to Telegram.
+"""Editorial Telegram publisher for SpecAvtoPortal.
 
-Telegram reboot model:
-- a fixed baseline commit marks everything that existed before the channel reset;
-- only items added after that baseline are eligible for publishing;
-- successful Telegram message_ids are persisted so retries do not duplicate posts;
-- failed items remain unposted and are retried on the next run;
-- a one-time welcome post is sent after Telegram publishing is enabled.
+Rules:
+- archive items that existed before the reboot baseline are never published;
+- only recent, high-importance items are published immediately;
+- ordinary recent items are left for the morning/evening digest;
+- a shared state prevents duplicates between immediate posts and digests;
+- every successful Telegram message_id is persisted.
 """
 from __future__ import annotations
 
@@ -19,6 +19,7 @@ import sys
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +28,42 @@ STATE_PATH = Path("frontend/data/telegram_state.json")
 CONFIG_PATH = Path("aggregator/telegram_config.json")
 
 TAG_RE = re.compile(r"<[^>]+>")
+
+HIGH_PRIORITY_TERMS: tuple[tuple[str, int], ...] = (
+    ("гост", 5),
+    ("тр тс", 5),
+    ("техрегламент", 5),
+    ("регламент", 4),
+    ("закон", 4),
+    ("штраф", 5),
+    ("запрет", 5),
+    ("ограничен", 4),
+    ("вступил", 4),
+    ("тамож", 4),
+    ("границ", 4),
+    ("санкц", 4),
+    ("отзыв", 5),
+    ("дефект", 4),
+    ("авар", 4),
+    ("пожар", 4),
+    ("подорож", 4),
+    ("подешев", 4),
+    ("рост цен", 4),
+    ("снижение цен", 4),
+    ("весогабарит", 5),
+    ("нагрузк на ос", 5),
+    ("производство", 2),
+    ("завод", 2),
+    ("рынок", 2),
+)
+
+HIGH_PRIORITY_TAGS = {
+    "регулирование": 4,
+    "таможня": 4,
+    "рынок": 2,
+    "безопасность": 3,
+    "логистика": 1,
+}
 
 
 def utc_now() -> str:
@@ -64,7 +101,34 @@ def load_json(path: Path, default: Any) -> Any:
         return default
 
 
+def load_config() -> dict[str, Any]:
+    config = load_json(CONFIG_PATH, {})
+    return config if isinstance(config, dict) else {}
+
+
+def load_state() -> dict[str, Any]:
+    state = load_json(STATE_PATH, {})
+    if not isinstance(state, dict):
+        state = {}
+
+    state["schema"] = 2
+    state.setdefault("welcome_message_id", None)
+    state.setdefault("welcome_sent_at", None)
+    state.setdefault("posts", {})
+    state.setdefault("digested", {})
+    state.setdefault("digests", {})
+
+    if not isinstance(state["posts"], dict):
+        state["posts"] = {}
+    if not isinstance(state["digested"], dict):
+        state["digested"] = {}
+    if not isinstance(state["digests"], dict):
+        state["digests"] = {}
+    return state
+
+
 def save_state(state: dict[str, Any]) -> None:
+    state["schema"] = 2
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     tmp = STATE_PATH.with_suffix(".tmp")
     tmp.write_text(
@@ -74,38 +138,15 @@ def save_state(state: dict[str, Any]) -> None:
     tmp.replace(STATE_PATH)
 
 
-def load_config() -> dict[str, Any]:
-    config = load_json(CONFIG_PATH, {})
-    return config if isinstance(config, dict) else {}
-
-
-def load_state() -> dict[str, Any]:
-    state = load_json(
-        STATE_PATH,
-        {
-            "schema": 1,
-            "welcome_message_id": None,
-            "welcome_sent_at": None,
-            "posts": {},
-        },
-    )
-    if not isinstance(state, dict):
-        state = {}
-    state.setdefault("schema", 1)
-    state.setdefault("welcome_message_id", None)
-    state.setdefault("welcome_sent_at", None)
-    state.setdefault("posts", {})
-    if not isinstance(state["posts"], dict):
-        state["posts"] = {}
-    return state
-
-
 def load_current() -> list[dict[str, Any]]:
     data = load_json(NEWS_PATH, [])
     return data if isinstance(data, list) else []
 
 
-def load_baseline(config: dict[str, Any], current: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def load_baseline(
+    config: dict[str, Any],
+    current: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
     """Load the frozen pre-reset news snapshot.
 
     Fail closed: if the baseline cannot be loaded, use current items as the
@@ -149,48 +190,113 @@ def item_date(item: dict[str, Any]) -> str:
     return ""
 
 
-def get_publish_queue(
+def parse_item_datetime(item: dict[str, Any]) -> datetime | None:
+    raw = item_date(item).strip()
+    if not raw:
+        return None
+
+    try:
+        value = raw.replace("Z", "+00:00")
+        parsed = datetime.fromisoformat(value)
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return parsed.astimezone(timezone.utc)
+    except Exception:
+        pass
+
+    try:
+        parsed = parsedate_to_datetime(raw)
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return parsed.astimezone(timezone.utc)
+    except Exception:
+        return None
+
+
+def is_recent(item: dict[str, Any], max_age_hours: int) -> bool:
+    published = parse_item_datetime(item)
+    if published is None:
+        return False
+    age = datetime.now(timezone.utc) - published
+    return age.total_seconds() >= -6 * 3600 and age.total_seconds() <= max_age_hours * 3600
+
+
+def tags_for(item: dict[str, Any]) -> list[str]:
+    raw = item.get("tags") or item.get("rubrics") or []
+    if isinstance(raw, str):
+        raw = [raw]
+    if not isinstance(raw, list):
+        return []
+    return [str(tag).strip() for tag in raw if str(tag).strip()]
+
+
+def importance_score(item: dict[str, Any]) -> int:
+    title = strip_html(str(item.get("title") or "")).lower()
+    summary = strip_html(str(item.get("summary") or item.get("description") or "")).lower()
+    haystack = f"{title} {summary}"
+
+    score = 0
+    for needle, weight in HIGH_PRIORITY_TERMS:
+        if needle in title:
+            score += weight
+        elif needle in haystack:
+            score += max(1, weight // 2)
+
+    for tag in tags_for(item):
+        score += HIGH_PRIORITY_TAGS.get(tag.lower(), 0)
+
+    # Numeric changes in market stories are often worth a standalone post.
+    if re.search(r"\b\d{1,3}(?:[.,]\d+)?\s*%", title):
+        score += 3
+
+    return score
+
+
+def get_unhandled_items(
     baseline: list[dict[str, Any]],
     current: list[dict[str, Any]],
     state: dict[str, Any],
 ) -> list[dict[str, Any]]:
     baseline_keys = {make_key(item) for item in baseline}
     posted_keys = set(state.get("posts", {}).keys())
+    digested_keys = set(state.get("digested", {}).keys())
 
     queue = [
         item
         for item in current
-        if make_key(item) not in baseline_keys and make_key(item) not in posted_keys
+        if make_key(item) not in baseline_keys
+        and make_key(item) not in posted_keys
+        and make_key(item) not in digested_keys
     ]
     queue.sort(key=item_date)
     return queue
 
 
-def build_site_url(site_base: str, item: dict[str, Any], idx: int | None = None) -> str:
+def build_site_url(
+    site_base: str,
+    item: dict[str, Any],
+    idx: int | None = None,
+    *,
+    medium: str = "social",
+    campaign: str = "news",
+    content: str = "",
+) -> str:
     slug = str(item.get("slug") or "").strip()
+    params = {
+        "utm_source": "telegram",
+        "utm_medium": medium,
+        "utm_campaign": campaign,
+    }
+    if content or slug:
+        params["utm_content"] = content or slug
+
     if slug:
-        path = f"news/{urllib.parse.quote(slug)}/"
-        query = urllib.parse.urlencode(
-            {
-                "utm_source": "telegram",
-                "utm_medium": "social",
-                "utm_campaign": "news",
-                "utm_content": slug,
-            }
-        )
-        return f"{site_base}{path}?{query}"
+        return f"{site_base}news/{urllib.parse.quote(slug)}/?{urllib.parse.urlencode(params)}"
 
     if isinstance(idx, int):
-        query = urllib.parse.urlencode(
-            {
-                "i": idx,
-                "utm_source": "telegram",
-                "utm_medium": "social",
-                "utm_campaign": "news",
-            }
-        )
-        return f"{site_base}article.html?{query}"
-    return ""
+        params["i"] = idx
+        return f"{site_base}article.html?{urllib.parse.urlencode(params)}"
+    return site_base + "?" + urllib.parse.urlencode(params)
 
 
 def display_source(item: dict[str, Any]) -> str:
@@ -200,22 +306,20 @@ def display_source(item: dict[str, Any]) -> str:
     return source
 
 
-def build_text(item: dict[str, Any], site_url: str) -> str:
+def build_text(item: dict[str, Any], site_url: str, score: int) -> str:
     title = html_lib.escape(str(item.get("title") or "(без заголовка)").strip())
     source = html_lib.escape(display_source(item))
+    summary = html_lib.escape(
+        clamp(
+            strip_html(str(item.get("summary") or item.get("description") or "")),
+            430,
+        )
+    )
 
-    raw_summary = item.get("summary") or item.get("description") or ""
-    summary = html_lib.escape(clamp(strip_html(str(raw_summary)), 430))
-
-    tags = item.get("tags") or item.get("rubrics") or []
-    if isinstance(tags, str):
-        tags = [tags]
-    if not isinstance(tags, list):
-        tags = []
-    tags = [
-        html_lib.escape(str(tag).strip())
-        for tag in tags
-        if str(tag).strip() and str(tag).strip().lower() not in {"новости", "partner", "партнёр"}
+    visible_tags = [
+        html_lib.escape(tag)
+        for tag in tags_for(item)
+        if tag.lower() not in {"новости", "partner", "партнёр"}
     ][:3]
 
     original_url = str(
@@ -225,19 +329,17 @@ def build_text(item: dict[str, Any], site_url: str) -> str:
         or ""
     ).strip()
 
-    parts = [f"🚛 <b>{title}</b>"]
+    parts = [f"⚡ <b>ВАЖНО</b> · СпецАвтоПортал", f"<b>{title}</b>"]
     if summary:
         parts.append(summary)
-
-    if tags:
-        parts.append("🏷 " + " · ".join(tags))
+    if visible_tags:
+        parts.append("🏷 " + " · ".join(visible_tags))
     if source:
         parts.append(f"🌐 {source}")
 
-    if site_url:
-        safe_site = html_lib.escape(site_url, quote=True)
-        parts.append("")
-        parts.append(f'🔗 <a href="{safe_site}">Читать на СпецАвтоПортале</a>')
+    safe_site = html_lib.escape(site_url, quote=True)
+    parts.append("")
+    parts.append(f'🔗 <a href="{safe_site}">Разобраться на СпецАвтоПортале</a>')
 
     if original_url:
         safe_original = html_lib.escape(original_url, quote=True)
@@ -248,7 +350,7 @@ def build_text(item: dict[str, Any], site_url: str) -> str:
 
 def api_call(token: str, method: str, payload: dict[str, Any]) -> dict[str, Any]:
     api_url = f"https://api.telegram.org/bot{token}/{method}"
-    encoded = {}
+    encoded: dict[str, str] = {}
     for key, value in payload.items():
         if isinstance(value, (dict, list)):
             encoded[key] = json.dumps(value, ensure_ascii=False)
@@ -304,9 +406,7 @@ def send_welcome(
     state: dict[str, Any],
     config: dict[str, Any],
 ) -> None:
-    if state.get("welcome_message_id"):
-        return
-    if not config.get("welcome_enabled", True):
+    if state.get("welcome_message_id") or not config.get("welcome_enabled", True):
         return
 
     site_url = (
@@ -326,6 +426,7 @@ def send_welcome(
         "Главное о рынке прицепов, полуприцепов и грузовой техники — без информационного шума.\n\n"
         "Здесь будут:\n"
         "• важные новости отрасли;\n"
+        "• утренняя и вечерняя сводка;\n"
         "• новые модели и производители;\n"
         "• ГОСТы и регламенты простым языком;\n"
         "• практические гайды;\n"
@@ -333,13 +434,7 @@ def send_welcome(
         f'🔗 <a href="{safe_url}">spec-avtoportal.ru</a>'
     )
 
-    message_id = send_message(
-        token,
-        chat_id,
-        text,
-        site_url=site_url,
-        disable_preview=False,
-    )
+    message_id = send_message(token, chat_id, text, site_url=site_url)
     state["welcome_message_id"] = message_id
     state["welcome_sent_at"] = utc_now()
     save_state(state)
@@ -362,7 +457,7 @@ def send_welcome(
 def main() -> int:
     config = load_config()
     if not config.get("enabled", False):
-        print("Telegram publishing is paused for the channel reboot.", file=sys.stderr)
+        print("Telegram publishing is paused.", file=sys.stderr)
         return 0
 
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
@@ -378,7 +473,7 @@ def main() -> int:
 
     state = load_state()
     baseline = load_baseline(config, current)
-    queue = get_publish_queue(baseline, current, state)
+    queue = get_unhandled_items(baseline, current, state)
 
     site_base = os.environ.get(
         "SITE_URL",
@@ -387,26 +482,49 @@ def main() -> int:
 
     send_welcome(token, chat_id, site_base, state, config)
 
-    configured_max = int(config.get("max_posts_per_run") or 8)
+    threshold = int(config.get("immediate_score") or 5)
+    max_age_hours = int(config.get("max_item_age_hours") or 48)
+    configured_max = int(config.get("max_immediate_per_run") or 3)
     max_posts = int(os.environ.get("TELEGRAM_MAX_POSTS", str(configured_max)))
     disable_preview = os.environ.get("TELEGRAM_DISABLE_PREVIEW") == "1"
 
-    if not queue:
-        print("No unpublished Telegram news after reboot baseline.", file=sys.stderr)
+    scored: list[tuple[int, str, dict[str, Any]]] = []
+    stale = 0
+    for item in queue:
+        if not is_recent(item, max_age_hours):
+            stale += 1
+            continue
+        score = importance_score(item)
+        if score >= threshold:
+            scored.append((score, item_date(item), item))
+
+    scored.sort(key=lambda row: (-row[0], row[1]))
+    immediate = scored[:max_posts]
+
+    if not immediate:
+        print(
+            f"No important Telegram items. queued={len(queue)} stale_or_undated={stale}; "
+            "ordinary items are reserved for digest.",
+            file=sys.stderr,
+        )
+        save_state(state)
         return 0
 
-    queue = queue[-max_posts:]
     key_to_index = {make_key(item): idx for idx, item in enumerate(current)}
-
-    print(f"Publishing {len(queue)} Telegram item(s)...")
+    print(f"Publishing {len(immediate)} important Telegram item(s)...")
     errors = 0
 
-    for item in queue:
+    for score, _, item in immediate:
         key = make_key(item)
-        title_dbg = str(item.get("title") or "")[:90]
         idx = key_to_index.get(key)
-        site_url = build_site_url(site_base, item, idx)
-        text = build_text(item, site_url)
+        site_url = build_site_url(
+            site_base,
+            item,
+            idx,
+            medium="social",
+            campaign="important_news",
+        )
+        text = build_text(item, site_url, score)
 
         try:
             message_id = send_message(
@@ -422,18 +540,20 @@ def main() -> int:
                 "site_url": site_url,
                 "title": str(item.get("title") or ""),
                 "slug": str(item.get("slug") or ""),
+                "kind": "important",
+                "score": score,
             }
             save_state(state)
-            print(f" OK {message_id}: {title_dbg}")
+            print(f" OK {message_id} score={score}: {str(item.get('title') or '')[:90]}")
         except Exception as exc:
             errors += 1
-            print(f" ERR {title_dbg}: {exc}", file=sys.stderr)
+            print(f" ERR {str(item.get('title') or '')[:90]}: {exc}", file=sys.stderr)
 
     if errors:
         print(f"Telegram completed with {errors} error(s).", file=sys.stderr)
         return 1
 
-    print("Telegram publishing completed.")
+    print("Telegram important-news publishing completed.")
     return 0
 
 
