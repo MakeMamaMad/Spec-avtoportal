@@ -535,6 +535,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
       </a>
       <nav class="main-nav" aria-label="Основная навигация">
         <a href="/" class="nav-link nav-link-active">Новости</a>
+        <a href="/brands/" class="nav-link">Бренды</a>
         <a href="/law.html" class="nav-link">ГОСТы и законы</a>
         <a href="/guides.html" class="nav-link">Гайды</a>
         <a href="/video.html" class="nav-link">Видео</a>
@@ -913,6 +914,7 @@ def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) 
       </a>
       <nav class="main-nav" aria-label="Основная навигация">
         <a href="/" class="nav-link">Новости</a>
+        <a href="/brands/" class="nav-link">Бренды</a>
         <a href="/law.html" class="nav-link">ГОСТы и законы</a>
         <a href="/guides.html" class="nav-link">Гайды</a>
         <a href="/video.html" class="nav-link">Видео</a>
