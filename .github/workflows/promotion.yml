@@ -1,10 +1,7 @@
-name: External Promotion Queue
+name: Legacy External Article Promotion Queue
 
 on:
   workflow_dispatch:
-  schedule:
-    # 10:15 Moscow time
-    - cron: '15 7 * * *'
 
 permissions:
   contents: write
@@ -27,7 +24,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Build external promotion queue
+      - name: Build legacy article-promotion queue
         env:
           PROMOTION_MAX_ITEMS: "3"
         run: |
@@ -42,5 +39,5 @@ jobs:
             echo "No promotion queue changes"
             exit 0
           fi
-          git commit -m "promotion: refresh external placement queue"
+          git commit -m "promotion: refresh legacy article placement queue"
           git push origin main
