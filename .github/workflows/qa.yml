@@ -61,6 +61,29 @@ jobs:
           for marker in ('rel="canonical"', 'application/ld+json', 'property="og:title"', 'name="description"'):
               assert marker in sample, f"missing SEO marker: {marker}"
 
+          regulations_data = json.loads((root / "data/regulations.json").read_text("utf-8"))
+          regulation_items = regulations_data.get("items", [])
+          assert regulation_items, "regulations catalog must not be empty"
+          regulation_slugs = [str(x.get("slug") or "") for x in regulation_items]
+          assert all(regulation_slugs), "every active regulation must have slug"
+          assert len(regulation_slugs) == len(set(regulation_slugs)), "regulation slugs must be unique"
+          assert all(str(x.get("status") or "") == "Действует" for x in regulation_items), "public regulations must be active"
+          assert all("example.com" not in str(x.get("official_url") or "") for x in regulation_items), "test regulation URLs are forbidden"
+          assert all(str(x.get("official_url") or "").startswith("https://") for x in regulation_items), "every regulation needs an HTTPS official URL"
+          assert regulations_data.get("verified_at"), "regulations need verified_at"
+
+          regulations_dir = root / "regulations"
+          regulation_pages = list(regulations_dir.glob("*/index.html"))
+          assert len(regulation_pages) == len(regulation_items), f"expected {len(regulation_items)} regulation pages, got {len(regulation_pages)}"
+          for page in regulation_pages:
+              regulation_html = page.read_text("utf-8")
+              for marker in ('rel="canonical"', 'application/ld+json', 'name="description"', 'Открыть официальный документ'):
+                  assert marker in regulation_html, f"regulation page missing marker {marker}: {page}"
+
+          law_html = (root / "law.html").read_text("utf-8")
+          for marker in ('rel="canonical"', 'application/ld+json', 'Последняя проверка редакцией'):
+              assert marker in law_html, f"law catalog missing marker: {marker}"
+
           knowledge = root / "knowledge.html"
           assert knowledge.exists(), "knowledge.html missing"
           knowledge_html = knowledge.read_text("utf-8")
@@ -124,9 +147,11 @@ jobs:
               assert f"https://spec-avtoportal.ru/topics/{slug}/" in urls, f"topic missing from sitemap: {slug}"
           assert "https://spec-avtoportal.ru/knowledge.html" in urls, "knowledge base missing from sitemap"
           assert "https://spec-avtoportal.ru/video.html" not in urls, "video archive must not be in sitemap"
+          for slug in regulation_slugs:
+              assert f"https://spec-avtoportal.ru/regulations/{slug}/" in urls, f"regulation missing from sitemap: {slug}"
           assert "https://spec-avtoportal.ru/brands/" in urls, "brand directory missing from sitemap"
           for slug in brand_slugs:
               assert f"https://spec-avtoportal.ru/brands/{slug}/" in urls, f"brand missing from sitemap: {slug}"
 
-          print(f"QA OK: {len(items)} items, {len(pages)} pages, {len(topic_slugs)} topic hubs, {len(brand_slugs)} brand hubs, {len(urls)} sitemap URLs")
+          print(f"QA OK: {len(items)} items, {len(pages)} pages, {len(topic_slugs)} topic hubs, {len(brand_slugs)} brand hubs, {len(regulation_items)} regulations, {len(urls)} sitemap URLs")
           PY
