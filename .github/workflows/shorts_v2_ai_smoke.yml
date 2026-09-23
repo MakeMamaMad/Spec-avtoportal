@@ -1,0 +1,82 @@
+name: Shorts v2 AI Smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/shorts_v2_ai_smoke.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  render-ai-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: tools/autoposter/requirements.txt
+
+      - name: Install ffmpeg and fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r tools/autoposter/requirements.txt
+
+      - name: Verify OpenAI secret is configured
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          test -n "$OPENAI_API_KEY" || (echo "OPENAI_API_KEY is missing" && exit 1)
+
+      - name: Render real AI preview
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AI_SCRIPT: "1"
+          AI_IMAGES: "1"
+          OPENAI_TEXT_MODEL: "gpt-5.6-luna"
+          OPENAI_IMAGE_MODEL: "gpt-image-2.5-sunburst"
+          OPENAI_IMAGE_QUALITY: "medium"
+          OPENAI_IMAGE_SIZE: "1024x1792"
+          V2_MARK_USED: "0"
+          SITE_URL: "https://spec-avtoportal.ru/"
+          CONTENT_JSON_PATH: ${{ github.workspace }}/frontend/data/news.json
+          VOICE: "ru-RU-DmitryNeural"
+          TTS_RATE: "+8%"
+        run: |
+          cd tools/autoposter
+          python -m src.v2_main
+
+      - name: Validate output
+        run: |
+          ffprobe -v error -show_entries stream=width,height -show_entries format=duration \
+            -of default=noprint_wrappers=1 tools/autoposter/out_v2/master.mp4
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path("tools/autoposter/out_v2/manifest.json").read_text("utf-8"))
+          assert manifest["ai_script"] is True
+          assert manifest["ai_images"] is True
+          modes = manifest.get("visual_modes", [])
+          assert modes and all(x == "ai" for x in modes), modes
+          print("AI Short v2 preview OK:", manifest["title"], modes, manifest["render"]["video_seconds"])
+          PY
+
+      - name: Upload AI preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: shorts-v2-ai-preview
+          path: tools/autoposter/out_v2/*
+          if-no-files-found: error
+          retention-days: 7
