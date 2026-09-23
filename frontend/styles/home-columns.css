@@ -4,7 +4,7 @@
 
 .container.layout {
   width: min(1420px, calc(100% - 40px));
-  grid-template-columns: 250px minmax(0, 1fr) 250px;
+  grid-template-columns: 270px minmax(0, 1fr) 250px;
   gap: 24px;
 }
 
@@ -25,7 +25,61 @@
 }
 
 .layout-sidebar--left .partner-card__button {
-  line-height: 1.35;
+  line-height: 1.25;
+}
+
+.layout-sidebar--left .partner-card {
+  padding: 18px;
+}
+
+.layout-sidebar--left .partner-card__top {
+  margin-bottom: 12px;
+}
+
+.layout-sidebar--left .partner-card__brand {
+  margin-bottom: 2px;
+}
+
+.layout-sidebar--left .partner-card__title {
+  font-size: 29px;
+}
+
+.layout-sidebar--left .partner-card__subtitle {
+  margin: 8px 0 12px;
+  max-width: none;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.layout-sidebar--left .partner-card__button {
+  padding: 9px 10px;
+  font-size: 10px;
+}
+
+.layout-sidebar--left .partner-card__product {
+  margin-top: 8px;
+  padding: 8px 9px;
+}
+
+.layout-sidebar--left .partner-card__note {
+  margin-top: 6px;
+}
+
+.layout-sidebar--left .sidebar-block {
+  padding: 17px 18px;
+}
+
+.layout-sidebar--left .sidebar-block h3 {
+  margin-bottom: 10px;
+}
+
+.layout-sidebar--left .tags-cloud {
+  gap: 5px;
+}
+
+.layout-sidebar--left .tags-cloud li {
+  padding: 5px 7px;
+  font-size: 10px;
 }
 
 .layout-main {
