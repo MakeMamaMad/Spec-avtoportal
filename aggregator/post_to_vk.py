@@ -353,6 +353,41 @@ def vk_api(method: str, token: str, api_version: str, **params: Any) -> Any:
     return body.get("response")
 
 
+def group_id_from_response(response: Any) -> int:
+    groups = response
+    if isinstance(response, dict):
+        groups = response.get("groups") or response.get("items") or []
+    if isinstance(groups, list) and groups:
+        group_id = groups[0].get("id") if isinstance(groups[0], dict) else None
+        if isinstance(group_id, int):
+            return abs(group_id)
+    raise RuntimeError("VK groups.getById did not return numeric group id")
+
+
+def resolve_group_id(
+    token: str,
+    api_version: str,
+    screen_name: str,
+    explicit_group_id: str = "",
+) -> int:
+    if explicit_group_id:
+        try:
+            return abs(int(explicit_group_id))
+        except ValueError as exc:
+            raise RuntimeError("VK_GROUP_ID must be numeric when provided") from exc
+
+    if not screen_name:
+        raise RuntimeError("VK community_screen_name is empty")
+
+    response = vk_api(
+        "groups.getById",
+        token,
+        api_version,
+        group_ids=screen_name,
+    )
+    return group_id_from_response(response)
+
+
 def upload_wall_photo(
     token: str,
     api_version: str,
@@ -669,6 +704,8 @@ def main() -> int:
         assert importance_score({"title": "Новый ГОСТ вступил в силу"}) >= 5
         assert importance_score({"title": "Компания показала новый полуприцеп"}) < 5
         assert guid_for("important", "abc") == guid_for("important", "abc")
+        assert group_id_from_response([{"id": 12345}]) == 12345
+        assert group_id_from_response({"groups": [{"id": 67890}]}) == 67890
         print("VK Editorial self-test OK")
         return 0
 
@@ -678,14 +715,18 @@ def main() -> int:
         return 0
 
     token = os.getenv("VK_ACCESS_TOKEN", "").strip()
-    group_id_raw = os.getenv("VK_GROUP_ID", "").strip()
-    if not token or not group_id_raw:
-        print("VK_ACCESS_TOKEN or VK_GROUP_ID is not configured.", file=sys.stderr)
+    if not token:
+        print("VK_ACCESS_TOKEN is not configured.", file=sys.stderr)
         return 0
-    try:
-        group_id = abs(int(group_id_raw))
-    except ValueError:
-        raise RuntimeError("VK_GROUP_ID must be numeric")
+
+    api_version = str(config.get("api_version") or "5.199")
+    group_id = resolve_group_id(
+        token,
+        api_version,
+        str(config.get("community_screen_name") or "").strip(),
+        os.getenv("VK_GROUP_ID", "").strip(),
+    )
+    print(f"VK community resolved: id={group_id}")
 
     current = load_current()
     if not current:
@@ -694,7 +735,6 @@ def main() -> int:
 
     state = load_state()
     baseline = load_baseline(config, current)
-    api_version = str(config.get("api_version") or "5.199")
     site_base = os.getenv("SITE_URL", "https://spec-avtoportal.ru/").rstrip("/") + "/"
 
     if args.mode == "immediate":
