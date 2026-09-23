@@ -1,0 +1,36 @@
+name: Verify MEXZONA First Promotion
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'promotion/verify_mexzona.py'
+      - '.github/workflows/verify_mexzona_publication.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Playwright
+        run: |
+          python -m pip install --upgrade pip
+          pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Verify article in MEXZONA author cabinet
+        env:
+          MEXZONA_LOGIN: ${{ secrets.MEXZONA_LOGIN }}
+          MEXZONA_PASSWORD: ${{ secrets.MEXZONA_PASSWORD }}
+        run: |
+          cd promotion
+          python verify_mexzona.py
