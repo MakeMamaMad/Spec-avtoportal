@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "enabled": false,
+  "baseline_ref": "f0e849b9bb3c28bbdd44bc0765dc615c1e7dcdaa",
+  "welcome_enabled": true,
+  "pin_welcome": true,
+  "max_posts_per_run": 8,
+  "note": "Set enabled=true only after the Telegram channel has been manually cleaned. baseline_ref marks all older news as archive."
+}
