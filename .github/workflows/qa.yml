@@ -26,6 +26,25 @@ jobs:
         run: |
           python -m py_compile tools/build_seo.py aggregator/main.py aggregator/post_to_telegram.py
 
+      - name: Telegram reboot config
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          config = json.loads(Path("aggregator/telegram_config.json").read_text("utf-8"))
+          state = json.loads(Path("frontend/data/telegram_state.json").read_text("utf-8"))
+
+          assert config.get("schema") == 1
+          assert config.get("enabled") is False, "Telegram must stay paused until the channel is cleaned"
+          assert len(str(config.get("baseline_ref") or "")) == 40, "Telegram baseline_ref must be a commit SHA"
+          assert 1 <= int(config.get("max_posts_per_run") or 0) <= 10
+          assert state.get("schema") == 1
+          assert isinstance(state.get("posts"), dict)
+          assert state.get("welcome_message_id") is None
+          print("Telegram reboot config OK")
+          PY
+
       - name: JavaScript syntax
         run: |
           node --check frontend/news.js
