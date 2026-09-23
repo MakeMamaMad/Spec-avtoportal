@@ -66,6 +66,21 @@ jobs:
           )
           assert linked_news_pages >= 20, f"expected internal knowledge links on many news pages, got {linked_news_pages}"
 
+          sat_news_pages = 0
+          for item in items:
+              page = root / "news" / str(item["slug"]) / "index.html"
+              page_html = page.read_text("utf-8")
+              is_sat_source = (
+                  "satpricep.by" in str(item.get("domain") or "").lower()
+                  or "satpricep" in str(item.get("source") or "").lower()
+                  or "партнёр" in [str(x).lower() for x in (item.get("tags") or [])]
+              )
+              if 'sat-recommendation' in page_html:
+                  sat_news_pages += 1
+                  assert not is_sat_source, f"SAT source page must not receive duplicate partner ad: {page}"
+                  assert 'rel="sponsored noopener"' in page_html, f"SAT ad must be sponsored: {page}"
+          assert sat_news_pages >= 1, "expected at least one contextual SAT recommendation in news"
+
           knowledge_data = json.loads((root / "data/knowledge_articles.json").read_text("utf-8"))
           knowledge_items = knowledge_data.get("items", [])
           assert len(knowledge_items) == 6, f"expected 6 evergreen knowledge articles, got {len(knowledge_items)}"
@@ -83,6 +98,13 @@ jobs:
               if 'Свежие новости' in page_html:
                   knowledge_pages_with_news += 1
           assert knowledge_pages_with_news >= 5, f"expected news cross-links on knowledge pages, got {knowledge_pages_with_news}"
+
+          chooser_page = root / "knowledge" / "kak-vybrat-polupricep" / "index.html"
+          chooser_html = chooser_page.read_text("utf-8")
+          assert 'sat-recommendation' in chooser_html, "trailer selection article must contain SAT recommendation"
+          for model in ("SAT500", "SAT150", "SAT600", "SAT183 / SAT186"):
+              assert model in chooser_html, f"missing SAT model in selection guide: {model}"
+          assert 'rel="sponsored noopener"' in chooser_html, "SAT knowledge links must be sponsored"
 
           regulations_data = json.loads((root / "data/regulations.json").read_text("utf-8"))
           regulation_items = regulations_data.get("items", [])
@@ -184,5 +206,5 @@ jobs:
           for slug in brand_slugs:
               assert f"https://spec-avtoportal.ru/brands/{slug}/" in urls, f"brand missing from sitemap: {slug}"
 
-          print(f"QA OK: {len(items)} items, {len(pages)} pages, {linked_news_pages} news pages with knowledge links, {knowledge_pages_with_news} knowledge pages with news, {len(regulation_items)} regulations, {len(urls)} sitemap URLs")
+          print(f"QA OK: {len(items)} items, {len(pages)} pages, {linked_news_pages} news pages with knowledge links, {sat_news_pages} contextual SAT news placements, {knowledge_pages_with_news} knowledge pages with news, {len(regulation_items)} regulations, {len(urls)} sitemap URLs")
           PY

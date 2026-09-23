@@ -133,6 +133,41 @@ TOPIC_RULES = [
     },
 ]
 
+SAT_PRODUCTS = [
+    {
+        "id": "sat500",
+        "name": "SAT500",
+        "subtitle": "Алюминиевый самосвальный полуприцеп-зерновоз",
+        "spec": "от 49 м³ · до 44 т · 4 оси",
+        "url": "https://www.satpricep.by/catalog/polupritsepy/polupritsepy-zernovozy/polupritsep-samosvalnyy-alyuminievyy-sat500/",
+        "needles": ("зерновоз", "зерно", "сельхоз", "сыпуч", "урожай", "элеватор"),
+    },
+    {
+        "id": "sat150",
+        "name": "SAT150",
+        "subtitle": "Полуприцеп с подвижным полом",
+        "spec": "90–105 м³ · горизонтальная разгрузка",
+        "url": "https://www.satpricep.by/catalog/polupritsepy/s-podvizhnyim-polom/polupritsep-s-podvizhnym-polom-sat150/",
+        "needles": ("подвижн", "сдвижн", "щеп", "опил", "торф", "отход", "мусор", "паллет"),
+    },
+    {
+        "id": "sat600",
+        "name": "SAT600",
+        "subtitle": "Трёхъярусный полуприцеп-скотовоз",
+        "spec": "до 27 т · 3 оси",
+        "url": "https://www.satpricep.by/catalog/polupritsepy/polupritsep-skotovoz-svinovoz/polupritsep-skotovoz-svinovoz-tryekhyarusnyy-sat600/",
+        "needles": ("скотовоз", "скот", "свин", "поросят", "животн", "овец", "ягнят"),
+    },
+    {
+        "id": "sat-lowload",
+        "name": "SAT183 / SAT186",
+        "subtitle": "Низкорамные полуприцепы для техники и тяжёлых грузов",
+        "spec": "до 72 т · платформа до 12 м",
+        "url": "https://www.satpricep.by/catalog/transportnye-organizatsii/",
+        "needles": ("низкорам", "трал", "негабарит", "тяжеловес", "спецтехник", "экскаватор", "бульдозер"),
+    },
+]
+
 RU_MAP = str.maketrans({
     "а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"e","ж":"zh","з":"z","и":"i","й":"y",
     "к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f",
@@ -455,6 +490,78 @@ def regulation_knowledge_matches(regulation: dict[str, Any], knowledge_articles:
     return [by_slug[slug] for slug in wanted if slug in by_slug]
 
 
+def sat_product_by_id(product_id: str) -> dict[str, Any] | None:
+    for product in SAT_PRODUCTS:
+        if product["id"] == product_id:
+            return product
+    return None
+
+
+def sat_product_for_news(item: dict[str, Any]) -> dict[str, Any] | None:
+    domain = source_domain(item).lower()
+    source = source_name(item).lower()
+    item_tags = [tag.lower() for tag in tags(item)]
+    if "satpricep.by" in domain or "satpricep" in source or "satpricep" in item_tags or "партнёр" in item_tags:
+        return None
+
+    title = get_field(item, "title", "headline", "name").lower()
+    haystack = news_haystack(item)
+    scored: list[tuple[int, dict[str, Any]]] = []
+    for product in SAT_PRODUCTS:
+        needles = product.get("needles", ())
+        score = sum(4 for needle in needles if needle in title)
+        score += sum(1 for needle in needles if needle in haystack)
+        if score >= 3:
+            scored.append((score, product))
+    if not scored:
+        return None
+    scored.sort(key=lambda pair: (-pair[0], str(pair[1]["name"])))
+    return scored[0][1]
+
+
+def sat_products_for_knowledge(item: dict[str, Any]) -> list[dict[str, Any]]:
+    mapping = {
+        "kak-vybrat-polupricep": ["sat500", "sat150", "sat600", "sat-lowload"],
+    }
+    return [
+        product
+        for product_id in mapping.get(str(item.get("slug") or ""), [])
+        if (product := sat_product_by_id(product_id)) is not None
+    ]
+
+
+def sat_recommendation_html(products: list[dict[str, Any]], placement: str) -> str:
+    if not products:
+        return ""
+    cards = []
+    for product in products:
+        separator = "&" if "?" in product["url"] else "?"
+        url = (
+            f'{product["url"]}{separator}'
+            f'utm_source=spec-avtoportal&utm_medium=contextual_partner&utm_campaign={product["id"]}&utm_content={placement}'
+        )
+        cards.append(
+            '<a class="sat-product-card" '
+            f'href="{html.escape(url, quote=True)}" target="_blank" rel="sponsored noopener">'
+            '<span class="sat-product-card__brand">SAT</span>'
+            f'<strong>{html.escape(product["name"])}</strong>'
+            f'<p>{html.escape(product["subtitle"])}</p>'
+            f'<b>{html.escape(product["spec"])}</b>'
+            '<em>Смотреть модель ↗</em>'
+            '</a>'
+        )
+    return (
+        '<section class="sat-recommendation">'
+        '<div class="sat-recommendation__head">'
+        '<div><span>Партнёр проекта</span><strong>SATPRICEP</strong></div>'
+        '<p>Подбор по теме материала</p>'
+        '</div>'
+        f'<div class="sat-product-grid">{"".join(cards)}</div>'
+        '<div class="sat-recommendation__note">Реклама · характеристики и наличие уточняйте у производителя</div>'
+        '</section>'
+    )
+
+
 def random_news_for(item: dict[str, Any], items: list[dict[str, Any]], limit: int = 3) -> list[dict[str, Any]]:
     """Deterministic pseudo-random picks so each article has a stable varied sidebar."""
     current_slug = str(item.get("slug") or "")
@@ -594,6 +701,8 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_art
 
     related_html = random_news_html(item, items)
     knowledge_html = knowledge_links_html(knowledge_matches_for_news(item, knowledge_articles))
+    sat_product = sat_product_for_news(item)
+    sat_html = sat_recommendation_html([sat_product] if sat_product else [], "news")
 
     published_meta = (
         f'<meta property="article:published_time" content="{html.escape(published_raw, quote=True)}" />'
@@ -621,7 +730,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_art
   <meta name="twitter:description" content="{description}" />
   <meta name="twitter:image" content="{image}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=18" />
+  <link rel="stylesheet" href="/styles.css?v=19" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{json_ld(item)}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -675,6 +784,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_art
           <div class="article-copy">{body}</div>
         </section>
         {knowledge_html}
+        {sat_html}
         <footer class="article-footer">
           {source_button}
           <a href="/" class="secondary-btn">← К ленте новостей</a>
@@ -780,7 +890,7 @@ def render_brand_page(brand: dict[str, Any], brand_items: list[dict[str, Any]]) 
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=18" />
+  <link rel="stylesheet" href="/styles.css?v=19" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -900,7 +1010,7 @@ def render_brand_directory(brand_counts: dict[str, int]) -> str:
   <meta property="og:title" content="Производители и бренды — СпецАвтоПортал" />
   <meta property="og:description" content="Архив новостей о производителях грузовой и прицепной техники." />
   <meta property="og:url" content="{BASE_URL}/brands/" />
-  <link rel="stylesheet" href="/styles.css?v=18" />
+  <link rel="stylesheet" href="/styles.css?v=19" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -1007,7 +1117,7 @@ def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) 
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=18" />
+  <link rel="stylesheet" href="/styles.css?v=19" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -1167,9 +1277,11 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
             f'<div class="knowledge-news-grid">{"".join(cards)}</div></section>'
         )
 
+    sat_html = sat_recommendation_html(sat_products_for_knowledge(item), "knowledge")
+
     partner_html = ""
     partner = item.get("partner")
-    if isinstance(partner, dict) and partner.get("url"):
+    if not sat_html and isinstance(partner, dict) and partner.get("url"):
         partner_html = f"""
         <section class="knowledge-partner">
           <p class="sidebar-eyebrow">{html.escape(get_field(partner, "label", default="Партнёр проекта"))}</p>
@@ -1206,7 +1318,7 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
   <meta property="og:title" content="{title}" />
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
-  <link rel="stylesheet" href="/styles.css?v=18" />
+  <link rel="stylesheet" href="/styles.css?v=19" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -1240,6 +1352,7 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
     <section class="container knowledge-article-layout">
       <article class="knowledge-article">
         {''.join(section_html)}
+        {sat_html}
         {recent_news_html}
       </article>
       <aside class="knowledge-article-sidebar">
@@ -1357,7 +1470,7 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
   <meta property="og:title" content="{code} — {title}" />
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
-  <link rel="stylesheet" href="/styles.css?v=18" />
+  <link rel="stylesheet" href="/styles.css?v=19" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -1507,7 +1620,7 @@ def render_regulations_index(regulations: dict[str, Any]) -> str:
   <meta property="og:title" content="Нормативы и ГОСТы — СпецАвтоПортал" />
   <meta property="og:description" content="Действующие нормативы для прицепов, полуприцепов, крепления грузов и безопасной эксплуатации." />
   <meta property="og:url" content="{BASE_URL}/law.html" />
-  <link rel="stylesheet" href="/styles.css?v=18" />
+  <link rel="stylesheet" href="/styles.css?v=19" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
