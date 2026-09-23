@@ -18,7 +18,7 @@ import json
 import re
 import shutil
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -397,10 +397,23 @@ def source_image(item: dict[str, Any]) -> str:
     return ""
 
 
+def social_card_needed(item: dict[str, Any], max_age_days: int = 7) -> bool:
+    """Generate branded cards only for fresh stories that can still be published socially."""
+    published = parse_date(get_field(item, "published_at", "date", "pub_date"))
+    if published is None:
+        return False
+    if published.tzinfo is None:
+        published = published.replace(tzinfo=timezone.utc)
+    age = datetime.now(timezone.utc) - published.astimezone(timezone.utc)
+    return -timedelta(hours=6) <= age <= timedelta(days=max_age_days)
+
+
 def absolute_image(item: dict[str, Any]) -> str:
-    """Branded Open Graph image generated for each article."""
+    """Image used by social metadata; fresh news gets a branded generated card."""
     slug = str(item.get("slug") or "").strip()
-    return f"{BASE_URL}/social/{slug}.png" if slug else f"{BASE_URL}/assets/logo.png"
+    if slug and social_card_needed(item):
+        return f"{BASE_URL}/social/{slug}.png"
+    return source_image(item) or f"{BASE_URL}/assets/logo.png"
 
 
 def article_url(item: dict[str, Any]) -> str:
@@ -1809,10 +1822,13 @@ def main() -> None:
         )
     (FRONTEND / "law.html").write_text(render_regulations_index(regulations), encoding="utf-8")
 
+    social_cards = 0
     for item in items:
         out_dir = NEWS_DIR / item["slug"]
         out_dir.mkdir(parents=True, exist_ok=True)
-        render_social_card(item, SOCIAL_DIR / f"{item['slug']}.png")
+        if social_card_needed(item):
+            render_social_card(item, SOCIAL_DIR / f"{item['slug']}.png")
+            social_cards += 1
         (out_dir / "index.html").write_text(render_page(item, items, knowledge_articles), encoding="utf-8")
 
     topic_counts = {}
@@ -1835,6 +1851,7 @@ def main() -> None:
 
     write_sitemap(items, regulations, knowledge_articles)
     print(f"[SEO] generated {len(items)} static article pages")
+    print(f"[SEO] generated {social_cards} fresh social cards")
     print(f"[SEO] generated {len(knowledge_articles.get('items', []))} knowledge articles")
     print(f"[SEO] generated {len(regulations.get('items', []))} regulation pages")
     print(f"[SEO] generated topic hubs: {topic_counts}")
