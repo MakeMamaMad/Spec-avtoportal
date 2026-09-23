@@ -206,7 +206,7 @@ def _validate_ai_storyboard(data: dict[str, Any], item: dict[str, Any]) -> Story
     voiceover = " ".join(x.narration for x in scenes)
     return Storyboard(
         version=2,
-        format=_clean(data.get("format")) or "breaking",
+        format=(_clean(data.get("format")).lower() if _clean(data.get("format")).lower() in {"breaking", "explainer"} else "breaking"),
         title=_clean(data.get("title")) or fallback.title,
         hook=_clean(data.get("hook")) or fallback.hook,
         voiceover=voiceover,
@@ -243,6 +243,8 @@ def generate_storyboard(item: dict[str, Any]) -> Storyboard:
             "commercial trucks, trailers, logistics and regulations. Create factual, compact vertical-video storyboards. "
             "Never invent numbers, quotes, companies or consequences that are absent from the supplied source. "
             "Aim for 24-34 seconds, 4-6 scenes, a strong factual hook in the first 2 seconds, then context and practical meaning. "
+            "Write idiomatic professional Russian. Avoid literal calques from English such as using 'приложения' when 'сферы применения' is meant. "
+            "Set format to exactly 'breaking' for a straight news item or 'explainer' only when the source supports an explanatory angle. "
             "Visual prompts must describe realistic premium editorial industrial photography and MUST request no text, logos or watermarks. "
             "Return ONLY valid JSON with keys: format,title,hook,instagram_caption,tiktok_caption,youtube_title,"
             "youtube_description,hashtags,scenes. Each scene must contain id,seconds,overlay,narration,visual_prompt,highlight_words."
