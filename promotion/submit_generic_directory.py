@@ -8,6 +8,7 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlencode
 
 from playwright.sync_api import Locator, Page, sync_playwright
 
@@ -42,12 +43,26 @@ def target_by_id(target_id: str) -> dict[str, Any]:
     raise RuntimeError(f"Unknown catalog target: {target_id}")
 
 
+def tracked_site_url(target: dict[str, Any]) -> str:
+    params = urlencode({
+        "utm_source": str(target.get("id") or "catalog"),
+        "utm_medium": "directory",
+        "utm_campaign": "catalog_promotion",
+        "utm_content": "site_listing",
+    })
+    return f"{SITE_URL}?{params}"
+
+
 def record(target: dict[str, Any], status: str, result_url: str = "", detail: str = "") -> None:
     history = load_json(HISTORY_PATH, {"schema": 1, "entries": []})
     history.setdefault("entries", []).append({
         "target_id": target.get("id"),
         "target_name": target.get("name"),
         "site_url": SITE_URL,
+        "tracking_url": tracked_site_url(target),
+        "utm_source": target.get("id"),
+        "utm_medium": "directory",
+        "utm_campaign": "catalog_promotion",
         "result_url": result_url,
         "attempted_at": utc_now(),
         "status": status,
@@ -239,8 +254,9 @@ def main() -> int:
             description = str(campaign.get("full_description") or campaign.get("short_description") or "")
             keywords = ", ".join(campaign.get("keywords") or [])
             region = str(campaign.get("region") or "Россия")
+            promotion_url = tracked_site_url(target)
 
-            url_ok = fill_matching(form, (r"url", r"site", r"link", r"адрес", r"сайт"), SITE_URL)
+            url_ok = fill_matching(form, (r"url", r"site", r"link", r"адрес", r"сайт"), promotion_url)
             title_ok = fill_matching(form, (r"title", r"name", r"назван", r"заголов"), title)
             description_ok = fill_matching(form, (r"descr", r"description", r"text", r"опис"), description, "textarea, input")
             if email:
@@ -256,7 +272,7 @@ def main() -> int:
                     if "search" in sig or "поиск" in sig:
                         continue
                     try:
-                        el.fill(SITE_URL)
+                        el.fill(promotion_url)
                         url_ok = True
                         break
                     except Exception:
