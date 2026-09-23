@@ -6,6 +6,7 @@ on:
     paths-ignore:
       - ".github/workflows/autoposter.yml"
       - "tools/autoposter/**"
+      - "frontend/data/vk_state.json"
 
 
   # Запуск после успешного Ingest & Publish
@@ -17,7 +18,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -41,11 +42,18 @@ jobs:
           test -f frontend/index.html || (echo "frontend/index.html not found" && exit 1)
           test -f tools/build_seo.py || (echo "tools/build_seo.py not found" && exit 1)
 
+      - name: Install social card dependency
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install Pillow
+
       - name: Build SEO article pages
         run: |
           python3 tools/build_seo.py
           test -f frontend/sitemap.xml || (echo "sitemap.xml not generated" && exit 1)
           test -f frontend/robots.txt || (echo "robots.txt not generated" && exit 1)
+          test -d frontend/social || (echo "social cards not generated" && exit 1)
+          test "$(find frontend/social -maxdepth 1 -name '*.png' | wc -l)" -gt 0 || (echo "no social cards generated" && exit 1)
 
       - name: Upload static site (frontend)
         uses: actions/upload-pages-artifact@v3
@@ -62,3 +70,48 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+
+  publish-vk:
+    needs: deploy
+    runs-on: ubuntu-latest
+    concurrency:
+      group: vk-publisher
+      cancel-in-progress: false
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: aggregator/requirements.txt
+
+      - name: Install publisher deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r aggregator/requirements.txt
+
+      - name: Publish important VK items with site preview
+        env:
+          VK_ACCESS_TOKEN: ${{ secrets.VK_ACCESS_TOKEN }}
+          VK_MAX_POSTS: "3"
+          SITE_URL: "https://spec-avtoportal.ru/"
+        run: |
+          python aggregator/post_to_vk.py --mode immediate
+
+      - name: Commit VK state
+        run: |
+          git config user.name "specavto-vk"
+          git config user.email "actions@users.noreply.github.com"
+          git add frontend/data/vk_state.json || true
+          if git diff --cached --quiet; then
+            echo "No VK state changes"
+            exit 0
+          fi
+          git commit -m "vk: update editorial state"
+          git push origin main
