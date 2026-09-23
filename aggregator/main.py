@@ -46,6 +46,49 @@ def to_iso(dt_struct) -> Optional[str]:
     except Exception:
         return None
 
+def image_from_html(value: str) -> Optional[str]:
+    """Extract the first usable image URL from RSS HTML."""
+    if not value:
+        return None
+    match = re.search(
+        r'<img[^>]+(?:src|data-src|data-lazy-src)=["\']([^"\']+)["\']',
+        str(value),
+        flags=re.IGNORECASE,
+    )
+    if not match:
+        return None
+    url = html_lib.unescape(match.group(1)).strip()
+    return url if url.startswith(("http://", "https://")) else None
+
+
+def page_meta_image(url: str) -> Optional[str]:
+    """Best-effort og:image/twitter:image lookup for feeds that omit media."""
+    if not url or not url.startswith(("http://", "https://")):
+        return None
+    try:
+        r = HTTP.get(url, timeout=(5, 8), allow_redirects=True)
+        r.raise_for_status()
+        content_type = str(r.headers.get("Content-Type", ""))
+        if "html" not in content_type.lower():
+            return None
+        page = r.text[:350_000]
+        patterns = [
+            r'<meta[^>]+property=["\']og:image(?::secure_url)?["\'][^>]+content=["\']([^"\']+)["\']',
+            r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image(?::secure_url)?["\']',
+            r'<meta[^>]+name=["\']twitter:image(?::src)?["\'][^>]+content=["\']([^"\']+)["\']',
+            r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+name=["\']twitter:image(?::src)?["\']',
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, page, flags=re.IGNORECASE)
+            if match:
+                image = html_lib.unescape(match.group(1)).strip()
+                if image.startswith(("http://", "https://")):
+                    return image
+    except Exception:
+        return None
+    return None
+
+
 def first_image(entry) -> Optional[str]:
     media = entry.get("media_content")
     if isinstance(media, list) and media:
@@ -60,6 +103,16 @@ def first_image(entry) -> Optional[str]:
         if url: return url
     if entry.get("image") and isinstance(entry["image"], dict):
         if entry["image"].get("href"): return entry["image"]["href"]
+
+    # Some RSS feeds embed the only image inside summary/content HTML.
+    candidates = [entry.get("summary") or ""]
+    for block in entry.get("content") or []:
+        if isinstance(block, dict):
+            candidates.append(block.get("value") or "")
+    for candidate in candidates:
+        image = image_from_html(candidate)
+        if image:
+            return image
     return None
 
 def clean_summary(value: str) -> str:
@@ -89,6 +142,8 @@ def normalize(entry, src_name: str) -> Dict[str, Any]:
     summary = clean_summary(summary)
     published = to_iso(entry.get("published_parsed")) or to_iso(entry.get("updated_parsed"))
     img = first_image(entry)
+    if not img:
+        img = page_meta_image(link)
     domain = ""
     try:
         from urllib.parse import urlparse
