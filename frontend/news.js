@@ -59,6 +59,11 @@
     return Array.isArray(value) ? value.filter(Boolean).map(String) : [];
   }
 
+  function articleImage(item) {
+    const value = String(field(item, ["image_url", "image", "img"], "") || "").trim();
+    return /^https?:\/\//i.test(value) ? value : "";
+  }
+
   function articleUrl(item) {
     const slug = String(item.slug || "").trim();
     return slug ? "news/" + encodeURIComponent(slug) + "/" : "article.html?i=" + encodeURIComponent(item.__index);
@@ -112,11 +117,18 @@
 
   function featuredMarkup(item, primary) {
     const title = esc(field(item, ["title", "headline", "name"], "Без заголовка"));
-    const summary = esc(clampText(field(item, ["summary", "lead", "description"], ""), primary ? 320 : 180));
+    const summary = esc(clampText(field(item, ["summary", "lead", "description"], ""), primary ? 230 : 115));
+    const image = esc(articleImage(item));
     const date = dateFmt(field(item, ["published_at", "date", "pub_date"], ""));
     const source = esc(field(item, ["source_name", "source", "site"], ""));
     const tag = esc(tags(item)[0] || "Новости");
-    let html = '<div class="featured-content"><span class="featured-tag">' + tag + '</span>';
+    let html = "";
+    if (image) {
+      html += '<a class="featured-media" href="' + articleUrl(item) + '" aria-label="' + title + '">';
+      html += '<img src="' + image + '" alt="" class="featured-image" loading="' + (primary ? "eager" : "lazy") + '" onerror="this.closest(\'.featured-media\').remove()"></a>';
+    }
+    html += '<div class="featured-content"><div class="featured-topline"><span class="featured-tag">' + tag + '</span>';
+    html += '<span class="featured-index">' + (primary ? "01" : "0" + (item.__featuredPos || 2)) + '</span></div>';
     html += '<h3><a href="' + articleUrl(item) + '">' + title + '</a></h3>';
     if (summary) html += '<p class="featured-summary">' + summary + '</p>';
     html += '<div class="featured-meta">';
@@ -127,8 +139,19 @@
   }
 
   function renderFeatured() {
-    const picks = allNews.slice(0, 3);
+    let picks = allNews.filter(function (item) { return !!articleImage(item); }).slice(0, 3);
+    if (picks.length < 3) {
+      const used = new Set(picks.map(function (item) { return item.__index; }));
+      allNews.some(function (item) {
+        if (!used.has(item.__index)) picks.push(item);
+        return picks.length >= 3;
+      });
+    }
     if (!picks.length) { els.featured.hidden = true; return; }
+
+    picks = picks.map(function (item, index) {
+      return Object.assign({}, item, { __featuredPos: index + 1 });
+    });
 
     els.primary.classList.remove("featured-placeholder");
     els.primary.innerHTML = featuredMarkup(picks[0], true);
@@ -149,20 +172,25 @@
     });
   }
 
-  function card(item) {
+  function card(item, position) {
     const title = esc(field(item, ["title", "headline", "name"], "Без заголовка"));
-    const summary = esc(clampText(field(item, ["summary", "lead", "description"], ""), 260));
+    const summary = esc(clampText(field(item, ["summary", "lead", "description"], ""), position === 0 ? 320 : 220));
     const date = dateFmt(field(item, ["published_at", "date", "pub_date"], ""));
     const source = esc(field(item, ["source_name", "source", "site"], ""));
     const itemTags = tags(item).slice(0, 3);
-    let html = '<article class="news-card">';
+    const primaryTag = esc(itemTags[0] || "Новости");
+    const number = String(position + 1).padStart(2, "0");
+    const lead = position === 0;
+    const wide = position > 0 && position % 5 === 0;
+    let html = '<article class="news-card' + (lead ? ' news-card--lead' : '') + (wide ? ' news-card--wide' : '') + '">';
+    html += '<div class="news-card-rail"><span class="news-card-number">' + number + '</span><span class="news-card-category">' + primaryTag + '</span></div>';
     html += '<div class="news-card-body"><div class="news-card-meta">';
     if (date) html += '<span>' + date + '</span>';
     if (source) html += '<span>' + source + '</span>';
     html += '</div><h3 class="news-card-title"><a href="' + articleUrl(item) + '">' + title + '</a></h3>';
     if (summary) html += '<p class="news-card-summary">' + summary + '</p>';
-    html += '<div class="news-card-footer"><a class="news-card-read" href="' + articleUrl(item) + '">Читать материал →</a><div class="news-card-tags">';
-    itemTags.forEach(function (tag) {
+    html += '<div class="news-card-footer"><a class="news-card-read" href="' + articleUrl(item) + '">Открыть материал <span>↗</span></a><div class="news-card-tags">';
+    itemTags.slice(1).forEach(function (tag) {
       html += '<button type="button" class="tag-badge" data-tag="' + esc(tag) + '">' + esc(tag) + '</button>';
     });
     html += '</div></div></div></article>';
@@ -173,7 +201,7 @@
     const data = filtered();
     const visible = data.slice(0, visibleCount);
     els.resultCount.textContent = data.length ? data.length.toLocaleString("ru-RU") + " материалов" : "";
-    els.list.innerHTML = visible.map(card).join("");
+    els.list.innerHTML = visible.map(function (item, index) { return card(item, index); }).join("");
     els.empty.hidden = data.length !== 0;
     els.loadMore.hidden = visibleCount >= data.length;
     if (!els.loadMore.hidden) els.loadMore.textContent = "Показать ещё · " + Math.min(PAGE_SIZE, data.length - visibleCount);
