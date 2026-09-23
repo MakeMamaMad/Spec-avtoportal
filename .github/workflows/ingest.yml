@@ -83,6 +83,10 @@ jobs:
             echo "No translate script found at aggregator/translate_news.py — skipping translation."
           fi
 
+      - name: Assign stable SEO ids and slugs
+        run: |
+          python tools/build_seo.py --metadata-only
+
       - name: Preview output
         run: |
           ls -R
