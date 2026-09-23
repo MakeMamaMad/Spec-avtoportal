@@ -2,7 +2,6 @@
 (function () {
   const NEWS_URLS = ["data/news.json", "frontend/data/news.json"];
   const PAGE_SIZE = 12;
-  const FALLBACK_IMAGE = "assets/news/image.jpg";
   const $ = (id) => document.getElementById(id);
   const els = {
     list: $("news-list"), empty: $("news-empty"), loading: $("news-loading"), error: $("news-error"),
@@ -60,24 +59,6 @@
     return Array.isArray(value) ? value.filter(Boolean).map(String) : [];
   }
 
-  function imageUrl(item) {
-    return String(field(item, ["image_url", "image", "img"], "") || FALLBACK_IMAGE).trim();
-  }
-
-  function imageMarkup(src, className, loading) {
-    return '<img src="' + esc(src || FALLBACK_IMAGE) + '" alt="" class="' + className + '" loading="' + loading + '" data-fallback-image>';
-  }
-
-  function applyImageFallbacks(root) {
-    (root || document).querySelectorAll("img[data-fallback-image]").forEach(function (img) {
-      img.addEventListener("error", function () {
-        const current = img.getAttribute("src") || "";
-        if (current === FALLBACK_IMAGE || current.endsWith("/" + FALLBACK_IMAGE)) return;
-        img.src = FALLBACK_IMAGE;
-      }, { once: true });
-    });
-  }
-
   function articleUrl(item) {
     const slug = String(item.slug || "").trim();
     return slug ? "news/" + encodeURIComponent(slug) + "/" : "article.html?i=" + encodeURIComponent(item.__index);
@@ -131,15 +112,13 @@
 
   function featuredMarkup(item, primary) {
     const title = esc(field(item, ["title", "headline", "name"], "Без заголовка"));
-    const image = imageUrl(item);
+    const summary = esc(clampText(field(item, ["summary", "lead", "description"], ""), primary ? 320 : 180));
     const date = dateFmt(field(item, ["published_at", "date", "pub_date"], ""));
     const source = esc(field(item, ["source_name", "source", "site"], ""));
     const tag = esc(tags(item)[0] || "Новости");
-    let html = "";
-    html += '<a class="featured-media" href="' + articleUrl(item) + '" aria-label="' + title + '">';
-    html += imageMarkup(image, "featured-image", primary ? "eager" : "lazy") + '</a>';
-    html += '<div class="featured-content"><span class="featured-tag">' + tag + '</span>';
+    let html = '<div class="featured-content"><span class="featured-tag">' + tag + '</span>';
     html += '<h3><a href="' + articleUrl(item) + '">' + title + '</a></h3>';
+    if (summary) html += '<p class="featured-summary">' + summary + '</p>';
     html += '<div class="featured-meta">';
     if (date) html += '<span>' + date + '</span>';
     if (source) html += '<span>' + source + '</span>';
@@ -156,7 +135,6 @@
     els.secondary.innerHTML = picks.slice(1).map(function (item) {
       return '<article class="featured-mini">' + featuredMarkup(item, false) + '</article>';
     }).join("");
-    applyImageFallbacks(els.featured);
   }
 
   function filtered() {
@@ -176,10 +154,8 @@
     const summary = esc(clampText(field(item, ["summary", "lead", "description"], ""), 260));
     const date = dateFmt(field(item, ["published_at", "date", "pub_date"], ""));
     const source = esc(field(item, ["source_name", "source", "site"], ""));
-    const image = imageUrl(item);
     const itemTags = tags(item).slice(0, 3);
     let html = '<article class="news-card">';
-    html += '<a class="news-card-image-wrap" href="' + articleUrl(item) + '" aria-label="' + title + '">' + imageMarkup(image, "news-card-image", "lazy") + '</a>';
     html += '<div class="news-card-body"><div class="news-card-meta">';
     if (date) html += '<span>' + date + '</span>';
     if (source) html += '<span>' + source + '</span>';
@@ -198,7 +174,6 @@
     const visible = data.slice(0, visibleCount);
     els.resultCount.textContent = data.length ? data.length.toLocaleString("ru-RU") + " материалов" : "";
     els.list.innerHTML = visible.map(card).join("");
-    applyImageFallbacks(els.list);
     els.empty.hidden = data.length !== 0;
     els.loadMore.hidden = visibleCount >= data.length;
     if (!els.loadMore.hidden) els.loadMore.textContent = "Показать ещё · " + Math.min(PAGE_SIZE, data.length - visibleCount);
