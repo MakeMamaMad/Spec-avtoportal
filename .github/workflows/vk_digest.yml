@@ -38,7 +38,6 @@ jobs:
       - name: Publish VK editorial digest
         env:
           VK_ACCESS_TOKEN: ${{ secrets.VK_ACCESS_TOKEN }}
-          VK_GROUP_ID: ${{ secrets.VK_GROUP_ID }}
           SITE_URL: "https://spec-avtoportal.ru/"
         run: |
           python aggregator/post_to_vk.py --mode digest
