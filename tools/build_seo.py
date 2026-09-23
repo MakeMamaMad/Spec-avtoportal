@@ -26,9 +26,11 @@ from xml.sax.saxutils import escape as xml_escape
 ROOT = Path(__file__).resolve().parents[1]
 FRONTEND = ROOT / "frontend"
 NEWS_JSON = FRONTEND / "data" / "news.json"
+REGULATIONS_JSON = FRONTEND / "data" / "regulations.json"
 NEWS_DIR = FRONTEND / "news"
 TOPICS_DIR = FRONTEND / "topics"
 BRANDS_DIR = FRONTEND / "brands"
+REGULATIONS_DIR = FRONTEND / "regulations"
 BASE_URL = "https://spec-avtoportal.ru"
 
 BRAND_RULES = [
@@ -980,7 +982,303 @@ def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) 
 """
 
 
-def write_sitemap(items: list[dict[str, Any]]) -> None:
+def load_regulations() -> dict[str, Any]:
+    if not REGULATIONS_JSON.exists():
+        return {"items": [], "archived": [], "verified_at": ""}
+    payload = json.loads(REGULATIONS_JSON.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        return {"items": [], "archived": [], "verified_at": ""}
+    payload.setdefault("items", [])
+    payload.setdefault("archived", [])
+    payload.setdefault("verified_at", "")
+    return payload
+
+
+def regulation_url(item: dict[str, Any]) -> str:
+    return f"{BASE_URL}/regulations/{item['slug']}/"
+
+
+def render_regulation_page(item: dict[str, Any], verified_at: str) -> str:
+    title = html.escape(get_field(item, "title", default="Нормативный документ"))
+    code = html.escape(get_field(item, "code", default="Норматив"))
+    doc_type = html.escape(get_field(item, "type", default="Документ"))
+    status = html.escape(get_field(item, "status", default="Статус не указан"))
+    scope = html.escape(get_field(item, "scope"))
+    why = html.escape(get_field(item, "why_it_matters"))
+    jurisdiction = html.escape(get_field(item, "jurisdiction"))
+    effective_from = html.escape(get_field(item, "effective_from"))
+    effective_until = html.escape(get_field(item, "effective_until"))
+    source_name = html.escape(get_field(item, "official_source", default="Официальный источник"))
+    source_url_value = get_field(item, "official_url")
+    source_url_escaped = html.escape(source_url_value, quote=True)
+    verified = html.escape(verified_at)
+    canonical = regulation_url(item)
+    keywords = item.get("keywords") if isinstance(item.get("keywords"), list) else []
+    keyword_html = "".join(
+        f'<span class="tag-badge">{html.escape(str(keyword))}</span>'
+        for keyword in keywords[:8]
+    )
+    description_raw = clamp(
+        get_field(item, "scope", "why_it_matters", default=f"{code}: нормативный документ"),
+        160,
+    )
+    description = html.escape(description_raw, quote=True)
+
+    meta_rows = [
+        ("Статус", status),
+        ("Юрисдикция", jurisdiction),
+        ("Действует с", effective_from),
+    ]
+    if effective_until:
+        meta_rows.append(("Действует до", effective_until))
+    if verified:
+        meta_rows.append(("Проверено редакцией", verified))
+    meta_html = "".join(
+        f'<div><span>{html.escape(label)}</span><strong>{value}</strong></div>'
+        for label, value in meta_rows if value
+    )
+
+    schema_payload = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": f"{get_field(item, 'code')} — {get_field(item, 'title')}",
+        "description": description_raw,
+        "url": canonical,
+        "dateModified": verified_at or None,
+        "about": {
+            "@type": "Legislation",
+            "name": get_field(item, "code"),
+            "legislationType": get_field(item, "type"),
+            "legislationJurisdiction": get_field(item, "jurisdiction"),
+            "url": source_url_value,
+        },
+    }
+    schema_payload = {k: v for k, v in schema_payload.items() if v is not None}
+    schema = json.dumps(schema_payload, ensure_ascii=False, separators=(",", ":")).replace("</", "<\/")
+
+    return f"""<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{code} — {title} | СпецАвтоПортал</title>
+  <meta name="description" content="{description}" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <link rel="canonical" href="{canonical}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="СпецАвтоПортал" />
+  <meta property="og:title" content="{code} — {title}" />
+  <meta property="og:description" content="{description}" />
+  <meta property="og:url" content="{canonical}" />
+  <link rel="stylesheet" href="/styles.css?v=16" />
+  <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
+  <script type="application/ld+json">{schema}</script>
+</head>
+<body class="regulation-page">
+  <div class="topline"><div class="container topline-inner"><span>Профессиональное медиа о грузовой технике</span><span class="topline-dot"></span><span>Нормативная база</span></div></div>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="brand" aria-label="СпецАвтоПортал — на главную">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
+        <span class="brand-copy"><strong>СпецАвтоПортал</strong><small>рынок · техника · регламенты</small></span>
+      </a>
+      <nav class="main-nav" aria-label="Основная навигация">
+        <a href="/" class="nav-link">Новости</a>
+        <a href="/brands/" class="nav-link">Бренды</a>
+        <a href="/knowledge.html" class="nav-link nav-link-active">База знаний</a>
+      </nav>
+      <a href="https://t.me/specavtoportal" class="tg-badge" target="_blank" rel="noopener"><span>Telegram ↗</span></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="regulation-hero">
+      <div class="container">
+        <p class="section-kicker"><a href="/knowledge.html">База знаний</a> · <a href="/law.html">Нормативы</a> · {doc_type}</p>
+        <span class="regulation-status">{status}</span>
+        <h1>{code}</h1>
+        <p class="regulation-hero__title">{title}</p>
+      </div>
+    </section>
+
+    <section class="container regulation-layout">
+      <article class="regulation-main">
+        <div class="regulation-meta-grid">{meta_html}</div>
+
+        <section class="regulation-section">
+          <p class="section-kicker">Область применения</p>
+          <h2>Что регулирует документ</h2>
+          <p>{scope or "Краткое описание области применения уточняется редакцией."}</p>
+        </section>
+
+        <section class="regulation-section">
+          <p class="section-kicker">Практический смысл</p>
+          <h2>Почему это важно</h2>
+          <p>{why or "Практические комментарии к документу готовятся."}</p>
+        </section>
+
+        <section class="regulation-section">
+          <p class="section-kicker">Ключевые темы</p>
+          <div class="news-card-tags">{keyword_html}</div>
+        </section>
+      </article>
+
+      <aside class="regulation-sidebar">
+        <section class="sidebar-block sidebar-dark">
+          <p class="sidebar-eyebrow">Первоисточник</p>
+          <h3>{source_name}</h3>
+          <p class="sidebar-text">Перед применением требований проверяйте текущую редакцию и статус документа в официальном источнике.</p>
+          <a class="partner-card__button" href="{source_url_escaped}" target="_blank" rel="noopener">Открыть официальный документ <span>↗</span></a>
+        </section>
+        <section class="sidebar-block">
+          <p class="sidebar-eyebrow">Важно</p>
+          <p class="sidebar-text">Материал носит справочный характер и не заменяет текст нормативного акта, стандарта или профессиональную правовую/техническую консультацию.</p>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
+      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/law.html">Нормативы</a><a href="/guides.html">Гайды</a><a href="/brands/">Бренды</a></div>
+      <div class="footer-note">© СпецАвтоПортал</div>
+    </div>
+  </footer>
+</body>
+</html>
+"""
+
+
+def render_regulations_index(regulations: dict[str, Any]) -> str:
+    items = regulations.get("items") if isinstance(regulations.get("items"), list) else []
+    archived = regulations.get("archived") if isinstance(regulations.get("archived"), list) else []
+    verified_at = str(regulations.get("verified_at") or "")
+
+    cards = []
+    for item in items:
+        title = html.escape(get_field(item, "title"))
+        code = html.escape(get_field(item, "code"))
+        doc_type = html.escape(get_field(item, "type"))
+        status = html.escape(get_field(item, "status"))
+        scope = html.escape(clamp(get_field(item, "scope"), 220))
+        cards.append(
+            '<article class="regulation-card">'
+            '<div class="regulation-card__top">'
+            f'<span>{doc_type}</span><strong>{status}</strong>'
+            '</div>'
+            f'<h2><a href="/regulations/{html.escape(str(item["slug"]), quote=True)}/">{code}</a></h2>'
+            f'<p class="regulation-card__title">{title}</p>'
+            f'<p>{scope}</p>'
+            f'<a class="topic-card__link" href="/regulations/{html.escape(str(item["slug"]), quote=True)}/">Разобрать документ →</a>'
+            '</article>'
+        )
+
+    archived_html = "".join(
+        '<li>'
+        f'<strong>{html.escape(get_field(item, "code"))}</strong>'
+        f'<span>{html.escape(get_field(item, "status"))}</span>'
+        f'<p>{html.escape(get_field(item, "note"))}</p>'
+        '</li>'
+        for item in archived
+    )
+
+    schema_payload = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Нормативы и ГОСТы по грузовой и прицепной технике",
+        "description": "Проверенный каталог действующих нормативных документов для грузовой и прицепной техники.",
+        "url": f"{BASE_URL}/law.html",
+        "dateModified": verified_at or None,
+        "mainEntity": {
+            "@type": "ItemList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "url": regulation_url(item),
+                    "name": get_field(item, "code"),
+                }
+                for index, item in enumerate(items)
+            ],
+        },
+    }
+    schema_payload = {k: v for k, v in schema_payload.items() if v is not None}
+    schema = json.dumps(schema_payload, ensure_ascii=False, separators=(",", ":")).replace("</", "<\/")
+
+    return f"""<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Нормативы и ГОСТы — База знаний | СпецАвтоПортал</title>
+  <meta name="description" content="Проверенный каталог действующих ГОСТов, технических регламентов и правил для грузовой и прицепной техники." />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <link rel="canonical" href="{BASE_URL}/law.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Нормативы и ГОСТы — СпецАвтоПортал" />
+  <meta property="og:description" content="Действующие нормативы для прицепов, полуприцепов, крепления грузов и безопасной эксплуатации." />
+  <meta property="og:url" content="{BASE_URL}/law.html" />
+  <link rel="stylesheet" href="/styles.css?v=16" />
+  <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
+  <script type="application/ld+json">{schema}</script>
+</head>
+<body class="regulations-index-page">
+  <div class="topline"><div class="container topline-inner"><span>Профессиональное медиа о грузовой технике</span><span class="topline-dot"></span><span>База знаний</span></div></div>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="brand" aria-label="СпецАвтоПортал — на главную">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
+        <span class="brand-copy"><strong>СпецАвтоПортал</strong><small>рынок · техника · регламенты</small></span>
+      </a>
+      <nav class="main-nav" aria-label="Основная навигация">
+        <a href="/" class="nav-link">Новости</a>
+        <a href="/brands/" class="nav-link">Бренды</a>
+        <a href="/knowledge.html" class="nav-link nav-link-active">База знаний</a>
+      </nav>
+      <a href="https://t.me/specavtoportal" class="tg-badge" target="_blank" rel="noopener"><span>Telegram ↗</span></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="knowledge-child-hero">
+      <div class="container">
+        <p class="section-kicker"><a href="/knowledge.html">База знаний</a> · Нормативы</p>
+        <h1>Нормативы и ГОСТы</h1>
+        <p class="hero-subtitle">Проверенная подборка действующих документов по прицепам, полуприцепам, креплению грузов и безопасной эксплуатации коммерческого транспорта.</p>
+        <p class="regulations-verified">Последняя проверка редакцией: {html.escape(verified_at or "—")}</p>
+      </div>
+    </section>
+
+    <section class="container regulations-grid">
+      {''.join(cards)}
+    </section>
+
+    <section class="container regulations-archive">
+      <p class="section-kicker">Архив</p>
+      <h2>Документы, которые больше не считаем действующими</h2>
+      <p>Храним этот список, чтобы устаревшие нормы случайно не вернулись в активную базу.</p>
+      <ul>{archived_html}</ul>
+    </section>
+
+    <section class="container regulations-disclaimer">
+      <strong>Важно:</strong> перед практическим применением всегда сверяйтесь с официальным текстом и актуальной редакцией документа.
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
+      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/law.html">Нормативы</a><a href="/guides.html">Гайды</a><a href="/brands/">Бренды</a></div>
+      <div class="footer-note">© СпецАвтоПортал</div>
+    </div>
+  </footer>
+</body>
+</html>
+"""
+
+
+def write_sitemap(items: list[dict[str, Any]], regulations: dict[str, Any] | None = None) -> None:
     static_pages = [
         (f"{BASE_URL}/", ""),
         (f"{BASE_URL}/knowledge.html", ""),
@@ -998,6 +1296,11 @@ def write_sitemap(items: list[dict[str, Any]]) -> None:
     rows.append(f"  <url><loc>{xml_escape(f'{BASE_URL}/brands/')}</loc></url>")
     for brand in BRAND_RULES:
         rows.append(f"  <url><loc>{xml_escape(brand_url(brand))}</loc></url>")
+
+    if regulations:
+        for item in regulations.get("items", []):
+            if item.get("slug"):
+                rows.append(f"  <url><loc>{xml_escape(regulation_url(item))}</loc></url>")
 
     for item in items:
         lastmod = iso_date(get_field(item, "published_at", "date", "pub_date"))
@@ -1047,6 +1350,23 @@ def main() -> None:
         shutil.rmtree(BRANDS_DIR)
     BRANDS_DIR.mkdir(parents=True, exist_ok=True)
 
+    if REGULATIONS_DIR.exists():
+        shutil.rmtree(REGULATIONS_DIR)
+    REGULATIONS_DIR.mkdir(parents=True, exist_ok=True)
+
+    regulations = load_regulations()
+    verified_at = str(regulations.get("verified_at") or "")
+    for regulation in regulations.get("items", []):
+        if not regulation.get("slug"):
+            continue
+        out_dir = REGULATIONS_DIR / str(regulation["slug"])
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "index.html").write_text(
+            render_regulation_page(regulation, verified_at),
+            encoding="utf-8",
+        )
+    (FRONTEND / "law.html").write_text(render_regulations_index(regulations), encoding="utf-8")
+
     for item in items:
         out_dir = NEWS_DIR / item["slug"]
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -1070,8 +1390,9 @@ def main() -> None:
 
     (BRANDS_DIR / "index.html").write_text(render_brand_directory(brand_counts), encoding="utf-8")
 
-    write_sitemap(items)
+    write_sitemap(items, regulations)
     print(f"[SEO] generated {len(items)} static article pages")
+    print(f"[SEO] generated {len(regulations.get('items', []))} regulation pages")
     print(f"[SEO] generated topic hubs: {topic_counts}")
     print(f"[SEO] generated brand hubs: {brand_counts}")
     print(f"[SEO] sitemap: {FRONTEND / 'sitemap.xml'}")
