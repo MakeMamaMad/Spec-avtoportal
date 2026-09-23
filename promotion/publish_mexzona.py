@@ -195,6 +195,53 @@ def open_article_form(page: Page) -> None:
             link.first.click()
             page.wait_for_timeout(1500)
 
+    # MEXZONA's public "Добавить статью" link can open the article list first.
+    # From there, enter the actual create form.
+    if "/admin/articles" in page.url and not page.locator(
+        'input[name*="title" i], textarea[name*="text" i], textarea[name*="content" i]'
+    ).count():
+        create_link = page.get_by_role(
+            "link",
+            name=re.compile(r"добавить|создать|новая статья|новую статью", re.I),
+        )
+        if not create_link.count():
+            create_link = page.locator(
+                'a[href*="/admin/articles/create"], '
+                'a[href*="/admin/articles/new"], '
+                'a[href*="/admin/articles/add"]'
+            )
+
+        if create_link.count():
+            href2 = create_link.first.get_attribute("href")
+            if href2:
+                if href2.startswith("http"):
+                    target2 = href2
+                elif href2.startswith("/"):
+                    target2 = "https://mexzona.ru" + href2
+                else:
+                    target2 = "https://mexzona.ru/" + href2
+                page.goto(target2, wait_until="domcontentloaded", timeout=60000)
+            else:
+                try:
+                    with page.expect_navigation(wait_until="domcontentloaded", timeout=60000):
+                        create_link.first.click()
+                except Exception:
+                    create_link.first.click()
+                    page.wait_for_timeout(1500)
+        else:
+            # Laravel-style resource routes commonly expose /create.
+            for direct_url in (
+                "https://mexzona.ru/admin/articles/create",
+                "https://mexzona.ru/admin/articles/new",
+                "https://mexzona.ru/admin/articles/add",
+            ):
+                page.goto(direct_url, wait_until="domcontentloaded", timeout=60000)
+                fields = page.locator(
+                    'input[name*="title" i], textarea, [contenteditable="true"]'
+                )
+                if fields.count():
+                    break
+
 
 def fill_body(page: Page, body_text: str) -> bool:
     selectors = [
