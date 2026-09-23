@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "enabled": false,
+  "baseline_ref": "34350b3f160711df0f58abe9a35b93e5f59f595b",
+  "community_screen_name": "specavtoportal",
+  "welcome_enabled": true,
+  "immediate_score": 5,
+  "max_immediate_per_run": 3,
+  "max_item_age_hours": 48,
+  "digest_enabled": true,
+  "digest_items": 5,
+  "digest_min_items": 2,
+  "digest_times_msk": [
+    "09:40",
+    "19:40"
+  ],
+  "api_version": "5.199",
+  "note": "VK Editorial v1 is prepared but paused until VK_ACCESS_TOKEN and VK_GROUP_ID are connected. Activation should also move baseline_ref to the current clean start."
+}
