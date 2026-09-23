@@ -98,6 +98,24 @@ def detect_captcha(page: Page) -> bool:
     return "captcha" in body or "капча" in body or "я не робот" in body
 
 
+def safe_page_summary(page: Page) -> dict[str, Any]:
+    headings = []
+    for selector in ("h1", "h2", "h3", ".alert", ".error", ".message"):
+        loc = page.locator(selector)
+        for i in range(min(loc.count(), 12)):
+            try:
+                text = (loc.nth(i).inner_text() or "").strip()
+                if text:
+                    headings.append(text[:240])
+            except Exception:
+                pass
+    return {
+        "url": page.url,
+        "title": page.title(),
+        "headings": headings[:20],
+    }
+
+
 def safe_form_inventory(page: Page) -> list[dict[str, str]]:
     """Return only structural form metadata. Never include field values."""
     result: list[dict[str, str]] = []
@@ -297,10 +315,12 @@ def main() -> int:
                 )
             )
             if not title_ok:
+                print("PAGE_SUMMARY=" + json.dumps(safe_page_summary(page), ensure_ascii=False))
                 print("FORM_INVENTORY=" + json.dumps(safe_form_inventory(page), ensure_ascii=False))
                 raise RuntimeError("TruckMix title field was not found")
 
             if not fill_editor(page, post_text):
+                print("PAGE_SUMMARY=" + json.dumps(safe_page_summary(page), ensure_ascii=False))
                 print("FORM_INVENTORY=" + json.dumps(safe_form_inventory(page), ensure_ascii=False))
                 raise RuntimeError("TruckMix article/news body field was not found")
 
