@@ -72,7 +72,9 @@ def make_key(item):
     Уникальный ключ новости, чтобы понять — новая она или нет.
     Пробуем по id/url/link, если нет — по title+source.
     """
-    for key in ("id", "url", "link", "guid"):
+    # Source URL/guid stay stable before and after SEO metadata is assigned.
+    # Keep id last so the first migration does not make old items look new.
+    for key in ("canonical_url", "url", "link", "guid", "id"):
         v = item.get(key)
         if v:
             return str(v)
