@@ -226,6 +226,38 @@ def article_url(item: dict[str, Any]) -> str:
     return f"{BASE_URL}/news/{item['slug']}/"
 
 
+def random_news_for(item: dict[str, Any], items: list[dict[str, Any]], limit: int = 3) -> list[dict[str, Any]]:
+    """Deterministic pseudo-random picks so each article has a stable varied sidebar."""
+    current_slug = str(item.get("slug") or "")
+    candidates = [candidate for candidate in items if candidate.get("slug") and candidate.get("slug") != current_slug]
+
+    def score(candidate: dict[str, Any]) -> str:
+        seed = f"{current_slug}|{candidate.get('slug', '')}"
+        return hashlib.sha1(seed.encode("utf-8", "ignore")).hexdigest()
+
+    return sorted(candidates, key=score)[:limit]
+
+
+def random_news_html(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
+    cards = []
+    for candidate in random_news_for(item, items):
+        title = html.escape(get_field(candidate, "title", "headline", "name", default="Материал"))
+        date = display_date(get_field(candidate, "published_at", "date", "pub_date"))
+        candidate_tags = tags(candidate)
+        tag = html.escape(candidate_tags[0]) if candidate_tags else "Новости"
+        date_html = f'<span>{html.escape(date)}</span>' if date else ""
+        cards.append(
+            '<a class="article-random-card" href="' + article_url(candidate) + '">'
+            '<span class="article-random-card__meta">'
+            f'<span class="article-random-card__tag">{tag}</span>{date_html}'
+            '</span>'
+            f'<strong class="article-random-card__title">{title}</strong>'
+            '<span class="article-random-card__arrow">Открыть ↗</span>'
+            '</a>'
+        )
+    return "".join(cards)
+
+
 def json_ld(item: dict[str, Any]) -> str:
     title = get_field(item, "title", "headline", "name", default="Новость")
     published = get_field(item, "published_at", "date", "pub_date")
@@ -252,7 +284,7 @@ def json_ld(item: dict[str, Any]) -> str:
     return json.dumps(payload, ensure_ascii=False, separators=(",", ":")).replace("</", "<\/")
 
 
-def render_page(item: dict[str, Any]) -> str:
+def render_page(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
     title_raw = get_field(item, "title", "headline", "name", default="Новость")
     title = html.escape(title_raw)
     summary_raw = summary_text(item)
@@ -318,6 +350,8 @@ def render_page(item: dict[str, Any]) -> str:
             'rel="nofollow noopener noreferrer">Читать в первоисточнике ↗</a>'
         )
 
+    related_html = random_news_html(item, items)
+
     published_meta = (
         f'<meta property="article:published_time" content="{html.escape(published_raw, quote=True)}" />'
         if published_raw else ""
@@ -344,7 +378,7 @@ def render_page(item: dict[str, Any]) -> str:
   <meta name="twitter:description" content="{description}" />
   <meta name="twitter:image" content="{image}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=9" />
+  <link rel="stylesheet" href="/styles.css?v=10" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{json_ld(item)}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -410,10 +444,10 @@ def render_page(item: dict[str, Any]) -> str:
           <p class="sidebar-text">Свежие новости, нормативы и практические материалы для профессионального рынка.</p>
           <a class="tg-promo__button" style="display:inline-flex;margin-top:16px" href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a>
         </section>
-        <section class="sidebar-block">
-          <p class="sidebar-eyebrow">Источник</p>
-          <h3>{src_name or 'Первоисточник'}</h3>
-          <p class="sidebar-text">Если источник передаёт полный текст через RSS, он публикуется здесь. В остальных случаях доступна выжимка и ссылка на оригинал.</p>
+        <section class="sidebar-block article-random-news">
+          <p class="sidebar-eyebrow">Ещё новости</p>
+          <h3>Случайные материалы</h3>
+          <div class="article-random-list">{related_html}</div>
         </section>
       </aside>
     </div>
@@ -486,7 +520,7 @@ def main() -> None:
     for item in items:
         out_dir = NEWS_DIR / item["slug"]
         out_dir.mkdir(parents=True, exist_ok=True)
-        (out_dir / "index.html").write_text(render_page(item), encoding="utf-8")
+        (out_dir / "index.html").write_text(render_page(item, items), encoding="utf-8")
 
     write_sitemap(items)
     print(f"[SEO] generated {len(items)} static article pages")
