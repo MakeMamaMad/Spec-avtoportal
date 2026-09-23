@@ -16,7 +16,7 @@ from PIL import Image
 
 from .ai.storyboard import fallback_storyboard, generate_storyboard
 from .ai.visuals import generate_scene_visual
-from .render.short_v2 import render_scene_frame, render_short
+from .render.short_v2 import media_duration, render_scene_frame, render_short
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -163,6 +163,33 @@ def generate_voice(text: str, output: Path) -> str:
         return "gtts"
 
 
+def fit_voice_to_storyboard(audio: Path, planned_seconds: float) -> float:
+    """Speed up unusually slow TTS while keeping speech natural."""
+    current = media_duration(audio)
+    if current <= 0 or current <= planned_seconds + 1.5:
+        return current
+
+    speed = min(1.35, current / max(planned_seconds, 1.0))
+    tmp = audio.with_name(audio.stem + "_fit" + audio.suffix)
+    proc = __import__("subprocess").run(
+        [
+            "ffmpeg", "-y", "-loglevel", "error",
+            "-i", str(audio),
+            "-filter:a", f"atempo={speed:.4f}",
+            "-vn", str(tmp),
+        ],
+        stdout=__import__("subprocess").PIPE,
+        stderr=__import__("subprocess").PIPE,
+    )
+    if proc.returncode == 0 and tmp.exists() and tmp.stat().st_size > 0:
+        tmp.replace(audio)
+        fitted = media_duration(audio)
+        print(f"[tts] fit {current:.2f}s -> {fitted:.2f}s speed={speed:.3f}")
+        return fitted
+    tmp.unlink(missing_ok=True)
+    return current
+
+
 def write_outputs(board, manifest: dict[str, Any]) -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     (OUT_DIR / "scene_plan.json").write_text(
@@ -237,6 +264,7 @@ def main() -> int:
 
     audio = WORK_DIR / "voice.mp3"
     tts_mode = generate_voice(board.voiceover, audio)
+    fit_voice_to_storyboard(audio, sum(scene.seconds for scene in board.scenes))
 
     video = OUT_DIR / "master.mp4"
     render_info = render_short(board, visual_paths, audio, video, WORK_DIR / "render")
