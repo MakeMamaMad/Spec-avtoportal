@@ -22,9 +22,30 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install visual QA deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests Pillow
+
       - name: Python syntax
         run: |
-          python -m py_compile tools/build_seo.py aggregator/main.py aggregator/post_to_telegram.py tools/daily_digest/agent.py
+          python -m py_compile tools/build_seo.py aggregator/main.py aggregator/post_to_telegram.py aggregator/telegram_visual.py tools/daily_digest/agent.py
+
+      - name: Render Telegram visual samples
+        run: |
+          python aggregator/telegram_visual.py --type important --output /tmp/important.png --title "Новый ГОСТ вступил в силу" --summary "Что изменилось для перевозчиков и как подготовиться"
+          python aggregator/telegram_visual.py --type digest --slot am --output /tmp/digest.png
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          for name in ("important.png", "digest.png"):
+              path = Path("/tmp") / name
+              assert path.exists() and path.stat().st_size > 10000, f"visual missing or too small: {name}"
+              with Image.open(path) as image:
+                  assert image.size == (1080, 1080), f"wrong size: {name} {image.size}"
+                  assert image.mode == "RGB", f"wrong mode: {name} {image.mode}"
+          print("Telegram visual render OK")
+          PY
 
       - name: Telegram reboot config
         run: |
