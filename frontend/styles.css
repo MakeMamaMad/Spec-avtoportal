@@ -1731,3 +1731,184 @@ button { color: inherit; }
   .regulations-archive li { grid-template-columns: 1fr; gap: 5px; }
   .regulation-section { padding: 20px; }
 }
+
+
+/* Evergreen knowledge articles */
+.knowledge-topic {
+  color: inherit;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.knowledge-topic:hover {
+  transform: translateY(-2px);
+  border-color: #c9cdc9;
+  box-shadow: var(--shadow);
+}
+.knowledge-topic b {
+  margin-top: 18px;
+  color: var(--orange-dark);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.knowledge-article-hero {
+  padding: 62px 0 46px;
+  background:
+    radial-gradient(circle at 88% 8%, rgba(255,107,0,.14), transparent 28%),
+    linear-gradient(135deg, #171b1f 0%, #101316 72%);
+  color: #fff;
+}
+.knowledge-article-hero .section-kicker,
+.knowledge-article-hero .section-kicker a { color: #aeb7bd; }
+.knowledge-article-hero h1 {
+  margin: 10px 0 18px;
+  max-width: 1000px;
+  font-size: clamp(44px, 7vw, 78px);
+  line-height: .95;
+  letter-spacing: -.055em;
+}
+.knowledge-article-hero > .container > p:not(.section-kicker) {
+  margin: 0;
+  max-width: 860px;
+  color: #c1c8cd;
+  font-size: 18px;
+  line-height: 1.62;
+}
+.knowledge-article-hero__meta {
+  margin-top: 20px;
+  color: #7f8990;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.knowledge-article-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  gap: 36px;
+  align-items: start;
+  padding-top: 38px;
+  padding-bottom: 76px;
+}
+.knowledge-article {
+  min-width: 0;
+}
+.knowledge-article__section {
+  margin-bottom: 14px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+}
+.knowledge-article__section h2 {
+  margin: 0 0 16px;
+  font-size: clamp(26px, 4vw, 38px);
+  line-height: 1.04;
+  letter-spacing: -.04em;
+}
+.knowledge-article__section p,
+.knowledge-article__section li {
+  color: #4f575d;
+  font-size: 15px;
+  line-height: 1.72;
+}
+.knowledge-article__section p { margin: 0 0 15px; }
+.knowledge-article__section ul,
+.knowledge-article__section ol {
+  margin: 0;
+  padding-left: 22px;
+}
+.knowledge-article__section li + li { margin-top: 8px; }
+
+.knowledge-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 10px;
+  margin: 4px 0 18px;
+}
+.knowledge-fact {
+  padding: 16px;
+  border-radius: 12px;
+  background: #f5f6f4;
+  border: 1px solid var(--line);
+}
+.knowledge-fact span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.knowledge-fact strong {
+  font-size: 24px;
+  letter-spacing: -.04em;
+}
+
+.knowledge-article-sidebar {
+  position: sticky;
+  top: 92px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.knowledge-sources {
+  display: flex;
+  flex-direction: column;
+}
+.knowledge-sources a {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid #2d3338;
+  color: #d5dade;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.knowledge-sources a:first-child { border-top: 0; }
+.knowledge-sources a span { color: var(--orange); }
+
+.knowledge-partner {
+  padding: 22px;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 110% -10%, rgba(255,107,0,.20), transparent 40%),
+    linear-gradient(145deg, #171b1f 0%, #101316 75%);
+  color: #fff;
+}
+.knowledge-partner h3 {
+  margin: 6px 0 10px;
+  font-size: 28px;
+  letter-spacing: -.04em;
+}
+.knowledge-partner p:not(.sidebar-eyebrow) {
+  margin: 0 0 16px;
+  color: #aeb7bd;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.knowledge-partner > a {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: 9px;
+  background: var(--orange);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+@media (max-width: 900px) {
+  .knowledge-article-layout { grid-template-columns: 1fr; }
+  .knowledge-article-sidebar { position: static; }
+}
+@media (max-width: 620px) {
+  .knowledge-facts { grid-template-columns: 1fr; }
+  .knowledge-article__section { padding: 20px; }
+}
