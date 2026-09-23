@@ -16,12 +16,21 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any
+
+import requests
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+from telegram_visual import render_important_card
 
 NEWS_PATH = Path("frontend/data/news.json")
 STATE_PATH = Path("frontend/data/telegram_state.json")
@@ -399,6 +408,90 @@ def send_message(
     return message_id
 
 
+def build_photo_caption(item: dict[str, Any], site_url: str) -> str:
+    title = html_lib.escape(clamp(strip_html(str(item.get("title") or "Важная новость")), 180))
+    summary = html_lib.escape(
+        clamp(strip_html(str(item.get("summary") or item.get("description") or "")), 430)
+    )
+    source = html_lib.escape(display_source(item))
+    safe_site = html_lib.escape(site_url, quote=True)
+
+    parts = [f"<b>{title}</b>"]
+    if summary:
+        parts.append(summary)
+    if source:
+        parts.append(f"🌐 {source}")
+    parts.append(f'🔗 <a href="{safe_site}">Читать на СпецАвтоПортале</a>')
+    caption = "\n\n".join(parts)
+    return caption[:1000]
+
+
+def send_photo(
+    token: str,
+    chat_id: str,
+    photo_path: Path,
+    caption: str,
+    site_url: str,
+) -> int:
+    api_url = f"https://api.telegram.org/bot{token}/sendPhoto"
+    reply_markup = {
+        "inline_keyboard": [
+            [{"text": "Читать на сайте ↗", "url": site_url}],
+        ]
+    }
+    with photo_path.open("rb") as photo:
+        response = requests.post(
+            api_url,
+            data={
+                "chat_id": chat_id,
+                "caption": caption,
+                "parse_mode": "HTML",
+                "reply_markup": json.dumps(reply_markup, ensure_ascii=False),
+            },
+            files={"photo": ("spec-avtoportal.png", photo, "image/png")},
+            timeout=30,
+        )
+    body = response.json()
+    if not response.ok or not body.get("ok"):
+        raise RuntimeError(body.get("description") or f"Telegram sendPhoto failed: {response.status_code}")
+    message_id = (body.get("result") or {}).get("message_id")
+    if not isinstance(message_id, int):
+        raise RuntimeError("Telegram sendPhoto response does not contain message_id")
+    return message_id
+
+
+def send_visual_or_fallback(
+    token: str,
+    chat_id: str,
+    item: dict[str, Any],
+    text: str,
+    site_url: str,
+    disable_preview: bool,
+) -> tuple[int, str]:
+    try:
+        with tempfile.TemporaryDirectory(prefix="specavto-tg-") as tmp_dir:
+            card_path = Path(tmp_dir) / "important.png"
+            render_important_card(item, card_path)
+            message_id = send_photo(
+                token,
+                chat_id,
+                card_path,
+                build_photo_caption(item, site_url),
+                site_url,
+            )
+            return message_id, "visual"
+    except Exception as exc:
+        print(f"WARN: Telegram visual failed, text fallback: {exc}", file=sys.stderr)
+        message_id = send_message(
+            token,
+            chat_id,
+            text,
+            site_url=site_url,
+            disable_preview=disable_preview,
+        )
+        return message_id, "text_fallback"
+
+
 def send_welcome(
     token: str,
     chat_id: str,
@@ -527,12 +620,13 @@ def main() -> int:
         text = build_text(item, site_url, score)
 
         try:
-            message_id = send_message(
+            message_id, visual_mode = send_visual_or_fallback(
                 token,
                 chat_id,
+                item,
                 text,
-                site_url=site_url,
-                disable_preview=disable_preview,
+                site_url,
+                disable_preview,
             )
             state["posts"][key] = {
                 "message_id": message_id,
@@ -542,6 +636,7 @@ def main() -> int:
                 "slug": str(item.get("slug") or ""),
                 "kind": "important",
                 "score": score,
+                "visual": visual_mode,
             }
             save_state(state)
             print(f" OK {message_id} score={score}: {str(item.get('title') or '')[:90]}")

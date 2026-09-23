@@ -15,12 +15,21 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any
+
+import requests
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from aggregator.telegram_visual import render_digest_card
 
 NEWS_PATH = Path(os.getenv("NEWS_JSON_PATH", "frontend/data/news.json"))
 STATE_PATH = Path("frontend/data/telegram_state.json")
@@ -375,6 +384,80 @@ def send_message(token: str, chat_id: str, text: str, site_url: str) -> int:
     return message_id
 
 
+def build_digest_photo_caption(items: list[dict[str, Any]], slot: str, site_base: str) -> str:
+    label = "Утренняя" if slot == "am" else "Вечерняя"
+    lines = [
+        f"<b>{label} сводка СпецАвтоПортала</b>",
+        f"<i>{len(items)} материалов — главное к этому часу</i>",
+        "",
+    ]
+    for index, item in enumerate(items[:5], 1):
+        title = html.escape(clamp(strip_html(str(item.get("title") or "Материал")), 105))
+        lines.append(f"{index}. {title}")
+    lines.extend(["", "🔗 Все материалы — по кнопке ниже"])
+    return "\n".join(lines)
+
+
+def send_photo(
+    token: str,
+    chat_id: str,
+    photo_path: Path,
+    caption: str,
+    site_url: str,
+) -> int:
+    api_url = f"https://api.telegram.org/bot{token}/sendPhoto"
+    reply_markup = {
+        "inline_keyboard": [
+            [{"text": "Открыть СпецАвтоПортал ↗", "url": site_url}],
+        ]
+    }
+    with photo_path.open("rb") as photo:
+        response = requests.post(
+            api_url,
+            data={
+                "chat_id": chat_id,
+                "caption": caption,
+                "parse_mode": "HTML",
+                "reply_markup": json.dumps(reply_markup, ensure_ascii=False),
+            },
+            files={"photo": ("spec-avtoportal-digest.png", photo, "image/png")},
+            timeout=30,
+        )
+    body = response.json()
+    if not response.ok or not body.get("ok"):
+        raise RuntimeError(body.get("description") or f"Telegram sendPhoto failed: {response.status_code}")
+    message_id = (body.get("result") or {}).get("message_id")
+    if not isinstance(message_id, int):
+        raise RuntimeError("Telegram sendPhoto response does not contain message_id")
+    return message_id
+
+
+def send_digest_visual_or_fallback(
+    token: str,
+    chat_id: str,
+    items: list[dict[str, Any]],
+    slot: str,
+    full_text: str,
+    site_url: str,
+    site_base: str,
+) -> tuple[int, str]:
+    try:
+        with tempfile.TemporaryDirectory(prefix="specavto-digest-") as tmp_dir:
+            card_path = Path(tmp_dir) / "digest.png"
+            render_digest_card(slot, card_path)
+            message_id = send_photo(
+                token,
+                chat_id,
+                card_path,
+                build_digest_photo_caption(items, slot, site_base),
+                site_url,
+            )
+            return message_id, "visual"
+    except Exception as exc:
+        print(f"WARN: digest visual failed, text fallback: {exc}", file=sys.stderr)
+        return send_message(token, chat_id, full_text, site_url), "text_fallback"
+
+
 def main() -> int:
     config = load_config()
     if not config.get("enabled", False) or not config.get("digest_enabled", True):
@@ -419,7 +502,15 @@ def main() -> int:
             "utm_content": "button",
         }
     )
-    message_id = send_message(token, chat_id, text, button_url)
+    message_id, visual_mode = send_digest_visual_or_fallback(
+        token,
+        chat_id,
+        items,
+        slot,
+        text,
+        button_url,
+        site_base,
+    )
 
     sent_at = utc_now()
     state["digests"][current_digest_id] = {
@@ -427,6 +518,7 @@ def main() -> int:
         "sent_at": sent_at,
         "slot": slot,
         "items": [make_key(item) for item in items],
+        "visual": visual_mode,
     }
     for item in items:
         state["digested"][make_key(item)] = {

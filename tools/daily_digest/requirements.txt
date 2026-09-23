@@ -1,2 +1,3 @@
 requests
 python-dateutil
+Pillow==10.4.0
