@@ -1,9 +1,19 @@
 {
-  "schema": 1,
+  "schema": 2,
   "enabled": true,
   "baseline_ref": "7696d3fdb1258e5301943e998a14b97b85a222d5",
   "welcome_enabled": true,
   "pin_welcome": true,
-  "max_posts_per_run": 8,
-  "note": "Telegram reboot is live. baseline_ref marks the clean-channel start point; only items added after it may be published."
+  "immediate_score": 5,
+  "max_immediate_per_run": 3,
+  "max_item_age_hours": 48,
+  "digest_enabled": true,
+  "digest_items": 5,
+  "digest_min_items": 2,
+  "digest_timezone": "Europe/Moscow",
+  "digest_times": [
+    "09:30",
+    "19:30"
+  ],
+  "note": "Telegram Editorial v2: important recent items publish immediately; ordinary recent items wait for morning/evening digest. Shared telegram_state.json prevents duplicates."
 }
