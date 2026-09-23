@@ -1264,3 +1264,35 @@ button { color: inherit; }
   .brand-directory-card { min-height: 0; }
   .brand-directory-hero h1 { font-size: clamp(40px, 12vw, 58px); }
 }
+
+
+/* Partner brand treatment */
+.brand-partner-note {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+.brand-partner-note > span,
+.brand-directory-card__partner {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: var(--orange-soft);
+  color: var(--orange-dark);
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.brand-partner-note a {
+  font-size: 12px;
+  font-weight: 800;
+}
+.brand-partner-note a:hover { color: var(--orange-dark); }
+.brand-directory-card__partner {
+  align-self: flex-start;
+  margin-bottom: 10px;
+}
