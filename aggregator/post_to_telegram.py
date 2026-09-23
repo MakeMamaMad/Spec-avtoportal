@@ -26,6 +26,10 @@ from typing import Any
 
 import requests
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
 from telegram_visual import render_important_card
 
 NEWS_PATH = Path("frontend/data/news.json")
