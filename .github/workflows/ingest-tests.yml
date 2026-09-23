@@ -31,7 +31,7 @@ jobs:
 
       - name: Run ingest tests
         run: |
-          pytest -q aggregator/tests
+          python -m pytest -q aggregator/tests
 
       - name: Validate CLI
         run: |
