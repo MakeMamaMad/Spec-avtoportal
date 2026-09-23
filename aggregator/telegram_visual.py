@@ -171,6 +171,68 @@ def render_important_card(item: dict[str, Any], output: str | Path) -> Path:
     return output
 
 
+
+def render_social_card(item: dict[str, Any], output: str | Path) -> Path:
+    """Render a 1200x630 Open Graph card for site/social link previews."""
+    output = Path(output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+
+    width, height = 1200, 630
+    image = Image.new("RGB", (width, height), BG)
+    draw = ImageDraw.Draw(image)
+
+    for x in range(70, width, 120):
+        draw.line((x, 0, x, height), fill=GRID, width=1)
+    for y in range(70, height, 120):
+        draw.line((0, y, width, y), fill=GRID, width=1)
+
+    draw.rectangle((0, 0, width, 116), fill=BG_2)
+    draw.rectangle((930, 116, width, height), fill="#181C21")
+    draw.rectangle((72, 112, 260, 118), fill=ORANGE)
+
+    brand_font = _font(FONT_BOLD_CANDIDATES, 30)
+    mark_font = _font(FONT_BOLD_CANDIDATES, 18)
+    category_font = _font(FONT_BOLD_CANDIDATES, 22)
+    title_font = _font(FONT_BOLD_CANDIDATES, 54)
+    summary_font = _font(FONT_REGULAR_CANDIDATES, 24)
+    footer_font = _font(FONT_BOLD_CANDIDATES, 20)
+
+    draw.rounded_rectangle((72, 30, 132, 88), radius=12, fill=ORANGE)
+    draw.text((87, 45), "САП", font=mark_font, fill="#FFFFFF")
+    draw.text((152, 39), "СпецАвтоПортал", font=brand_font, fill=TEXT)
+
+    category = _category(item)
+    draw.text((72, 160), category, font=category_font, fill=ORANGE)
+
+    title = _clean(item.get("title") or "Новости отрасли")
+    title_lines = _fit_lines(draw, title, title_font, 820, 4)
+    y = 205
+    for line in title_lines:
+        draw.text((72, y), line, font=title_font, fill=TEXT)
+        y += 66
+
+    summary = _summary(item)
+    summary_lines = _fit_lines(draw, summary, summary_font, 790, 2)
+    sy = 485
+    for line in summary_lines:
+        draw.text((72, sy), line, font=summary_font, fill=MUTED)
+        sy += 34
+
+    draw.text((72, 582), "spec-avtoportal.ru", font=footer_font, fill=TEXT)
+
+    # Restrained trailer/axle motif on the right.
+    draw.rectangle((970, 205, 1135, 300), outline="#353B42", width=4)
+    draw.line((970, 300, 1110, 300), fill=ORANGE, width=6)
+    for cx in (1005, 1065, 1125):
+        draw.ellipse((cx - 18, 316, cx + 18, 352), outline=MUTED, width=4)
+    draw.rectangle((992, 420, 1115, 432), fill=ORANGE)
+    draw.rectangle((992, 462, 1080, 474), fill="#59616A")
+    draw.rectangle((992, 504, 1140, 516), fill="#343A41")
+
+    image.save(output, "PNG", optimize=True)
+    return output
+
+
 def render_digest_card(slot: str, output: str | Path, when: datetime | None = None) -> Path:
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
