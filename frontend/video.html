@@ -2,106 +2,20 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <title>Видео — СпецТрейлеры</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta
-    name="description"
-    content="Видео по прицепам и полуприцепам: обзоры, тесты автопоездов и разборы нормативки."
-  />
-  <link rel="stylesheet" href="styles.css" />
+  <title>Видео — архив | СпецАвтоПортал</title>
+  <meta name="robots" content="noindex,follow" />
+  <link rel="canonical" href="https://spec-avtoportal.ru/knowledge.html" />
+  <meta http-equiv="refresh" content="0; url=/knowledge.html" />
+  <link rel="stylesheet" href="styles.css?v=15" />
 </head>
 <body>
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="index.html" class="logo">
-        <span class="logo-mark">ST</span>
-        <span class="logo-text">
-          СпецТрейлеры
-          <span class="logo-sub">Новости, ГОСТы и гайды</span>
-        </span>
-      </a>
-
-      <nav class="main-nav">
-        <a href="index.html" class="nav-link">Новости</a>
-        <a href="law.html" class="nav-link">Законодательство / ГОСТы</a>
-        <a href="guides.html" class="nav-link">Гайды и регламенты</a>
-        <a href="video.html" class="nav-link nav-link-active">Видео</a>
-      </nav>
+  <main class="archive-redirect">
+    <div class="container">
+      <p class="section-kicker">Раздел перенесён</p>
+      <h1>Видео больше не является отдельным разделом.</h1>
+      <p>Полезные материалы собраны в новой <a href="/knowledge.html">Базе знаний →</a></p>
     </div>
-  </header>
-
-  <main class="page-main">
-    <section class="hero">
-      <div class="container">
-        <h1>Видео по прицепам и полуприцепам</h1>
-        <p class="hero-subtitle">
-          Обзоры полуприцепов, тесты автопоездов, заводские ролики и разборы нормативки —
-          всё в одном месте.
-        </p>
-        <p class="hero-hint">
-          Список каналов берётся из <code>aggregator/sources.yml</code>, секция
-          <code>youtube</code>. Для каждого канала мы показываем его плейлист «Загрузки».
-        </p>
-      </div>
-    </section>
-
-    <section class="container layout">
-      <div class="layout-main">
-        <section>
-          <h2 class="section-title">Наши и партнёрские YouTube-каналы</h2>
-
-          <div id="video-status" class="loading">
-            Загрузка списка каналов…
-          </div>
-
-          <div id="video-error" class="error" hidden>
-            Не удалось загрузить список каналов. Проверьте доступность
-            <code>aggregator/sources.yml</code> и обновите страницу.
-          </div>
-
-          <div id="video-empty" class="empty-state" hidden>
-            В секции <code>youtube</code> файла <code>aggregator/sources.yml</code> пока нет ни
-            одного канала. Добавьте туда блоки с <code>channel_id</code> — и здесь появятся
-            плейлисты.
-          </div>
-
-          <div id="video-list" class="video-grid"></div>
-        </section>
-      </div>
-
-      <aside class="layout-sidebar">
-        <section class="sidebar-block">
-          <h3 class="sidebar-title">Как добавить канал</h3>
-          <ol class="sidebar-text">
-            <li>Откройте <code>aggregator/sources.yml</code> в репозитории.</li>
-            <li>В секции <code>youtube:</code> добавьте канал:<br />
-              <code>- channel_id: "UCXXXX..."<br />&nbsp;&nbsp;name: "Название канала"</code>
-            </li>
-            <li>Закоммитьте изменения, дождитесь <strong>Ingest &amp; Publish</strong> и обновите раздел «Видео».</li>
-          </ol>
-        </section>
-
-        <section class="sidebar-block">
-          <h3 class="sidebar-title">Идеи развития раздела</h3>
-          <ul class="doc-list">
-            <li>Выводить подборки роликов по темам (выставки, новые модели, нормативка).</li>
-            <li>Отмечать официальные каналы производителей и дилеров.</li>
-            <li>Подгружать последние ролики по API, когда захочешь заморочиться с ключом.</li>
-          </ul>
-        </section>
-      </aside>
-    </section>
   </main>
-
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <span>© СпецТрейлеры, агрегатор новостей о прицепах и полуприцепах.</span>
-    </div>
-  </footer>
-
-  <!-- Библиотека для парсинга YAML -->
-  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
-  <!-- Скрипт страницы видео -->
-  <script src="video.js"></script>
 </body>
 </html>
