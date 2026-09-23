@@ -1,0 +1,136 @@
+name: Safe Auto Merge
+
+on:
+  workflow_run:
+    workflows: ["QA", "Ingest Unit Tests"]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+
+jobs:
+  merge:
+    if: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge owner PR after required checks
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          EVENT_PATH: ${{ github.event_path }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import sys
+          import urllib.parse
+          import urllib.request
+
+          token = os.environ["GH_TOKEN"]
+          repo = os.environ["REPOSITORY"]
+          event_path = os.environ["EVENT_PATH"]
+
+          with open(event_path, "r", encoding="utf-8") as fh:
+              event = json.load(fh)
+
+          workflow_run = event.get("workflow_run") or {}
+          prs = workflow_run.get("pull_requests") or []
+          if not prs:
+              print("No pull request attached to workflow run; nothing to merge.")
+              raise SystemExit(0)
+
+          pr_number = int(prs[0]["number"])
+          api_root = f"https://api.github.com/repos/{repo}"
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+              "User-Agent": "spec-avtoportal-auto-merge",
+          }
+
+          def request(path, method="GET", payload=None):
+              data = None
+              if payload is not None:
+                  data = json.dumps(payload).encode("utf-8")
+              req = urllib.request.Request(
+                  api_root + path,
+                  data=data,
+                  method=method,
+                  headers=headers,
+              )
+              with urllib.request.urlopen(req, timeout=30) as resp:
+                  return json.loads(resp.read().decode("utf-8"))
+
+          pr = request(f"/pulls/{pr_number}")
+          if pr.get("state") != "open" or pr.get("draft"):
+              print("PR is not an open non-draft PR; skipping.")
+              raise SystemExit(0)
+          if (pr.get("base") or {}).get("ref") != "main":
+              print("PR does not target main; skipping.")
+              raise SystemExit(0)
+
+          head_repo = (((pr.get("head") or {}).get("repo") or {}).get("full_name") or "")
+          owner_login = ((((pr.get("base") or {}).get("repo") or {}).get("owner") or {}).get("login") or "")
+          author_login = ((pr.get("user") or {}).get("login") or "")
+          if head_repo != repo or author_login != owner_login:
+              print("Only same-repository PRs opened by the repository owner are auto-merged.")
+              raise SystemExit(0)
+
+          files = request(f"/pulls/{pr_number}/files?per_page=100")
+          filenames = [str(item.get("filename") or "") for item in files]
+          needs_ingest_tests = any(
+              name.startswith("aggregator/")
+              or name == "main.py"
+              or name == ".github/workflows/ingest-tests.yml"
+              for name in filenames
+          )
+
+          required = {"QA"}
+          if needs_ingest_tests:
+              required.add("Ingest Unit Tests")
+
+          head_sha = ((pr.get("head") or {}).get("sha") or "")
+          query = urllib.parse.urlencode({
+              "head_sha": head_sha,
+              "event": "pull_request",
+              "per_page": 100,
+          })
+          runs = request(f"/actions/runs?{query}").get("workflow_runs") or []
+
+          latest = {}
+          for run in runs:
+              name = str(run.get("name") or "")
+              if name not in required:
+                  continue
+              current = latest.get(name)
+              if current is None or int(run.get("run_number") or 0) > int(current.get("run_number") or 0):
+                  latest[name] = run
+
+          for name in sorted(required):
+              run = latest.get(name)
+              if not run:
+                  print(f"Required workflow {name!r} has not started yet; waiting.")
+                  raise SystemExit(0)
+              if run.get("status") != "completed":
+                  print(f"Required workflow {name!r} is still {run.get('status')}; waiting.")
+                  raise SystemExit(0)
+              if run.get("conclusion") != "success":
+                  print(f"Required workflow {name!r} concluded {run.get('conclusion')}; not merging.")
+                  raise SystemExit(0)
+
+          result = request(
+              f"/pulls/{pr_number}/merge",
+              method="PUT",
+              payload={
+                  "merge_method": "squash",
+                  "sha": head_sha,
+              },
+          )
+          if not result.get("merged"):
+              print("Merge was not completed:", result)
+              raise SystemExit(1)
+
+          print(f"PR #{pr_number} merged automatically at {result.get('sha')}.")
+          PY
