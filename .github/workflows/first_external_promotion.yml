@@ -5,7 +5,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'promotion/publish_truckmix.py'
+      - 'promotion/publish_mexzona.py'
       - '.github/workflows/first_external_promotion.yml'
 
 permissions:
@@ -39,13 +39,13 @@ jobs:
         run: |
           python promotion/agent.py
 
-      - name: Publish first external item to TRUCKmix
+      - name: Publish first external item to MEXZONA
         env:
           PROMOTION_LIVE: "1"
-          TRUCKMIX_LOGIN: ${{ secrets.TRUCKMIX_LOGIN }}
-          TRUCKMIX_PASSWORD: ${{ secrets.TRUCKMIX_PASSWORD }}
+          MEXZONA_LOGIN: ${{ secrets.MEXZONA_LOGIN }}
+          MEXZONA_PASSWORD: ${{ secrets.MEXZONA_PASSWORD }}
         run: |
-          python promotion/publish_truckmix.py
+          python promotion/publish_mexzona.py
 
       - name: Commit successful publication state
         if: success()
