@@ -118,10 +118,33 @@ def read_existing() -> List[Dict[str, Any]]:
         pass
     return []
 
+def item_key(it: Dict[str, Any]) -> str:
+    return str(
+        it.get("canonical_url")
+        or it.get("url")
+        or it.get("link")
+        or it.get("guid")
+        or it.get("title")
+        or ""
+    ).strip()
+
+
+def preserve_stable_identity(fresh: List[Dict[str, Any]], existing: List[Dict[str, Any]]) -> None:
+    """Carry persistent SEO identifiers from previous runs onto refreshed RSS items."""
+    previous = {item_key(it): it for it in existing if item_key(it)}
+    for it in fresh:
+        old = previous.get(item_key(it))
+        if not old:
+            continue
+        for field in ("id", "slug"):
+            if old.get(field) and not it.get(field):
+                it[field] = old[field]
+
+
 def dedup_by_link(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     seen, out = set(), []
     for it in items:
-        key = it.get("link") or it.get("title")
+        key = item_key(it)
         if not key or key in seen:
             continue
         seen.add(key)
@@ -166,6 +189,7 @@ def main() -> None:
     log("INFO", f"fresh after aggregate: {len(fresh)}")
     existing = read_existing()
     log("INFO", f"existing in file: {len(existing)}")
+    preserve_stable_identity(fresh, existing)
     merged = dedup_by_link(fresh + existing)
     merged = sort_by_date(merged)
     new_count = len(merged) - len(existing)

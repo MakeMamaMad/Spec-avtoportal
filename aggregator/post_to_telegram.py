@@ -72,7 +72,9 @@ def make_key(item):
     Уникальный ключ новости, чтобы понять — новая она или нет.
     Пробуем по id/url/link, если нет — по title+source.
     """
-    for key in ("id", "url", "link", "guid"):
+    # Source URL/guid stay stable before and after SEO metadata is assigned.
+    # Keep id last so the first migration does not make old items look new.
+    for key in ("canonical_url", "url", "link", "guid", "id"):
         v = item.get(key)
         if v:
             return str(v)
@@ -104,9 +106,14 @@ def get_new_items(prev, current):
     return unique
 
 
-def build_site_url(site_base: str, idx: int) -> str:
-    # article.html?i=... — как у тебя сейчас устроено
-    return f"{site_base}article.html?i={idx}"
+def build_site_url(site_base: str, item, idx=None) -> str:
+    """Prefer the stable SEO URL; keep index URL only as a legacy fallback."""
+    slug = str(item.get("slug") or "").strip()
+    if slug:
+        return f"{site_base}news/{urllib.parse.quote(slug)}/"
+    if isinstance(idx, int):
+        return f"{site_base}article.html?i={idx}"
+    return ""
 
 
 def build_text(item, site_url: str):
@@ -234,7 +241,7 @@ def main():
         print(f" → {title_dbg!r}")
 
         idx = key_to_index.get(make_key(item))
-        site_url = build_site_url(site_base, idx) if isinstance(idx, int) else ""
+        site_url = build_site_url(site_base, item, idx)
 
         text = build_text(item, site_url)
 

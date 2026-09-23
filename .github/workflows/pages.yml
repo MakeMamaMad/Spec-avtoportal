@@ -39,6 +39,13 @@ jobs:
       - name: Sanity check
         run: |
           test -f frontend/index.html || (echo "frontend/index.html not found" && exit 1)
+          test -f tools/build_seo.py || (echo "tools/build_seo.py not found" && exit 1)
+
+      - name: Build SEO article pages
+        run: |
+          python3 tools/build_seo.py
+          test -f frontend/sitemap.xml || (echo "sitemap.xml not generated" && exit 1)
+          test -f frontend/robots.txt || (echo "robots.txt not generated" && exit 1)
 
       - name: Upload static site (frontend)
         uses: actions/upload-pages-artifact@v3
