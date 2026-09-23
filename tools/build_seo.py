@@ -363,6 +363,98 @@ def article_url(item: dict[str, Any]) -> str:
     return f"{BASE_URL}/news/{item['slug']}/"
 
 
+KNOWLEDGE_LINK_RULES = {
+    "nagruzka-na-os": ("нагрузк", "осев", "перегруз", "весогабарит", "весовой контроль", "тяжеловес", "автопоезд"),
+    "gabarity-i-massy": ("габарит", "масса", "длина", "ширина", "высота", "автопоезд", "тяжеловес", "крупногабарит"),
+    "tr-ts-018-2011": ("тр тс", "018/2011", "сертификац", "оттс", "изменен", "конструкц", "соответств", "категория o"),
+    "kreplenie-gruzov": ("креплен", "крепеж", "ремн", "точк креплен", "паллет", "фиксац", "стяж"),
+    "tehnicheskoe-obsluzhivanie-polupricepa": ("обслужив", "техническ", "ремонт", "тормоз", "подвеск", "шина", "ступиц", "неисправ", "осмотр", "диагност"),
+    "kak-vybrat-polupricep": ("полуприцеп", "прицеп", "зерновоз", "самосвал", "рефриж", "тент", "низкорам", "цистерн", "кузов", "грузопод"),
+}
+
+
+def news_haystack(item: dict[str, Any]) -> str:
+    return " ".join([
+        get_field(item, "title", "headline", "name"),
+        summary_text(item),
+        get_field(item, "content", "content_text", "full_text"),
+        " ".join(tags(item)),
+    ]).lower()
+
+
+def knowledge_matches_for_news(item: dict[str, Any], knowledge_articles: dict[str, Any], limit: int = 3) -> list[dict[str, Any]]:
+    title = get_field(item, "title", "headline", "name").lower()
+    haystack = news_haystack(item)
+    scored: list[tuple[int, dict[str, Any]]] = []
+    for knowledge_item in knowledge_articles.get("items", []):
+        slug = str(knowledge_item.get("slug") or "")
+        needles = KNOWLEDGE_LINK_RULES.get(slug, ())
+        score = sum(3 for needle in needles if needle in title)
+        score += sum(1 for needle in needles if needle in haystack)
+        if score > 0:
+            scored.append((score, knowledge_item))
+    scored.sort(key=lambda pair: (-pair[0], str(pair[1].get("title") or "")))
+    return [knowledge_item for _, knowledge_item in scored[:limit]]
+
+
+def knowledge_links_html(matches: list[dict[str, Any]]) -> str:
+    if not matches:
+        return ""
+    cards = []
+    for item in matches:
+        eyebrow = html.escape(get_field(item, "eyebrow", default="База знаний"))
+        title = html.escape(get_field(item, "title", default="Материал"))
+        description = html.escape(clamp(get_field(item, "description"), 150))
+        cards.append(
+            f'<a class="context-link-card" href="/knowledge/{html.escape(str(item["slug"]), quote=True)}/">'
+            f'<span>{eyebrow}</span>'
+            f'<strong>{title}</strong>'
+            + (f'<p>{description}</p>' if description else '')
+            + '<b>Разобраться →</b>'
+            '</a>'
+        )
+    return (
+        '<section class="article-context">'
+        '<div class="article-context__heading"><p class="section-kicker">Полезно по теме</p><h2>Практические материалы</h2></div>'
+        f'<div class="context-link-grid">{"".join(cards)}</div>'
+        '</section>'
+    )
+
+
+def news_matches_for_knowledge(knowledge_item: dict[str, Any], items: list[dict[str, Any]], limit: int = 4) -> list[dict[str, Any]]:
+    slug = str(knowledge_item.get("slug") or "")
+    needles = KNOWLEDGE_LINK_RULES.get(slug, ())
+    scored: list[tuple[int, float, dict[str, Any]]] = []
+    for item in items:
+        title = get_field(item, "title", "headline", "name").lower()
+        haystack = news_haystack(item)
+        score = sum(3 for needle in needles if needle in title)
+        score += sum(1 for needle in needles if needle in haystack)
+        if score <= 0:
+            continue
+        published = parse_date(get_field(item, "published_at", "date", "pub_date"))
+        stamp = published.timestamp() if published else 0.0
+        scored.append((score, stamp, item))
+    scored.sort(key=lambda row: (-row[0], -row[1]))
+    return [item for _, _, item in scored[:limit]]
+
+
+def regulation_knowledge_matches(regulation: dict[str, Any], knowledge_articles: dict[str, Any]) -> list[dict[str, Any]]:
+    mapping = {
+        "tr-ts-018-2011": ["tr-ts-018-2011", "kak-vybrat-polupricep"],
+        "gost-3163-2020": ["tehnicheskoe-obsluzhivanie-polupricepa", "kak-vybrat-polupricep"],
+        "gost-34598-2019": ["kak-vybrat-polupricep"],
+        "gost-r-70472-2023": ["kreplenie-gruzov"],
+        "gost-r-70473-2022": ["kreplenie-gruzov"],
+        "gost-r-70474-2023": ["kreplenie-gruzov"],
+        "gost-r-70477-2022": ["kreplenie-gruzov"],
+        "mintrans-212-2026": ["tehnicheskoe-obsluzhivanie-polupricepa", "nagruzka-na-os"],
+    }
+    wanted = mapping.get(str(regulation.get("slug") or ""), [])
+    by_slug = {str(item.get("slug") or ""): item for item in knowledge_articles.get("items", [])}
+    return [by_slug[slug] for slug in wanted if slug in by_slug]
+
+
 def random_news_for(item: dict[str, Any], items: list[dict[str, Any]], limit: int = 3) -> list[dict[str, Any]]:
     """Deterministic pseudo-random picks so each article has a stable varied sidebar."""
     current_slug = str(item.get("slug") or "")
@@ -421,7 +513,7 @@ def json_ld(item: dict[str, Any]) -> str:
     return json.dumps(payload, ensure_ascii=False, separators=(",", ":")).replace("</", "<\/")
 
 
-def render_page(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
+def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_articles: dict[str, Any]) -> str:
     title_raw = get_field(item, "title", "headline", "name", default="Новость")
     title = html.escape(title_raw)
     summary_raw = summary_text(item)
@@ -501,6 +593,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
         )
 
     related_html = random_news_html(item, items)
+    knowledge_html = knowledge_links_html(knowledge_matches_for_news(item, knowledge_articles))
 
     published_meta = (
         f'<meta property="article:published_time" content="{html.escape(published_raw, quote=True)}" />'
@@ -528,7 +621,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
   <meta name="twitter:description" content="{description}" />
   <meta name="twitter:image" content="{image}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=15" />
+  <link rel="stylesheet" href="/styles.css?v=18" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{json_ld(item)}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -581,6 +674,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
           {f'<p class="article-lead">{html.escape(summary_raw)}</p>' if has_full_text and summary_raw else ''}
           <div class="article-copy">{body}</div>
         </section>
+        {knowledge_html}
         <footer class="article-footer">
           {source_button}
           <a href="/" class="secondary-btn">← К ленте новостей</a>
@@ -686,7 +780,7 @@ def render_brand_page(brand: dict[str, Any], brand_items: list[dict[str, Any]]) 
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=15" />
+  <link rel="stylesheet" href="/styles.css?v=18" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -806,7 +900,7 @@ def render_brand_directory(brand_counts: dict[str, int]) -> str:
   <meta property="og:title" content="Производители и бренды — СпецАвтоПортал" />
   <meta property="og:description" content="Архив новостей о производителях грузовой и прицепной техники." />
   <meta property="og:url" content="{BASE_URL}/brands/" />
-  <link rel="stylesheet" href="/styles.css?v=15" />
+  <link rel="stylesheet" href="/styles.css?v=18" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -913,7 +1007,7 @@ def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) 
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=15" />
+  <link rel="stylesheet" href="/styles.css?v=18" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -999,7 +1093,7 @@ def knowledge_url(item: dict[str, Any]) -> str:
     return f"{BASE_URL}/knowledge/{item['slug']}/"
 
 
-def render_knowledge_article(item: dict[str, Any], updated_at: str) -> str:
+def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: list[dict[str, Any]]) -> str:
     title_raw = get_field(item, "title", default="Материал базы знаний")
     title = html.escape(title_raw)
     eyebrow = html.escape(get_field(item, "eyebrow", default="База знаний"))
@@ -1055,6 +1149,24 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str) -> str:
         target = ' target="_blank"' if url.startswith(("http://", "https://")) else ""
         source_html.append(f'<a href="{href}"{target}{rel}>{label}<span>↗</span></a>')
 
+    recent_news = news_matches_for_knowledge(item, news_items)
+    recent_news_html = ""
+    if recent_news:
+        cards = []
+        for news_item in recent_news:
+            news_title = html.escape(get_field(news_item, "title", "headline", "name", default="Материал"))
+            news_date = html.escape(display_date(get_field(news_item, "published_at", "date", "pub_date")))
+            news_source = html.escape(source_domain(news_item))
+            news_meta = " · ".join(part for part in [news_date, news_source] if part)
+            cards.append(
+                f'<a class="knowledge-news-card" href="/news/{html.escape(str(news_item["slug"]), quote=True)}/">'
+                f'<span>{news_meta}</span><strong>{news_title}</strong><b>Читать новость →</b></a>'
+            )
+        recent_news_html = (
+            '<section class="knowledge-related-news"><p class="section-kicker">По теме</p><h2>Свежие новости</h2>'
+            f'<div class="knowledge-news-grid">{"".join(cards)}</div></section>'
+        )
+
     partner_html = ""
     partner = item.get("partner")
     if isinstance(partner, dict) and partner.get("url"):
@@ -1094,7 +1206,7 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str) -> str:
   <meta property="og:title" content="{title}" />
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
-  <link rel="stylesheet" href="/styles.css?v=17" />
+  <link rel="stylesheet" href="/styles.css?v=18" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -1128,6 +1240,7 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str) -> str:
     <section class="container knowledge-article-layout">
       <article class="knowledge-article">
         {''.join(section_html)}
+        {recent_news_html}
       </article>
       <aside class="knowledge-article-sidebar">
         {partner_html}
@@ -1171,7 +1284,7 @@ def regulation_url(item: dict[str, Any]) -> str:
     return f"{BASE_URL}/regulations/{item['slug']}/"
 
 
-def render_regulation_page(item: dict[str, Any], verified_at: str) -> str:
+def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_articles: dict[str, Any]) -> str:
     title = html.escape(get_field(item, "title", default="Нормативный документ"))
     code = html.escape(get_field(item, "code", default="Норматив"))
     doc_type = html.escape(get_field(item, "type", default="Документ"))
@@ -1210,6 +1323,7 @@ def render_regulation_page(item: dict[str, Any], verified_at: str) -> str:
         f'<div><span>{html.escape(label)}</span><strong>{value}</strong></div>'
         for label, value in meta_rows if value
     )
+    practice_html = knowledge_links_html(regulation_knowledge_matches(item, knowledge_articles))
 
     schema_payload = {
         "@context": "https://schema.org",
@@ -1243,7 +1357,7 @@ def render_regulation_page(item: dict[str, Any], verified_at: str) -> str:
   <meta property="og:title" content="{code} — {title}" />
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
-  <link rel="stylesheet" href="/styles.css?v=16" />
+  <link rel="stylesheet" href="/styles.css?v=18" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -1294,6 +1408,7 @@ def render_regulation_page(item: dict[str, Any], verified_at: str) -> str:
           <p class="section-kicker">Ключевые темы</p>
           <div class="news-card-tags">{keyword_html}</div>
         </section>
+        {practice_html}
       </article>
 
       <aside class="regulation-sidebar">
@@ -1392,7 +1507,7 @@ def render_regulations_index(regulations: dict[str, Any]) -> str:
   <meta property="og:title" content="Нормативы и ГОСТы — СпецАвтоПортал" />
   <meta property="og:description" content="Действующие нормативы для прицепов, полуприцепов, крепления грузов и безопасной эксплуатации." />
   <meta property="og:url" content="{BASE_URL}/law.html" />
-  <link rel="stylesheet" href="/styles.css?v=16" />
+  <link rel="stylesheet" href="/styles.css?v=18" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -1548,7 +1663,7 @@ def main() -> None:
         out_dir = KNOWLEDGE_DIR / str(knowledge_item["slug"])
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / "index.html").write_text(
-            render_knowledge_article(knowledge_item, knowledge_updated),
+            render_knowledge_article(knowledge_item, knowledge_updated, items),
             encoding="utf-8",
         )
 
@@ -1560,7 +1675,7 @@ def main() -> None:
         out_dir = REGULATIONS_DIR / str(regulation["slug"])
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / "index.html").write_text(
-            render_regulation_page(regulation, verified_at),
+            render_regulation_page(regulation, verified_at, knowledge_articles),
             encoding="utf-8",
         )
     (FRONTEND / "law.html").write_text(render_regulations_index(regulations), encoding="utf-8")
@@ -1568,7 +1683,7 @@ def main() -> None:
     for item in items:
         out_dir = NEWS_DIR / item["slug"]
         out_dir.mkdir(parents=True, exist_ok=True)
-        (out_dir / "index.html").write_text(render_page(item, items), encoding="utf-8")
+        (out_dir / "index.html").write_text(render_page(item, items, knowledge_articles), encoding="utf-8")
 
     topic_counts = {}
     for topic in TOPIC_RULES:

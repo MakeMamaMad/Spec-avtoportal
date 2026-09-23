@@ -60,6 +60,11 @@ jobs:
           sample = pages[0].read_text("utf-8")
           for marker in ('rel="canonical"', 'application/ld+json', 'property="og:title"', 'name="description"'):
               assert marker in sample, f"missing SEO marker: {marker}"
+          linked_news_pages = sum(
+              1 for page in pages
+              if 'Полезно по теме' in page.read_text("utf-8")
+          )
+          assert linked_news_pages >= 20, f"expected internal knowledge links on many news pages, got {linked_news_pages}"
 
           knowledge_data = json.loads((root / "data/knowledge_articles.json").read_text("utf-8"))
           knowledge_items = knowledge_data.get("items", [])
@@ -70,10 +75,14 @@ jobs:
 
           knowledge_pages = list((root / "knowledge").glob("*/index.html"))
           assert len(knowledge_pages) == len(knowledge_items), f"expected {len(knowledge_items)} knowledge pages, got {len(knowledge_pages)}"
+          knowledge_pages_with_news = 0
           for page in knowledge_pages:
               page_html = page.read_text("utf-8")
               for marker in ('rel="canonical"', 'application/ld+json', 'name="description"', 'База знаний'):
                   assert marker in page_html, f"knowledge article missing marker {marker}: {page}"
+              if 'Свежие новости' in page_html:
+                  knowledge_pages_with_news += 1
+          assert knowledge_pages_with_news >= 5, f"expected news cross-links on knowledge pages, got {knowledge_pages_with_news}"
 
           regulations_data = json.loads((root / "data/regulations.json").read_text("utf-8"))
           regulation_items = regulations_data.get("items", [])
@@ -89,10 +98,14 @@ jobs:
           regulations_dir = root / "regulations"
           regulation_pages = list(regulations_dir.glob("*/index.html"))
           assert len(regulation_pages) == len(regulation_items), f"expected {len(regulation_items)} regulation pages, got {len(regulation_pages)}"
+          regulations_with_practice = 0
           for page in regulation_pages:
               regulation_html = page.read_text("utf-8")
               for marker in ('rel="canonical"', 'application/ld+json', 'name="description"', 'Открыть официальный документ'):
                   assert marker in regulation_html, f"regulation page missing marker {marker}: {page}"
+              if 'Практические материалы' in regulation_html:
+                  regulations_with_practice += 1
+          assert regulations_with_practice == len(regulation_pages), "every active regulation should link to practical knowledge"
 
           law_html = (root / "law.html").read_text("utf-8")
           for marker in ('rel="canonical"', 'application/ld+json', 'Последняя проверка редакцией'):
@@ -171,5 +184,5 @@ jobs:
           for slug in brand_slugs:
               assert f"https://spec-avtoportal.ru/brands/{slug}/" in urls, f"brand missing from sitemap: {slug}"
 
-          print(f"QA OK: {len(items)} items, {len(pages)} pages, {len(topic_slugs)} topic hubs, {len(brand_slugs)} brand hubs, {len(regulation_items)} regulations, {len(knowledge_items)} knowledge articles, {len(urls)} sitemap URLs")
+          print(f"QA OK: {len(items)} items, {len(pages)} pages, {linked_news_pages} news pages with knowledge links, {knowledge_pages_with_news} knowledge pages with news, {len(regulation_items)} regulations, {len(urls)} sitemap URLs")
           PY
