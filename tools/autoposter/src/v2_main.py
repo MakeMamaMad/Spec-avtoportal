@@ -296,6 +296,18 @@ def main() -> int:
     video = OUT_DIR / "master.mp4"
     render_info = render_short(board, visual_paths, audio, video, WORK_DIR / "render")
 
+    # TikTok gets the same editorial story/voice but a clean visual export
+    # without superimposed brand/logo/URL.
+    tiktok_video = OUT_DIR / "tiktok.mp4"
+    tiktok_render_info = render_short(
+        board,
+        visual_paths,
+        audio,
+        tiktok_video,
+        WORK_DIR / "render_tiktok",
+        platform="tiktok",
+    )
+
     thumbnail_source = Path(str(render_info["thumbnail"]))
     thumbnail = OUT_DIR / "thumbnail.png"
     shutil.copyfile(thumbnail_source, thumbnail)
@@ -311,6 +323,7 @@ def main() -> int:
         "visual_modes": visual_modes,
         "tts": tts_mode,
         "render": render_info,
+        "render_tiktok": tiktok_render_info,
         "ai_script": bool(os.getenv("OPENAI_API_KEY", "").strip()) and os.getenv("AI_SCRIPT", "1") == "1",
         "ai_images": bool(os.getenv("OPENAI_API_KEY", "").strip()) and os.getenv("AI_IMAGES", "1") == "1",
     }
@@ -330,6 +343,7 @@ def main() -> int:
         "[OK] Short v2",
         f"scenes={len(board.scenes)}",
         f"video={video}",
+        f"tiktok_video={tiktok_video}",
         f"seconds={render_info['video_seconds']}",
         f"visuals={visual_modes}",
     )
