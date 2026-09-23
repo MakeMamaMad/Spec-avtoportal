@@ -936,12 +936,59 @@ button { color: inherit; }
 @media (max-width: 720px) {
   .container { width: min(100% - 28px, var(--container)); }
   .topline { display: none; }
-  .header-inner { min-height: 66px; }
+
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 8px 24px rgba(17, 19, 21, .08);
+  }
+
+  .header-inner {
+    min-height: 0;
+    padding-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+  }
+
+  .brand {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
   .brand-copy strong { font-size: 16px; }
-  .main-nav { order: 3; width: 100%; margin-top: -8px; padding-bottom: 8px; }
-  .site-header { position: relative; }
-  .header-inner { flex-wrap: wrap; }
-  .tg-badge { margin-left: auto; padding: 9px 11px; }
+
+  .main-nav {
+    order: 3;
+    width: 100%;
+    flex: 0 0 100%;
+    margin: 0;
+    padding: 0 0 8px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+    overflow: visible;
+  }
+
+  .main-nav .nav-link {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 5px;
+    font-size: clamp(10px, 3.2vw, 12px);
+    line-height: 1.15;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .tg-badge {
+    flex: 0 0 auto;
+    margin-left: auto;
+    padding: 8px 10px;
+  }
   .masthead-title { font-size: clamp(34px, 10.5vw, 52px); }
   .featured-section { padding-top: 36px; }
   .featured-primary { min-height: 360px; }
@@ -975,7 +1022,7 @@ button { color: inherit; }
 }
 
 @media (max-width: 480px) {
-  .nav-link { padding: 8px 9px; font-size: 12px; }
+  .main-nav .nav-link { padding: 8px 3px; font-size: 11px; }
   .masthead-inner { padding: 48px 0 44px; }
   .featured-content { padding: 20px; }
   .featured-primary h3 { font-size: 28px; }
