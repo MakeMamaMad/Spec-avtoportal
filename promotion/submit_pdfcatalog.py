@@ -263,14 +263,26 @@ def main() -> int:
                 print("NEEDS_MANUAL: PDFcatalog CAPTCHA/manual code detected after filling")
                 return 0
 
-            submit = page.get_by_role("button", name=re.compile(r"добавить|отправить|сохранить", re.I))
-            if not submit.count():
-                submit = page.locator('input[type="submit"], button[type="submit"]')
-            if not submit.count():
-                print("FORM_INVENTORY=" + json.dumps(safe_inventory(page), ensure_ascii=False))
-                raise RuntimeError("PDFcatalog submit control was not found")
+            submit = page.locator("#submit_r")
+            if not submit.count() or not submit.first.is_visible():
+                candidates = page.locator('input[type="submit"], button[type="submit"]')
+                visible_submit = None
+                for i in range(candidates.count()):
+                    candidate = candidates.nth(i)
+                    try:
+                        if candidate.is_visible():
+                            visible_submit = candidate
+                            break
+                    except Exception:
+                        pass
+                if visible_submit is None:
+                    print("FORM_INVENTORY=" + json.dumps(safe_inventory(page), ensure_ascii=False))
+                    raise RuntimeError("PDFcatalog visible submit control was not found")
+                submit = visible_submit
+            else:
+                submit = submit.first
 
-            submit.first.click()
+            submit.click()
             page.wait_for_load_state("domcontentloaded", timeout=60000)
             body = (page.locator("body").inner_text() or "").lower()
 
