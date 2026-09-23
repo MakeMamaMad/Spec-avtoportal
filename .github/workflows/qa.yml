@@ -36,13 +36,18 @@ jobs:
           state = json.loads(Path("frontend/data/telegram_state.json").read_text("utf-8"))
 
           assert config.get("schema") == 1
-          assert config.get("enabled") is False, "Telegram must stay paused until the channel is cleaned"
+          assert config.get("enabled") is True, "Telegram publishing should be live after channel cleanup"
           assert len(str(config.get("baseline_ref") or "")) == 40, "Telegram baseline_ref must be a commit SHA"
           assert 1 <= int(config.get("max_posts_per_run") or 0) <= 10
           assert state.get("schema") == 1
           assert isinstance(state.get("posts"), dict)
-          assert state.get("welcome_message_id") is None
-          print("Telegram reboot config OK")
+          welcome_id = state.get("welcome_message_id")
+          assert welcome_id is None or isinstance(welcome_id, int), "welcome_message_id must be null or int"
+          for key, post in state.get("posts", {}).items():
+              assert key
+              assert isinstance(post, dict)
+              assert isinstance(post.get("message_id"), int)
+          print("Telegram live config OK")
           PY
 
       - name: JavaScript syntax
