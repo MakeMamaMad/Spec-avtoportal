@@ -187,6 +187,14 @@
     }
 
     const item = news[index];
+
+    // Legacy compatibility: old article.html?i=... links migrate to the stable SEO URL.
+    const slug = String(item.slug || "").trim();
+    if (slug) {
+      window.location.replace("news/" + encodeURIComponent(slug) + "/");
+      return;
+    }
+
     renderArticle(item, news, index);
   }
 
