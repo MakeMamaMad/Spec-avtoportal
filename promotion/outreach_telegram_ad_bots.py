@@ -84,7 +84,14 @@ def main() -> int:
         if row.get("target_id")
     }
 
-    candidate = None
+    last_attempt: dict[str, str] = {}
+    for hist in history.get("entries", []):
+        target_id = str(hist.get("target_id") or "")
+        attempted_at = str(hist.get("attempted_at") or "")
+        if target_id and attempted_at and attempted_at > last_attempt.get(target_id, ""):
+            last_attempt[target_id] = attempted_at
+
+    candidates = []
     for target in targets.get("targets", []):
         target_id = str(target.get("id") or "")
         if not target_id or target_id in already:
@@ -99,8 +106,13 @@ def main() -> int:
         row = queue_by_id.get(target_id)
         if not row:
             continue
+        candidates.append((last_attempt.get(target_id, ""), target, row, bot_contact))
+
+    candidates.sort(key=lambda item: item[0])
+    candidate = None
+    if candidates:
+        _, target, row, bot_contact = candidates[0]
         candidate = (target, row, bot_contact)
-        break
 
     if not candidate:
         print("NO_BOT_OUTREACH_TARGET")
