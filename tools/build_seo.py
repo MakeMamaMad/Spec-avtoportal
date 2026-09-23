@@ -33,6 +33,14 @@ BASE_URL = "https://spec-avtoportal.ru"
 
 BRAND_RULES = [
     {
+        "slug": "satpricep",
+        "name": "SAT / satpricep.by",
+        "description": "Новости Завода Спецавтотехника, прицепной техники SAT, новых моделей и проектов satpricep.by.",
+        "patterns": (r"satpricep", r"спецавтотехник", r"\bsat\d{2,4}\b"),
+        "partner": True,
+        "partner_url": "https://www.satpricep.by/",
+    },
+    {
         "slug": "krone",
         "name": "KRONE",
         "description": "Новости и материалы о прицепной технике, разработках и проектах KRONE.",
@@ -305,6 +313,9 @@ def brands_for(item: dict[str, Any]) -> list[dict[str, Any]]:
     haystack = " ".join([
         get_field(item, "title", "headline", "name"),
         summary_text(item),
+        get_field(item, "source", "source_name", "site"),
+        get_field(item, "domain"),
+        " ".join(tags(item)),
     ]).lower()
     return [
         brand for brand in BRAND_RULES
@@ -648,6 +659,15 @@ def render_brand_page(brand: dict[str, Any], brand_items: list[dict[str, Any]]) 
         f'<a href="/brands/{other["slug"]}/">{html.escape(other["name"])} <span>→</span></a>'
         for other in BRAND_RULES if other["slug"] != brand["slug"]
     )
+    partner_html = ""
+    if brand.get("partner") and brand.get("partner_url"):
+        partner_html = (
+            '<div class="brand-partner-note">'
+            '<span>Партнёр проекта</span>'
+            f'<a href="{html.escape(str(brand["partner_url"]), quote=True)}?utm_source=spec-avtoportal&utm_medium=brand_hub&utm_campaign=partner" '
+            'target="_blank" rel="sponsored noopener">Перейти на satpricep.by ↗</a>'
+            '</div>'
+        )
 
     return f"""<!doctype html>
 <html lang="ru">
@@ -702,6 +722,7 @@ def render_brand_page(brand: dict[str, Any], brand_items: list[dict[str, Any]]) 
           <p class="section-kicker">Производитель / бренд</p>
           <h1>{name}</h1>
           <p>{html.escape(brand["description"])}</p>
+          {partner_html}
         </div>
         <div class="topic-hero__count">
           <strong>{len(brand_items)}</strong>
@@ -740,8 +761,10 @@ def render_brand_directory(brand_counts: dict[str, int]) -> str:
     cards = []
     for brand in BRAND_RULES:
         count = brand_counts.get(brand["slug"], 0)
+        partner_badge = '<span class="brand-directory-card__partner">Партнёр проекта</span>' if brand.get("partner") else ''
         cards.append(
             f'<a class="brand-directory-card" href="/brands/{brand["slug"]}/">'
+            f'{partner_badge}'
             f'<span class="brand-directory-card__count">{count} материалов</span>'
             f'<strong>{html.escape(brand["name"])}</strong>'
             f'<p>{html.escape(brand["description"])}</p>'
