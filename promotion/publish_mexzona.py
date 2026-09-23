@@ -94,6 +94,59 @@ def safe_form_inventory(page: Page) -> list[dict[str, Any]]:
     return result
 
 
+def safe_validation_messages(page: Page) -> list[str]:
+    messages: list[str] = []
+    selectors = (
+        ".invalid-feedback", ".error", ".errors", ".help-block",
+        ".text-danger", ".alert-danger", "[role='alert']",
+    )
+    for selector in selectors:
+        loc = page.locator(selector)
+        for i in range(min(loc.count(), 30)):
+            try:
+                text = (loc.nth(i).inner_text() or "").strip()
+                if text and text not in messages:
+                    messages.append(text[:500])
+            except Exception:
+                pass
+    return messages[:30]
+
+
+def find_article_in_admin(page: Page, title: str) -> dict[str, str] | None:
+    target = re.sub(r"\\s+", " ", title).strip().lower()
+    short = target[:60]
+    rows = page.locator("tr")
+    for i in range(rows.count()):
+        row = rows.nth(i)
+        try:
+            row_text = re.sub(r"\\s+", " ", row.inner_text() or "").strip()
+        except Exception:
+            continue
+        norm = row_text.lower()
+        if target in norm or (short and short in norm):
+            href = ""
+            links = row.locator("a")
+            for j in range(links.count()):
+                raw = links.nth(j).get_attribute("href") or ""
+                if raw:
+                    href = raw if raw.startswith("http") else "https://mexzona.ru" + (raw if raw.startswith("/") else "/" + raw)
+                    break
+            return {"status_text": row_text[:800], "admin_url": href or page.url}
+    links = page.locator("a")
+    for i in range(links.count()):
+        link = links.nth(i)
+        try:
+            link_text = re.sub(r"\\s+", " ", link.inner_text() or "").strip()
+        except Exception:
+            continue
+        norm = link_text.lower()
+        if target in norm or (short and short in norm):
+            raw = link.get_attribute("href") or ""
+            href = raw if raw.startswith("http") else "https://mexzona.ru" + (raw if raw.startswith("/") else "/" + raw)
+            return {"status_text": link_text[:800], "admin_url": href or page.url}
+    return None
+
+
 def first_visible(page: Page, selectors: list[str]):
     for selector in selectors:
         loc = page.locator(selector)
@@ -363,20 +416,16 @@ def submit(page: Page) -> None:
     if not button.count():
         raise RuntimeError("MEXZONA publish submit button was not found")
 
-    before = page.url
+    button.first.click()
     try:
-        with page.expect_navigation(wait_until="domcontentloaded", timeout=60000):
-            button.first.click()
+        page.wait_for_load_state("domcontentloaded", timeout=15000)
     except Exception:
-        button.first.click()
-        page.wait_for_timeout(2000)
-
-    if page.url == before:
-        page.wait_for_timeout(1000)
+        pass
+    page.wait_for_timeout(1500)
 
 
 def main() -> int:
-    if DONE_PATH.exists():
+    if DONE_PATH.exists() and os.getenv("PROMOTION_FORCE_RETRY") != "1":
         print("First external promotion has already completed; skipping.")
         return 0
 
@@ -450,15 +499,17 @@ def main() -> int:
             fill_selects(page)
             submit(page)
 
-            body = (page.locator("body").inner_text() or "").lower()
-            if any(x in body for x in ("ошибка", "заполните обязатель", "не удалось")):
+            if "/admin/articles/create" in page.url:
                 print("PAGE_SUMMARY=" + json.dumps(safe_page_summary(page), ensure_ascii=False))
+                print("VALIDATION_MESSAGES=" + json.dumps(safe_validation_messages(page), ensure_ascii=False))
                 print("FORM_INVENTORY=" + json.dumps(safe_form_inventory(page), ensure_ascii=False))
-                raise RuntimeError("MEXZONA returned a validation error after submit")
+                raise RuntimeError("MEXZONA kept the create form after submit; validation failed")
 
-            status = "submitted"
-            if page.url and "/login" not in page.url.lower():
-                status = "published_or_submitted"
+            page.goto("https://mexzona.ru/admin/articles", wait_until="domcontentloaded", timeout=60000)
+            found = find_article_in_admin(page, title)
+            if not found:
+                print("PAGE_SUMMARY=" + json.dumps(safe_page_summary(page), ensure_ascii=False))
+                raise RuntimeError("MEXZONA submission was not found in the author article list")
 
             record = {
                 "target_id": TARGET_ID,
@@ -466,9 +517,10 @@ def main() -> int:
                 "item_key": entry.get("item_key"),
                 "title": title,
                 "source_url": site_url,
-                "result_url": page.url,
+                "result_url": found.get("admin_url") or page.url,
+                "status_text": found.get("status_text") or "",
                 "submitted_at": utc_now(),
-                "status": status,
+                "status": "verified_in_author_cabinet",
             }
             history.setdefault("entries", []).append(record)
             save_json(HISTORY_PATH, history)
