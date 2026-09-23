@@ -79,6 +79,9 @@ jobs:
           OPENAI_TEXT_MODEL: "gpt-5.6-luna"
           OPENAI_IMAGE_MODEL: "gpt-image-2.5-sunburst"
           OPENAI_IMAGE_QUALITY: ${{ github.event_name == 'workflow_dispatch' && inputs.image_quality || 'low' }}
+          OPENAI_TTS: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
+          OPENAI_TTS_MODEL: "gpt-4o-mini-tts"
+          OPENAI_TTS_VOICE: "cedar"
           V2_FORCE_SLUG: ${{ github.event_name == 'workflow_dispatch' && inputs.force_slug || '' }}
           V2_MARK_USED: "0"
           SITE_URL: "https://spec-avtoportal.ru/"
