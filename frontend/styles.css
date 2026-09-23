@@ -478,7 +478,14 @@ button { color: inherit; }
 }
 .tag-badge:hover { background: var(--orange-soft); color: var(--orange-dark); }
 
-.layout-sidebar { position: sticky; top: 98px; display: flex; flex-direction: column; gap: 14px; }
+.layout-sidebar {
+  position: sticky;
+  top: 92px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
 .sidebar-block {
   background: var(--paper);
   border: 1px solid var(--line);
@@ -549,19 +556,19 @@ button { color: inherit; }
   margin-bottom: 24px;
 }
 .partner-card__label,
-.partner-card__availability {
+.partner-card__domain {
   font-size: 9px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: .1em;
 }
 .partner-card__label { color: #ff9a54; }
-.partner-card__availability {
-  padding: 5px 7px;
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 999px;
+.partner-card__domain {
   color: #c9d0d5;
-  background: rgba(255,255,255,.04);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: lowercase;
 }
 .partner-card__brand {
   margin-bottom: 4px;
@@ -584,35 +591,6 @@ button { color: inherit; }
   font-size: 12px;
   line-height: 1.5;
 }
-.partner-card__specs {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin: 0 0 18px;
-}
-.partner-card__specs div {
-  min-width: 0;
-  padding: 10px 8px;
-  border-radius: 10px;
-  background: rgba(255,255,255,.055);
-  border: 1px solid rgba(255,255,255,.07);
-}
-.partner-card__specs strong {
-  display: block;
-  margin-bottom: 2px;
-  color: #fff;
-  font-size: 19px;
-  line-height: 1;
-  letter-spacing: -.03em;
-}
-.partner-card__specs span {
-  display: block;
-  color: #858f96;
-  font-size: 8px;
-  line-height: 1.25;
-  text-transform: uppercase;
-  letter-spacing: .04em;
-}
 .partner-card__button {
   position: relative;
   z-index: 1;
@@ -633,6 +611,45 @@ button { color: inherit; }
 .partner-card__button:hover {
   background: #ff7b1c;
   transform: translateY(-1px);
+}
+.partner-card__product {
+  position: relative;
+  z-index: 1;
+  margin-top: 10px;
+  padding: 10px 11px;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 10px;
+  background: rgba(255,255,255,.045);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.partner-card__product span {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.partner-card__product small {
+  color: #858f96;
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.partner-card__product strong {
+  color: #fff;
+  font-size: 14px;
+  letter-spacing: -.02em;
+}
+.partner-card__product b {
+  color: #ff9a54;
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.partner-card__product:hover {
+  border-color: rgba(255,107,0,.4);
+  background: rgba(255,107,0,.07);
 }
 .partner-card__note {
   margin: 10px 0 0;
