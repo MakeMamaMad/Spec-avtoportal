@@ -32,6 +32,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: |
+            aggregator/requirements.txt
+            aggregator/translate-requirements.txt
 
       - name: Install deps if present
         run: |
@@ -42,13 +46,8 @@ jobs:
             pip install -r aggregator/requirements.txt
           fi
 
-          # если у тебя есть отдельный файл переводных зависимостей — ставим его тоже
-          if [ -f "tools/translate-requirements.txt" ]; then
-            pip install -r tools/translate-requirements.txt
-          fi
-          if [ -f "aggregator/translate-requirements.txt" ]; then
-            pip install -r aggregator/translate-requirements.txt
-          fi
+          # Translation dependencies are installed only when new foreign
+          # items actually need translation.
 
       - name: Quick YAML check (aggregator/sources.yml)
         run: |
@@ -76,17 +75,35 @@ jobs:
             --sources aggregator/sources.yml \
             --output frontend/data/news.json
 
-      - name: Translate title & summary for foreign sources only
+      - name: Restore Argos language models
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/share/argos-translate
+            ~/.cache/argos-translate
+          key: argos-models-${{ runner.os }}-py311-v1
+          restore-keys: |
+            argos-models-${{ runner.os }}-py311-
+
+      - name: Translate only new foreign items
         env:
           NEWS_PATH: frontend/data/news.json
         run: |
-          if [ -f "aggregator/translate_news.py" ]; then
-            # ✅ страховка: если translate-зависимости не поставились через файлы выше — ставим их тут
-            python -m pip install -q argostranslate langdetect
-            python aggregator/translate_news.py
-          else
+          if [ ! -f "aggregator/translate_news.py" ]; then
             echo "No translate script found at aggregator/translate_news.py — skipping translation."
+            exit 0
           fi
+
+          NEEDS_TRANSLATION="$(python aggregator/translate_news.py --count)"
+          echo "Items requiring translation: $NEEDS_TRANSLATION"
+
+          if [ "$NEEDS_TRANSLATION" = "0" ]; then
+            echo "No new foreign items. Skipping Argos dependency/model startup."
+            exit 0
+          fi
+
+          python -m pip install -q -r aggregator/translate-requirements.txt
+          python aggregator/translate_news.py
 
       - name: Assign stable SEO ids and slugs
         run: |

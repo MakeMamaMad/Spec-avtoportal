@@ -1,28 +1,25 @@
+import argparse
 import json
 import os
 import re
+from datetime import datetime, timezone
 from pathlib import Path
-
-from langdetect import detect
-import argostranslate.package
-import argostranslate.translate
+from typing import Any
 
 
 NEWS_PATH = os.getenv("NEWS_PATH", "frontend/data/news.json")
 
-# Переводим ТОЛЬКО эти домены (иностранные источники)
-TRANSLATE_DOMAINS = {
-    "globaltrailermag.com",
-    "krone-trailer.com",
-    "pressebox.de",
-    "stockwatch.pl",
-    "trucknews.com",
-    "ttnews.com",
-    "trailertechnician.com",
+# Fixed source-language mapping lets the cheap "count" pass run without
+# importing language-detection or Argos packages.
+DOMAIN_LANG = {
+    "globaltrailermag.com": "en",
+    "krone-trailer.com": "de",
+    "pressebox.de": "de",
+    "stockwatch.pl": "pl",
+    "trucknews.com": "en",
+    "ttnews.com": "en",
+    "trailertechnician.com": "en",
 }
-
-# С каких языков пытаемся перевести -> ru (можно расширять)
-SOURCE_LANGS = ["en", "de", "pl"]
 
 
 def looks_russian(text: str) -> bool:
@@ -30,58 +27,43 @@ def looks_russian(text: str) -> bool:
 
 
 def normalize_domain(domain: str) -> str:
-    d = (domain or "").strip().lower()
-    d = d.replace("www.", "")
-    return d
+    return (domain or "").strip().lower().replace("www.", "")
 
 
-def normalize_text(text: str) -> str:
+def normalize_text(text: Any) -> str:
     if not text:
         return ""
     return re.sub(r"\s+", " ", str(text)).strip()
 
 
-def detect_lang_safe(text: str) -> str:
-    text = normalize_text(text)
-    if not text:
-        return "unknown"
-    if looks_russian(text):
-        return "ru"
-    try:
-        return detect(text)
-    except Exception:
-        return "unknown"
-
-
-def ensure_argos_packages():
-    available = argostranslate.package.get_available_packages()
-    for src in SOURCE_LANGS:
-        pkg = next((p for p in available if p.from_code == src and p.to_code == "ru"), None)
-        if pkg:
-            path = pkg.download()
-            argostranslate.package.install_from_path(path)
-
-
-def translate_to_ru(text: str, src_lang: str) -> str:
-    text = normalize_text(text)
-    if not text:
-        return ""
-    if src_lang == "ru" or looks_russian(text):
-        return text
-    try:
-        return argostranslate.translate.translate(text, src_lang, "ru")
-    except Exception:
-        return text
+def source_lang(item: dict) -> str:
+    return DOMAIN_LANG.get(normalize_domain(item.get("domain", "")), "")
 
 
 def should_translate_item(item: dict) -> bool:
-    domain = normalize_domain(item.get("domain", ""))
-    if not domain:
+    lang = source_lang(item)
+    if not lang:
         return False
-    return domain in TRANSLATE_DOMAINS
+    if item.get("translation_status") == "ru":
+        return False
+
+    title = normalize_text(item.get("title", ""))
+    summary = normalize_text(item.get("summary", ""))
+    sample = f"{title} {summary}".strip()
+    if not sample or looks_russian(sample):
+        return False
+    return True
 
 
-def main():
+def candidate_items(data: list[dict]) -> list[dict]:
+    return [
+        item
+        for item in data
+        if isinstance(item, dict) and should_translate_item(item)
+    ]
+
+
+def load_news() -> tuple[Path, list[dict]]:
     news_file = Path(NEWS_PATH)
     if not news_file.exists():
         raise FileNotFoundError(f"Не найден файл: {NEWS_PATH}")
@@ -89,42 +71,134 @@ def main():
     data = json.loads(news_file.read_text(encoding="utf-8"))
     if not isinstance(data, list):
         raise ValueError("Ожидался JSON-массив новостей")
+    return news_file, data
 
-    ensure_argos_packages()
+
+def ensure_argos_packages(required_langs: set[str]) -> None:
+    if not required_langs:
+        return
+
+    import argostranslate.package
+
+    installed = {
+        (pkg.from_code, pkg.to_code)
+        for pkg in argostranslate.package.get_installed_packages()
+    }
+    missing = {
+        lang for lang in required_langs
+        if (lang, "ru") not in installed
+    }
+    if not missing:
+        print(f"Argos models already installed for: {', '.join(sorted(required_langs))}")
+        return
+
+    print(f"Installing missing Argos models: {', '.join(sorted(missing))}")
+    argostranslate.package.update_package_index()
+    available = argostranslate.package.get_available_packages()
+
+    for src in sorted(missing):
+        pkg = next(
+            (p for p in available if p.from_code == src and p.to_code == "ru"),
+            None,
+        )
+        if not pkg:
+            raise RuntimeError(f"Argos package {src}->ru not found")
+        package_path = pkg.download()
+        argostranslate.package.install_from_path(package_path)
+
+
+def translate_to_ru(text: str, src_lang: str) -> str:
+    text = normalize_text(text)
+    if not text or looks_russian(text):
+        return text
+
+    import argostranslate.translate
+
+    try:
+        translated = argostranslate.translate.translate(text, src_lang, "ru")
+        return normalize_text(translated) or text
+    except Exception as exc:
+        print(f"WARN: translation failed {src_lang}->ru: {exc}")
+        return text
+
+
+def translate_item(item: dict) -> int:
+    lang = source_lang(item)
+    if not lang:
+        return 0
+
+    title = normalize_text(item.get("title", ""))
+    summary = normalize_text(item.get("summary", ""))
+
+    item.setdefault("original_title", title)
+    item.setdefault("original_summary", summary)
 
     changed = 0
-    for item in data:
-        if not isinstance(item, dict):
-            continue
+    new_title = translate_to_ru(title, lang)
+    new_summary = translate_to_ru(summary, lang)
 
-        # ✅ переводим только выбранные иностранные домены
-        if not should_translate_item(item):
-            continue
+    if new_title != title:
+        item["title"] = new_title
+        changed += 1
+    if new_summary != summary:
+        item["summary"] = new_summary
+        changed += 1
 
-        title = item.get("title", "") or ""
-        summary = item.get("summary", "") or ""
+    # Mark complete only if translated content is actually Russian. This keeps
+    # failures retryable on the next run.
+    final_sample = f"{item.get('title', '')} {item.get('summary', '')}".strip()
+    if looks_russian(final_sample):
+        item["translation_status"] = "ru"
+        item["translation_source_lang"] = lang
+        item["translation_updated_at"] = datetime.now(timezone.utc).isoformat()
 
-        # язык определяем по связке title+summary
-        sample = (title + " " + summary).strip()
-        lang = detect_lang_safe(sample)
+    return changed
 
-        # ✅ если вдруг уже RU — не переводим
-        if lang == "ru":
-            continue
 
-        new_title = translate_to_ru(title, lang)
-        new_summary = translate_to_ru(summary, lang)
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--count",
+        action="store_true",
+        help="Print how many items need translation without importing Argos.",
+    )
+    args = parser.parse_args()
 
-        if new_title != title:
-            item["title"] = new_title
-            changed += 1
-        if new_summary != summary:
-            item["summary"] = new_summary
-            changed += 1
+    news_file, data = load_news()
+    candidates = candidate_items(data)
 
-    news_file.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"OK: обновлено полей перевода: {changed}")
+    if args.count:
+        print(len(candidates))
+        return 0
+
+    if not candidates:
+        print("OK: перевод не требуется; новых иностранных материалов нет")
+        return 0
+
+    langs = {source_lang(item) for item in candidates if source_lang(item)}
+    print(
+        f"Translation queue: {len(candidates)} item(s), "
+        f"languages: {', '.join(sorted(langs))}"
+    )
+    ensure_argos_packages(langs)
+
+    changed = 0
+    completed = 0
+    for item in candidates:
+        changed += translate_item(item)
+        if item.get("translation_status") == "ru":
+            completed += 1
+
+    news_file.write_text(
+        json.dumps(data, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    print(
+        f"OK: translated items: {completed}/{len(candidates)}; "
+        f"updated fields: {changed}"
+    )
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
