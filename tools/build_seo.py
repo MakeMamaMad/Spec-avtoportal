@@ -159,11 +159,15 @@ def tags(item: dict[str, Any]) -> list[str]:
     return []
 
 
-def absolute_image(item: dict[str, Any]) -> str:
+def source_image(item: dict[str, Any]) -> str:
     image = get_field(item, "image_url", "image", "img")
     if image.startswith(("http://", "https://")):
         return image
-    return f"{BASE_URL}/assets/logo.png"
+    return ""
+
+
+def absolute_image(item: dict[str, Any]) -> str:
+    return source_image(item) or f"{BASE_URL}/assets/logo.png"
 
 
 def article_url(item: dict[str, Any]) -> str:
@@ -204,6 +208,7 @@ def render_page(item: dict[str, Any]) -> str:
     description = html.escape(clamp(summary_raw or title_raw, 160), quote=True)
     canonical = article_url(item)
     image = html.escape(absolute_image(item), quote=True)
+    display_image = html.escape(source_image(item), quote=True)
     published_raw = get_field(item, "published_at", "date", "pub_date")
     published_label = display_date(published_raw)
     src_name = html.escape(source_name(item))
@@ -299,7 +304,7 @@ def render_page(item: dict[str, Any]) -> str:
           </div>
           <div class="news-card-tags">{tag_html}</div>
         </header>
-        {f'<div class="article-image-wrap"><img src="{image}" alt="" class="article-image" /></div>' if image else ''}
+        {f'<div class="article-image-wrap"><img src="{display_image}" alt="" class="article-image" /></div>' if display_image else ''}
         <section class="article-body">
           <p class="section-kicker">Кратко</p>
           {body}
