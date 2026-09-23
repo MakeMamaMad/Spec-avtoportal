@@ -85,6 +85,7 @@ jobs:
                   assert marker in topic_html, f"topic {slug} missing SEO marker: {marker}"
 
           brand_slugs = [
+              "satpricep",
               "krone",
               "maz",
               "kamaz",
