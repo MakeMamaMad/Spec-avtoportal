@@ -40,7 +40,8 @@
   }
 
   function articleUrl(item) {
-    return "article.html?i=" + encodeURIComponent(item.__index);
+    const slug = String(item.slug || "").trim();
+    return slug ? "news/" + encodeURIComponent(slug) + "/" : "article.html?i=" + encodeURIComponent(item.__index);
   }
 
   function normalize() {
