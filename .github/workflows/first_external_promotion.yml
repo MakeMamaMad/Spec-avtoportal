@@ -1,4 +1,5 @@
 name: First External Promotion
+# trigger: mexzona-live
 
 on:
   workflow_dispatch:
