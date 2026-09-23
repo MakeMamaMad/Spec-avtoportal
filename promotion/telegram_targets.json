@@ -39,7 +39,8 @@
       "contact_type": "advertising_contact",
       "policy": "advertising_by_agreement",
       "status": "approval_required",
-      "notes": "Есть отдельный рекламный контакт; публикации по правилам сообщества."
+      "notes": "Публично указан бот «Опубликовать» @Arenda_Spec_Tehniki_Bot и рекламный контакт @All_Admino; сначала пробуем рекламный бот.",
+      "bot_contact": "@Arenda_Spec_Tehniki_Bot"
     },
     {
       "id": "cargonomica",
@@ -143,7 +144,8 @@
       "contact_type": "advertising_bot",
       "policy": "advertising_by_agreement",
       "status": "approval_required",
-      "notes": "Публично указан бот по сотрудничеству и рекламе; бот-бот коммуникацию не автоматизируем."
+      "notes": "Публично указан бот по сотрудничеству и рекламе; разрешён автоматический bot-to-bot outreach, если Telegram поддерживает его для обоих ботов.",
+      "bot_contact": "@spectehnika_mosk_bot"
     },
     {
       "id": "cpectehnikagruppa",
@@ -157,6 +159,20 @@
       "policy": "no_extra_ads",
       "status": "blocked",
       "notes": "Описание прямо запрещает лишнюю рекламу/спам; не используем."
+    },
+    {
+      "id": "logistic-aggregator",
+      "name": "Logistic Aggregator Cargo and Transport",
+      "handle": "@LogisticAggregator",
+      "url": "https://t.me/LogisticAggregator",
+      "audience": "логистика, грузоперевозки, транспорт, спецтехника",
+      "approx_audience": 5914,
+      "contact": "@offer_avtobot",
+      "bot_contact": "@offer_avtobot",
+      "contact_type": "advertising_bot",
+      "policy": "advertising_by_agreement",
+      "status": "approval_required",
+      "notes": "Публично указаны рекламные контакты через Telega.in и @offer_avtobot; автоматический outreach разрешён только через рекламного бота."
     }
   ]
 }
