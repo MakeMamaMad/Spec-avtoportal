@@ -74,37 +74,74 @@ def load_news() -> tuple[Path, list[dict]]:
     return news_file, data
 
 
+def required_argos_pairs(required_langs: set[str]) -> set[tuple[str, str]]:
+    """Return installable translation pairs needed to reach Russian.
+
+    Argos can compose installed translations through intermediate languages.
+    The public package index does not guarantee direct src->ru models for every
+    source language, so German/Polish are routed through English.
+    """
+    pairs: set[tuple[str, str]] = set()
+    for src in required_langs:
+        if src == "ru":
+            continue
+        if src == "en":
+            pairs.add(("en", "ru"))
+        else:
+            pairs.add((src, "en"))
+            pairs.add(("en", "ru"))
+    return pairs
+
+
 def ensure_argos_packages(required_langs: set[str]) -> None:
     if not required_langs:
         return
 
     import argostranslate.package
+    import argostranslate.translate
 
     installed = {
         (pkg.from_code, pkg.to_code)
         for pkg in argostranslate.package.get_installed_packages()
     }
-    missing = {
-        lang for lang in required_langs
-        if (lang, "ru") not in installed
+    required_pairs = required_argos_pairs(required_langs)
+    missing_pairs = required_pairs - installed
+
+    if missing_pairs:
+        pair_text = ", ".join(f"{src}->{dst}" for src, dst in sorted(missing_pairs))
+        print(f"Installing missing Argos models: {pair_text}")
+        argostranslate.package.update_package_index()
+        available = argostranslate.package.get_available_packages()
+
+        for src, dst in sorted(missing_pairs):
+            pkg = next(
+                (p for p in available if p.from_code == src and p.to_code == dst),
+                None,
+            )
+            if not pkg:
+                raise RuntimeError(f"Argos package {src}->{dst} not found")
+            package_path = pkg.download()
+            argostranslate.package.install_from_path(package_path)
+
+    # Installing packages changes the translation graph. Clear Argos' cached
+    # language list so newly installed pivot routes are immediately visible.
+    try:
+        argostranslate.translate.get_installed_languages.cache_clear()
+    except AttributeError:
+        pass
+
+    installed_after = {
+        (pkg.from_code, pkg.to_code)
+        for pkg in argostranslate.package.get_installed_packages()
     }
-    if not missing:
-        print(f"Argos models already installed for: {', '.join(sorted(required_langs))}")
-        return
+    unresolved = required_pairs - installed_after
+    if unresolved:
+        raise RuntimeError(f"Argos models still missing after install: {sorted(unresolved)}")
 
-    print(f"Installing missing Argos models: {', '.join(sorted(missing))}")
-    argostranslate.package.update_package_index()
-    available = argostranslate.package.get_available_packages()
-
-    for src in sorted(missing):
-        pkg = next(
-            (p for p in available if p.from_code == src and p.to_code == "ru"),
-            None,
-        )
-        if not pkg:
-            raise RuntimeError(f"Argos package {src}->ru not found")
-        package_path = pkg.download()
-        argostranslate.package.install_from_path(package_path)
+    print(
+        "Argos routes ready: "
+        + ", ".join(f"{src}->ru" for src in sorted(required_langs))
+    )
 
 
 def translate_to_ru(text: str, src_lang: str) -> str:

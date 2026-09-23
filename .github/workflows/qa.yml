@@ -41,6 +41,10 @@ jobs:
           translator = importlib.util.module_from_spec(spec)
           spec.loader.exec_module(translator)
 
+          assert translator.required_argos_pairs({"en"}) == {("en", "ru")}
+          assert translator.required_argos_pairs({"de"}) == {("de", "en"), ("en", "ru")}
+          assert translator.required_argos_pairs({"pl", "en"}) == {("pl", "en"), ("en", "ru")}
+
           fresh_foreign = {
               "domain": "globaltrailermag.com",
               "title": "Trailer market expands",
