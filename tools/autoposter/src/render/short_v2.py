@@ -271,7 +271,7 @@ def render_short(
             "-vf", vf,
             "-r", str(FPS),
             "-an",
-            "-c:v", "libx264", "-preset", "medium", "-crf", "18",
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "18",
             "-pix_fmt", "yuv420p",
             str(segment),
         ])
@@ -297,7 +297,7 @@ def render_short(
         "-i", str(audio_path),
         "-vf", f"ass={subtitles.as_posix()}",
         "-map", "0:v:0", "-map", "1:a:0",
-        "-c:v", "libx264", "-preset", "medium", "-crf", "18",
+        "-c:v", "libx264", "-preset", "veryfast", "-crf", "18",
         "-c:a", "aac", "-b:a", "160k",
         "-pix_fmt", "yuv420p",
         "-shortest",
