@@ -126,6 +126,15 @@ jobs:
         run: |
           python aggregator/post_to_telegram.py || echo "Telegram publishing failed; state/news changes will still be committed for safe retry"
 
+      - name: Post important items to VK
+        env:
+          VK_ACCESS_TOKEN: ${{ secrets.VK_ACCESS_TOKEN }}
+          VK_GROUP_ID: ${{ secrets.VK_GROUP_ID }}
+          VK_MAX_POSTS: "3"
+          SITE_URL: "https://spec-avtoportal.ru/"
+        run: |
+          python aggregator/post_to_vk.py --mode immediate || echo "VK publishing failed; data/state changes will still be committed for safe retry"
+
       - name: Commit & push changes
         env:
           GIT_AUTHOR_NAME: github-actions
