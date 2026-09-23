@@ -9,6 +9,7 @@ from typing import Any
 from aggregator import main as collector
 from aggregator.pipeline.classify import build_classifier
 from aggregator.pipeline.filtering import should_exclude
+from aggregator.pipeline.enrich import backfill_missing_summaries
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCES = ROOT / "aggregator" / "sources.yml"
@@ -112,11 +113,13 @@ def main() -> None:
     merged = apply_rules(merged, rules)
     excluded = before_rules - len(merged)
     merged = collector.sort_by_date(merged)[:max_items]
+    summaries_filled = backfill_missing_summaries(merged, limit=36)
 
     collector.log("INFO", f"fresh after aggregate: {len(fresh)}")
     collector.log("INFO", f"existing in file: {len(existing)}")
     collector.log("INFO", f"new collected items: {new_count}")
     collector.log("INFO", f"editorial rules excluded: {excluded}")
+    collector.log("INFO", f"missing summaries backfilled: {summaries_filled}")
     collector.log("INFO", f"merged total (<= {max_items}): {len(merged)}")
     collector.stats(merged)
 
