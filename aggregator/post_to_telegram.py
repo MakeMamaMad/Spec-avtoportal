@@ -1,261 +1,441 @@
 #!/usr/bin/env python3
+"""Publish new SpecAvtoPortal items to Telegram.
+
+Telegram reboot model:
+- a fixed baseline commit marks everything that existed before the channel reset;
+- only items added after that baseline are eligible for publishing;
+- successful Telegram message_ids are persisted so retries do not duplicate posts;
+- failed items remain unposted and are retried on the next run;
+- a one-time welcome post is sent after Telegram publishing is enabled.
+"""
+from __future__ import annotations
+
+import html as html_lib
 import json
 import os
+import re
 import subprocess
 import sys
 import urllib.parse
 import urllib.request
-import re
-import html as html_lib
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
 
-NEWS_PATH = "frontend/data/news.json"
+NEWS_PATH = Path("frontend/data/news.json")
+STATE_PATH = Path("frontend/data/telegram_state.json")
+CONFIG_PATH = Path("aggregator/telegram_config.json")
 
 TAG_RE = re.compile(r"<[^>]+>")
 
 
-def strip_html(s: str) -> str:
-    """Убирает HTML-теги, декодирует entities, нормализует пробелы/переносы."""
-    if not s:
+def utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def strip_html(value: str) -> str:
+    if not value:
         return ""
-    s = str(s)
-
-    # переносы для типичных блочных тегов
-    s = re.sub(r"</(p|div|figure|li|h\d)>", "\n", s, flags=re.IGNORECASE)
-    s = re.sub(r"<br\s*/?>", "\n", s, flags=re.IGNORECASE)
-
-    # убрать остальные теги
-    s = TAG_RE.sub(" ", s)
-
-    # entities -> символы
-    s = html_lib.unescape(s)
-
-    # нормализация
-    s = re.sub(r"[ \t]+", " ", s)
-    s = re.sub(r"\n\s*\n+", "\n", s)
-    return s.strip()
+    text = str(value)
+    text = re.sub(r"</(p|div|figure|li|h\d)>", "\n", text, flags=re.IGNORECASE)
+    text = re.sub(r"<br\s*/?>", "\n", text, flags=re.IGNORECASE)
+    text = TAG_RE.sub(" ", text)
+    text = html_lib.unescape(text)
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\n\s*\n+", "\n", text)
+    return text.strip()
 
 
 def clamp(text: str, max_len: int) -> str:
     text = (text or "").strip()
     if len(text) <= max_len:
         return text
-    return text[: max_len - 1].rstrip() + "…"
+    cut = text[: max_len - 1].rsplit(" ", 1)[0].rstrip(" ,.;:-")
+    return (cut or text[: max_len - 1]).rstrip() + "…"
 
 
-def load_current():
-    with open(NEWS_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+def load_json(path: Path, default: Any) -> Any:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return default
+    except Exception as exc:
+        print(f"WARN: cannot read {path}: {exc}", file=sys.stderr)
+        return default
 
 
-def load_previous():
+def save_state(state: dict[str, Any]) -> None:
+    STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    tmp = STATE_PATH.with_suffix(".tmp")
+    tmp.write_text(
+        json.dumps(state, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    tmp.replace(STATE_PATH)
+
+
+def load_config() -> dict[str, Any]:
+    config = load_json(CONFIG_PATH, {})
+    return config if isinstance(config, dict) else {}
+
+
+def load_state() -> dict[str, Any]:
+    state = load_json(
+        STATE_PATH,
+        {
+            "schema": 1,
+            "welcome_message_id": None,
+            "welcome_sent_at": None,
+            "posts": {},
+        },
+    )
+    if not isinstance(state, dict):
+        state = {}
+    state.setdefault("schema", 1)
+    state.setdefault("welcome_message_id", None)
+    state.setdefault("welcome_sent_at", None)
+    state.setdefault("posts", {})
+    if not isinstance(state["posts"], dict):
+        state["posts"] = {}
+    return state
+
+
+def load_current() -> list[dict[str, Any]]:
+    data = load_json(NEWS_PATH, [])
+    return data if isinstance(data, list) else []
+
+
+def load_baseline(config: dict[str, Any], current: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Load the frozen pre-reset news snapshot.
+
+    Fail closed: if the baseline cannot be loaded, use current items as the
+    baseline so the bot never floods the channel with archive content.
     """
-    Берём предыдущую версию news.json из git (HEAD).
-    Если её ещё не было — возвращаем пустой список.
-    """
+    ref = str(config.get("baseline_ref") or "").strip()
+    if not ref:
+        print("WARN: Telegram baseline_ref is empty; publishing is blocked.", file=sys.stderr)
+        return current
+
     try:
         raw = subprocess.check_output(
-            ["git", "show", f"HEAD:{NEWS_PATH}"],
+            ["git", "show", f"{ref}:{NEWS_PATH.as_posix()}"],
             stderr=subprocess.DEVNULL,
         )
-    except Exception:
-        return []
+        data = json.loads(raw.decode("utf-8"))
+        if isinstance(data, list):
+            return data
+    except Exception as exc:
+        print(f"WARN: cannot load Telegram baseline {ref}: {exc}", file=sys.stderr)
 
-    try:
-        return json.loads(raw.decode("utf-8"))
-    except Exception:
-        print("WARN: не удалось распарсить предыдущий news.json", file=sys.stderr)
-        return []
+    return current
 
 
-def make_key(item):
-    """
-    Уникальный ключ новости, чтобы понять — новая она или нет.
-    Пробуем по id/url/link, если нет — по title+source.
-    """
-    # Source URL/guid stay stable before and after SEO metadata is assigned.
-    # Keep id last so the first migration does not make old items look new.
+def make_key(item: dict[str, Any]) -> str:
     for key in ("canonical_url", "url", "link", "guid", "id"):
-        v = item.get(key)
-        if v:
-            return str(v)
+        value = item.get(key)
+        if value:
+            return str(value)
 
-    title = (item.get("title") or "").strip()
-    src = item.get("source") or item.get("source_name") or ""
-    return f"{title}::{src}"
-
-
-def get_new_items(prev, current):
-    # Специальный режим: TELEGRAM_FORCE_ALL=1 → считаем все новости новыми
-    force_all = os.environ.get("TELEGRAM_FORCE_ALL") == "1"
-    if force_all:
-        print("TELEGRAM_FORCE_ALL=1 → считаем все новости новыми.", file=sys.stderr)
-        prev_keys = set()
-    else:
-        prev_keys = {make_key(i) for i in prev}
-
-    unique = [i for i in current if make_key(i) not in prev_keys]
-
-    def get_date(it):
-        for key in ("published_at", "published", "date", "created_at"):
-            if key in it:
-                return str(it[key])
-        return ""
-
-    # сортируем по дате, чтобы постить в нормальном порядке (от старых к новым)
-    unique.sort(key=get_date)
-    return unique
+    title = str(item.get("title") or "").strip()
+    source = str(item.get("source") or item.get("source_name") or "").strip()
+    return f"{title}::{source}"
 
 
-def build_site_url(site_base: str, item, idx=None) -> str:
-    """Prefer the stable SEO URL; keep index URL only as a legacy fallback."""
-    slug = str(item.get("slug") or "").strip()
-    if slug:
-        return f"{site_base}news/{urllib.parse.quote(slug)}/"
-    if isinstance(idx, int):
-        return f"{site_base}article.html?i={idx}"
+def item_date(item: dict[str, Any]) -> str:
+    for key in ("published_at", "published", "date", "created_at"):
+        value = item.get(key)
+        if value:
+            return str(value)
     return ""
 
 
-def build_text(item, site_url: str):
-    # Важно: parse_mode=HTML → всё экранируем
-    title = html_lib.escape((item.get("title") or "(без заголовка)").strip())
-    src = html_lib.escape((item.get("source") or item.get("source_name") or "").strip())
+def get_publish_queue(
+    baseline: list[dict[str, Any]],
+    current: list[dict[str, Any]],
+    state: dict[str, Any],
+) -> list[dict[str, Any]]:
+    baseline_keys = {make_key(item) for item in baseline}
+    posted_keys = set(state.get("posts", {}).keys())
 
-    rubrics = item.get("rubrics") or item.get("tags") or []
-    if isinstance(rubrics, str):
-        rubrics_list = [rubrics]
-    elif isinstance(rubrics, list):
-        rubrics_list = [str(x) for x in rubrics if x]
-    else:
-        rubrics_list = []
-    rubrics_list = [html_lib.escape(x.strip()) for x in rubrics_list if x.strip()]
+    queue = [
+        item
+        for item in current
+        if make_key(item) not in baseline_keys and make_key(item) not in posted_keys
+    ]
+    queue.sort(key=item_date)
+    return queue
 
-    # summary (может быть HTML) — чистим и обрезаем
+
+def build_site_url(site_base: str, item: dict[str, Any], idx: int | None = None) -> str:
+    slug = str(item.get("slug") or "").strip()
+    if slug:
+        path = f"news/{urllib.parse.quote(slug)}/"
+        query = urllib.parse.urlencode(
+            {
+                "utm_source": "telegram",
+                "utm_medium": "social",
+                "utm_campaign": "news",
+                "utm_content": slug,
+            }
+        )
+        return f"{site_base}{path}?{query}"
+
+    if isinstance(idx, int):
+        query = urllib.parse.urlencode(
+            {
+                "i": idx,
+                "utm_source": "telegram",
+                "utm_medium": "social",
+                "utm_campaign": "news",
+            }
+        )
+        return f"{site_base}article.html?{query}"
+    return ""
+
+
+def display_source(item: dict[str, Any]) -> str:
+    source = str(item.get("source_name") or item.get("source") or "").strip()
+    if source.lower() in {"", "source", "rss", "feed"}:
+        source = str(item.get("domain") or "").replace("www.", "").strip()
+    return source
+
+
+def build_text(item: dict[str, Any], site_url: str) -> str:
+    title = html_lib.escape(str(item.get("title") or "(без заголовка)").strip())
+    source = html_lib.escape(display_source(item))
+
     raw_summary = item.get("summary") or item.get("description") or ""
-    summary_clean = clamp(strip_html(raw_summary), 550)
-    summary = html_lib.escape(summary_clean)
+    summary = html_lib.escape(clamp(strip_html(str(raw_summary)), 430))
 
-    # оригинальная ссылка (первоисточник)
-    orig_url = (
+    tags = item.get("tags") or item.get("rubrics") or []
+    if isinstance(tags, str):
+        tags = [tags]
+    if not isinstance(tags, list):
+        tags = []
+    tags = [
+        html_lib.escape(str(tag).strip())
+        for tag in tags
+        if str(tag).strip() and str(tag).strip().lower() not in {"новости", "partner", "партнёр"}
+    ][:3]
+
+    original_url = str(
         item.get("canonical_url")
         or item.get("url")
         or item.get("link")
         or ""
     ).strip()
 
-    parts = [f"📰 <b>{title}</b>"]
-
+    parts = [f"🚛 <b>{title}</b>"]
     if summary:
         parts.append(summary)
 
-    if rubrics_list:
-        parts.append("🏷 " + " · ".join(rubrics_list))
+    if tags:
+        parts.append("🏷 " + " · ".join(tags))
+    if source:
+        parts.append(f"🌐 {source}")
 
-    if src:
-        parts.append(f"🌐 {src}")
-
-    # ✅ Ссылка для превью — НА ТВОЙ САЙТ (должна быть первой ссылкой в сообщении)
     if site_url:
+        safe_site = html_lib.escape(site_url, quote=True)
         parts.append("")
-        parts.append(site_url)
+        parts.append(f'🔗 <a href="{safe_site}">Читать на СпецАвтоПортале</a>')
 
-    # ✅ Первоисточник отдельной строкой (второй ссылкой)
-    if orig_url:
-        safe_orig = html_lib.escape(orig_url, quote=True)
-        parts.append(f'Источник: <a href="{safe_orig}">первоисточник</a>')
+    if original_url:
+        safe_original = html_lib.escape(original_url, quote=True)
+        parts.append(f'<a href="{safe_original}">Первоисточник ↗</a>')
 
-    text = "\n".join(parts)
-
-    # ограничение Telegram — 4096 символов
-    if len(text) > 4000:
-        text = text[:3990] + "…"
-
-    return text
+    return clamp("\n".join(parts), 3900)
 
 
-def send_message(token: str, chat_id: str, text: str, disable_preview: bool = False):
-    api_url = f"https://api.telegram.org/bot{token}/sendMessage"
+def api_call(token: str, method: str, payload: dict[str, Any]) -> dict[str, Any]:
+    api_url = f"https://api.telegram.org/bot{token}/{method}"
+    encoded = {}
+    for key, value in payload.items():
+        if isinstance(value, (dict, list)):
+            encoded[key] = json.dumps(value, ensure_ascii=False)
+        elif isinstance(value, bool):
+            encoded[key] = "true" if value else "false"
+        else:
+            encoded[key] = str(value)
 
-    payload = {
+    data = urllib.parse.urlencode(encoded).encode("utf-8")
+    req = urllib.request.Request(api_url, data=data)
+
+    with urllib.request.urlopen(req, timeout=20) as response:
+        body = json.loads(response.read().decode("utf-8"))
+
+    if not body.get("ok"):
+        raise RuntimeError(body.get("description") or f"Telegram {method} failed")
+    result = body.get("result")
+    return result if isinstance(result, dict) else {"result": result}
+
+
+def send_message(
+    token: str,
+    chat_id: str,
+    text: str,
+    *,
+    site_url: str = "",
+    disable_preview: bool = False,
+) -> int:
+    payload: dict[str, Any] = {
         "chat_id": chat_id,
         "text": text,
         "parse_mode": "HTML",
-        "disable_web_page_preview": "true" if disable_preview else "false",
+        "disable_web_page_preview": disable_preview,
     }
+    if site_url:
+        payload["reply_markup"] = {
+            "inline_keyboard": [
+                [{"text": "Читать на сайте ↗", "url": site_url}],
+            ]
+        }
 
-    data = urllib.parse.urlencode(payload).encode("utf-8")
-    req = urllib.request.Request(api_url, data=data)
+    result = api_call(token, "sendMessage", payload)
+    message_id = result.get("message_id")
+    if not isinstance(message_id, int):
+        raise RuntimeError("Telegram response does not contain message_id")
+    return message_id
 
-    with urllib.request.urlopen(req, timeout=15) as resp:
-        resp.read()
+
+def send_welcome(
+    token: str,
+    chat_id: str,
+    site_base: str,
+    state: dict[str, Any],
+    config: dict[str, Any],
+) -> None:
+    if state.get("welcome_message_id"):
+        return
+    if not config.get("welcome_enabled", True):
+        return
+
+    site_url = (
+        site_base
+        + "?"
+        + urllib.parse.urlencode(
+            {
+                "utm_source": "telegram",
+                "utm_medium": "social",
+                "utm_campaign": "channel_reboot",
+            }
+        )
+    )
+    safe_url = html_lib.escape(site_url, quote=True)
+    text = (
+        "🚛 <b>СпецАвтоПортал — начинаем заново</b>\n\n"
+        "Главное о рынке прицепов, полуприцепов и грузовой техники — без информационного шума.\n\n"
+        "Здесь будут:\n"
+        "• важные новости отрасли;\n"
+        "• новые модели и производители;\n"
+        "• ГОСТы и регламенты простым языком;\n"
+        "• практические гайды;\n"
+        "• партнёрские материалы — только с явной пометкой.\n\n"
+        f'🔗 <a href="{safe_url}">spec-avtoportal.ru</a>'
+    )
+
+    message_id = send_message(
+        token,
+        chat_id,
+        text,
+        site_url=site_url,
+        disable_preview=False,
+    )
+    state["welcome_message_id"] = message_id
+    state["welcome_sent_at"] = utc_now()
+    save_state(state)
+
+    if config.get("pin_welcome", True):
+        try:
+            api_call(
+                token,
+                "pinChatMessage",
+                {
+                    "chat_id": chat_id,
+                    "message_id": message_id,
+                    "disable_notification": True,
+                },
+            )
+        except Exception as exc:
+            print(f"WARN: welcome post was sent but not pinned: {exc}", file=sys.stderr)
 
 
-def main():
+def main() -> int:
+    config = load_config()
+    if not config.get("enabled", False):
+        print("Telegram publishing is paused for the channel reboot.", file=sys.stderr)
+        return 0
+
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     chat_id = os.environ.get("TELEGRAM_CHAT_ID")
-
     if not token or not chat_id:
-        print(
-            "TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID не заданы — пропускаем отправку.",
-            file=sys.stderr,
-        )
-        return
+        print("TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not configured.", file=sys.stderr)
+        return 0
 
-    max_posts = int(os.environ.get("TELEGRAM_MAX_POSTS", "10"))
+    current = load_current()
+    if not current:
+        print("No news items found.", file=sys.stderr)
+        return 0
 
-    # По умолчанию превью ВКЛЮЧЕНО (нам оно нужно, чтобы показывался твой сайт)
+    state = load_state()
+    baseline = load_baseline(config, current)
+    queue = get_publish_queue(baseline, current, state)
+
+    site_base = os.environ.get(
+        "SITE_URL",
+        "https://spec-avtoportal.ru/",
+    ).rstrip("/") + "/"
+
+    send_welcome(token, chat_id, site_base, state, config)
+
+    configured_max = int(config.get("max_posts_per_run") or 8)
+    max_posts = int(os.environ.get("TELEGRAM_MAX_POSTS", str(configured_max)))
     disable_preview = os.environ.get("TELEGRAM_DISABLE_PREVIEW") == "1"
 
-    # База сайта для ссылок-превью
-    site_base = os.environ.get("SITE_URL", "https://spec-avtoportal.ru/").rstrip("/") + "/"
+    if not queue:
+        print("No unpublished Telegram news after reboot baseline.", file=sys.stderr)
+        return 0
 
-    try:
-        current = load_current()
-    except FileNotFoundError:
-        print(f"{NEWS_PATH} не найден, нечего постить.", file=sys.stderr)
-        return
+    queue = queue[-max_posts:]
+    key_to_index = {make_key(item): idx for idx, item in enumerate(current)}
 
-    # карта ключ -> индекс в общем массиве current (чтобы строить article.html?i=...)
-    key_to_index = {}
-    for idx, it in enumerate(current):
-        try:
-            key_to_index[make_key(it)] = idx
-        except Exception:
-            pass
-
-    prev = load_previous()
-    new_items = get_new_items(prev, current)
-
-    if not new_items:
-        print("Новых новостей для Telegram нет.", file=sys.stderr)
-        return
-
-    # берём только последние N, чтобы не заспамить канал
-    new_items = new_items[-max_posts:]
-
-    print(f"Отправляем в Telegram {len(new_items)} нов(ость/ости)...")
-
+    print(f"Publishing {len(queue)} Telegram item(s)...")
     errors = 0
-    for item in new_items:
-        title_dbg = (item.get("title") or "")[:80]
-        print(f" → {title_dbg!r}")
 
-        idx = key_to_index.get(make_key(item))
+    for item in queue:
+        key = make_key(item)
+        title_dbg = str(item.get("title") or "")[:90]
+        idx = key_to_index.get(key)
         site_url = build_site_url(site_base, item, idx)
-
         text = build_text(item, site_url)
 
         try:
-            send_message(token, chat_id, text, disable_preview=disable_preview)
-        except Exception as e:
+            message_id = send_message(
+                token,
+                chat_id,
+                text,
+                site_url=site_url,
+                disable_preview=disable_preview,
+            )
+            state["posts"][key] = {
+                "message_id": message_id,
+                "sent_at": utc_now(),
+                "site_url": site_url,
+                "title": str(item.get("title") or ""),
+                "slug": str(item.get("slug") or ""),
+            }
+            save_state(state)
+            print(f" OK {message_id}: {title_dbg}")
+        except Exception as exc:
             errors += 1
-            print(f"Ошибка отправки в Telegram: {e}", file=sys.stderr)
+            print(f" ERR {title_dbg}: {exc}", file=sys.stderr)
 
     if errors:
-        print(f"Готово, но с {errors} ошибк(ами).", file=sys.stderr)
-    else:
-        print("Готово, все сообщения отправлены.")
+        print(f"Telegram completed with {errors} error(s).", file=sys.stderr)
+        return 1
+
+    print("Telegram publishing completed.")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
