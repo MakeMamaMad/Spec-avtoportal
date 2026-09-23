@@ -14,6 +14,7 @@
   <meta property="og:url" content="https://spec-avtoportal.ru/" />
   <link rel="stylesheet" href="styles.css?v=15" />
   <link rel="stylesheet" href="styles/news-feed.css?v=1" />
+  <link rel="stylesheet" href="styles/home-columns.css?v=1" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -111,35 +112,7 @@
     </section>
 
     <section class="container layout">
-      <section class="layout-main">
-        <div class="feed-heading">
-          <div>
-            <p class="section-kicker">Хронология</p>
-            <h2 class="section-title">Последние новости</h2>
-          </div>
-          <span id="result-count" class="result-count"></span>
-        </div>
-
-        <div id="news-list" class="news-list"></div>
-
-        <div id="news-loading" class="loading">Загружаем свежую ленту…</div>
-        <div id="news-error" class="error" hidden>Не удалось загрузить новости. Попробуйте обновить страницу.</div>
-
-        <button id="load-more" class="load-more" type="button" hidden>Показать больше новостей</button>
-
-        <section class="tg-promo">
-          <div class="tg-promo__copy">
-            <span class="tg-promo__label">СпецАвтоПортал в Telegram</span>
-            <h2>Новости приходят туда быстрее.</h2>
-            <p>Коротко публикуем самое важное из отраслевой ленты и новые материалы портала.</p>
-          </div>
-          <a href="https://t.me/specavtoportal" class="tg-promo__button" target="_blank" rel="noopener">
-            Подписаться <span>↗</span>
-          </a>
-        </section>
-      </section>
-
-      <aside class="layout-sidebar">
+      <aside class="layout-sidebar layout-sidebar--left">
         <section class="partner-card" aria-label="Партнёр проекта satpricep.by">
           <div class="partner-card__top">
             <span class="partner-card__label">Партнёр проекта</span>
@@ -180,7 +153,37 @@
           <h3>Популярные темы</h3>
           <ul id="top-tags" class="tags-cloud"></ul>
         </section>
+      </aside>
 
+      <section class="layout-main">
+        <div class="feed-heading">
+          <div>
+            <p class="section-kicker">Хронология</p>
+            <h2 class="section-title">Последние новости</h2>
+          </div>
+          <span id="result-count" class="result-count"></span>
+        </div>
+
+        <div id="news-list" class="news-list"></div>
+
+        <div id="news-loading" class="loading">Загружаем свежую ленту…</div>
+        <div id="news-error" class="error" hidden>Не удалось загрузить новости. Попробуйте обновить страницу.</div>
+
+        <button id="load-more" class="load-more" type="button" hidden>Показать больше новостей</button>
+
+        <section class="tg-promo">
+          <div class="tg-promo__copy">
+            <span class="tg-promo__label">СпецАвтоПортал в Telegram</span>
+            <h2>Новости приходят туда быстрее.</h2>
+            <p>Коротко публикуем самое важное из отраслевой ленты и новые материалы портала.</p>
+          </div>
+          <a href="https://t.me/specavtoportal" class="tg-promo__button" target="_blank" rel="noopener">
+            Подписаться <span>↗</span>
+          </a>
+        </section>
+      </section>
+
+      <aside class="layout-sidebar layout-sidebar--right">
         <section class="sidebar-block">
           <p class="sidebar-eyebrow">База знаний</p>
           <h3>Не только новости</h3>
