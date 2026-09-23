@@ -45,6 +45,24 @@ sources:
       - прицепы
       - полуприцепы
 
+  - id: satpricep-news
+    enabled: true
+    kind: html_news
+    title: "SATPRICEP — новости производителя"
+    url: "https://www.satpricep.by/o-zavode/news/"
+    limit: 24
+    partner: true
+    seed_urls:
+      - "https://www.satpricep.by/o-zavode/news/trekhrusnyy-alyuminievyy-skotovoz/"
+      - "https://www.satpricep.by/o-zavode/news/nizkoramnyy-polupritsep-kotoryy-ne-nuzhno-agregatirovat-s-tyagachom/"
+    tags:
+      - satpricep
+      - sat
+      - производители
+      - прицепы
+      - полуприцепы
+      - партнёр
+
   # ===== 5 иностранных источников (для теста перевода title/summary) =====
   - id: globaltrailer-main
     enabled: true
