@@ -136,7 +136,7 @@ def render_scene_frame(
     draw.text((WIDTH - 56 - counter_w, 72), counter, font=label_font, fill=MUTED + (255,))
 
     # Format / section marker.
-    format_label = "BREAKING" if format_name.lower() in {"breaking", "news"} else "РАЗБОР"
+    format_label = "НОВОСТЬ" if format_name.lower() in {"breaking", "news"} else "РАЗБОР"
     badge_w = draw.textbbox((0, 0), format_label, font=label_font)[2] + 44
     draw.rounded_rectangle((56, 132, 56 + badge_w, 182), radius=22, fill=(15, 18, 22, 200), outline=ORANGE + (220,), width=2)
     draw.text((78, 143), format_label, font=label_font, fill=ORANGE + (255,))
