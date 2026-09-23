@@ -189,9 +189,12 @@ def main() -> int:
                 print("NEEDS_MANUAL: PDFcatalog CAPTCHA/manual code detected before filling")
                 return 0
 
-            if not select_category(page):
-                print("FORM_INVENTORY=" + json.dumps(safe_inventory(page), ensure_ascii=False))
-                raise RuntimeError("PDFcatalog category selector was not found")
+            # PDFcatalog's current add-site form has no category selector.
+            # Moderators assign/adjust the category during review.
+            if select_category(page):
+                print("CATEGORY_SELECTED")
+            else:
+                print("CATEGORY_SELECTOR_ABSENT: continuing with moderator categorization")
 
             # Prefer semantic field names/types; fall back to visible control order.
             url_ok = fill_first(page, [
