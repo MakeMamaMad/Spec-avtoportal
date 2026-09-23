@@ -362,16 +362,60 @@ def item_key(it: Dict[str, Any]) -> str:
     ).strip()
 
 
+def _looks_russian(value: Any) -> bool:
+    return bool(value and re.search(r"[А-Яа-яЁё]", str(value)))
+
+
 def preserve_stable_identity(fresh: List[Dict[str, Any]], existing: List[Dict[str, Any]]) -> None:
-    """Carry persistent SEO identifiers from previous runs onto refreshed RSS items."""
+    """Carry persistent identity and completed translations onto refreshed items.
+
+    RSS feeds return the source-language title/summary on every run. Without
+    preserving the already translated Russian fields, the translation stage
+    would redo the same archive on every ingest.
+    """
     previous = {item_key(it): it for it in existing if item_key(it)}
     for it in fresh:
         old = previous.get(item_key(it))
         if not old:
             continue
+
         for field in ("id", "slug", "content", "image", "published_at", "tags", "partner"):
             if old.get(field) and not it.get(field):
                 it[field] = old[field]
+
+        # Normal incremental path: translator marks completed items.
+        if old.get("translation_status") == "ru":
+            for field in (
+                "title",
+                "summary",
+                "translation_status",
+                "translation_source_lang",
+                "translation_updated_at",
+                "original_title",
+                "original_summary",
+            ):
+                if field in old:
+                    it[field] = old[field]
+            continue
+
+        # One-time migration for legacy translated rows created before
+        # translation metadata existed. A Russian stored title replacing a
+        # fresh non-Russian source title is strong evidence of prior translation.
+        old_title = str(old.get("title") or "")
+        fresh_title = str(it.get("title") or "")
+        if _looks_russian(old_title) and fresh_title and not _looks_russian(fresh_title):
+            it["original_title"] = fresh_title
+            it["title"] = old_title
+            fresh_summary = str(it.get("summary") or "")
+            old_summary = str(old.get("summary") or "")
+            if _looks_russian(old_summary):
+                it["original_summary"] = fresh_summary
+                it["summary"] = old_summary
+            it["translation_status"] = "ru"
+            if old.get("translation_source_lang"):
+                it["translation_source_lang"] = old["translation_source_lang"]
+            if old.get("translation_updated_at"):
+                it["translation_updated_at"] = old["translation_updated_at"]
 
 
 def dedup_by_link(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
