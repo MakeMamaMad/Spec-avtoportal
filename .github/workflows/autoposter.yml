@@ -1,4 +1,4 @@
-name: autoposter-youtube
+name: autoposter-social-shorts-v2
 
 on:
   workflow_dispatch:
@@ -8,90 +8,114 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: social-shorts-v2
+  cancel-in-progress: false
+
 jobs:
   run:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: tools/autoposter/requirements.txt
 
-      - name: Install ffmpeg
+      - name: Install ffmpeg and fonts
         shell: bash
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
 
       - name: Install deps
         shell: bash
         run: |
-          cd tools/autoposter
-          pip install -r requirements.txt
+          pip install -r tools/autoposter/requirements.txt
 
-      - name: Restore YouTube secrets
+      - name: Restore YouTube credentials
         shell: bash
         env:
           YT_CLIENT_B64: ${{ secrets.YOUTUBE_CLIENT_SECRETS_B64 }}
           YT_TOKEN_B64: ${{ secrets.YOUTUBE_TOKEN_B64 }}
         run: |
           cd tools/autoposter
-          echo "$YT_CLIENT_B64" | base64 -d > client_secrets.json
-          echo "$YT_TOKEN_B64" | base64 -d > youtube_token.json
+          if [ -n "$YT_CLIENT_B64" ]; then
+            printf '%s' "$YT_CLIENT_B64" | base64 -d > client_secrets.json
+          fi
+          if [ -n "$YT_TOKEN_B64" ]; then
+            printf '%s' "$YT_TOKEN_B64" | base64 -d > youtube_token.json
+          fi
 
-      - name: Debug list and preview news.json
-        shell: bash
-        run: |
-          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
-          ls -la "$GITHUB_WORKSPACE/frontend" || true
-          ls -la "$GITHUB_WORKSPACE/frontend/data" || true
-          echo "---- head ----"
-          head -c 2000 "$GITHUB_WORKSPACE/frontend/data/news.json" || true
-
-      - name: Run autoposter (digest Top-3)
+      - name: Generate AI Short v2
         shell: bash
         env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AI_SCRIPT: "1"
+          AI_IMAGES: "1"
+          OPENAI_TEXT_MODEL: "gpt-5.6-luna"
+          OPENAI_IMAGE_MODEL: "gpt-image-2.5-sunburst"
+          OPENAI_IMAGE_QUALITY: "medium"
+          OPENAI_IMAGE_SIZE: "1024x1792"
+          OPENAI_TTS: "1"
+          OPENAI_TTS_MODEL: "gpt-4o-mini-tts"
+          OPENAI_TTS_VOICE: "cedar"
+          V2_MARK_USED: "0"
+          V2_MAX_AGE_HOURS: "96"
           SITE_URL: "https://spec-avtoportal.ru/"
-          TELEGRAM_URL: "https://t.me/specavtoportal"
-          CONTENT_JSON_PATH: "$GITHUB_WORKSPACE/frontend/data/news.json"
-
-          LOGO_PATH: "frontend/spec_avtoportal_favicon.ico"
-
-          MODE: "economics"
-          TTS_RATE: "+15%"
-          AUDIO_FIT: "1"
-          TOTAL_SECONDS: "30"
-          ECON_ALLOWED: "downtime,tires,axle"
-
-          VOICE: "ru-RU-DmitryNeural"
-          YOUTUBE_CLIENT_SECRETS: "client_secrets.json"
-          YOUTUBE_TOKEN_FILE: "youtube_token.json"
-          YOUTUBE_PRIVACY: "public"
-
-          VIDEO_WIDTH: "1080"
-          VIDEO_HEIGHT: "1920"
-          FPS: "30"
-
+          CONTENT_JSON_PATH: ${{ github.workspace }}/frontend/data/news.json
         run: |
           cd tools/autoposter
-          export CONTENT_JSON_PATH="$GITHUB_WORKSPACE/frontend/data/news.json"
-          python -m src.main
+          python -m src.v2_main
 
-      - name: Commit state (posted.json)
+      - name: Publish to YouTube Instagram TikTok
+        shell: bash
+        env:
+          SOCIAL_PLATFORMS: "youtube,instagram,tiktok"
+          SOCIAL_STRICT: "0"
+
+          YOUTUBE_TOKEN_FILE: "youtube_token.json"
+          YOUTUBE_CLIENT_SECRETS: "client_secrets.json"
+          YOUTUBE_PRIVACY: "public"
+
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_IG_USER_ID: ${{ secrets.INSTAGRAM_IG_USER_ID }}
+          INSTAGRAM_API_VERSION: "v26.0"
+          INSTAGRAM_GRAPH_BASE: "https://graph.facebook.com"
+          INSTAGRAM_SHARE_TO_FEED: "1"
+
+          TIKTOK_ACCESS_TOKEN: ${{ secrets.TIKTOK_ACCESS_TOKEN }}
+        run: |
+          cd tools/autoposter
+          python -m src.publish.social_v2
+
+      - name: Commit social state
+        if: always()
         shell: bash
         run: |
           git config user.name "specavto-autoposter"
           git config user.email "actions@users.noreply.github.com"
-          git add tools/autoposter/state/posted.json || true
-          git commit -m "autoposter: update state" || echo "Nothing to commit"
-          git push || true
+          git add tools/autoposter/state/v2.json tools/autoposter/state/social_v2.json || true
+          if git diff --cached --quiet; then
+            echo "No social state changes"
+            exit 0
+          fi
+          git commit -m "autoposter: update social v2 state"
+          git pull --rebase origin main
+          git push origin main
 
-      - name: Upload artifacts (video + caption for IG/TT)
+      - name: Upload preview artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: autoposter-output
-          path: tools/autoposter/out/*
+          name: social-shorts-v2-output
+          path: tools/autoposter/out_v2/*
           if-no-files-found: ignore
+          retention-days: 7
