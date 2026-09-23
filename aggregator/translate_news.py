@@ -49,10 +49,10 @@ def should_translate_item(item: dict) -> bool:
 
     title = normalize_text(item.get("title", ""))
     summary = normalize_text(item.get("summary", ""))
-    sample = f"{title} {summary}".strip()
-    if not sample or looks_russian(sample):
-        return False
-    return True
+    return any(
+        value and not looks_russian(value)
+        for value in (title, summary)
+    )
 
 
 def candidate_items(data: list[dict]) -> list[dict]:
@@ -183,11 +183,15 @@ def translate_item(item: dict) -> int:
 
     # Mark complete only if translated content is actually Russian. This keeps
     # failures retryable on the next run.
-    final_sample = f"{item.get('title', '')} {item.get('summary', '')}".strip()
-    if looks_russian(final_sample):
+    final_title = normalize_text(item.get("title", ""))
+    final_summary = normalize_text(item.get("summary", ""))
+    translated_fields = [value for value in (final_title, final_summary) if value]
+    if translated_fields and all(looks_russian(value) for value in translated_fields):
         item["translation_status"] = "ru"
         item["translation_source_lang"] = lang
         item["translation_updated_at"] = datetime.now(timezone.utc).isoformat()
+    else:
+        item.pop("translation_status", None)
 
     return changed
 

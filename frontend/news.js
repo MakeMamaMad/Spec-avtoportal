@@ -64,6 +64,20 @@
     return (cleanCut || slice.trim()) + "…";
   }
 
+  function summaryText(item) {
+    const direct = ["summary", "lead", "description", "content"];
+    for (const key of direct) {
+      const text = cleanText(item && item[key]);
+      if (text) return text;
+    }
+
+    const original = cleanText(item && item.original_summary);
+    if (original && (!item.translation_status || /[А-Яа-яЁё]/.test(original))) {
+      return original;
+    }
+    return "";
+  }
+
   function tags(item) {
     const value = item.tags || item.rubrics || [];
     return Array.isArray(value) ? value.filter(Boolean).map(String) : [];
@@ -72,7 +86,7 @@
   function topics(item) {
     const haystack = (
       String(field(item, ["title", "headline", "name"], "")) + " " +
-      cleanText(field(item, ["summary", "lead", "description"], ""))
+      summaryText(item)
     ).toLowerCase();
     return TOPICS.filter(function (topic) {
       return topic.needles.some(function (needle) { return haystack.includes(needle); });
@@ -143,7 +157,7 @@
 
   function featuredMarkup(item, primary) {
     const title = esc(field(item, ["title", "headline", "name"], "Без заголовка"));
-    const summary = esc(clampText(field(item, ["summary", "lead", "description"], ""), primary ? 230 : 115));
+    const summary = esc(clampText(summaryText(item), primary ? 230 : 115));
     const image = esc(articleImage(item));
     const date = dateFmt(field(item, ["published_at", "date", "pub_date"], ""));
     const source = esc(field(item, ["source_name", "source", "site"], ""));
@@ -189,7 +203,7 @@
     const q = searchQuery.trim().toLowerCase();
     return allNews.filter(function (item) {
       const title = String(field(item, ["title", "headline", "name"], "")).toLowerCase();
-      const summary = cleanText(field(item, ["summary", "lead", "description"], "")).toLowerCase();
+      const summary = summaryText(item).toLowerCase();
       const itemTags = tags(item).map(function (t) { return t.toLowerCase(); });
       const itemTopics = topics(item).map(function (topic) { return topic.name.toLowerCase(); });
       if (q && !title.includes(q) && !summary.includes(q) && !itemTags.some(function (t) { return t.includes(q); }) && !itemTopics.some(function (t) { return t.includes(q); })) return false;
@@ -200,7 +214,7 @@
 
   function card(item, position, total) {
     const title = esc(field(item, ["title", "headline", "name"], "Без заголовка"));
-    const summary = esc(clampText(field(item, ["summary", "lead", "description"], ""), position === 0 ? 320 : 220));
+    const summary = esc(clampText(summaryText(item), position === 0 ? 320 : 220));
     const date = dateFmt(field(item, ["published_at", "date", "pub_date"], ""));
     const source = esc(field(item, ["source_name", "source", "site"], ""));
     const itemTags = tags(item).slice(0, 3);
