@@ -28,7 +28,59 @@ FRONTEND = ROOT / "frontend"
 NEWS_JSON = FRONTEND / "data" / "news.json"
 NEWS_DIR = FRONTEND / "news"
 TOPICS_DIR = FRONTEND / "topics"
+BRANDS_DIR = FRONTEND / "brands"
 BASE_URL = "https://spec-avtoportal.ru"
+
+BRAND_RULES = [
+    {
+        "slug": "krone",
+        "name": "KRONE",
+        "description": "Новости и материалы о прицепной технике, разработках и проектах KRONE.",
+        "patterns": (r"\bkrone\b",),
+    },
+    {
+        "slug": "maz",
+        "name": "МАЗ",
+        "description": "Новости МАЗ: грузовая техника, новые модели, производство и отраслевые проекты.",
+        "patterns": (r"(?<![а-яa-z0-9])маз(?![а-яa-z0-9])", r"\bmaz\b"),
+    },
+    {
+        "slug": "kamaz",
+        "name": "КАМАЗ",
+        "description": "Новости КАМАЗ: грузовики, тягачи, производство, модели и технологии.",
+        "patterns": (r"(?<![а-яa-z0-9])камаз(?![а-яa-z0-9])", r"\bkamaz\b"),
+    },
+    {
+        "slug": "kogel",
+        "name": "Kögel",
+        "description": "Новости и материалы о полуприцепах, технологиях и проектах Kögel.",
+        "patterns": (r"\bk[öo]gel\b",),
+    },
+    {
+        "slug": "mercedes-benz-trucks",
+        "name": "Mercedes-Benz Trucks",
+        "description": "Новости Mercedes-Benz Trucks, грузовиков Actros и технологий коммерческого транспорта.",
+        "patterns": (r"mercedes(?:-benz)?", r"\bactros\b"),
+    },
+    {
+        "slug": "schmitz-cargobull",
+        "name": "Schmitz Cargobull",
+        "description": "Новости Schmitz Cargobull: полуприцепы, сервис, цифровые решения и производство.",
+        "patterns": (r"\bschmitz\b", r"\bcargobull\b"),
+    },
+    {
+        "slug": "saf-holland",
+        "name": "SAF-Holland",
+        "description": "Новости SAF-Holland: осевые системы, компоненты и технологии для прицепной техники.",
+        "patterns": (r"saf[- ]holland",),
+    },
+    {
+        "slug": "bpw",
+        "name": "BPW",
+        "description": "Новости BPW: оси, компоненты, телематика и решения для коммерческого транспорта.",
+        "patterns": (r"\bbpw\b",),
+    },
+]
 
 TOPIC_RULES = [
     {
@@ -249,6 +301,21 @@ def cover_topic(item: dict[str, Any]) -> str:
     return label if label != "Отраслевой материал" else "Отраслевой обзор"
 
 
+def brands_for(item: dict[str, Any]) -> list[dict[str, Any]]:
+    haystack = " ".join([
+        get_field(item, "title", "headline", "name"),
+        summary_text(item),
+    ]).lower()
+    return [
+        brand for brand in BRAND_RULES
+        if any(re.search(pattern, haystack, flags=re.IGNORECASE) for pattern in brand["patterns"])
+    ]
+
+
+def brand_url(brand: dict[str, Any]) -> str:
+    return f"{BASE_URL}/brands/{brand['slug']}/"
+
+
 def topics_for(item: dict[str, Any]) -> list[dict[str, Any]]:
     haystack = " ".join([
         get_field(item, "title", "headline", "name"),
@@ -362,6 +429,19 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
     tag_html = "".join(
         f'<span class="tag-badge">{html.escape(tag)}</span>' for tag in item_tags[:5]
     )
+    article_brands = brands_for(item)
+    brand_html = ""
+    if article_brands:
+        brand_links = "".join(
+            f'<a href="{brand_url(brand)}">{html.escape(brand["name"])}</a>'
+            for brand in article_brands[:4]
+        )
+        brand_html = (
+            '<div class="article-brand-links">'
+            '<span>Бренды в материале</span>'
+            f'<div>{brand_links}</div>'
+            '</div>'
+        )
 
     body = ""
     if article_body:
@@ -433,7 +513,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
   <meta name="twitter:description" content="{description}" />
   <meta name="twitter:image" content="{image}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=11" />
+  <link rel="stylesheet" href="/styles.css?v=14" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{json_ld(item)}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -455,6 +535,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
       </a>
       <nav class="main-nav" aria-label="Основная навигация">
         <a href="/" class="nav-link nav-link-active">Новости</a>
+        <a href="/brands/" class="nav-link">Бренды</a>
         <a href="/law.html" class="nav-link">ГОСТы и законы</a>
         <a href="/guides.html" class="nav-link">Гайды</a>
         <a href="/video.html" class="nav-link">Видео</a>
@@ -476,6 +557,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
             {f'<span>{src_name}</span>' if src_name else ''}
           </div>
           <div class="news-card-tags">{tag_html}</div>
+          {brand_html}
         </header>
         {visual}
         <section class="article-body">
@@ -511,6 +593,240 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
     <div class="container footer-grid">
       <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
       <div class="footer-nav"><a href="/law.html">ГОСТы и законы</a><a href="/guides.html">Гайды</a><a href="/video.html">Видео</a><a href="https://t.me/specavtoportal">Telegram ↗</a></div>
+      <div class="footer-note">© СпецАвтоПортал</div>
+    </div>
+  </footer>
+</body>
+</html>
+"""
+
+
+def render_brand_page(brand: dict[str, Any], brand_items: list[dict[str, Any]]) -> str:
+    name = html.escape(brand["name"])
+    description = html.escape(brand["description"], quote=True)
+    canonical = brand_url(brand)
+
+    cards = []
+    for item in brand_items[:60]:
+        title = html.escape(get_field(item, "title", "headline", "name", default="Материал"))
+        date = display_date(get_field(item, "published_at", "date", "pub_date"))
+        source = html.escape(source_domain(item))
+        summary = html.escape(clamp(summary_text(item), 240))
+        meta = " · ".join(part for part in [date, source] if part)
+        cards.append(
+            '<article class="topic-card">'
+            f'<div class="topic-card__meta">{html.escape(meta)}</div>'
+            f'<h2><a href="{article_url(item)}">{title}</a></h2>'
+            + (f'<p>{summary}</p>' if summary else '')
+            + f'<a class="topic-card__link" href="{article_url(item)}">Открыть материал ↗</a>'
+            '</article>'
+        )
+
+    schema_payload = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": brand["name"],
+        "description": brand["description"],
+        "url": canonical,
+        "about": {"@type": "Brand", "name": brand["name"]},
+        "mainEntity": {
+            "@type": "ItemList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "url": article_url(item),
+                    "name": get_field(item, "title", "headline", "name", default="Материал"),
+                }
+                for index, item in enumerate(brand_items[:60])
+            ],
+        },
+    }
+    schema = json.dumps(schema_payload, ensure_ascii=False, separators=(",", ":")).replace("</", "<\/")
+
+    other_links = "".join(
+        f'<a href="/brands/{other["slug"]}/">{html.escape(other["name"])} <span>→</span></a>'
+        for other in BRAND_RULES if other["slug"] != brand["slug"]
+    )
+
+    return f"""<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{name} — новости и материалы | СпецАвтоПортал</title>
+  <meta name="description" content="{description}" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <link rel="canonical" href="{canonical}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="СпецАвтоПортал" />
+  <meta property="og:title" content="{name} — СпецАвтоПортал" />
+  <meta property="og:description" content="{description}" />
+  <meta property="og:url" content="{canonical}" />
+  <meta name="theme-color" content="#111417" />
+  <link rel="stylesheet" href="/styles.css?v=14" />
+  <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
+  <script type="application/ld+json">{schema}</script>
+  <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head>
+<body class="topic-page brand-page">
+  <div class="topline">
+    <div class="container topline-inner">
+      <span>Профессиональное медиа о грузовой технике</span>
+      <span class="topline-dot"></span>
+      <span>Производители и бренды</span>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="brand" aria-label="СпецАвтоПортал — на главную">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
+        <span class="brand-copy"><strong>СпецАвтоПортал</strong><small>рынок · техника · регламенты</small></span>
+      </a>
+      <nav class="main-nav" aria-label="Основная навигация">
+        <a href="/" class="nav-link">Новости</a>
+        <a href="/brands/" class="nav-link nav-link-active">Бренды</a>
+        <a href="/law.html" class="nav-link">ГОСТы и законы</a>
+        <a href="/guides.html" class="nav-link">Гайды</a>
+        <a href="/video.html" class="nav-link">Видео</a>
+      </nav>
+      <a href="https://t.me/specavtoportal" class="tg-badge" target="_blank" rel="noopener"><span>Telegram ↗</span></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="topic-hero brand-hero">
+      <div class="container topic-hero__inner">
+        <div>
+          <p class="section-kicker">Производитель / бренд</p>
+          <h1>{name}</h1>
+          <p>{html.escape(brand["description"])}</p>
+        </div>
+        <div class="topic-hero__count">
+          <strong>{len(brand_items)}</strong>
+          <span>материалов</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="container topic-layout">
+      <div class="topic-feed">
+        {''.join(cards)}
+      </div>
+      <aside class="topic-sidebar">
+        <section class="sidebar-block sidebar-dark">
+          <p class="sidebar-eyebrow">Другие бренды</p>
+          <div class="topic-nav">{other_links}</div>
+          <a class="text-link brand-all-link" href="/brands/">Все бренды <span>→</span></a>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
+      <div class="footer-nav"><a href="/brands/">Бренды</a><a href="/law.html">ГОСТы и законы</a><a href="/guides.html">Гайды</a><a href="https://t.me/specavtoportal">Telegram ↗</a></div>
+      <div class="footer-note">© СпецАвтоПортал</div>
+    </div>
+  </footer>
+</body>
+</html>
+"""
+
+
+def render_brand_directory(brand_counts: dict[str, int]) -> str:
+    cards = []
+    for brand in BRAND_RULES:
+        count = brand_counts.get(brand["slug"], 0)
+        cards.append(
+            f'<a class="brand-directory-card" href="/brands/{brand["slug"]}/">'
+            f'<span class="brand-directory-card__count">{count} материалов</span>'
+            f'<strong>{html.escape(brand["name"])}</strong>'
+            f'<p>{html.escape(brand["description"])}</p>'
+            '<span class="brand-directory-card__link">Открыть архив →</span>'
+            '</a>'
+        )
+
+    schema_payload = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Производители и бренды",
+        "description": "Архив новостей и материалов о производителях грузовой и прицепной техники.",
+        "url": f"{BASE_URL}/brands/",
+        "mainEntity": {
+            "@type": "ItemList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "url": brand_url(brand),
+                    "name": brand["name"],
+                }
+                for index, brand in enumerate(BRAND_RULES)
+            ],
+        },
+    }
+    schema = json.dumps(schema_payload, ensure_ascii=False, separators=(",", ":")).replace("</", "<\/")
+
+    return f"""<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Производители и бренды — СпецАвтоПортал</title>
+  <meta name="description" content="Новости и материалы о производителях грузовой техники, прицепов, полуприцепов и компонентов." />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <link rel="canonical" href="{BASE_URL}/brands/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Производители и бренды — СпецАвтоПортал" />
+  <meta property="og:description" content="Архив новостей о производителях грузовой и прицепной техники." />
+  <meta property="og:url" content="{BASE_URL}/brands/" />
+  <link rel="stylesheet" href="/styles.css?v=14" />
+  <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
+  <script type="application/ld+json">{schema}</script>
+</head>
+<body class="brand-directory-page">
+  <div class="topline">
+    <div class="container topline-inner">
+      <span>Профессиональное медиа о грузовой технике</span>
+      <span class="topline-dot"></span>
+      <span>Производители и бренды</span>
+    </div>
+  </div>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="brand" aria-label="СпецАвтоПортал — на главную">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
+        <span class="brand-copy"><strong>СпецАвтоПортал</strong><small>рынок · техника · регламенты</small></span>
+      </a>
+      <nav class="main-nav" aria-label="Основная навигация">
+        <a href="/" class="nav-link">Новости</a>
+        <a href="/brands/" class="nav-link nav-link-active">Бренды</a>
+        <a href="/law.html" class="nav-link">ГОСТы и законы</a>
+        <a href="/guides.html" class="nav-link">Гайды</a>
+        <a href="/video.html" class="nav-link">Видео</a>
+      </nav>
+      <a href="https://t.me/specavtoportal" class="tg-badge" target="_blank" rel="noopener"><span>Telegram ↗</span></a>
+    </div>
+  </header>
+  <main>
+    <section class="topic-hero brand-directory-hero">
+      <div class="container">
+        <p class="section-kicker">Архив отрасли</p>
+        <h1>Производители и бренды</h1>
+        <p>Материалы о компаниях, моделях, технологиях и проектах производителей грузовой и прицепной техники.</p>
+      </div>
+    </section>
+    <section class="container brand-directory-grid">
+      {''.join(cards)}
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
+      <div class="footer-nav"><a href="/brands/">Бренды</a><a href="/law.html">ГОСТы и законы</a><a href="/guides.html">Гайды</a><a href="https://t.me/specavtoportal">Telegram ↗</a></div>
       <div class="footer-note">© СпецАвтоПортал</div>
     </div>
   </footer>
@@ -576,7 +892,7 @@ def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) 
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=11" />
+  <link rel="stylesheet" href="/styles.css?v=14" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -598,6 +914,7 @@ def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) 
       </a>
       <nav class="main-nav" aria-label="Основная навигация">
         <a href="/" class="nav-link">Новости</a>
+        <a href="/brands/" class="nav-link">Бренды</a>
         <a href="/law.html" class="nav-link">ГОСТы и законы</a>
         <a href="/guides.html" class="nav-link">Гайды</a>
         <a href="/video.html" class="nav-link">Видео</a>
@@ -663,6 +980,10 @@ def write_sitemap(items: list[dict[str, Any]]) -> None:
     for topic in TOPIC_RULES:
         rows.append(f"  <url><loc>{xml_escape(topic_url(topic))}</loc></url>")
 
+    rows.append(f"  <url><loc>{xml_escape(f'{BASE_URL}/brands/')}</loc></url>")
+    for brand in BRAND_RULES:
+        rows.append(f"  <url><loc>{xml_escape(brand_url(brand))}</loc></url>")
+
     for item in items:
         lastmod = iso_date(get_field(item, "published_at", "date", "pub_date"))
         lm = f"<lastmod>{lastmod}</lastmod>" if lastmod else ""
@@ -707,6 +1028,10 @@ def main() -> None:
         shutil.rmtree(TOPICS_DIR)
     TOPICS_DIR.mkdir(parents=True, exist_ok=True)
 
+    if BRANDS_DIR.exists():
+        shutil.rmtree(BRANDS_DIR)
+    BRANDS_DIR.mkdir(parents=True, exist_ok=True)
+
     for item in items:
         out_dir = NEWS_DIR / item["slug"]
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -720,9 +1045,20 @@ def main() -> None:
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / "index.html").write_text(render_topic_page(topic, topic_items), encoding="utf-8")
 
+    brand_counts = {}
+    for brand in BRAND_RULES:
+        brand_items = [item for item in items if brand in brands_for(item)]
+        brand_counts[brand["slug"]] = len(brand_items)
+        out_dir = BRANDS_DIR / brand["slug"]
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "index.html").write_text(render_brand_page(brand, brand_items), encoding="utf-8")
+
+    (BRANDS_DIR / "index.html").write_text(render_brand_directory(brand_counts), encoding="utf-8")
+
     write_sitemap(items)
     print(f"[SEO] generated {len(items)} static article pages")
     print(f"[SEO] generated topic hubs: {topic_counts}")
+    print(f"[SEO] generated brand hubs: {brand_counts}")
     print(f"[SEO] sitemap: {FRONTEND / 'sitemap.xml'}")
     print(f"[SEO] robots: {FRONTEND / 'robots.txt'}")
 

@@ -84,10 +84,36 @@ jobs:
               for marker in ('rel="canonical"', 'application/ld+json', 'name="description"'):
                   assert marker in topic_html, f"topic {slug} missing SEO marker: {marker}"
 
+          brand_slugs = [
+              "krone",
+              "maz",
+              "kamaz",
+              "kogel",
+              "mercedes-benz-trucks",
+              "schmitz-cargobull",
+              "saf-holland",
+              "bpw",
+          ]
+          brand_directory = root / "brands" / "index.html"
+          assert brand_directory.exists(), "brand directory not generated"
+          directory_html = brand_directory.read_text("utf-8")
+          for marker in ('rel="canonical"', 'application/ld+json', 'name="description"'):
+              assert marker in directory_html, f"brand directory missing SEO marker: {marker}"
+
+          for slug in brand_slugs:
+              brand_page = root / "brands" / slug / "index.html"
+              assert brand_page.exists(), f"brand page not generated: {slug}"
+              brand_html = brand_page.read_text("utf-8")
+              for marker in ('rel="canonical"', 'application/ld+json', 'name="description"'):
+                  assert marker in brand_html, f"brand {slug} missing SEO marker: {marker}"
+
           urls = re.findall(r"<loc>(.*?)</loc>", sitemap.read_text("utf-8"))
-          assert len(urls) >= len(items) + len(topic_slugs), "sitemap missing article/topic URLs"
+          assert len(urls) >= len(items) + len(topic_slugs) + len(brand_slugs) + 1, "sitemap missing article/topic/brand URLs"
           for slug in topic_slugs:
               assert f"https://spec-avtoportal.ru/topics/{slug}/" in urls, f"topic missing from sitemap: {slug}"
+          assert "https://spec-avtoportal.ru/brands/" in urls, "brand directory missing from sitemap"
+          for slug in brand_slugs:
+              assert f"https://spec-avtoportal.ru/brands/{slug}/" in urls, f"brand missing from sitemap: {slug}"
 
-          print(f"QA OK: {len(items)} items, {len(pages)} pages, {len(topic_slugs)} topic hubs, {len(urls)} sitemap URLs")
+          print(f"QA OK: {len(items)} items, {len(pages)} pages, {len(topic_slugs)} topic hubs, {len(brand_slugs)} brand hubs, {len(urls)} sitemap URLs")
           PY
