@@ -21,8 +21,8 @@ import os
 import re
 import subprocess
 import sys
-import tempfile
 import urllib.parse
+import time
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
@@ -34,7 +34,6 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from telegram_visual import render_digest_card, render_important_card
 
 NEWS_PATH = Path("frontend/data/news.json")
 STATE_PATH = Path("frontend/data/vk_state.json")
@@ -388,52 +387,6 @@ def resolve_group_id(
     return group_id_from_response(response)
 
 
-def upload_wall_photo(
-    token: str,
-    api_version: str,
-    group_id: int,
-    image_path: Path,
-) -> str:
-    upload = vk_api(
-        "photos.getWallUploadServer",
-        token,
-        api_version,
-        group_id=group_id,
-    )
-    upload_url = str((upload or {}).get("upload_url") or "")
-    if not upload_url:
-        raise RuntimeError("VK did not return wall upload_url")
-
-    with image_path.open("rb") as image_file:
-        uploaded_response = requests.post(
-            upload_url,
-            files={"photo": ("spec-avtoportal.png", image_file, "image/png")},
-            timeout=60,
-        )
-    uploaded = uploaded_response.json()
-    for key in ("server", "photo", "hash"):
-        if key not in uploaded:
-            raise RuntimeError(f"VK wall upload response missing {key}")
-
-    saved = vk_api(
-        "photos.saveWallPhoto",
-        token,
-        api_version,
-        group_id=group_id,
-        server=uploaded["server"],
-        photo=uploaded["photo"],
-        hash=uploaded["hash"],
-    )
-    if not isinstance(saved, list) or not saved:
-        raise RuntimeError("VK photos.saveWallPhoto returned no photo")
-    photo = saved[0]
-    owner_id = photo.get("owner_id")
-    photo_id = photo.get("id")
-    if not isinstance(owner_id, int) or not isinstance(photo_id, int):
-        raise RuntimeError("VK saved photo is missing owner_id/id")
-    return f"photo{owner_id}_{photo_id}"
-
-
 def guid_for(kind: str, key: str) -> str:
     return hashlib.sha256(f"specavto:{kind}:{key}".encode("utf-8")).hexdigest()[:32]
 
@@ -464,6 +417,24 @@ def wall_post(
     return post_id
 
 
+def wait_for_preview_page(url: str, attempts: int = 8, delay_seconds: int = 5) -> None:
+    """Wait until the deployed article exposes its branded Open Graph image."""
+    last_error = ""
+    for attempt in range(1, attempts + 1):
+        try:
+            response = requests.get(url, timeout=20, allow_redirects=True)
+            body = response.text if response.ok else ""
+            if response.ok and 'property="og:image"' in body and "/social/" in body:
+                print(f"VK preview page ready on attempt {attempt}: {response.url}")
+                return
+            last_error = f"HTTP {response.status_code}; branded og:image not found"
+        except Exception as exc:
+            last_error = str(exc)
+        if attempt < attempts:
+            time.sleep(delay_seconds)
+    raise RuntimeError(f"VK preview page is not ready: {last_error}")
+
+
 def send_with_visual_fallback(
     token: str,
     api_version: str,
@@ -475,45 +446,15 @@ def send_with_visual_fallback(
     item: dict[str, Any] | None = None,
     slot: str = "",
 ) -> tuple[int, str]:
-    try:
-        with tempfile.TemporaryDirectory(prefix="specavto-vk-") as tmp_dir:
-            card_path = Path(tmp_dir) / "card.png"
-            if kind == "important" and item is not None:
-                render_important_card(item, card_path)
-            else:
-                render_digest_card(slot or "am", card_path)
-
-            # VK community tokens can publish to the wall but currently cannot
-            # call photos.getWallUploadServer/photos.saveWallPhoto (error 27).
-            # Prefer a user OAuth token for photo methods while keeping the
-            # community token for wall.post.
-            photo_token = os.getenv("VK_PHOTO_ACCESS_TOKEN", "").strip() or token
-            attachment = upload_wall_photo(
-                photo_token,
-                api_version,
-                group_id,
-                card_path,
-            )
-            post_id = wall_post(
-                token,
-                api_version,
-                group_id,
-                message,
-                attachment=attachment,
-                guid=guid_for(kind, key),
-            )
-            return post_id, "visual"
-    except Exception as exc:
-        print(f"WARN: VK visual failed, text fallback: {exc}", file=sys.stderr)
-        post_id = wall_post(
-            token,
-            api_version,
-            group_id,
-            message,
-            guid=guid_for(kind, key),
-        )
-        return post_id, "text_fallback"
-
+    """Publish a link post and let VK fetch the page Open Graph preview."""
+    post_id = wall_post(
+        token,
+        api_version,
+        group_id,
+        message,
+        guid=guid_for(kind, key),
+    )
+    return post_id, "link_preview"
 
 def send_welcome(
     token: str,
@@ -597,6 +538,7 @@ def run_immediate(
         site_url = build_site_url(site_base, item, "important_news")
         message = important_message(item, site_url)
         try:
+            wait_for_preview_page(site_url)
             post_id, visual = send_with_visual_fallback(
                 token,
                 api_version,
