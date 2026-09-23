@@ -134,8 +134,13 @@ def login(page: Page, email: str, password: str) -> None:
 
     email_input.fill(email)
     password_input.fill(password)
-    submit_button.first.click()
-    page.wait_for_load_state("domcontentloaded", timeout=60000)
+    try:
+        with page.expect_navigation(wait_until="domcontentloaded", timeout=60000):
+            submit_button.first.click()
+    except Exception:
+        # Some deployments complete auth through client-side navigation.
+        # Give the browser a moment to settle before checking errors / protected access.
+        page.wait_for_timeout(1500)
 
     error_text = " ".join(
         page.locator("#login-form .errorMessage, #login-form .error").all_inner_texts()
