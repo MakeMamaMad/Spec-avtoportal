@@ -5,6 +5,14 @@ on:
   schedule:
     # 13:15 Moscow time
     - cron: '15 10 * * *'
+  push:
+    branches: [ main ]
+    paths:
+      - 'promotion/telegram_targets.json'
+      - 'promotion/build_telegram_promo.py'
+      - 'promotion/outreach_telegram_ad_bots.py'
+      - 'promotion/publish_telegram_approved.py'
+      - '.github/workflows/telegram_promotion.yml'
 
 permissions:
   contents: write
@@ -30,6 +38,12 @@ jobs:
       - name: Build external Telegram promotion queue
         run: |
           python promotion/build_telegram_promo.py
+
+      - name: Contact one public Telegram advertising bot
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          python promotion/outreach_telegram_ad_bots.py
 
       - name: Publish only to explicitly approved external channels
         env:
