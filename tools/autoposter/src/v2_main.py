@@ -151,6 +151,32 @@ async def _edge_tts(text: str, output: Path) -> None:
 
 def generate_voice(text: str, output: Path) -> str:
     output.parent.mkdir(parents=True, exist_ok=True)
+
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    if api_key and os.getenv("OPENAI_TTS", "1").strip() == "1":
+        try:
+            from openai import OpenAI
+
+            client = OpenAI(api_key=api_key)
+            model = os.getenv("OPENAI_TTS_MODEL", "gpt-4o-mini-tts").strip()
+            voice = os.getenv("OPENAI_TTS_VOICE", "cedar").strip()
+            instructions = os.getenv(
+                "OPENAI_TTS_INSTRUCTIONS",
+                "Speak in natural Russian with a confident professional news-presenter tone. "
+                "Keep the pace energetic but clear, avoid theatrical delivery, pronounce company names carefully.",
+            ).strip()
+            with client.audio.speech.with_streaming_response.create(
+                model=model,
+                voice=voice,
+                input=text,
+                instructions=instructions,
+            ) as response:
+                response.stream_to_file(output)
+            print(f"[tts] OpenAI {model}/{voice}")
+            return f"openai:{model}:{voice}"
+        except Exception as exc:
+            print(f"[tts] OpenAI failed, trying edge-tts: {exc}")
+
     try:
         asyncio.run(_edge_tts(text, output))
         print(f"[tts] edge-tts {VOICE} {TTS_RATE}")
