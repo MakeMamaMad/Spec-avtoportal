@@ -1,0 +1,39 @@
+name: Ingest Unit Tests
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "aggregator/**"
+      - "main.py"
+      - ".github/workflows/ingest-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: aggregator/requirements.txt
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r aggregator/requirements.txt pytest
+
+      - name: Run ingest tests
+        run: |
+          python -m pytest -q aggregator/tests
+
+      - name: Validate CLI
+        run: |
+          python -m aggregator.run --help
+          python main.py --help
