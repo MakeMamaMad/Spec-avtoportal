@@ -42,6 +42,12 @@ REGULATIONS_DIR = FRONTEND / "regulations"
 KNOWLEDGE_DIR = FRONTEND / "knowledge"
 SOCIAL_DIR = FRONTEND / "social"
 BASE_URL = "https://spec-avtoportal.ru"
+METRIKA_ID = 106240080
+METRIKA_SCRIPT_TAG = '<script defer src="/metrika.js"></script>'
+METRIKA_NOSCRIPT = (
+    '<noscript><div><img src="https://mc.yandex.ru/watch/106240080" '
+    'style="position:absolute; left:-9999px;" alt="" /></div></noscript>'
+)
 
 BRAND_RULES = [
     {
@@ -1757,6 +1763,28 @@ def write_sitemap(
     (FRONTEND / "robots.txt").write_text(robots, encoding="utf-8")
 
 
+def inject_metrika_into_pages() -> int:
+    """Inject Yandex Metrika into every deployable HTML page exactly once."""
+    changed = 0
+    for path in FRONTEND.rglob("*.html"):
+        text = path.read_text(encoding="utf-8")
+        original = text
+        if METRIKA_SCRIPT_TAG not in text and "</head>" in text:
+            text = text.replace("</head>", f"  {METRIKA_SCRIPT_TAG}\\n</head>", 1)
+        if "mc.yandex.ru/watch/106240080" not in text:
+            text = re.sub(
+                r"(<body\\b[^>]*>)",
+                r"\\1\\n  " + METRIKA_NOSCRIPT,
+                text,
+                count=1,
+                flags=re.IGNORECASE,
+            )
+        if text != original:
+            path.write_text(text, encoding="utf-8")
+            changed += 1
+    return changed
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--metadata-only", action="store_true")
@@ -1850,6 +1878,8 @@ def main() -> None:
     (BRANDS_DIR / "index.html").write_text(render_brand_directory(brand_counts), encoding="utf-8")
 
     write_sitemap(items, regulations, knowledge_articles)
+    metrika_pages = inject_metrika_into_pages()
+    print(f"[SEO] Yandex Metrika 106240080 injected into {metrika_pages} HTML pages")
     print(f"[SEO] generated {len(items)} static article pages")
     print(f"[SEO] generated {social_cards} fresh social cards")
     print(f"[SEO] generated {len(knowledge_articles.get('items', []))} knowledge articles")
