@@ -24,7 +24,7 @@ jobs:
 
       - name: Python syntax
         run: |
-          python -m py_compile tools/build_seo.py aggregator/main.py aggregator/post_to_telegram.py
+          python -m py_compile tools/build_seo.py aggregator/main.py aggregator/post_to_telegram.py tools/daily_digest/agent.py
 
       - name: Telegram reboot config
         run: |
@@ -35,19 +35,34 @@ jobs:
           config = json.loads(Path("aggregator/telegram_config.json").read_text("utf-8"))
           state = json.loads(Path("frontend/data/telegram_state.json").read_text("utf-8"))
 
-          assert config.get("schema") == 1
-          assert config.get("enabled") is True, "Telegram publishing should be live after channel cleanup"
+          assert config.get("schema") == 2
+          assert config.get("enabled") is True, "Telegram publishing should be live"
           assert len(str(config.get("baseline_ref") or "")) == 40, "Telegram baseline_ref must be a commit SHA"
-          assert 1 <= int(config.get("max_posts_per_run") or 0) <= 10
-          assert state.get("schema") == 1
+          assert 1 <= int(config.get("max_immediate_per_run") or 0) <= 3
+          assert int(config.get("immediate_score") or 0) >= 4
+          assert 24 <= int(config.get("max_item_age_hours") or 0) <= 72
+          assert config.get("digest_enabled") is True
+          assert 2 <= int(config.get("digest_min_items") or 0) <= int(config.get("digest_items") or 0) <= 8
+          assert config.get("digest_times") == ["09:30", "19:30"]
+
+          assert state.get("schema") in (1, 2), "state must be migratable to editorial schema"
           assert isinstance(state.get("posts"), dict)
+          assert isinstance(state.get("digested", {}), dict)
+          assert isinstance(state.get("digests", {}), dict)
           welcome_id = state.get("welcome_message_id")
           assert welcome_id is None or isinstance(welcome_id, int), "welcome_message_id must be null or int"
           for key, post in state.get("posts", {}).items():
               assert key
               assert isinstance(post, dict)
               assert isinstance(post.get("message_id"), int)
-          print("Telegram live config OK")
+
+          import importlib.util
+          spec = importlib.util.spec_from_file_location("tgpub", "aggregator/post_to_telegram.py")
+          mod = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
+          assert mod.importance_score({"title": "Новый ГОСТ вступил в силу", "summary": ""}) >= config["immediate_score"]
+          assert mod.importance_score({"title": "Компания показала новый полуприцеп", "summary": ""}) < config["immediate_score"]
+          print("Telegram Editorial v2 config OK")
           PY
 
       - name: JavaScript syntax
