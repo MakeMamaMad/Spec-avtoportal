@@ -162,7 +162,7 @@
     const source = esc(field(item, ["source_name", "source", "site"], ""));
     const image = esc(field(item, ["image_url", "image", "img"], ""));
     const itemTags = tags(item).slice(0, 3);
-    let html = '<article class="news-card">';
+    let html = '<article class="news-card' + (image ? '' : ' news-card--no-image') + '">';
     if (image) html += '<a class="news-card-image-wrap" href="' + articleUrl(item) + '" aria-label="' + title + '"><img src="' + image + '" alt="" class="news-card-image" loading="lazy"></a>';
     html += '<div class="news-card-body"><div class="news-card-meta">';
     if (date) html += '<span>' + date + '</span>';
