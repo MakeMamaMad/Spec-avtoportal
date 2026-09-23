@@ -41,9 +41,9 @@
       "name": "LinkPortal.ru",
       "platform": "site_directory",
       "url": "https://linkportal.ru/ru/add/",
-      "status": "candidate",
+      "status": "paused",
       "policy": "free_site_submission",
-      "automation": "generic_playwright",
+      "automation": "manual_business_profile",
       "requires_email": true,
       "preferred_categories": [
         "Авто",
@@ -52,16 +52,16 @@
         "Спецтехника",
         "Грузоперевозки"
       ],
-      "notes": "Бесплатная форма добавления сайта/бизнеса; каталог России и СНГ."
+      "notes": "Бесплатное добавление, но текущая форма требует контакты, географию и вид деятельности; правила просят указывать только реальные контакты, присутствующие на сайте. Оставлен в ручном резерве."
     },
     {
       "id": "da-client",
       "name": "Да-Клиент.ру",
       "platform": "site_directory",
       "url": "https://da-client.ru/ru/add/",
-      "status": "candidate",
+      "status": "paused",
       "policy": "free_site_submission",
-      "automation": "generic_playwright",
+      "automation": "manual_business_profile",
       "requires_email": true,
       "preferred_categories": [
         "Авто",
@@ -70,7 +70,7 @@
         "Спецтехника",
         "Грузоперевозки"
       ],
-      "notes": "Бесплатное добавление компании/сайта; публикация после модерации."
+      "notes": "Бесплатное добавление, но форма требует контакты, географию и вид деятельности; каталог требует правдивые данные, совпадающие с сайтом. До появления публичных контактов на SpecАвтоПортале — ручной резерв."
     },
     {
       "id": "pdfcatalog",
@@ -148,6 +148,314 @@
         "Новости и СМИ > Интернет-издания"
       ],
       "notes": "В 2026 стандартное размещение указано как платное и форма содержит проверку с картинки; автоматическую бесплатную кампанию сюда не отправляем."
+    },
+    {
+      "id": "conti-group",
+      "name": "Conti-Group",
+      "platform": "site_directory",
+      "url": "https://conti-group.ru/dobavlenie/",
+      "status": "candidate",
+      "policy": "free_site_submission",
+      "automation": "generic_playwright",
+      "requires_email": true,
+      "preferred_categories": [
+        "Автомобили",
+        "Новости и СМИ",
+        "Перевозки",
+        "Производство"
+      ],
+      "description_override": "СпецАвтоПортал — информационный отраслевой ресурс о грузовой и специальной технике, прицепах и полуприцепах. Портал собирает новости производителей и дилеров, сведения о новых моделях, поставках, локализации и выставках, а также практические материалы о логистике, эксплуатации техники и нормативных требованиях. Отдельные разделы посвящены ГОСТам, техническим регламентам, брендам и базе знаний. Ресурс рассчитан на перевозчиков, владельцев коммерческого транспорта, производителей, дилеров, сервисные компании и специалистов транспортной отрасли. На сайте регулярно обновляется новостная лента и тематические подборки по грузовикам, прицепной технике, производству и рынку.",
+      "notes": "Бесплатно, без регистрации, оплаты и обязательной обратной ссылки; ручная модерация. Требуется уникальное описание — для этого target содержит отдельный description_override."
+    },
+    {
+      "id": "otsiv-ru",
+      "name": "Отзыв.ру",
+      "platform": "business_directory",
+      "url": "https://otsiv.ru/org/create/",
+      "status": "paused",
+      "policy": "free_company_submission",
+      "automation": "manual_review",
+      "requires_email": true,
+      "preferred_categories": [
+        "Интернет-сервисы",
+        "СМИ",
+        "Авто"
+      ],
+      "notes": "Добавление без регистрации возможно, сайт прямо допускает онлайн-сервисы. Форма также содержит город/сферу деятельности и юридические поля; сначала нужна ручная проверка обязательности."
+    },
+    {
+      "id": "astrina",
+      "name": "Astrina",
+      "platform": "site_directory",
+      "url": "https://astrina.io/ru/listing/",
+      "status": "paused",
+      "policy": "free_site_submission",
+      "automation": "manual_verify_form",
+      "requires_email": "unknown",
+      "preferred_categories": [
+        "Сайты",
+        "Медиа",
+        "Новости"
+      ],
+      "notes": "Бесплатная запись в публичном каталоге заявлена официально. Форму добавления нужно отдельно проверить перед включением в автоматическую очередь."
+    },
+    {
+      "id": "rin-ru",
+      "name": "RIN.ru",
+      "platform": "site_directory",
+      "url": "https://counter.rin.ru/",
+      "status": "paused",
+      "policy": "resource_submission",
+      "automation": "manual_verify_form",
+      "requires_email": "unknown",
+      "preferred_categories": [
+        "СМИ > Интернет-издания",
+        "Средства передвижения > Общая информация",
+        "Наука > Техника и технологии"
+      ],
+      "notes": "Живой каталог ресурсов с отдельной кнопкой «добавить ресурс» и рубрикой «Интернет-издания». CGI-форма не открылась через веб-проверку, поэтому оставлен до ручной верификации."
+    },
+    {
+      "id": "rusbic",
+      "name": "Rusbic",
+      "platform": "site_directory",
+      "url": "https://cat.rusbic.ru/?mp=add",
+      "status": "paused",
+      "policy": "free_site_submission",
+      "automation": "manual_account",
+      "requires_email": true,
+      "preferred_categories": [
+        "Авто, мото",
+        "Бизнес и экономика",
+        "СМИ"
+      ],
+      "notes": "Каталог заявляет бесплатное добавление без обратной ссылки, но для добавления требуется регистрация/вход."
+    },
+    {
+      "id": "myfirma",
+      "name": "Моя Фирма.ру",
+      "platform": "business_directory",
+      "url": "https://myfirma.ru/ru/add/",
+      "status": "paused",
+      "policy": "free_site_submission",
+      "automation": "manual_business_profile",
+      "requires_email": true,
+      "preferred_categories": [
+        "Авто",
+        "СМИ",
+        "Интернет"
+      ],
+      "notes": "Бесплатная ссылка на сайт. Форма требует описание 750–1500 символов, контакты, географию и виды деятельности; нужны только реальные данные, поэтому пока ручной резерв."
+    },
+    {
+      "id": "weborientir",
+      "name": "Веб Ориентир Ру",
+      "platform": "business_directory",
+      "url": "https://weborientir.ru/ru/add/",
+      "status": "paused",
+      "policy": "free_site_submission",
+      "automation": "manual_business_profile",
+      "requires_email": true,
+      "preferred_categories": [
+        "Авто",
+        "СМИ",
+        "Интернет"
+      ],
+      "notes": "Бесплатное добавление сайта/фирмы. Форма требует контакты, географию и виды деятельности; включать в автоматизацию только после появления публичных контактных данных на сайте."
+    },
+    {
+      "id": "spravkainform",
+      "name": "SpravkaInform.ru",
+      "platform": "business_directory",
+      "url": "https://spravkainform.ru/",
+      "status": "paused",
+      "policy": "free_company_submission",
+      "automation": "manual_account",
+      "requires_email": true,
+      "preferred_categories": [
+        "СМИ",
+        "Авто",
+        "Транспорт"
+      ],
+      "notes": "Размещение информации полностью бесплатное, но каталог ориентирован на компании и привязывает профиль к городу/адресу; требуется бизнес-регистрация."
+    },
+    {
+      "id": "jsprav",
+      "name": "Jsprav.ru",
+      "platform": "business_directory",
+      "url": "https://jsprav.ru/",
+      "status": "paused",
+      "policy": "free_company_submission",
+      "automation": "manual_account",
+      "requires_email": true,
+      "preferred_categories": [
+        "СМИ",
+        "Авто",
+        "Транспорт"
+      ],
+      "notes": "Бесплатное добавление компании подтверждено, но справочник привязан к городу и бизнес-профилю. Нужна отдельная ручная регистрация."
+    },
+    {
+      "id": "yp-ru",
+      "name": "YP.RU — Желтые страницы",
+      "platform": "business_directory",
+      "url": "https://www.yp.ru/",
+      "status": "paused",
+      "policy": "company_submission",
+      "automation": "manual_account",
+      "requires_email": true,
+      "preferred_categories": [
+        "СМИ",
+        "Автомобили",
+        "Транспорт"
+      ],
+      "notes": "Действующий справочник 2026 года с функцией «Добавить компанию». Перед автоматизацией требуется проверить регистрацию и обязательные реквизиты."
+    },
+    {
+      "id": "n4-biz",
+      "name": "N4.BIZ",
+      "platform": "business_directory",
+      "url": "https://n4.biz/companies",
+      "status": "paused",
+      "policy": "free_company_submission",
+      "automation": "manual_account",
+      "requires_email": true,
+      "preferred_categories": [
+        "Маркетинг, реклама и СМИ",
+        "Логистика и перевозки",
+        "Транспортные средства и оборудование",
+        "Машиностроение"
+      ],
+      "notes": "Бесплатное добавление компаний и индексируемых ссылок заявлено официально, но требуется регистрация в деловой сети."
+    },
+    {
+      "id": "cataloxy",
+      "name": "Cataloxy",
+      "platform": "business_directory",
+      "url": "https://www.cataloxy.ru/firms_add.htm",
+      "status": "paused",
+      "policy": "free_company_submission",
+      "automation": "manual_captcha",
+      "requires_email": true,
+      "preferred_categories": [
+        "СМИ",
+        "Автомобили",
+        "Транспорт"
+      ],
+      "notes": "Бесплатное добавление, но обязательны регистрация, подтверждение email и CAPTCHA «Вы не робот». Автоматически не обходим."
+    },
+    {
+      "id": "marketmap",
+      "name": "MarketMap.ru",
+      "platform": "site_directory",
+      "url": "https://links.marketmap.ru/",
+      "status": "paused",
+      "policy": "resource_submission",
+      "automation": "manual_verify_form",
+      "requires_email": "unknown",
+      "preferred_categories": [
+        "Интернет-издания",
+        "Транспорт",
+        "Промышленность"
+      ],
+      "notes": "Каталог жив и обновлялся в 2026 году, есть отдельная функция «Добавить ресурс» и рубрика «Интернет-издания». Форму нужно проверить вручную."
+    },
+    {
+      "id": "saitovkatalog-ucoz",
+      "name": "Белый Каталог сайтов (saitovkatalog.ucoz.ru)",
+      "platform": "site_directory",
+      "url": "https://saitovkatalog.ucoz.ru/board/0-0-0-0-1",
+      "status": "paused",
+      "policy": "free_site_submission",
+      "automation": "manual_captcha",
+      "requires_email": true,
+      "preferred_categories": [
+        "Новости и информация",
+        "Грузовые автомобили, автобусы",
+        "Сельскохоз. и спецтехника",
+        "Дорожно-строительная техника"
+      ],
+      "notes": "Бесплатно, без регистрации и обратной ссылки, но текущая форма содержит код безопасности. Оставлен для ручной очереди."
+    },
+    {
+      "id": "santex3-catalog",
+      "name": "Белый каталог сайтов santex3",
+      "platform": "site_directory",
+      "url": "https://santex3.narod.ru/dir/0-0-0-0-1",
+      "status": "paused",
+      "policy": "free_site_submission",
+      "automation": "manual_captcha",
+      "requires_email": true,
+      "preferred_categories": [
+        "Авто-мото инфо",
+        "Новости",
+        "Транспортное машиностроение",
+        "Тяжелое машиностроение"
+      ],
+      "notes": "Добавление без регистрации и модерации заявлено, но форма содержит код безопасности. CAPTCHA не обходим."
+    },
+    {
+      "id": "catalogs-ucoz",
+      "name": "Catalogs.ucoz.ru",
+      "platform": "site_directory",
+      "url": "https://catalogs.ucoz.ru/",
+      "status": "paused",
+      "policy": "site_submission",
+      "automation": "manual_verify_form",
+      "requires_email": "unknown",
+      "preferred_categories": [
+        "Автомобили",
+        "Новости и СМИ",
+        "Производство"
+      ],
+      "notes": "Живой каталог с 13 тыс.+ сайтов и кнопкой «Добавить сайт». Страница формы не отдалась веб-проверке; нужна ручная верификация."
+    },
+    {
+      "id": "white-catalog-ucoz",
+      "name": "White-Catalog.ucoz.org",
+      "platform": "site_directory",
+      "url": "https://white-catalog.ucoz.org/",
+      "status": "paused",
+      "policy": "free_site_submission",
+      "automation": "manual_verify_form",
+      "requires_email": "unknown",
+      "preferred_categories": [
+        "Автомобили",
+        "Новости и СМИ",
+        "Производство"
+      ],
+      "notes": "Каталог заявляет бесплатные прямые ссылки без обязательной регистрации и обратной ссылки. Небольшая база; форму и антибот нужно проверить."
+    },
+    {
+      "id": "bizznes-ru",
+      "name": "bizznes.ru / add-cat.ru",
+      "platform": "business_directory",
+      "url": "https://add-cat.ru/",
+      "status": "paused",
+      "policy": "free_company_submission",
+      "automation": "manual_legal_details",
+      "requires_email": true,
+      "preferred_categories": [
+        "СМИ",
+        "Транспорт",
+        "Интернет"
+      ],
+      "notes": "Бесплатная карточка и ссылка, но сервис ориентирован на бизнес РФ и проверяет реквизиты/ИНН. Не отправляем без подтвержденных юридических данных."
+    },
+    {
+      "id": "katalogsajtov-ru",
+      "name": "KatalogSajtov.ru",
+      "platform": "site_directory",
+      "url": "https://katalogsajtov.ru/dobavit-sajt",
+      "status": "blocked",
+      "policy": "requires_backlink",
+      "automation": "do_not_post",
+      "requires_email": "unknown",
+      "preferred_categories": [
+        "Авто",
+        "СМИ"
+      ],
+      "notes": "Бесплатное добавление требует разместить кнопку/обратную ссылку на нашем сайте. Не используем в автоматической кампании."
     }
   ]
 }

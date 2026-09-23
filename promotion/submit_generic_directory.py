@@ -251,7 +251,7 @@ def main() -> int:
                 return 0
 
             title = str(campaign.get("title") or "СпецАвтоПортал")
-            description = str(campaign.get("full_description") or campaign.get("short_description") or "")
+            description = str(target.get("description_override") or campaign.get("full_description") or campaign.get("short_description") or "")
             keywords = ", ".join(campaign.get("keywords") or [])
             region = str(campaign.get("region") or "Россия")
             promotion_url = tracked_site_url(target)
