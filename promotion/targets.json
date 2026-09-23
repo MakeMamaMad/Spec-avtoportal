@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "updated_at": "2026-09-23",
+  "targets": [
+    {
+      "id": "tg-spec-tehnika-info",
+      "platform": "telegram",
+      "name": "Спецтехника | грузовики",
+      "url": "https://t.me/spec_tehnika_info",
+      "contact": "https://t.me/teh_info",
+      "audience_hint": "спецтехника, грузовики, запчасти",
+      "policy": "approval_required",
+      "status": "candidate",
+      "notes": "Реклама и услуги — по согласованию с администрацией."
+    },
+    {
+      "id": "tg-spetctexnika",
+      "platform": "telegram",
+      "name": "Спецтехника🚜 Грузовики🚛 Автобусы🚌 Запчасти🛠",
+      "url": "https://t.me/Spetctexnika",
+      "contact": "https://t.me/DstRussia",
+      "audience_hint": "спецтехника, грузовики, автобусы, запчасти",
+      "policy": "approval_required",
+      "status": "candidate",
+      "notes": "Реклама — по согласованию."
+    },
+    {
+      "id": "tg-spectehnix1",
+      "platform": "telegram",
+      "name": "Спецтехника РФ",
+      "url": "https://t.me/spectehnix1",
+      "contact": "https://t.me/shishelmishel93",
+      "audience_hint": "поиск, продажа и аренда спецтехники",
+      "policy": "approval_required",
+      "status": "candidate",
+      "notes": "Есть контакт администратора; условия размещения нужно подтвердить."
+    },
+    {
+      "id": "tg-gruzoviki-rf",
+      "platform": "telegram",
+      "name": "СПЕЦТЕХНИКА ВСЯ РФ | КУПЛЮ / ПРОДАМ",
+      "url": "https://t.me/gruzoviki_rf",
+      "contact": "",
+      "audience_hint": "дилеры, производители и покупатели спецтехники",
+      "policy": "manual_review",
+      "status": "candidate",
+      "notes": "Тематика подходит, но рекламные условия отдельно не подтверждены."
+    },
+    {
+      "id": "truckmix-forum",
+      "platform": "forum",
+      "name": "TruckMix",
+      "url": "https://truckmix.ru/forum/",
+      "contact": "",
+      "audience_hint": "грузовики, строительная и спецтехника",
+      "policy": "manual_review",
+      "status": "candidate",
+      "notes": "Можно готовить полезные тематические сообщения; перед публикацией проверить правила конкретного раздела."
+    },
+    {
+      "id": "perevozka24-forum",
+      "platform": "forum",
+      "name": "Перевозка24",
+      "url": "https://perevozka24.com/forum",
+      "contact": "",
+      "audience_hint": "перевозчики и владельцы спецтехники",
+      "policy": "blocked",
+      "status": "do_not_post",
+      "notes": "Правила форума прямо запрещают рекламу в любом виде; автоматизация должна исключать площадку."
+    }
+  ]
+}
