@@ -483,8 +483,13 @@ def send_with_visual_fallback(
             else:
                 render_digest_card(slot or "am", card_path)
 
+            # VK community tokens can publish to the wall but currently cannot
+            # call photos.getWallUploadServer/photos.saveWallPhoto (error 27).
+            # Prefer a user OAuth token for photo methods while keeping the
+            # community token for wall.post.
+            photo_token = os.getenv("VK_PHOTO_ACCESS_TOKEN", "").strip() or token
             attachment = upload_wall_photo(
-                token,
+                photo_token,
                 api_version,
                 group_id,
                 card_path,
