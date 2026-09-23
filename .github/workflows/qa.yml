@@ -29,7 +29,7 @@ jobs:
 
       - name: Python syntax
         run: |
-          python -m py_compile tools/build_seo.py aggregator/main.py aggregator/post_to_telegram.py aggregator/post_to_vk.py aggregator/telegram_visual.py aggregator/translate_news.py tools/daily_digest/agent.py tools/autoposter/src/ai/storyboard.py tools/autoposter/src/ai/visuals.py tools/autoposter/src/render/short_v2.py tools/autoposter/src/v2_main.py
+          python -m py_compile tools/build_seo.py aggregator/main.py aggregator/post_to_telegram.py aggregator/post_to_vk.py aggregator/telegram_visual.py aggregator/translate_news.py tools/daily_digest/agent.py tools/autoposter/src/ai/storyboard.py tools/autoposter/src/ai/visuals.py tools/autoposter/src/render/short_v2.py tools/autoposter/src/v2_main.py tools/autoposter/src/publish/instagram.py tools/autoposter/src/publish/tiktok.py tools/autoposter/src/publish/social_v2.py
 
       - name: Validate incremental translation
         run: |
@@ -176,6 +176,21 @@ jobs:
         run: |
           cd tools/autoposter
           AI_IMAGES=0 AI_SCRIPT=0 python -m src.v2_main --self-test
+
+      - name: Social publisher adapters self-test
+        run: |
+          cd tools/autoposter
+          python - <<'PY'
+          from src.publish.instagram import _graph_url
+          from src.publish.tiktok import _chunk_plan
+
+          assert _graph_url("123/media", api_version="v26.0") == "https://graph.facebook.com/v26.0/123/media"
+          assert _chunk_plan(4 * 1024 * 1024) == (4 * 1024 * 1024, 1)
+          chunk, count = _chunk_plan(100 * 1024 * 1024)
+          assert 5 * 1024 * 1024 <= chunk <= 64 * 1024 * 1024
+          assert count >= 2
+          print("Social publisher adapters self-test OK")
+          PY
 
       - name: JavaScript syntax
         run: |
