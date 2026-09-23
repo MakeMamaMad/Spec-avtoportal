@@ -22,6 +22,8 @@
   let activeRubric = null;
   let searchQuery = "";
   let visibleCount = PAGE_SIZE;
+  let loadObserver = null;
+  let autoLoadPending = false;
 
   function field(obj, keys, fallback) {
     for (const key of keys) if (obj && obj[key] != null && obj[key] !== "") return obj[key];
@@ -230,6 +232,43 @@
     if (!els.loadMore.hidden) els.loadMore.textContent = "Показать больше новостей";
   }
 
+  function resumeAutoLoad() {
+    autoLoadPending = false;
+    if (loadObserver && !els.loadMore.hidden) {
+      loadObserver.observe(els.loadMore);
+    }
+  }
+
+  function loadNextPage() {
+    if (autoLoadPending) return;
+    const total = filtered().length;
+    if (visibleCount >= total) return;
+
+    autoLoadPending = true;
+    if (loadObserver) loadObserver.unobserve(els.loadMore);
+
+    visibleCount = Math.min(visibleCount + PAGE_SIZE, total);
+    render();
+
+    window.setTimeout(resumeAutoLoad, 250);
+  }
+
+  function setupAutoLoad() {
+    if (!("IntersectionObserver" in window)) return;
+
+    loadObserver = new IntersectionObserver(function (entries) {
+      const entry = entries[0];
+      if (!entry || !entry.isIntersecting || els.loadMore.hidden) return;
+      loadNextPage();
+    }, {
+      root: null,
+      rootMargin: "500px 0px 200px",
+      threshold: 0.01
+    });
+
+    loadObserver.observe(els.loadMore);
+  }
+
   function setRubric(tag) {
     activeRubric = tag || null;
     visibleCount = PAGE_SIZE;
@@ -248,7 +287,7 @@
       const btn = e.target.closest("button.tag-badge");
       if (btn) { setRubric(btn.dataset.tag || null); $("latest").scrollIntoView({ behavior: "smooth" }); }
     });
-    els.loadMore.addEventListener("click", function () { visibleCount += PAGE_SIZE; render(); });
+    els.loadMore.addEventListener("click", loadNextPage);
     window.addEventListener("keydown", function (e) {
       if (e.key === "/" && !e.target.closest("input, textarea")) { e.preventDefault(); els.search.focus(); }
     });
@@ -283,6 +322,7 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     setupEvents();
+    setupAutoLoad();
     loadNews();
   });
 })();
