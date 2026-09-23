@@ -1,6 +1,6 @@
 /* Homepage three-column news layout.
    Desktop: left sidebar / news feed / right sidebar.
-   Smaller screens: news first, then sidebars below. */
+   Smaller screens: sidebars first, auto-loading news feed last. */
 
 .container.layout {
   width: min(1420px, calc(100% - 40px));
@@ -35,15 +35,15 @@
     gap: 24px;
   }
 
-  .layout-main {
+  .layout-sidebar--left {
     order: 1;
   }
 
-  .layout-sidebar--left {
+  .layout-sidebar--right {
     order: 2;
   }
 
-  .layout-sidebar--right {
+  .layout-main {
     order: 3;
   }
 
