@@ -1,0 +1,52 @@
+name: External Telegram Promotion
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 13:15 Moscow time
+    - cron: '15 10 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: external-telegram-promotion
+  cancel-in-progress: false
+
+jobs:
+  telegram-promotion:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build external Telegram promotion queue
+        run: |
+          python promotion/build_telegram_promo.py
+
+      - name: Publish only to explicitly approved external channels
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          python promotion/publish_telegram_approved.py
+
+      - name: Commit promotion state
+        if: always()
+        run: |
+          git config user.name "specavto-promotion"
+          git config user.email "actions@users.noreply.github.com"
+          git add frontend/data/telegram_promo_queue.json frontend/data/telegram_promo_history.json || true
+          if git diff --cached --quiet; then
+            echo "No Telegram promotion state changes"
+            exit 0
+          fi
+          git commit -m "promotion: refresh external Telegram campaign"
+          git pull --rebase origin main
+          git push origin main
