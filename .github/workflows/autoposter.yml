@@ -1,9 +1,9 @@
 name: autoposter-social-shorts-v2
 
 on:
+  # Keep production publishing manual until YouTube OAuth and the new
+  # Instagram/TikTok credentials have been verified end-to-end.
   workflow_dispatch:
-  schedule:
-    - cron: '0 9 * * 2,4,6'  # 09:00 UTC = 12:00 МСК (Вт/Чт/Сб)
 
 permissions:
   contents: write
