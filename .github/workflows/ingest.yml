@@ -3,7 +3,7 @@ name: Ingest & Publish
 on:
   workflow_dispatch:
   schedule:
-    # при желании поправишь расписание
+    # Fetch fresh industry news every 3 hours.
     - cron: '0 */3 * * *'
   push:
     branches: [ main ]
@@ -15,7 +15,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: telegram-publisher
+  group: social-publisher
   cancel-in-progress: false
 
 jobs:
@@ -41,7 +41,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
 
-          # основной requirements агрегатора
           if [ -f "aggregator/requirements.txt" ]; then
             pip install -r aggregator/requirements.txt
           fi
@@ -90,7 +89,7 @@ jobs:
           NEWS_PATH: frontend/data/news.json
         run: |
           if [ ! -f "aggregator/translate_news.py" ]; then
-            echo "No translate script found at aggregator/translate_news.py — skipping translation."
+            echo "No translate script found at aggregator/translate_news.py - skipping translation."
             exit 0
           fi
 
@@ -111,20 +110,28 @@ jobs:
 
       - name: Preview output
         run: |
-          ls -R
           ls -l frontend/data || true
           echo "===== head of news.json ====="
           head -c 4000 frontend/data/news.json || true
           echo
           echo "============================="
 
-      - name: Post new items to Telegram
+      - name: Post important items to Telegram
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_MAX_POSTS: "3"       # only high-priority stories; ordinary items wait for digest
+          TELEGRAM_MAX_POSTS: "3"
+          SITE_URL: "https://spec-avtoportal.ru/"
         run: |
           python aggregator/post_to_telegram.py || echo "Telegram publishing failed; state/news changes will still be committed for safe retry"
+
+      - name: Post important items to VK
+        env:
+          VK_ACCESS_TOKEN: ${{ secrets.VK_ACCESS_TOKEN }}
+          VK_MAX_POSTS: "3"
+          SITE_URL: "https://spec-avtoportal.ru/"
+        run: |
+          python aggregator/post_to_vk.py --mode immediate || echo "VK publishing failed; state/news changes will still be committed for safe retry"
 
       - name: Commit & push changes
         env:
@@ -135,14 +142,13 @@ jobs:
         run: |
           git status
 
-          # Добавляем ВСЕ json из frontend/data (news.json, news_meta.json и т.д.)
+          # news.json plus Telegram/VK dedupe state and other generated JSON.
           git add frontend/data/*.json || true
 
-          # Если после add нет изменений — просто выходим
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
 
-          git commit -m "Update data json (automated ingest + translation)"
+          git commit -m "Update data json (automated ingest + social publishing)"
           git push origin main
