@@ -71,7 +71,7 @@ jobs:
 
       - name: Run aggregator
         run: |
-          python aggregator/main.py \
+          python -m aggregator.run \
             --sources aggregator/sources.yml \
             --output frontend/data/news.json
 
