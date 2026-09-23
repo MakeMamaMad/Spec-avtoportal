@@ -67,11 +67,17 @@ def main() -> int:
     history = load_json(HISTORY_PATH, {"schema": 1, "entries": []})
 
     final = {"outreach_sent", "outreach_unavailable", "do_not_contact"}
-    already = {
-        str(row.get("target_id"))
-        for row in history.get("entries", [])
-        if row.get("status") in final
-    }
+    already = set()
+    for row in history.get("entries", []):
+        status = row.get("status")
+        detail = str(row.get("detail") or "")
+        # Bot-to-bot-disabled is retriable after the owner enables the feature in BotFather.
+        if status == "waiting_bot_to_bot":
+            continue
+        if status == "outreach_unavailable" and "USER_BOT_TO_BOT_DISABLED" in detail:
+            continue
+        if status in final:
+            already.add(str(row.get("target_id")))
     queue_by_id = {
         str(row.get("target_id")): row
         for row in queue.get("entries", [])
@@ -114,9 +120,13 @@ def main() -> int:
         detail = f"message_id={msg.get('message_id')}"
         print(f"OUTREACH_SENT {target_id} contact={bot_contact} message_id={msg.get('message_id')}")
     else:
-        status = "outreach_unavailable"
         detail = str(result.get("description") or result)[:300]
-        print(f"OUTREACH_UNAVAILABLE {target_id} contact={bot_contact}: {detail}")
+        if "USER_BOT_TO_BOT_DISABLED" in detail:
+            status = "waiting_bot_to_bot"
+            print(f"WAITING_BOT_TO_BOT {target_id} contact={bot_contact}: {detail}")
+        else:
+            status = "outreach_unavailable"
+            print(f"OUTREACH_UNAVAILABLE {target_id} contact={bot_contact}: {detail}")
 
     history.setdefault("entries", []).append({
         "target_id": target_id,
