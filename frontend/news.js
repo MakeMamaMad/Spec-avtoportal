@@ -196,7 +196,7 @@
     });
   }
 
-  function card(item, position) {
+  function card(item, position, total) {
     const title = esc(field(item, ["title", "headline", "name"], "Без заголовка"));
     const summary = esc(clampText(field(item, ["summary", "lead", "description"], ""), position === 0 ? 320 : 220));
     const date = dateFmt(field(item, ["published_at", "date", "pub_date"], ""));
@@ -205,10 +205,10 @@
     const itemTopics = topics(item);
     const primaryTag = esc((itemTopics[0] && itemTopics[0].name) || itemTags[0] || "Новости");
     const lead = position === 0;
-    const wide = position > 0 && position % 5 === 0;
+    const cardsAfterLead = Math.max(0, total - 1);
+    const wide = position === total - 1 && position > 0 && cardsAfterLead % 2 === 1;
     let html = '<article class="news-card' + (lead ? ' news-card--lead' : '') + (wide ? ' news-card--wide' : '') + '">';
-    html += '<div class="news-card-rail"><span class="news-card-category">' + primaryTag + '</span></div>';
-    html += '<div class="news-card-body"><div class="news-card-meta">';
+    html += '<div class="news-card-body"><span class="news-card-category">' + primaryTag + '</span><div class="news-card-meta">';
     if (date) html += '<span>' + date + '</span>';
     if (source) html += '<span>' + source + '</span>';
     html += '</div><h3 class="news-card-title"><a href="' + articleUrl(item) + '">' + title + '</a></h3>';
@@ -225,7 +225,7 @@
     const data = filtered();
     const visible = data.slice(0, visibleCount);
     els.resultCount.textContent = data.length ? data.length.toLocaleString("ru-RU") + " материалов" : "";
-    els.list.innerHTML = visible.map(function (item, index) { return card(item, index); }).join("");
+    els.list.innerHTML = visible.map(function (item, index) { return card(item, index, visible.length); }).join("");
     els.loadMore.hidden = visibleCount >= data.length;
     if (!els.loadMore.hidden) els.loadMore.textContent = "Показать больше новостей";
   }

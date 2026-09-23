@@ -1,0 +1,45 @@
+/* News feed layout refinements.
+   Keeps topic labels readable and prevents half-empty final rows. */
+
+.news-card,
+.news-card--lead {
+  display: flex;
+  flex-direction: column;
+}
+
+.news-card-rail {
+  display: none;
+}
+
+.news-card-body {
+  flex: 1;
+}
+
+.news-card-category {
+  writing-mode: horizontal-tb;
+  transform: none;
+  display: inline-flex;
+  align-self: flex-start;
+  margin-bottom: 12px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: var(--orange-soft);
+  color: var(--orange-dark);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.news-card--lead .news-card-category {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 760px) {
+  .news-card,
+  .news-card--lead,
+  .news-card--wide {
+    grid-column: 1;
+  }
+}
