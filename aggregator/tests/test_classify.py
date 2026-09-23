@@ -1,4 +1,4 @@
-from pipeline.classify import build_classifier
+from aggregator.pipeline.classify import build_classifier
 import yaml
 
 def test_classifier_basic():
