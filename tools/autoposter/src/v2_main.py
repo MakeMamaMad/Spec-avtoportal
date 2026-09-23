@@ -162,8 +162,9 @@ def generate_voice(text: str, output: Path) -> str:
             voice = os.getenv("OPENAI_TTS_VOICE", "cedar").strip()
             instructions = os.getenv(
                 "OPENAI_TTS_INSTRUCTIONS",
-                "Speak in natural Russian with a confident professional news-presenter tone. "
-                "Keep the pace energetic but clear, avoid theatrical delivery, pronounce company names carefully.",
+                "Speak in natural Russian with a low, restrained, authoritative male news-presenter style. "
+                "Sound calm, solid and serious rather than energetic. Keep a measured pace with clear diction. "
+                "Avoid theatrical delivery, sales intonation and exaggerated emotion. Pronounce company names carefully.",
             ).strip()
             with client.audio.speech.with_streaming_response.create(
                 model=model,
