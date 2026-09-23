@@ -33,7 +33,7 @@ def main() -> int:
 
     entries = []
     for target in targets.get("targets", []):
-        if target.get("status") in {"blocked", "do_not_post"}:
+        if target.get("status") in {"blocked", "do_not_post", "paused", "paused_dns", "disabled"}:
             continue
         if target.get("id") in completed:
             continue
