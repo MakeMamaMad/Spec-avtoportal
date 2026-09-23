@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "updated_at": "2026-09-23",
+  "targets": [
+    {
+      "id": "popcat",
+      "name": "PopCat.ru",
+      "platform": "site_directory",
+      "url": "https://www.popcat.ru/addsite",
+      "status": "priority_candidate",
+      "policy": "free_site_submission",
+      "automation": "playwright",
+      "requires_email": true,
+      "preferred_categories": [
+        "Спецтехника",
+        "Грузовики",
+        "Интернет-издания"
+      ],
+      "notes": "Бесплатное добавление самого сайта без обязательной обратной ссылки. Ручная модерация; нужны уникальные описания."
+    },
+    {
+      "id": "amt-catalog",
+      "name": "AMT-Catalog",
+      "platform": "automotive_directory",
+      "url": "https://www.amt-catalog.com/add_url/",
+      "status": "priority_candidate",
+      "policy": "site_submission",
+      "automation": "playwright_planned",
+      "requires_email": "unknown",
+      "preferred_categories": [
+        "Сельскохозяйственная и спецтехника",
+        "Прицепы, полуприцепы, автофургоны",
+        "Грузовики",
+        "Дорожно-строительная техника"
+      ],
+      "notes": "Профильный автомобильный каталог. Подходит именно для продвижения SpecАвтоПортала как ресурса."
+    },
+    {
+      "id": "pdfcatalog",
+      "name": "PDFcatalog",
+      "platform": "site_directory",
+      "url": "https://pdfcatalog.ru/index/site",
+      "status": "candidate",
+      "policy": "free_site_submission",
+      "automation": "playwright_planned",
+      "requires_email": "unknown",
+      "preferred_categories": [
+        "Авто Мото - Разное",
+        "Интернет - Разное"
+      ],
+      "notes": "Бесплатный каталог сайтов с прямыми ссылками, без обязательной регистрации; ручная модерация."
+    },
+    {
+      "id": "catalog-ru-net",
+      "name": "Catalog.ru.net",
+      "platform": "site_directory",
+      "url": "https://catalog.ru.net/",
+      "status": "secondary_candidate",
+      "policy": "free_site_submission",
+      "automation": "manual_review",
+      "requires_email": "unknown",
+      "preferred_categories": [
+        "СпецТехника",
+        "СМИ",
+        "Новости"
+      ],
+      "notes": "Есть бесплатное размещение; бесплатная ссылка не индексируется, поэтому использовать как дополнительный канал, а не основной."
+    }
+  ]
+}
