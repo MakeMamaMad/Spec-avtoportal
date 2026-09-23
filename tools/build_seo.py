@@ -168,15 +168,27 @@ def tags(item: dict[str, Any]) -> list[str]:
     return []
 
 
+def cover_label(item: dict[str, Any]) -> str:
+    item_tags = tags(item)
+    if item_tags:
+        return item_tags[0]
+    domain = get_field(item, "domain")
+    if domain:
+        return domain.replace("www.", "")
+    return "Отраслевой материал"
+
+
 def source_image(item: dict[str, Any]) -> str:
+    """Return only a real source image suitable for visible article media."""
     image = get_field(item, "image_url", "image", "img")
     if image.startswith(("http://", "https://")):
         return image
-    return f"{BASE_URL}/assets/news/image.jpg"
+    return ""
 
 
 def absolute_image(item: dict[str, Any]) -> str:
-    return source_image(item)
+    """Image used by social metadata; branded logo is acceptable as invisible fallback."""
+    return source_image(item) or f"{BASE_URL}/assets/logo.png"
 
 
 def article_url(item: dict[str, Any]) -> str:
@@ -225,6 +237,8 @@ def render_page(item: dict[str, Any]) -> str:
     src_url = html.escape(source_url(item), quote=True)
     item_tags = tags(item)
     first_tag = html.escape(item_tags[0]) if item_tags else "Новости"
+    cover_tag = html.escape(cover_label(item))
+    cover_source = src_name or "СпецАвтоПортал"
 
     tag_html = "".join(
         f'<span class="tag-badge">{html.escape(tag)}</span>' for tag in item_tags[:5]
@@ -237,6 +251,32 @@ def render_page(item: dict[str, Any]) -> str:
     if not body:
         body = "<p>Текст материала не передан источником. Подробности доступны в первоисточнике.</p>"
     body_label = "Материал" if has_full_text else "Кратко"
+
+    editorial_cover = f"""
+        <div class="article-cover" aria-hidden="true">
+          <div class="article-cover__grid"></div>
+          <div class="article-cover__top">
+            <span class="article-cover__eyebrow">СпецАвтоПортал / материал</span>
+            <span class="article-cover__date">{published_label or "Архив"}</span>
+          </div>
+          <div class="article-cover__body">
+            <span class="article-cover__category">{cover_tag}</span>
+            <strong class="article-cover__source">{cover_source}</strong>
+          </div>
+          <div class="article-cover__mark">САП</div>
+        </div>
+    """
+
+    if display_image:
+        visual = (
+            '<div class="article-visual article-visual--photo">'
+            f'<img src="{display_image}" alt="" class="article-image" '
+            'onerror="this.closest(\'.article-visual\').classList.add(\'is-broken\')" />'
+            + editorial_cover +
+            '</div>'
+        )
+    else:
+        visual = '<div class="article-visual article-visual--cover">' + editorial_cover + '</div>'
 
     source_button = ""
     if src_url:
@@ -271,7 +311,7 @@ def render_page(item: dict[str, Any]) -> str:
   <meta name="twitter:description" content="{description}" />
   <meta name="twitter:image" content="{image}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=3" />
+  <link rel="stylesheet" href="/styles.css?v=8" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{json_ld(item)}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -315,7 +355,7 @@ def render_page(item: dict[str, Any]) -> str:
           </div>
           <div class="news-card-tags">{tag_html}</div>
         </header>
-        {f'<div class="article-image-wrap"><img src="{display_image}" alt="" class="article-image" /></div>' if display_image else ''}
+        {visual}
         <section class="article-body">
           <p class="section-kicker">{body_label}</p>
           {body}
