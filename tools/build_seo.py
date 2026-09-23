@@ -135,6 +135,15 @@ def summary_text(item: dict[str, Any]) -> str:
     return strip_html(raw)
 
 
+def article_text(item: dict[str, Any]) -> tuple[str, bool]:
+    """Return the longest text explicitly supplied by the feed."""
+    full = strip_html(get_field(item, "content", "content_text", "full_text"))
+    summary = summary_text(item)
+    if full and len(full) > len(summary) + 120:
+        return full, True
+    return summary, False
+
+
 def source_url(item: dict[str, Any]) -> str:
     return get_field(item, "canonical_url", "url", "link", "source_url")
 
@@ -204,8 +213,9 @@ def render_page(item: dict[str, Any]) -> str:
     title_raw = get_field(item, "title", "headline", "name", default="Новость")
     title = html.escape(title_raw)
     summary_raw = summary_text(item)
-    summary = html.escape(summary_raw)
-    description = html.escape(clamp(summary_raw or title_raw, 160), quote=True)
+    article_raw, has_full_text = article_text(item)
+    article_body = html.escape(article_raw)
+    description = html.escape(clamp(summary_raw or article_raw or title_raw, 160), quote=True)
     canonical = article_url(item)
     image = html.escape(absolute_image(item), quote=True)
     display_image = html.escape(source_image(item), quote=True)
@@ -221,11 +231,12 @@ def render_page(item: dict[str, Any]) -> str:
     )
 
     body = ""
-    if summary:
-        paragraphs = [p.strip() for p in summary.split("\n\n") if p.strip()]
+    if article_body:
+        paragraphs = [p.strip() for p in article_body.split("\n\n") if p.strip()]
         body = "".join(f"<p>{p}</p>" for p in paragraphs)
     if not body:
-        body = "<p>Краткое описание материала отсутствует. Подробности доступны в первоисточнике.</p>"
+        body = "<p>Текст материала не передан источником. Подробности доступны в первоисточнике.</p>"
+    body_label = "Материал" if has_full_text else "Кратко"
 
     source_button = ""
     if src_url:
@@ -306,7 +317,7 @@ def render_page(item: dict[str, Any]) -> str:
         </header>
         {f'<div class="article-image-wrap"><img src="{display_image}" alt="" class="article-image" /></div>' if display_image else ''}
         <section class="article-body">
-          <p class="section-kicker">Кратко</p>
+          <p class="section-kicker">{body_label}</p>
           {body}
         </section>
         <footer class="article-footer">
@@ -325,7 +336,7 @@ def render_page(item: dict[str, Any]) -> str:
         <section class="sidebar-block">
           <p class="sidebar-eyebrow">Источник</p>
           <h3>{src_name or 'Первоисточник'}</h3>
-          <p class="sidebar-text">СпецАвтоПортал публикует краткую отраслевую выжимку. Полный материал читайте у исходного издателя.</p>
+          <p class="sidebar-text">Если источник передаёт полный текст через RSS, он публикуется здесь. В остальных случаях доступна выжимка и ссылка на оригинал.</p>
         </section>
       </aside>
     </div>
