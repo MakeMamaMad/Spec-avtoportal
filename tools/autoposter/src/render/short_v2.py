@@ -107,6 +107,7 @@ def render_scene_frame(
     index: int,
     total: int,
     format_name: str,
+    platform: str = "standard",
 ) -> Path:
     output.parent.mkdir(parents=True, exist_ok=True)
     try:
@@ -125,19 +126,23 @@ def render_scene_frame(
     title_font = _font(72 if len(scene.overlay) < 52 else 61, True)
     small_font = _font(26, False)
 
-    # Top identity bar.
-    draw.rounded_rectangle((54, 52, 118, 116), radius=14, fill=ORANGE + (255,))
-    draw.text((71, 72), "САП", font=_font(18, True), fill=(255, 255, 255, 255))
-    draw.text((140, 64), "СпецАвтоПортал", font=brand_font, fill=WHITE + (255,))
-    counter = f"{index:02d}/{total:02d}"
-    counter_w = draw.textbbox((0, 0), counter, font=label_font)[2]
-    draw.text((WIDTH - 56 - counter_w, 72), counter, font=label_font, fill=MUTED + (255,))
+    # Identity is kept for Instagram/YouTube. TikTok API guidelines prohibit
+    # superimposed promotional branding/watermarks, so the TikTok export is clean.
+    is_tiktok = platform.lower() == "tiktok"
+    if not is_tiktok:
+        draw.rounded_rectangle((54, 52, 118, 116), radius=14, fill=ORANGE + (255,))
+        draw.text((71, 72), "САП", font=_font(18, True), fill=(255, 255, 255, 255))
+        draw.text((140, 64), "СпецАвтоПортал", font=brand_font, fill=WHITE + (255,))
+        counter = f"{index:02d}/{total:02d}"
+        counter_w = draw.textbbox((0, 0), counter, font=label_font)[2]
+        draw.text((WIDTH - 56 - counter_w, 72), counter, font=label_font, fill=MUTED + (255,))
 
     # Format / section marker.
     format_label = "НОВОСТЬ" if format_name.lower() in {"breaking", "news"} else "РАЗБОР"
     badge_w = draw.textbbox((0, 0), format_label, font=label_font)[2] + 44
-    draw.rounded_rectangle((56, 132, 56 + badge_w, 182), radius=22, fill=(15, 18, 22, 200), outline=ORANGE + (220,), width=2)
-    draw.text((78, 143), format_label, font=label_font, fill=ORANGE + (255,))
+    badge_y = 132 if not is_tiktok else 72
+    draw.rounded_rectangle((56, badge_y, 56 + badge_w, badge_y + 50), radius=22, fill=(15, 18, 22, 200), outline=ORANGE + (220,), width=2)
+    draw.text((78, badge_y + 11), format_label, font=label_font, fill=ORANGE + (255,))
 
     # Headline block. Safe zone leaves room for native social UI at bottom.
     x = 64
@@ -165,8 +170,9 @@ def render_scene_frame(
             draw.text((64, by), line, font=body_font, fill=(224, 228, 233, 255))
             by += 48
 
-    draw.text((64, 1735), "spec-avtoportal.ru", font=small_font, fill=MUTED + (255,))
-    draw.text((64, 1780), "рынок · техника · регламенты", font=small_font, fill=(128, 136, 146, 255))
+    if not is_tiktok:
+        draw.text((64, 1735), "spec-avtoportal.ru", font=small_font, fill=MUTED + (255,))
+        draw.text((64, 1780), "рынок · техника · регламенты", font=small_font, fill=(128, 136, 146, 255))
 
     image.convert("RGB").save(output, "PNG", optimize=True)
     return output
@@ -186,6 +192,8 @@ def render_short(
     audio_path: Path,
     output: Path,
     work_dir: Path,
+    *,
+    platform: str = "standard",
 ) -> dict[str, object]:
     if len(storyboard.scenes) != len(visual_paths):
         raise ValueError("scene/visual count mismatch")
@@ -210,6 +218,7 @@ def render_short(
             index=index,
             total=len(storyboard.scenes),
             format_name=storyboard.format,
+            platform=platform,
         )
         fade_out = max(0.05, duration - 0.20)
         vf = (
