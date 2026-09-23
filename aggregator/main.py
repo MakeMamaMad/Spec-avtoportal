@@ -135,11 +135,22 @@ def clean_summary(value: str) -> str:
 def normalize(entry, src_name: str) -> Dict[str, Any]:
     title = (entry.get("title") or "").strip() or "(без заголовка)"
     link = entry.get("link") or ""
-    summary = (entry.get("summary") or "").strip()
+    summary_raw = (entry.get("summary") or "").strip()
     contents = entry.get("content") or []
-    if not summary and isinstance(contents, list) and contents:
-        summary = (contents[0].get("value") or "").strip()
-    summary = clean_summary(summary)
+    content_raw = ""
+    if isinstance(contents, list) and contents:
+        content_raw = "\n\n".join(
+            str(block.get("value") or "").strip()
+            for block in contents
+            if isinstance(block, dict) and block.get("value")
+        ).strip()
+    if not summary_raw and content_raw:
+        summary_raw = content_raw
+
+    summary = clean_summary(summary_raw)
+    content = clean_summary(content_raw)
+    if content and len(content) <= len(summary) + 120:
+        content = ""
     published = to_iso(entry.get("published_parsed")) or to_iso(entry.get("updated_parsed"))
     img = first_image(entry)
     if not img:
@@ -155,6 +166,7 @@ def normalize(entry, src_name: str) -> Dict[str, Any]:
         "title": title,
         "link": link,
         "summary": summary,
+        "content": content,
         "image": img,
         "published_at": published,
         "domain": domain,
@@ -210,7 +222,7 @@ def preserve_stable_identity(fresh: List[Dict[str, Any]], existing: List[Dict[st
         old = previous.get(item_key(it))
         if not old:
             continue
-        for field in ("id", "slug"):
+        for field in ("id", "slug", "content", "image"):
             if old.get(field) and not it.get(field):
                 it[field] = old[field]
 
