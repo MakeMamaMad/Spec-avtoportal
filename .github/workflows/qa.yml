@@ -1,0 +1,75 @@
+name: QA
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ redesign-v1, main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Python syntax
+        run: |
+          python -m py_compile tools/build_seo.py aggregator/main.py aggregator/post_to_telegram.py
+
+      - name: JavaScript syntax
+        run: |
+          node --check frontend/news.js
+          node --check frontend/article.js
+
+      - name: Build SEO pages
+        run: |
+          python tools/build_seo.py
+
+      - name: Validate generated SEO output
+        run: |
+          python - <<'PY'
+          import json
+          import pathlib
+          import re
+          import xml.etree.ElementTree as ET
+
+          root = pathlib.Path("frontend")
+          items = json.loads((root / "data/news.json").read_text("utf-8"))
+          assert isinstance(items, list) and items, "news.json must be a non-empty list"
+
+          ids = [str(x.get("id") or "") for x in items]
+          slugs = [str(x.get("slug") or "") for x in items]
+          assert all(ids), "every item must have id"
+          assert all(slugs), "every item must have slug"
+          assert len(ids) == len(set(ids)), "ids must be unique"
+          assert len(slugs) == len(set(slugs)), "slugs must be unique"
+
+          pages = list((root / "news").glob("*/index.html"))
+          assert len(pages) == len(items), f"expected {len(items)} article pages, got {len(pages)}"
+
+          sample = pages[0].read_text("utf-8")
+          for marker in ('rel="canonical"', 'application/ld+json', 'property="og:title"', 'name="description"'):
+              assert marker in sample, f"missing SEO marker: {marker}"
+
+          sitemap = root / "sitemap.xml"
+          robots = root / "robots.txt"
+          assert sitemap.exists(), "sitemap.xml not generated"
+          assert robots.exists(), "robots.txt not generated"
+          ET.parse(sitemap)
+          robots_text = robots.read_text("utf-8")
+          assert "Sitemap: https://spec-avtoportal.ru/sitemap.xml" in robots_text
+
+          urls = re.findall(r"<loc>(.*?)</loc>", sitemap.read_text("utf-8"))
+          assert len(urls) >= len(items), "sitemap missing article URLs"
+          print(f"QA OK: {len(items)} items, {len(pages)} pages, {len(urls)} sitemap URLs")
+          PY
