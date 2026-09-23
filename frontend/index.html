@@ -2,177 +2,197 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <title>СпецТрейлеры — новости, ГОСТы и гайды</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta
-    name="description"
-    content="Ежедневная выжимка отраслевых новостей, база нормативов и практические гайды для рынка прицепов и полуприцепов."
-  />
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon">
-  <link rel="shortcut icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon">
-  <script data-goatcounter="https://specavtoportal.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
+  <title>СпецАвтоПортал — новости рынка грузовой техники и прицепов</title>
+  <meta name="description" content="Новости рынка грузовой техники, прицепов и полуприцепов, изменения законодательства, ГОСТы, регламенты, гайды и видео." />
+  <meta name="theme-color" content="#101318" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="СпецАвтоПортал — рынок грузовой техники без информационного шума" />
+  <meta property="og:description" content="Новости, нормативы и практические материалы для рынка прицепов, полуприцепов и грузовой техники." />
+  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
+  <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
+  <div class="topline">
+    <div class="container topline-inner">
+      <span>Профессиональное медиа о грузовой технике</span>
+      <span class="topline-dot"></span>
+      <span>Новости обновляются автоматически</span>
+    </div>
+  </div>
+
   <header class="site-header">
     <div class="container header-inner">
-      <a href="index.html" class="logo">
-        <img src="assets/logo.png" alt="СпецТрейлеры" class="logo-img" />
-        <span class="logo-text">
-          СпецТрейлеры
-          <span class="logo-sub">Новости, ГОСТы и гайды</span>
+      <a href="index.html" class="brand" aria-label="СпецАвтоПортал — на главную">
+        <span class="brand-mark" aria-hidden="true">
+          <span></span><span></span>
+        </span>
+        <span class="brand-copy">
+          <strong>СпецАвтоПортал</strong>
+          <small>рынок · техника · регламенты</small>
         </span>
       </a>
 
-      <nav class="main-nav">
+      <nav class="main-nav" aria-label="Основная навигация">
         <a href="index.html" class="nav-link nav-link-active">Новости</a>
-        <a href="law.html" class="nav-link">Законодательство / ГОСТы</a>
-        <a href="guides.html" class="nav-link">Гайды и регламенты</a>
+        <a href="law.html" class="nav-link">ГОСТы и законы</a>
+        <a href="guides.html" class="nav-link">Гайды</a>
         <a href="video.html" class="nav-link">Видео</a>
       </nav>
 
-      <!-- Кнопка Telegram в шапке -->
-       <a href="/go/tg.html?utm_source=site&utm_medium=button"
-         target="_blank" rel="noopener">
-         Новости в Telegram
-       </a>
-
-
-        <span class="tg-badge__icon">✈️</span>
-        <span class="tg-badge__text">Новости в Telegram</span>
+      <a href="/go/tg.html?utm_source=site&utm_medium=header" class="tg-badge" target="_blank" rel="noopener">
+        <span class="tg-badge__icon">↗</span>
+        <span>Telegram</span>
       </a>
-      <!-- /Кнопка Telegram -->
     </div>
   </header>
 
-  <main class="page-main">
-    <section class="hero">
-      <div class="container">
-        <h1>Новости отрасли прицепов и грузовой техники</h1>
-        <p class="hero-subtitle">
-          Подрубрики: Выставки · Новые модели · Новые производители · Рынок · Уникальные факты ·
-          Производители грузовиков/моторов · Дилеры
-        </p>
-        <p class="hero-hint">
-          Нажмите <kbd>/</kbd> для поиска по заголовкам. Клик по бейджу рубрики — отфильтрует ленту.
-        </p>
+  <main>
+    <section class="masthead">
+      <div class="container masthead-inner">
+        <div class="masthead-copy">
+          <p class="eyebrow"><span></span> Ежедневная отраслeвая лента</p>
+          <h1>Спецтехника без<br />информационного шума.</h1>
+          <p class="masthead-lead">
+            Главное о рынке прицепов, полуприцепов и грузовой техники:
+            новые модели, производители, регламенты и события отрасли.
+          </p>
+        </div>
+        <div class="masthead-meta" aria-label="Статистика ленты">
+          <div class="metric">
+            <strong id="news-count">—</strong>
+            <span>материалов в базе</span>
+          </div>
+          <div class="metric">
+            <strong id="latest-date">—</strong>
+            <span>последнее обновление</span>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="filters">
-      <div class="container filters-inner">
-        <div class="filters-group">
-          <label for="search" class="filters-label">Поиск по заголовку</label>
-          <input
-            id="search"
-            type="search"
-            class="filters-input"
-            placeholder="Начните вводить модель, бренд или событие…"
-          />
+    <section id="featured-section" class="featured-section">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">Сейчас в отрасли</p>
+            <h2>Главное</h2>
+          </div>
+          <a href="#latest" class="text-link">Вся лента <span>↓</span></a>
         </div>
 
-        <div class="filters-group">
-          <span class="filters-label">Подрубрики</span>
-          <div id="rubric-filters" class="chips"></div>
+        <div class="featured-grid">
+          <article id="featured-primary" class="featured-primary featured-placeholder"></article>
+          <div id="featured-secondary" class="featured-secondary"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="discovery" id="latest">
+      <div class="container">
+        <div class="discovery-panel">
+          <div class="search-wrap">
+            <label for="search">Поиск по новостям</label>
+            <div class="search-control">
+              <span aria-hidden="true">⌕</span>
+              <input id="search" type="search" placeholder="Бренд, модель, событие или тема" autocomplete="off" />
+              <kbd>/</kbd>
+            </div>
+          </div>
+          <div class="rubrics-wrap">
+            <span class="filters-label">Темы</span>
+            <div id="rubric-filters" class="chips"></div>
+          </div>
         </div>
       </div>
     </section>
 
     <section class="container layout">
       <section class="layout-main">
-        <h2 class="section-title">Лента новостей</h2>
-        <div id="news-list" class="news-list"></div>
-        <div id="news-empty" class="empty-state" hidden>
-          По текущему фильтру новостей не найдено. Сбросьте поиск или выберите другую рубрику.
-        </div>
-        <div id="news-loading" class="loading">
-          Загрузка ленты…
-        </div>
-        <div id="news-error" class="error" hidden>
-          Не удалось загрузить новости. Попробуйте обновить страницу.
+        <div class="feed-heading">
+          <div>
+            <p class="section-kicker">Хронология</p>
+            <h2 class="section-title">Последние новости</h2>
+          </div>
+          <span id="result-count" class="result-count"></span>
         </div>
 
-        <!-- Промо-блок Telegram под лентой -->
+        <div id="news-list" class="news-list"></div>
+
+        <div id="news-empty" class="empty-state" hidden>
+          <strong>Ничего не найдено.</strong>
+          <span>Попробуйте изменить запрос или выбрать другую тему.</span>
+        </div>
+        <div id="news-loading" class="loading">Загружаем свежую ленту…</div>
+        <div id="news-error" class="error" hidden>Не удалось загрузить новости. Попробуйте обновить страницу.</div>
+
+        <button id="load-more" class="load-more" type="button" hidden>Показать ещё</button>
+
         <section class="tg-promo">
-          <div class="tg-promo__inner">
-            <div class="tg-promo__text">
-              <h2>Ещё больше новостей — в Telegram</h2>
-              <p>
-                Оперативные обновления рынка спецтехники, без спама. Только важные новости,
-                обзоры и регламенты в одном канале.
-              </p>
-            </div>
-            <a
-              href="https://t.me/specavtoportal"
-              class="tg-promo__button"
-              target="_blank"
-              rel="noopener"
-            >
-              Подписаться на канал
-            </a>
+          <div class="tg-promo__copy">
+            <span class="tg-promo__label">СпецАвтоПортал в Telegram</span>
+            <h2>Новости приходят туда быстрее.</h2>
+            <p>Коротко публикуем самое важное из отраслевой ленты и новые материалы портала.</p>
           </div>
+          <a href="https://t.me/specavtoportal" class="tg-promo__button" target="_blank" rel="noopener">
+            Подписаться <span>↗</span>
+          </a>
         </section>
-        <!-- /Промо-блок Telegram -->
       </section>
 
       <aside class="layout-sidebar">
-        <section class="sidebar-block">
-          <h3 class="sidebar-title">Топ тем</h3>
+        <section class="sidebar-block sidebar-dark">
+          <p class="sidebar-eyebrow">Навигация по рынку</p>
+          <h3>Популярные темы</h3>
           <ul id="top-tags" class="tags-cloud"></ul>
         </section>
 
         <section class="sidebar-block">
-          <h3 class="sidebar-title">Реклама (нативная)</h3>
-          <p class="sidebar-text">Спецавтотехника — решения под вашу задачу.</p>
-          <p class="sidebar-text">
-            Профессиональные надстройки и сервис. Без навязчивости, только релевантные кейсы.
-          </p>
-        </section>
-
-        <section id="about" class="sidebar-block">
-          <h3 class="sidebar-title">О проекте</h3>
-          <p class="sidebar-text">
-            Ежедневная выжимка отраслевых новостей, база нормативов и практические гайды для рынка
-            прицепов/полуприцепов.
-          </p>
+          <p class="sidebar-eyebrow">База знаний</p>
+          <h3>Не только новости</h3>
+          <div class="sidebar-links">
+            <a href="law.html"><span>ГОСТы и законодательство</span><b>→</b></a>
+            <a href="guides.html"><span>Практические гайды</span><b>→</b></a>
+            <a href="video.html"><span>Видео отрасли</span><b>→</b></a>
+          </div>
         </section>
 
         <section class="sidebar-block">
-          <h3 class="sidebar-title">Источники</h3>
+          <p class="sidebar-eyebrow">О проекте</p>
+          <h3>Профессиональная выжимка</h3>
           <p class="sidebar-text">
-            Производители, дилеры, профильные СМИ, регуляторы, открытые видео-платформы. Уважаем
-            robots.txt и условия источников.
+            Собираем новости производителей, дилеров, профильных СМИ и регуляторов,
+            чтобы важное не терялось в десятках источников.
           </p>
+        </section>
+
+        <section class="sidebar-block native-slot">
+          <p class="sidebar-eyebrow">Для партнёров</p>
+          <h3>Нативные форматы</h3>
+          <p class="sidebar-text">Спецпроекты, кейсы, исследования и полезные материалы для профессиональной аудитории.</p>
+          <a href="mailto:info@spec-avtoportal.ru" class="text-link">Обсудить размещение <span>↗</span></a>
         </section>
       </aside>
     </section>
   </main>
 
   <footer class="site-footer">
-    <div class="container footer-inner">
-      <span>© СпецТрейлеры, агрегатор новостей о прицепах и полуприцепах.</span>
-      <span>Мы не публикуем рекламные пресс-релизы линейки САТ.</span>
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-brand">СпецАвтоПортал</a>
+        <p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p>
+      </div>
+      <div class="footer-nav">
+        <a href="law.html">ГОСТы и законы</a>
+        <a href="guides.html">Гайды</a>
+        <a href="video.html">Видео</a>
+        <a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a>
+      </div>
+      <div class="footer-note">© СпецАвтоПортал</div>
     </div>
   </footer>
 
-  <script src="news.js"></script>
-  <script>
-    // сохранение позиции (оставляю как есть)
-    if (window.location.hash) {
-      localStorage.setItem('lastScrollPosition', window.location.hash);
-    }
-
-    window.onload = function () {
-      const scrollPosition = localStorage.getItem('lastScrollPosition');
-      if (scrollPosition) {
-        const el = document.querySelector(scrollPosition);
-        if (el) {
-          window.scrollTo(0, el.offsetTop);
-        }
-        localStorage.removeItem('lastScrollPosition');
-      }
-    };
-  </script>
+  <script src="news.js?v=3"></script>
 </body>
 </html>
