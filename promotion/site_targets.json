@@ -1,13 +1,98 @@
 {
-  "schema": 1,
+  "schema": 2,
   "updated_at": "2026-09-23",
   "targets": [
+    {
+      "id": "amt-catalog",
+      "name": "AMT-Catalog",
+      "platform": "automotive_directory",
+      "url": "https://www.amt-catalog.com/add_url/",
+      "status": "priority_candidate",
+      "policy": "site_submission",
+      "automation": "generic_playwright",
+      "requires_email": "unknown",
+      "preferred_categories": [
+        "Грузовики",
+        "Прицепы, полуприцепы, автофургоны",
+        "Сельскохозяйственная и спецтехника",
+        "Дорожно-строительная техника"
+      ],
+      "notes": "Профильный автомобильный каталог; следующий автоматический кандидат."
+    },
+    {
+      "id": "catalog-ru-net",
+      "name": "Catalog.ru.net",
+      "platform": "site_directory",
+      "url": "https://catalog.ru.net/",
+      "status": "candidate",
+      "policy": "free_site_submission",
+      "automation": "generic_playwright",
+      "requires_email": "unknown",
+      "preferred_categories": [
+        "СпецТехника",
+        "Новости",
+        "СМИ",
+        "Логистика и Грузоперевозки"
+      ],
+      "notes": "Бесплатное размещение доступно; бесплатная ссылка не индексируется, но каталог может дать переходы."
+    },
+    {
+      "id": "linkportal",
+      "name": "LinkPortal.ru",
+      "platform": "site_directory",
+      "url": "https://linkportal.ru/ru/add/",
+      "status": "candidate",
+      "policy": "free_site_submission",
+      "automation": "generic_playwright",
+      "requires_email": true,
+      "preferred_categories": [
+        "Авто",
+        "Новости",
+        "СМИ",
+        "Спецтехника",
+        "Грузоперевозки"
+      ],
+      "notes": "Бесплатная форма добавления сайта/бизнеса; каталог России и СНГ."
+    },
+    {
+      "id": "da-client",
+      "name": "Да-Клиент.ру",
+      "platform": "site_directory",
+      "url": "https://da-client.ru/ru/add/",
+      "status": "candidate",
+      "policy": "free_site_submission",
+      "automation": "generic_playwright",
+      "requires_email": true,
+      "preferred_categories": [
+        "Авто",
+        "Новости",
+        "СМИ",
+        "Спецтехника",
+        "Грузоперевозки"
+      ],
+      "notes": "Бесплатное добавление компании/сайта; публикация после модерации."
+    },
+    {
+      "id": "pdfcatalog",
+      "name": "PDFcatalog",
+      "platform": "site_directory",
+      "url": "https://pdfcatalog.ru/index/addsite",
+      "status": "candidate",
+      "policy": "free_site_submission",
+      "automation": "playwright",
+      "requires_email": true,
+      "preferred_categories": [
+        "Авто Мото - Разное",
+        "Интернет - Разное"
+      ],
+      "notes": "Заявка уже отправлена 23.09.2026; история не даст отправить повторно."
+    },
     {
       "id": "popcat",
       "name": "PopCat.ru",
       "platform": "site_directory",
       "url": "https://www.popcat.ru/addsite",
-      "status": "priority_candidate",
+      "status": "paused",
       "policy": "free_site_submission",
       "automation": "playwright",
       "requires_email": true,
@@ -16,55 +101,53 @@
         "Грузовики",
         "Интернет-издания"
       ],
-      "notes": "Бесплатное добавление самого сайта без обязательной обратной ссылки. Ручная модерация; нужны уникальные описания."
+      "notes": "Временно исключён: домен не резолвится из GitHub Actions."
     },
     {
-      "id": "amt-catalog",
-      "name": "AMT-Catalog",
+      "id": "vodila",
+      "name": "Vodila.net",
       "platform": "automotive_directory",
-      "url": "https://www.amt-catalog.com/add_url/",
-      "status": "priority_candidate",
-      "policy": "site_submission",
-      "automation": "playwright_planned",
-      "requires_email": "unknown",
+      "url": "https://vodila.net/?a=site_add",
+      "status": "paused",
+      "policy": "free_site_submission",
+      "automation": "manual_captcha",
+      "requires_email": true,
       "preferred_categories": [
-        "Сельскохозяйственная и спецтехника",
-        "Прицепы, полуприцепы, автофургоны",
-        "Грузовики",
-        "Дорожно-строительная техника"
+        "Автопорталы",
+        "Автоиздания"
       ],
-      "notes": "Профильный автомобильный каталог. Подходит именно для продвижения SpecАвтоПортала как ресурса."
+      "notes": "Профильный автомобильный каталог, но форма содержит проверочный код; не обходим CAPTCHA автоматически."
     },
     {
-      "id": "pdfcatalog",
-      "name": "PDFcatalog",
+      "id": "hyipinvest-catalog",
+      "name": "Catalog.HyipInvest",
       "platform": "site_directory",
-      "url": "https://pdfcatalog.ru/index/site",
-      "status": "candidate",
+      "url": "https://catalog.hyipinvest.net/add/",
+      "status": "paused",
       "policy": "free_site_submission",
-      "automation": "playwright_planned",
-      "requires_email": "unknown",
+      "automation": "manual_captcha",
+      "requires_email": false,
       "preferred_categories": [
-        "Авто Мото - Разное",
-        "Интернет - Разное"
+        "Транспорт",
+        "Новости и СМИ",
+        "Интернет > Порталы"
       ],
-      "notes": "Бесплатный каталог сайтов с прямыми ссылками, без обязательной регистрации; ручная модерация."
+      "notes": "Бесплатно и без обратной ссылки, но форма содержит код с картинки; оставлен для ручной очереди."
     },
     {
-      "id": "catalog-ru-net",
-      "name": "Catalog.ru.net",
+      "id": "t0psites",
+      "name": "T0psites.com",
       "platform": "site_directory",
-      "url": "https://catalog.ru.net/",
-      "status": "secondary_candidate",
-      "policy": "free_site_submission",
-      "automation": "manual_review",
-      "requires_email": "unknown",
+      "url": "https://t0psites.com/post/add/",
+      "status": "paused",
+      "policy": "paid_or_manual",
+      "automation": "manual_captcha",
+      "requires_email": true,
       "preferred_categories": [
-        "СпецТехника",
-        "СМИ",
-        "Новости"
+        "Транспорт > Автоновости",
+        "Новости и СМИ > Интернет-издания"
       ],
-      "notes": "Есть бесплатное размещение; бесплатная ссылка не индексируется, поэтому использовать как дополнительный канал, а не основной."
+      "notes": "В 2026 стандартное размещение указано как платное и форма содержит проверку с картинки; автоматическую бесплатную кампанию сюда не отправляем."
     }
   ]
 }
