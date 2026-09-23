@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import math
 import os
-import re
 import subprocess
 from pathlib import Path
 
@@ -151,68 +149,26 @@ def render_scene_frame(
         draw.text((x, y), line, font=title_font, fill=WHITE + (255,), stroke_width=2, stroke_fill=(0, 0, 0, 160))
         y += int(getattr(title_font, "size", 64) * 1.12)
 
+    # Supporting copy is part of the editorial frame, not karaoke subtitles.
+    body_font = _font(38, False)
+    body_lines = _wrap(draw, scene.narration, body_font, max_w, 3)
+    body_y = min(max(y + 34, 1370), 1550)
+    if body_lines:
+        panel_h = len(body_lines) * 54 + 44
+        draw.rounded_rectangle(
+            (48, body_y - 18, WIDTH - 48, body_y + panel_h),
+            radius=24,
+            fill=(10, 13, 17, 176),
+        )
+        by = body_y
+        for line in body_lines:
+            draw.text((64, by), line, font=body_font, fill=(224, 228, 233, 255))
+            by += 54
+
     draw.text((64, 1735), "spec-avtoportal.ru", font=small_font, fill=MUTED + (255,))
     draw.text((64, 1780), "рынок · техника · регламенты", font=small_font, fill=(128, 136, 146, 255))
 
     image.convert("RGB").save(output, "PNG", optimize=True)
-    return output
-
-
-def _ass_time(seconds: float) -> str:
-    seconds = max(0.0, seconds)
-    hours = int(seconds // 3600)
-    minutes = int((seconds % 3600) // 60)
-    secs = seconds % 60
-    return f"{hours}:{minutes:02d}:{secs:05.2f}"
-
-
-def _ass_escape(text: str) -> str:
-    return str(text).replace("\\", r"\\").replace("{", r"\{").replace("}", r"\}").replace("\n", r"\N")
-
-
-def _subtitle_chunks(text: str, words_per_chunk: int = 4) -> list[str]:
-    words = re.findall(r"\S+", str(text or ""))
-    return [" ".join(words[i:i + words_per_chunk]) for i in range(0, len(words), words_per_chunk)] or [""]
-
-
-def _color_highlights(text: str, highlights: list[str]) -> str:
-    escaped = _ass_escape(text)
-    for highlight in sorted([x for x in highlights if x], key=len, reverse=True):
-        pattern = re.compile(re.escape(_ass_escape(highlight)), flags=re.IGNORECASE)
-        escaped = pattern.sub(lambda m: r"{\c&H006BFF&}" + m.group(0) + r"{\c&HFFFFFF&}", escaped)
-    return escaped
-
-
-def build_ass(storyboard: Storyboard, durations: list[float], output: Path) -> Path:
-    header = f"""[Script Info]
-ScriptType: v4.00+
-PlayResX: {WIDTH}
-PlayResY: {HEIGHT}
-WrapStyle: 2
-ScaledBorderAndShadow: yes
-
-[V4+ Styles]
-Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding
-Style: Default,DejaVu Sans,64,&H00FFFFFF,&H00FFFFFF,&H00101010,&H99000000,-1,0,0,0,100,100,0,0,3,3,0,2,90,90,255,1
-
-[Events]
-Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
-"""
-    events: list[str] = []
-    scene_start = 0.0
-    for scene, duration in zip(storyboard.scenes, durations):
-        chunks = _subtitle_chunks(scene.narration, 4)
-        per = duration / max(1, len(chunks))
-        for idx, chunk in enumerate(chunks):
-            start = scene_start + idx * per
-            end = scene_start + min(duration, (idx + 1) * per + 0.05)
-            text = _color_highlights(chunk, scene.highlight_words)
-            events.append(
-                f"Dialogue: 0,{_ass_time(start)},{_ass_time(end)},Default,,0,0,0,,{text}"
-            )
-        scene_start += duration
-
-    output.write_text(header + "\n".join(events) + "\n", encoding="utf-8")
     return output
 
 
@@ -289,17 +245,14 @@ def render_short(
         "-c", "copy", str(silent),
     ])
 
-    subtitles = build_ass(storyboard, durations, work_dir / "subtitles.ass")
     output.parent.mkdir(parents=True, exist_ok=True)
     _run([
         "ffmpeg", "-y", "-loglevel", "error",
         "-i", str(silent),
         "-i", str(audio_path),
-        "-vf", f"ass={subtitles.as_posix()}",
         "-map", "0:v:0", "-map", "1:a:0",
-        "-c:v", "libx264", "-preset", "veryfast", "-crf", "18",
+        "-c:v", "copy",
         "-c:a", "aac", "-b:a", "160k",
-        "-pix_fmt", "yuv420p",
         "-shortest",
         str(output),
     ])
