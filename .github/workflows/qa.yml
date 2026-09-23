@@ -29,7 +29,7 @@ jobs:
 
       - name: Python syntax
         run: |
-          python -m py_compile tools/build_seo.py aggregator/main.py aggregator/post_to_telegram.py aggregator/telegram_visual.py aggregator/translate_news.py tools/daily_digest/agent.py
+          python -m py_compile tools/build_seo.py aggregator/main.py aggregator/post_to_telegram.py aggregator/post_to_vk.py aggregator/telegram_visual.py aggregator/translate_news.py tools/daily_digest/agent.py
 
       - name: Validate incremental translation
         run: |
@@ -85,6 +85,31 @@ jobs:
           assert legacy_current[0]["translation_status"] == "ru"
           assert legacy_current[0]["title"].startswith("Новая технология")
           print("Incremental translation preservation OK")
+          PY
+
+      - name: Validate VK Editorial v1
+        run: |
+          python aggregator/post_to_vk.py --self-test
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          config = json.loads(Path("aggregator/vk_config.json").read_text("utf-8"))
+          state = json.loads(Path("frontend/data/vk_state.json").read_text("utf-8"))
+
+          assert config.get("schema") == 1
+          assert config.get("enabled") is False, "VK must stay paused until credentials are connected"
+          assert config.get("community_screen_name") == "specavtoportal"
+          assert len(str(config.get("baseline_ref") or "")) == 40
+          assert int(config.get("immediate_score") or 0) >= 4
+          assert 1 <= int(config.get("max_immediate_per_run") or 0) <= 3
+          assert config.get("digest_enabled") is True
+          assert 2 <= int(config.get("digest_min_items") or 0) <= int(config.get("digest_items") or 0) <= 8
+          assert state.get("schema") == 1
+          assert isinstance(state.get("posts"), dict)
+          assert isinstance(state.get("digested"), dict)
+          assert isinstance(state.get("digests"), dict)
+          print("VK Editorial v1 config OK")
           PY
 
       - name: Render Telegram visual samples
