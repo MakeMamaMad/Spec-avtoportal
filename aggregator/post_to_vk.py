@@ -1,0 +1,711 @@
+#!/usr/bin/env python3
+"""VK Editorial publisher for SpecAvtoPortal.
+
+Modes:
+- immediate: publish only recent high-priority stories;
+- digest: publish recent ordinary stories as a morning/evening digest.
+
+Safety:
+- disabled by config until credentials are connected;
+- archive items from before baseline_ref are never published;
+- text fallback is used if visual upload fails;
+- shared state prevents duplicates between immediate posts and digests.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import html
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+import urllib.parse
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
+from pathlib import Path
+from typing import Any
+
+import requests
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+from telegram_visual import render_digest_card, render_important_card
+
+NEWS_PATH = Path("frontend/data/news.json")
+STATE_PATH = Path("frontend/data/vk_state.json")
+CONFIG_PATH = Path("aggregator/vk_config.json")
+
+TAG_RE = re.compile(r"<[^>]+>")
+
+HIGH_PRIORITY_TERMS: tuple[tuple[str, int], ...] = (
+    ("гост", 5),
+    ("тр тс", 5),
+    ("техрегламент", 5),
+    ("регламент", 4),
+    ("закон", 4),
+    ("штраф", 5),
+    ("запрет", 5),
+    ("ограничен", 4),
+    ("вступил", 4),
+    ("тамож", 4),
+    ("границ", 4),
+    ("санкц", 4),
+    ("отзыв", 5),
+    ("дефект", 4),
+    ("авар", 4),
+    ("пожар", 4),
+    ("подорож", 4),
+    ("подешев", 4),
+    ("рост цен", 4),
+    ("снижение цен", 4),
+    ("весогабарит", 5),
+    ("нагрузк на ос", 5),
+    ("производство", 2),
+    ("завод", 2),
+    ("рынок", 2),
+)
+
+HIGH_PRIORITY_TAGS = {
+    "регулирование": 4,
+    "таможня": 4,
+    "рынок": 2,
+    "безопасность": 3,
+    "логистика": 1,
+}
+
+CATEGORY_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("Правила и контроль", ("гост", "тр тс", "закон", "регламент", "штраф", "тамож", "контроль")),
+    ("Рынок и производство", ("рынок", "цена", "продаж", "производств", "завод", "выпуск")),
+    ("Техника", ("полуприцеп", "прицеп", "тягач", "грузовик", "шасси", "ось", "тормоз", "подвеск")),
+    ("Логистика", ("логист", "перевоз", "маршрут", "терминал", "склад", "порт", "контейнер")),
+)
+
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def strip_html(value: str) -> str:
+    if not value:
+        return ""
+    text = TAG_RE.sub(" ", str(value))
+    text = html.unescape(text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def clamp(text: str, max_len: int) -> str:
+    text = (text or "").strip()
+    if len(text) <= max_len:
+        return text
+    cut = text[: max_len - 1].rsplit(" ", 1)[0].rstrip(" ,.;:-")
+    return (cut or text[: max_len - 1]).rstrip() + "…"
+
+
+def load_json(path: Path, default: Any) -> Any:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return default
+    except Exception as exc:
+        print(f"WARN: cannot read {path}: {exc}", file=sys.stderr)
+        return default
+
+
+def load_config() -> dict[str, Any]:
+    value = load_json(CONFIG_PATH, {})
+    return value if isinstance(value, dict) else {}
+
+
+def load_state() -> dict[str, Any]:
+    state = load_json(STATE_PATH, {})
+    if not isinstance(state, dict):
+        state = {}
+    state["schema"] = 1
+    state.setdefault("welcome_post_id", None)
+    state.setdefault("welcome_sent_at", None)
+    state.setdefault("posts", {})
+    state.setdefault("digested", {})
+    state.setdefault("digests", {})
+    for key in ("posts", "digested", "digests"):
+        if not isinstance(state[key], dict):
+            state[key] = {}
+    return state
+
+
+def save_state(state: dict[str, Any]) -> None:
+    STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    tmp = STATE_PATH.with_suffix(".tmp")
+    tmp.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tmp.replace(STATE_PATH)
+
+
+def load_current() -> list[dict[str, Any]]:
+    data = load_json(NEWS_PATH, [])
+    return data if isinstance(data, list) else []
+
+
+def load_baseline(config: dict[str, Any], current: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    ref = str(config.get("baseline_ref") or "").strip()
+    if not ref:
+        print("WARN: VK baseline_ref is empty; publishing blocked.", file=sys.stderr)
+        return current
+    try:
+        raw = subprocess.check_output(
+            ["git", "show", f"{ref}:{NEWS_PATH.as_posix()}"],
+            stderr=subprocess.DEVNULL,
+        )
+        data = json.loads(raw.decode("utf-8"))
+        if isinstance(data, list):
+            return data
+    except Exception as exc:
+        print(f"WARN: cannot load VK baseline {ref}: {exc}", file=sys.stderr)
+    return current
+
+
+def make_key(item: dict[str, Any]) -> str:
+    for key in ("canonical_url", "url", "link", "guid", "id"):
+        value = item.get(key)
+        if value:
+            return str(value)
+    return f"{str(item.get('title') or '').strip()}::{str(item.get('source') or '').strip()}"
+
+
+def item_date(item: dict[str, Any]) -> str:
+    for key in ("published_at", "published", "date", "created_at"):
+        value = item.get(key)
+        if value:
+            return str(value)
+    return ""
+
+
+def parse_item_datetime(item: dict[str, Any]) -> datetime | None:
+    raw = item_date(item).strip()
+    if not raw:
+        return None
+    try:
+        parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return parsed.astimezone(timezone.utc)
+    except Exception:
+        pass
+    try:
+        parsed = parsedate_to_datetime(raw)
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return parsed.astimezone(timezone.utc)
+    except Exception:
+        return None
+
+
+def is_recent(item: dict[str, Any], max_age_hours: int) -> bool:
+    published = parse_item_datetime(item)
+    if published is None:
+        return False
+    seconds = (datetime.now(timezone.utc) - published).total_seconds()
+    return -6 * 3600 <= seconds <= max_age_hours * 3600
+
+
+def tags_for(item: dict[str, Any]) -> list[str]:
+    raw = item.get("tags") or item.get("rubrics") or []
+    if isinstance(raw, str):
+        raw = [raw]
+    if not isinstance(raw, list):
+        return []
+    return [str(tag).strip() for tag in raw if str(tag).strip()]
+
+
+def importance_score(item: dict[str, Any]) -> int:
+    title = strip_html(str(item.get("title") or "")).lower()
+    summary = strip_html(str(item.get("summary") or item.get("description") or "")).lower()
+    haystack = f"{title} {summary}"
+    score = 0
+    for needle, weight in HIGH_PRIORITY_TERMS:
+        if needle in title:
+            score += weight
+        elif needle in haystack:
+            score += max(1, weight // 2)
+    for tag in tags_for(item):
+        score += HIGH_PRIORITY_TAGS.get(tag.lower(), 0)
+    if re.search(r"\b\d{1,3}(?:[.,]\d+)?\s*%", title):
+        score += 3
+    return score
+
+
+def category_for(item: dict[str, Any]) -> str:
+    haystack = " ".join(
+        [
+            strip_html(str(item.get("title") or "")),
+            strip_html(str(item.get("summary") or item.get("description") or "")),
+            " ".join(tags_for(item)),
+        ]
+    ).lower()
+    for label, needles in CATEGORY_RULES:
+        if any(needle in haystack for needle in needles):
+            return label
+    return "Отрасль"
+
+
+def display_source(item: dict[str, Any]) -> str:
+    source = str(item.get("source_name") or item.get("source") or "").strip()
+    if source.lower() in {"", "source", "rss", "feed"}:
+        source = str(item.get("domain") or "").replace("www.", "").strip()
+    return source
+
+
+def build_site_url(site_base: str, item: dict[str, Any], campaign: str) -> str:
+    slug = str(item.get("slug") or "").strip()
+    params = urllib.parse.urlencode(
+        {
+            "utm_source": "vk",
+            "utm_medium": "social",
+            "utm_campaign": campaign,
+            "utm_content": slug or "news",
+        }
+    )
+    if slug:
+        return f"{site_base}news/{urllib.parse.quote(slug)}/?{params}"
+    return f"{site_base}?{params}"
+
+
+def original_url(item: dict[str, Any]) -> str:
+    return str(
+        item.get("canonical_url")
+        or item.get("url")
+        or item.get("link")
+        or ""
+    ).strip()
+
+
+def unhandled_items(
+    baseline: list[dict[str, Any]],
+    current: list[dict[str, Any]],
+    state: dict[str, Any],
+) -> list[dict[str, Any]]:
+    baseline_keys = {make_key(item) for item in baseline}
+    handled = set(state["posts"]) | set(state["digested"])
+    return [
+        item
+        for item in current
+        if make_key(item) not in baseline_keys
+        and make_key(item) not in handled
+    ]
+
+
+def important_message(item: dict[str, Any], site_url: str) -> str:
+    title = strip_html(str(item.get("title") or "Важная новость"))
+    summary = clamp(strip_html(str(item.get("summary") or item.get("description") or "")), 650)
+    source = display_source(item)
+    tags = [tag for tag in tags_for(item) if tag.lower() not in {"новости", "partner", "партнёр"}][:3]
+
+    parts = ["⚡ ВАЖНО", "", title]
+    if summary:
+        parts.extend(["", summary])
+    if tags:
+        parts.extend(["", " · ".join(f"#{re.sub(r'[^0-9A-Za-zА-Яа-яЁё_]+', '', tag.replace(' ', '_'))}" for tag in tags)])
+    if source:
+        parts.extend(["", f"Источник: {source}"])
+    parts.extend(["", f"Подробнее: {site_url}"])
+    primary = original_url(item)
+    if primary:
+        parts.append(f"Первоисточник: {primary}")
+    return "\n".join(parts)
+
+
+def digest_message(items: list[dict[str, Any]], slot: str, site_base: str) -> str:
+    label = "Утренняя" if slot == "am" else "Вечерняя"
+    today = datetime.now(timezone.utc).strftime("%d.%m.%Y")
+    lines = [
+        f"🚛 {label} сводка СпецАвтоПортала · {today}",
+        f"{len(items)} материалов к этому часу",
+        "",
+    ]
+    for index, item in enumerate(items, 1):
+        title = clamp(strip_html(str(item.get("title") or "Материал")), 150)
+        url = build_site_url(site_base, item, f"{slot}_digest")
+        lines.extend([f"{index}. {title}", url, ""])
+    lines.append("spec-avtoportal.ru")
+    return "\n".join(lines).strip()
+
+
+def vk_api(method: str, token: str, api_version: str, **params: Any) -> Any:
+    payload = {
+        **params,
+        "access_token": token,
+        "v": api_version,
+    }
+    response = requests.post(
+        f"https://api.vk.com/method/{method}",
+        data=payload,
+        timeout=30,
+    )
+    body = response.json()
+    if "error" in body:
+        error = body["error"]
+        raise RuntimeError(
+            f"VK {method}: {error.get('error_code')} {error.get('error_msg')}"
+        )
+    return body.get("response")
+
+
+def upload_wall_photo(
+    token: str,
+    api_version: str,
+    group_id: int,
+    image_path: Path,
+) -> str:
+    upload = vk_api(
+        "photos.getWallUploadServer",
+        token,
+        api_version,
+        group_id=group_id,
+    )
+    upload_url = str((upload or {}).get("upload_url") or "")
+    if not upload_url:
+        raise RuntimeError("VK did not return wall upload_url")
+
+    with image_path.open("rb") as image_file:
+        uploaded_response = requests.post(
+            upload_url,
+            files={"photo": ("spec-avtoportal.png", image_file, "image/png")},
+            timeout=60,
+        )
+    uploaded = uploaded_response.json()
+    for key in ("server", "photo", "hash"):
+        if key not in uploaded:
+            raise RuntimeError(f"VK wall upload response missing {key}")
+
+    saved = vk_api(
+        "photos.saveWallPhoto",
+        token,
+        api_version,
+        group_id=group_id,
+        server=uploaded["server"],
+        photo=uploaded["photo"],
+        hash=uploaded["hash"],
+    )
+    if not isinstance(saved, list) or not saved:
+        raise RuntimeError("VK photos.saveWallPhoto returned no photo")
+    photo = saved[0]
+    owner_id = photo.get("owner_id")
+    photo_id = photo.get("id")
+    if not isinstance(owner_id, int) or not isinstance(photo_id, int):
+        raise RuntimeError("VK saved photo is missing owner_id/id")
+    return f"photo{owner_id}_{photo_id}"
+
+
+def guid_for(kind: str, key: str) -> str:
+    return hashlib.sha256(f"specavto:{kind}:{key}".encode("utf-8")).hexdigest()[:32]
+
+
+def wall_post(
+    token: str,
+    api_version: str,
+    group_id: int,
+    message: str,
+    *,
+    attachment: str = "",
+    guid: str = "",
+) -> int:
+    params: dict[str, Any] = {
+        "owner_id": -abs(group_id),
+        "from_group": 1,
+        "message": message,
+    }
+    if attachment:
+        params["attachments"] = attachment
+    if guid:
+        params["guid"] = guid
+
+    result = vk_api("wall.post", token, api_version, **params)
+    post_id = (result or {}).get("post_id") if isinstance(result, dict) else None
+    if not isinstance(post_id, int):
+        raise RuntimeError("VK wall.post did not return post_id")
+    return post_id
+
+
+def send_with_visual_fallback(
+    token: str,
+    api_version: str,
+    group_id: int,
+    message: str,
+    *,
+    kind: str,
+    key: str,
+    item: dict[str, Any] | None = None,
+    slot: str = "",
+) -> tuple[int, str]:
+    try:
+        with tempfile.TemporaryDirectory(prefix="specavto-vk-") as tmp_dir:
+            card_path = Path(tmp_dir) / "card.png"
+            if kind == "important" and item is not None:
+                render_important_card(item, card_path)
+            else:
+                render_digest_card(slot or "am", card_path)
+
+            attachment = upload_wall_photo(
+                token,
+                api_version,
+                group_id,
+                card_path,
+            )
+            post_id = wall_post(
+                token,
+                api_version,
+                group_id,
+                message,
+                attachment=attachment,
+                guid=guid_for(kind, key),
+            )
+            return post_id, "visual"
+    except Exception as exc:
+        print(f"WARN: VK visual failed, text fallback: {exc}", file=sys.stderr)
+        post_id = wall_post(
+            token,
+            api_version,
+            group_id,
+            message,
+            guid=guid_for(kind, key),
+        )
+        return post_id, "text_fallback"
+
+
+def send_welcome(
+    token: str,
+    api_version: str,
+    group_id: int,
+    state: dict[str, Any],
+    config: dict[str, Any],
+    site_base: str,
+) -> None:
+    if state.get("welcome_post_id") or not config.get("welcome_enabled", True):
+        return
+
+    site_url = site_base + "?" + urllib.parse.urlencode(
+        {
+            "utm_source": "vk",
+            "utm_medium": "social",
+            "utm_campaign": "community_launch",
+        }
+    )
+    message = (
+        "🚛 СпецАвтоПортал теперь во ВКонтакте\n\n"
+        "Главное о рынке прицепов, полуприцепов и грузовой техники — без информационного шума.\n\n"
+        "Здесь будут важные новости, утренние и вечерние сводки, производители, "
+        "регламенты и практические материалы.\n\n"
+        f"Сайт: {site_url}"
+    )
+    post_id = wall_post(
+        token,
+        api_version,
+        group_id,
+        message,
+        guid=guid_for("welcome", str(group_id)),
+    )
+    state["welcome_post_id"] = post_id
+    state["welcome_sent_at"] = utc_now()
+    save_state(state)
+
+
+def digest_slot() -> str:
+    forced = os.getenv("VK_DIGEST_SLOT", "").strip().lower()
+    if forced in {"am", "pm"}:
+        return forced
+    return "am" if datetime.now(timezone.utc).hour < 12 else "pm"
+
+
+def digest_id(slot: str) -> str:
+    return f"{datetime.now(timezone.utc).strftime('%Y-%m-%d')}:{slot}"
+
+
+def run_immediate(
+    token: str,
+    api_version: str,
+    group_id: int,
+    config: dict[str, Any],
+    state: dict[str, Any],
+    current: list[dict[str, Any]],
+    baseline: list[dict[str, Any]],
+    site_base: str,
+) -> int:
+    threshold = int(config.get("immediate_score") or 5)
+    max_age = int(config.get("max_item_age_hours") or 48)
+    max_posts = int(os.getenv("VK_MAX_POSTS", str(config.get("max_immediate_per_run") or 3)))
+
+    candidates: list[tuple[int, str, dict[str, Any]]] = []
+    for item in unhandled_items(baseline, current, state):
+        if not is_recent(item, max_age):
+            continue
+        score = importance_score(item)
+        if score >= threshold:
+            candidates.append((score, item_date(item), item))
+
+    candidates.sort(key=lambda row: (-row[0], row[1]))
+    chosen = candidates[:max_posts]
+    if not chosen:
+        print("VK: no important items; ordinary items wait for digest.")
+        return 0
+
+    errors = 0
+    for score, _, item in chosen:
+        key = make_key(item)
+        site_url = build_site_url(site_base, item, "important_news")
+        message = important_message(item, site_url)
+        try:
+            post_id, visual = send_with_visual_fallback(
+                token,
+                api_version,
+                group_id,
+                message,
+                kind="important",
+                key=key,
+                item=item,
+            )
+            state["posts"][key] = {
+                "post_id": post_id,
+                "sent_at": utc_now(),
+                "title": str(item.get("title") or ""),
+                "slug": str(item.get("slug") or ""),
+                "site_url": site_url,
+                "score": score,
+                "visual": visual,
+            }
+            save_state(state)
+            print(f"VK OK post_id={post_id} score={score}: {str(item.get('title') or '')[:90]}")
+        except Exception as exc:
+            errors += 1
+            print(f"VK ERR: {exc}", file=sys.stderr)
+
+    return 1 if errors else 0
+
+
+def run_digest(
+    token: str,
+    api_version: str,
+    group_id: int,
+    config: dict[str, Any],
+    state: dict[str, Any],
+    current: list[dict[str, Any]],
+    baseline: list[dict[str, Any]],
+    site_base: str,
+) -> int:
+    if not config.get("digest_enabled", True):
+        print("VK digest disabled.")
+        return 0
+
+    slot = digest_slot()
+    current_digest_id = digest_id(slot)
+    if current_digest_id in state["digests"]:
+        print(f"VK digest already sent: {current_digest_id}")
+        return 0
+
+    threshold = int(config.get("immediate_score") or 5)
+    max_age = int(config.get("max_item_age_hours") or 48)
+    limit = int(config.get("digest_items") or 5)
+    min_items = int(config.get("digest_min_items") or 2)
+
+    candidates: list[tuple[datetime, int, dict[str, Any]]] = []
+    for item in unhandled_items(baseline, current, state):
+        if not is_recent(item, max_age):
+            continue
+        score = importance_score(item)
+        if score >= threshold:
+            continue
+        published = parse_item_datetime(item)
+        if published is None:
+            continue
+        candidates.append((published, score, item))
+
+    candidates.sort(key=lambda row: (row[0], row[1]), reverse=True)
+    items = [item for _, _, item in candidates[:limit]]
+    if len(items) < min_items:
+        print(f"VK: not enough ordinary items for digest: {len(items)} < {min_items}")
+        return 0
+
+    message = digest_message(items, slot, site_base)
+    post_id, visual = send_with_visual_fallback(
+        token,
+        api_version,
+        group_id,
+        message,
+        kind="digest",
+        key=current_digest_id,
+        slot=slot,
+    )
+
+    sent_at = utc_now()
+    state["digests"][current_digest_id] = {
+        "post_id": post_id,
+        "sent_at": sent_at,
+        "slot": slot,
+        "visual": visual,
+        "items": [make_key(item) for item in items],
+    }
+    for item in items:
+        state["digested"][make_key(item)] = {
+            "digest_id": current_digest_id,
+            "post_id": post_id,
+            "sent_at": sent_at,
+            "title": str(item.get("title") or ""),
+            "slug": str(item.get("slug") or ""),
+        }
+    save_state(state)
+    print(f"VK digest OK post_id={post_id} items={len(items)} slot={slot}")
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--mode", choices=("immediate", "digest"), default="immediate")
+    parser.add_argument("--self-test", action="store_true")
+    args = parser.parse_args()
+
+    if args.self_test:
+        assert importance_score({"title": "Новый ГОСТ вступил в силу"}) >= 5
+        assert importance_score({"title": "Компания показала новый полуприцеп"}) < 5
+        assert guid_for("important", "abc") == guid_for("important", "abc")
+        print("VK Editorial self-test OK")
+        return 0
+
+    config = load_config()
+    if not config.get("enabled", False):
+        print("VK Editorial is prepared but paused.")
+        return 0
+
+    token = os.getenv("VK_ACCESS_TOKEN", "").strip()
+    group_id_raw = os.getenv("VK_GROUP_ID", "").strip()
+    if not token or not group_id_raw:
+        print("VK_ACCESS_TOKEN or VK_GROUP_ID is not configured.", file=sys.stderr)
+        return 0
+    try:
+        group_id = abs(int(group_id_raw))
+    except ValueError:
+        raise RuntimeError("VK_GROUP_ID must be numeric")
+
+    current = load_current()
+    if not current:
+        print("VK: no news items.")
+        return 0
+
+    state = load_state()
+    baseline = load_baseline(config, current)
+    api_version = str(config.get("api_version") or "5.199")
+    site_base = os.getenv("SITE_URL", "https://spec-avtoportal.ru/").rstrip("/") + "/"
+
+    if args.mode == "immediate":
+        send_welcome(token, api_version, group_id, state, config, site_base)
+        return run_immediate(
+            token, api_version, group_id, config, state, current, baseline, site_base
+        )
+    return run_digest(
+        token, api_version, group_id, config, state, current, baseline, site_base
+    )
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
