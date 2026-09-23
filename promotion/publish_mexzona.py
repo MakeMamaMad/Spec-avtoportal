@@ -144,6 +144,41 @@ def find_article_in_admin(page: Page, title: str) -> dict[str, str] | None:
             raw = link.get_attribute("href") or ""
             href = raw if raw.startswith("http") else "https://mexzona.ru" + (raw if raw.startswith("/") else "/" + raw)
             return {"status_text": link_text[:800], "admin_url": href or page.url}
+
+    # MEXZONA currently renders articles as cards/headings rather than table rows.
+    headings = page.locator("h1, h2, h3, h4, h5, h6")
+    for i in range(headings.count()):
+        heading = headings.nth(i)
+        try:
+            heading_text = re.sub(r"\\s+", " ", heading.inner_text() or "").strip()
+        except Exception:
+            continue
+        norm = heading_text.lower()
+        if target not in norm and not (short and short in norm):
+            continue
+
+        href = ""
+        direct = heading.locator("a")
+        if direct.count():
+            raw = direct.first.get_attribute("href") or ""
+            if raw:
+                href = raw if raw.startswith("http") else "https://mexzona.ru" + (raw if raw.startswith("/") else "/" + raw)
+        if not href:
+            ancestor = heading.locator("xpath=ancestor::a[1]")
+            if ancestor.count():
+                raw = ancestor.first.get_attribute("href") or ""
+                if raw:
+                    href = raw if raw.startswith("http") else "https://mexzona.ru" + (raw if raw.startswith("/") else "/" + raw)
+
+        status_text = heading_text
+        try:
+            parent_text = re.sub(r"\\s+", " ", heading.locator("xpath=..").inner_text() or "").strip()
+            if parent_text:
+                status_text = parent_text[:800]
+        except Exception:
+            pass
+        return {"status_text": status_text[:800], "admin_url": href or page.url}
+
     return None
 
 
@@ -452,6 +487,28 @@ def main() -> int:
         page = context.new_page()
         try:
             login(page, email, password)
+
+            # Prevent duplicates: verify whether a prior attempt already created the article.
+            page.goto("https://mexzona.ru/admin/articles", wait_until="domcontentloaded", timeout=60000)
+            existing = find_article_in_admin(page, title)
+            if existing:
+                record = {
+                    "target_id": TARGET_ID,
+                    "target_name": "MEXZONA.RU",
+                    "item_key": entry.get("item_key"),
+                    "title": title,
+                    "source_url": site_url,
+                    "result_url": existing.get("admin_url") or page.url,
+                    "status_text": existing.get("status_text") or "",
+                    "submitted_at": utc_now(),
+                    "status": "verified_in_author_cabinet",
+                }
+                history.setdefault("entries", []).append(record)
+                save_json(HISTORY_PATH, history)
+                save_json(DONE_PATH, record)
+                print("SUBMITTED=" + json.dumps(record, ensure_ascii=False))
+                return 0
+
             open_article_form(page)
 
             if "/login" in page.url.lower():
