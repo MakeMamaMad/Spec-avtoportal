@@ -101,9 +101,9 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_MAX_POSTS: "50"      # сколько старых новостей за один прогон
+          TELEGRAM_MAX_POSTS: "8"       # защита от спама после перезапуска
         run: |
-          python aggregator/post_to_telegram.py || echo "Telegram step failed, but continuing"
+          python aggregator/post_to_telegram.py || echo "Telegram publishing failed; state/news changes will still be committed for safe retry"
 
       - name: Commit & push changes
         env:
