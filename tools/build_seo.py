@@ -27,10 +27,12 @@ ROOT = Path(__file__).resolve().parents[1]
 FRONTEND = ROOT / "frontend"
 NEWS_JSON = FRONTEND / "data" / "news.json"
 REGULATIONS_JSON = FRONTEND / "data" / "regulations.json"
+KNOWLEDGE_ARTICLES_JSON = FRONTEND / "data" / "knowledge_articles.json"
 NEWS_DIR = FRONTEND / "news"
 TOPICS_DIR = FRONTEND / "topics"
 BRANDS_DIR = FRONTEND / "brands"
 REGULATIONS_DIR = FRONTEND / "regulations"
+KNOWLEDGE_DIR = FRONTEND / "knowledge"
 BASE_URL = "https://spec-avtoportal.ru"
 
 BRAND_RULES = [
@@ -982,6 +984,177 @@ def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) 
 """
 
 
+def load_knowledge_articles() -> dict[str, Any]:
+    if not KNOWLEDGE_ARTICLES_JSON.exists():
+        return {"items": [], "updated_at": ""}
+    payload = json.loads(KNOWLEDGE_ARTICLES_JSON.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        return {"items": [], "updated_at": ""}
+    payload.setdefault("items", [])
+    payload.setdefault("updated_at", "")
+    return payload
+
+
+def knowledge_url(item: dict[str, Any]) -> str:
+    return f"{BASE_URL}/knowledge/{item['slug']}/"
+
+
+def render_knowledge_article(item: dict[str, Any], updated_at: str) -> str:
+    title_raw = get_field(item, "title", default="Материал базы знаний")
+    title = html.escape(title_raw)
+    eyebrow = html.escape(get_field(item, "eyebrow", default="База знаний"))
+    description_raw = get_field(item, "description", default=title_raw)
+    description = html.escape(clamp(description_raw, 165), quote=True)
+    lead = html.escape(get_field(item, "lead"))
+    canonical = knowledge_url(item)
+
+    section_html = []
+    for section in item.get("sections", []):
+        if not isinstance(section, dict):
+            continue
+        heading = html.escape(get_field(section, "heading"))
+        blocks = []
+        for paragraph in section.get("paragraphs", []) if isinstance(section.get("paragraphs"), list) else []:
+            blocks.append(f"<p>{html.escape(str(paragraph))}</p>")
+        bullets = section.get("bullets") if isinstance(section.get("bullets"), list) else []
+        if bullets:
+            blocks.append("<ul>" + "".join(f"<li>{html.escape(str(x))}</li>" for x in bullets) + "</ul>")
+        numbered = section.get("numbered") if isinstance(section.get("numbered"), list) else []
+        if numbered:
+            blocks.append("<ol>" + "".join(f"<li>{html.escape(str(x))}</li>" for x in numbered) + "</ol>")
+        facts = section.get("facts") if isinstance(section.get("facts"), list) else []
+        if facts:
+            fact_rows = []
+            for row in facts:
+                if isinstance(row, list) and len(row) >= 2:
+                    fact_rows.append(
+                        '<div class="knowledge-fact">'
+                        f'<span>{html.escape(str(row[0]))}</span>'
+                        f'<strong>{html.escape(str(row[1]))}</strong>'
+                        '</div>'
+                    )
+            if fact_rows:
+                blocks.append('<div class="knowledge-facts">' + "".join(fact_rows) + '</div>')
+        section_html.append(
+            '<section class="knowledge-article__section">'
+            f'<h2>{heading}</h2>'
+            + "".join(blocks)
+            + '</section>'
+        )
+
+    source_html = []
+    for source in item.get("sources", []) if isinstance(item.get("sources"), list) else []:
+        if not isinstance(source, dict):
+            continue
+        label = html.escape(get_field(source, "label", default="Источник"))
+        url = get_field(source, "url")
+        if not url:
+            continue
+        href = html.escape(url, quote=True)
+        rel = ' rel="noopener"' if url.startswith(("http://", "https://")) else ""
+        target = ' target="_blank"' if url.startswith(("http://", "https://")) else ""
+        source_html.append(f'<a href="{href}"{target}{rel}>{label}<span>↗</span></a>')
+
+    partner_html = ""
+    partner = item.get("partner")
+    if isinstance(partner, dict) and partner.get("url"):
+        partner_html = f"""
+        <section class="knowledge-partner">
+          <p class="sidebar-eyebrow">{html.escape(get_field(partner, "label", default="Партнёр проекта"))}</p>
+          <h3>{html.escape(get_field(partner, "title"))}</h3>
+          <p>{html.escape(get_field(partner, "text"))}</p>
+          <a href="{html.escape(get_field(partner, "url"), quote=True)}" target="_blank" rel="sponsored noopener">Перейти к партнёру <span>↗</span></a>
+        </section>
+        """
+
+    schema_payload = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": title_raw,
+        "description": description_raw,
+        "url": canonical,
+        "dateModified": updated_at or None,
+        "author": {"@type": "Organization", "name": "СпецАвтоПортал"},
+        "publisher": {"@type": "Organization", "name": "СпецАвтоПортал", "url": BASE_URL},
+    }
+    schema_payload = {k: v for k, v in schema_payload.items() if v is not None}
+    schema = json.dumps(schema_payload, ensure_ascii=False, separators=(",", ":")).replace("</", "<\/")
+
+    return f"""<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title} | База знаний — СпецАвтоПортал</title>
+  <meta name="description" content="{description}" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <link rel="canonical" href="{canonical}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="СпецАвтоПортал" />
+  <meta property="og:title" content="{title}" />
+  <meta property="og:description" content="{description}" />
+  <meta property="og:url" content="{canonical}" />
+  <link rel="stylesheet" href="/styles.css?v=17" />
+  <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
+  <script type="application/ld+json">{schema}</script>
+</head>
+<body class="knowledge-article-page">
+  <div class="topline"><div class="container topline-inner"><span>Профессиональное медиа о грузовой технике</span><span class="topline-dot"></span><span>База знаний</span></div></div>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="brand" aria-label="СпецАвтоПортал — на главную">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
+        <span class="brand-copy"><strong>СпецАвтоПортал</strong><small>рынок · техника · регламенты</small></span>
+      </a>
+      <nav class="main-nav" aria-label="Основная навигация">
+        <a href="/" class="nav-link">Новости</a>
+        <a href="/brands/" class="nav-link">Бренды</a>
+        <a href="/knowledge.html" class="nav-link nav-link-active">База знаний</a>
+      </nav>
+      <a href="https://t.me/specavtoportal" class="tg-badge" target="_blank" rel="noopener"><span>Telegram ↗</span></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="knowledge-article-hero">
+      <div class="container">
+        <p class="section-kicker"><a href="/knowledge.html">База знаний</a> · {eyebrow}</p>
+        <h1>{title}</h1>
+        <p>{lead}</p>
+        <div class="knowledge-article-hero__meta">Обновлено · {html.escape(updated_at or "—")}</div>
+      </div>
+    </section>
+
+    <section class="container knowledge-article-layout">
+      <article class="knowledge-article">
+        {''.join(section_html)}
+      </article>
+      <aside class="knowledge-article-sidebar">
+        {partner_html}
+        <section class="sidebar-block sidebar-dark">
+          <p class="sidebar-eyebrow">Источники и документы</p>
+          <div class="knowledge-sources">{''.join(source_html)}</div>
+        </section>
+        <section class="sidebar-block">
+          <p class="sidebar-eyebrow">Важно</p>
+          <p class="sidebar-text">Материал носит справочный характер. Для нормативных требований проверяйте актуальную редакцию официального документа и ограничения конкретного маршрута.</p>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
+      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/law.html">Нормативы</a><a href="/guides.html">Гайды</a><a href="/brands/">Бренды</a></div>
+      <div class="footer-note">© СпецАвтоПортал</div>
+    </div>
+  </footer>
+</body>
+</html>
+"""
+
+
 def load_regulations() -> dict[str, Any]:
     if not REGULATIONS_JSON.exists():
         return {"items": [], "archived": [], "verified_at": ""}
@@ -1278,7 +1451,11 @@ def render_regulations_index(regulations: dict[str, Any]) -> str:
 """
 
 
-def write_sitemap(items: list[dict[str, Any]], regulations: dict[str, Any] | None = None) -> None:
+def write_sitemap(
+    items: list[dict[str, Any]],
+    regulations: dict[str, Any] | None = None,
+    knowledge_articles: dict[str, Any] | None = None,
+) -> None:
     static_pages = [
         (f"{BASE_URL}/", ""),
         (f"{BASE_URL}/knowledge.html", ""),
@@ -1301,6 +1478,11 @@ def write_sitemap(items: list[dict[str, Any]], regulations: dict[str, Any] | Non
         for item in regulations.get("items", []):
             if item.get("slug"):
                 rows.append(f"  <url><loc>{xml_escape(regulation_url(item))}</loc></url>")
+
+    if knowledge_articles:
+        for item in knowledge_articles.get("items", []):
+            if item.get("slug"):
+                rows.append(f"  <url><loc>{xml_escape(knowledge_url(item))}</loc></url>")
 
     for item in items:
         lastmod = iso_date(get_field(item, "published_at", "date", "pub_date"))
@@ -1354,6 +1536,22 @@ def main() -> None:
         shutil.rmtree(REGULATIONS_DIR)
     REGULATIONS_DIR.mkdir(parents=True, exist_ok=True)
 
+    if KNOWLEDGE_DIR.exists():
+        shutil.rmtree(KNOWLEDGE_DIR)
+    KNOWLEDGE_DIR.mkdir(parents=True, exist_ok=True)
+
+    knowledge_articles = load_knowledge_articles()
+    knowledge_updated = str(knowledge_articles.get("updated_at") or "")
+    for knowledge_item in knowledge_articles.get("items", []):
+        if not knowledge_item.get("slug"):
+            continue
+        out_dir = KNOWLEDGE_DIR / str(knowledge_item["slug"])
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "index.html").write_text(
+            render_knowledge_article(knowledge_item, knowledge_updated),
+            encoding="utf-8",
+        )
+
     regulations = load_regulations()
     verified_at = str(regulations.get("verified_at") or "")
     for regulation in regulations.get("items", []):
@@ -1390,8 +1588,9 @@ def main() -> None:
 
     (BRANDS_DIR / "index.html").write_text(render_brand_directory(brand_counts), encoding="utf-8")
 
-    write_sitemap(items, regulations)
+    write_sitemap(items, regulations, knowledge_articles)
     print(f"[SEO] generated {len(items)} static article pages")
+    print(f"[SEO] generated {len(knowledge_articles.get('items', []))} knowledge articles")
     print(f"[SEO] generated {len(regulations.get('items', []))} regulation pages")
     print(f"[SEO] generated topic hubs: {topic_counts}")
     print(f"[SEO] generated brand hubs: {brand_counts}")
