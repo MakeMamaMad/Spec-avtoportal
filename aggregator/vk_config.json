@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "enabled": false,
-  "baseline_ref": "34350b3f160711df0f58abe9a35b93e5f59f595b",
+  "enabled": true,
+  "baseline_ref": "8b72061d0064da02454e45c9a0984dc50ec4d5a6",
   "community_screen_name": "specavtoportal",
   "welcome_enabled": true,
   "immediate_score": 5,
@@ -15,5 +15,5 @@
     "19:40"
   ],
   "api_version": "5.199",
-  "note": "VK Editorial v1 is prepared but paused until VK_ACCESS_TOKEN is connected. The numeric community id is resolved automatically from community_screen_name; VK_GROUP_ID remains an optional override. Activation should also move baseline_ref to the current clean start."
+  "note": "VK Editorial v1 is live. baseline_ref marks the clean VK start point; only items added after it may publish. Community id is resolved from specavtoportal; VK_GROUP_ID remains an optional override."
 }

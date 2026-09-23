@@ -98,9 +98,9 @@ jobs:
           state = json.loads(Path("frontend/data/vk_state.json").read_text("utf-8"))
 
           assert config.get("schema") == 1
-          assert config.get("enabled") is False, "VK must stay paused until credentials are connected"
+          assert config.get("enabled") is True, "VK publishing should be live after token setup"
           assert config.get("community_screen_name") == "specavtoportal"
-          assert "VK_ACCESS_TOKEN" in config.get("note", "")
+          assert "live" in config.get("note", "").lower()
           assert len(str(config.get("baseline_ref") or "")) == 40
           assert int(config.get("immediate_score") or 0) >= 4
           assert 1 <= int(config.get("max_immediate_per_run") or 0) <= 3
@@ -110,7 +110,7 @@ jobs:
           assert isinstance(state.get("posts"), dict)
           assert isinstance(state.get("digested"), dict)
           assert isinstance(state.get("digests"), dict)
-          print("VK Editorial v1 config OK")
+          print("VK Editorial v1 live config OK")
           PY
 
       - name: Render Telegram visual samples
