@@ -137,13 +137,14 @@ def login(page: Page, email: str, password: str) -> None:
     submit_button.first.click()
     page.wait_for_load_state("domcontentloaded", timeout=60000)
 
-    if "/login" in page.url.lower() or page.locator("#login-form").count():
-        error_text = " ".join(
-            page.locator("#login-form .errorMessage, #login-form .error").all_inner_texts()
-        ).strip()
-        if error_text:
-            raise RuntimeError("TruckMix login rejected credentials or validation")
-        raise RuntimeError("TruckMix login did not complete")
+    error_text = " ".join(
+        page.locator("#login-form .errorMessage, #login-form .error").all_inner_texts()
+    ).strip()
+    if error_text:
+        raise RuntimeError("TruckMix login rejected credentials or validation")
+
+    # Do not infer login failure merely because the login form remains in the DOM.
+    # The definitive authentication check happens when we open the protected add-news page.
 
 
 def fill_editor(page: Page, content: str) -> bool:
