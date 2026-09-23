@@ -296,6 +296,8 @@ button { color: inherit; }
   border-top: 1px solid var(--line);
 }
 .news-card:last-child { border-bottom: 1px solid var(--line); }
+.news-card--no-image { grid-template-columns: minmax(0, 1fr); }
+.news-card--no-image .news-card-body { max-width: 820px; }
 .news-card-image-wrap {
   overflow: hidden;
   border-radius: 12px;
