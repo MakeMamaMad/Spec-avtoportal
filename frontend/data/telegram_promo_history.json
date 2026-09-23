@@ -18,6 +18,15 @@
       "attempted_at": "2026-09-23T14:02:27+00:00",
       "status": "outreach_unavailable",
       "detail": "Bad Request: USER_BOT_TO_BOT_DISABLED"
+    },
+    {
+      "target_id": "logistic-aggregator",
+      "target_name": "Logistic Aggregator Cargo and Transport",
+      "contact": "@offer_avtobot",
+      "tracking_url": "https://spec-avtoportal.ru/?utm_source=logistic-aggregator&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad",
+      "attempted_at": "2026-09-23T14:03:00+00:00",
+      "status": "outreach_unavailable",
+      "detail": "Bad Request: USER_BOT_TO_BOT_DISABLED"
     }
   ]
 }
