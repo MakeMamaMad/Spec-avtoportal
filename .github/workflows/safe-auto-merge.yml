@@ -23,7 +23,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
-          EVENT_PATH: ${{ github.event_path }}
         run: |
           python - <<'PY'
           import json
@@ -36,7 +35,7 @@ jobs:
           token = os.environ["GH_TOKEN"]
           repo = os.environ["REPOSITORY"]
 
-          with open(os.environ["EVENT_PATH"], "r", encoding="utf-8") as fh:
+          with open(os.environ["GITHUB_EVENT_PATH"], "r", encoding="utf-8") as fh:
               event = json.load(fh)
 
           event_pr = event.get("pull_request") or {}
