@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "entries": [
+    {
+      "target_id": "pdfcatalog",
+      "target_name": "PDFcatalog",
+      "site_url": "https://spec-avtoportal.ru/",
+      "result_url": "https://pdfcatalog.ru/index.php?page=addsite1",
+      "submitted_at": "2026-09-23T13:20:46+00:00",
+      "status": "submitted"
+    }
+  ]
+}
