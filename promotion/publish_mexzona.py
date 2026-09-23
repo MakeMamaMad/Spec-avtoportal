@@ -154,17 +154,27 @@ def login(page: Page, email: str, password: str) -> None:
 
 
 def open_article_form(page: Page) -> None:
-    page.goto(HOME_URL, wait_until="domcontentloaded", timeout=60000)
+    entry_pages = [
+        HOME_URL,
+        "https://mexzona.ru/prodazha-zemlerojnyh-mashin",
+    ]
+    link = None
 
     # Prefer article over short news: it gives enough room for useful content + source.
-    link = page.get_by_role("link", name=re.compile(r"добавить статью", re.I))
-    if not link.count():
-        link = page.locator('a:has-text("Добавить статью")')
-    if not link.count():
-        link = page.get_by_role("link", name=re.compile(r"добавить новость", re.I))
-    if not link.count():
-        link = page.locator('a:has-text("Добавить новость")')
-    if not link.count():
+    for entry_url in entry_pages:
+        page.goto(entry_url, wait_until="domcontentloaded", timeout=60000)
+        candidate = page.get_by_role("link", name=re.compile(r"добавить статью", re.I))
+        if not candidate.count():
+            candidate = page.locator('a:has-text("Добавить статью")')
+        if not candidate.count():
+            candidate = page.get_by_role("link", name=re.compile(r"добавить новость", re.I))
+        if not candidate.count():
+            candidate = page.locator('a:has-text("Добавить новость")')
+        if candidate.count():
+            link = candidate
+            break
+
+    if link is None or not link.count():
         print("PAGE_SUMMARY=" + json.dumps(safe_page_summary(page), ensure_ascii=False))
         raise RuntimeError("MEXZONA add-article/news link was not found")
 
