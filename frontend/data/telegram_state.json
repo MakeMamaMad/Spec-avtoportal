@@ -60,6 +60,40 @@
       "slug": "kitayskie-tyagachi-v-rossii-podorozhali-pochti-na-50-za-god-bd26064b"
     }
   },
-  "digested": {},
-  "digests": {}
+  "digested": {
+    "https://www.globaltrailermag.com/jost-names-new-apac-ceo/": {
+      "digest_id": "2026-09-24:am",
+      "message_id": 1479,
+      "sent_at": "2026-09-24T08:18:18+00:00",
+      "title": "JOST назвал нового генерального директора APAC",
+      "slug": "jost-nazval-novogo-generalnogo-direktora-apac-7a5f085c"
+    },
+    "http://gruzovoy.ru/news/industry/3376_kamaz_planiryet_nachat_seriinii_vipysk_tyristicheskih_avtobysov_v_2027_gody.html": {
+      "digest_id": "2026-09-24:am",
+      "message_id": 1479,
+      "sent_at": "2026-09-24T08:18:18+00:00",
+      "title": "КАМАЗ планирует начать серийный выпуск туристических автобусов в 2027 году",
+      "slug": "kamaz-planiruet-nachat-seriynyy-vypusk-turisticheskih-avtobusov-v-2027-g-f9985dad"
+    },
+    "https://truckmix.ru/news/umg-sdm-predstavit-prodykciu-bryanskih-predpriyatii-gryppi-na-vistavke-innoprom-belarys": {
+      "digest_id": "2026-09-24:am",
+      "message_id": 1479,
+      "sent_at": "2026-09-24T08:18:18+00:00",
+      "title": "UMG «СДМ» представит продукцию брянских предприятий  Группы на выставке «Иннопром. Беларусь»",
+      "slug": "umg-sdm-predstavit-produktsiyu-bryanskih-predpriyatiy-gruppy-na-vystavke-9cc7bd13"
+    }
+  },
+  "digests": {
+    "2026-09-24:am": {
+      "message_id": 1479,
+      "sent_at": "2026-09-24T08:18:18+00:00",
+      "slot": "am",
+      "items": [
+        "https://www.globaltrailermag.com/jost-names-new-apac-ceo/",
+        "http://gruzovoy.ru/news/industry/3376_kamaz_planiryet_nachat_seriinii_vipysk_tyristicheskih_avtobysov_v_2027_gody.html",
+        "https://truckmix.ru/news/umg-sdm-predstavit-prodykciu-bryanskih-predpriyatii-gryppi-na-vistavke-innoprom-belarys"
+      ],
+      "visual": "visual"
+    }
+  }
 }
