@@ -73,7 +73,7 @@ jobs:
           bad = []
           for path in Path("frontend").rglob("*.html"):
               text = path.read_text(encoding="utf-8")
-              visible_markup = re.sub(r"<script\\b.*?</script>", "", text, flags=re.I | re.S)
+              visible_markup = re.sub(r"<script\b.*?</script>", "", text, flags=re.I | re.S)
               if "\\n" in visible_markup:
                   bad.append(str(path))
                   pos = visible_markup.find("\\n")
