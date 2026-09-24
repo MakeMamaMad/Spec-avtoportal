@@ -1,4 +1,4 @@
-name: Verify MEXZONA First Promotion
+name: Legacy — Verify MEXZONA Promotion
 
 on:
   workflow_dispatch:
