@@ -132,10 +132,10 @@ button { color: inherit; }
 .header-social-link {
   min-height: 34px;
   padding: 8px 9px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--ink);
   border-radius: 9px;
-  background: #fff;
-  color: #4f565d;
+  background: var(--ink);
+  color: #fff;
   font-size: 12px;
   font-weight: 800;
   line-height: 1;
@@ -143,21 +143,17 @@ button { color: inherit; }
   transition: .16s ease;
 }
 
-.header-social-link:hover {
-  border-color: #aeb3b6;
-  color: var(--ink);
+.header-social-link:hover,
+.header-social-link--telegram:hover {
+  border-color: var(--orange);
+  background: var(--orange);
+  color: #fff;
   transform: translateY(-1px);
 }
 
 .header-social-link--telegram {
   border-color: var(--ink);
   background: var(--ink);
-  color: #fff;
-}
-
-.header-social-link--telegram:hover {
-  border-color: var(--orange);
-  background: var(--orange);
   color: #fff;
 }
 
