@@ -120,7 +120,7 @@ def create_video_post(
     channel_id: str,
     video_url: str,
     text: str,
-    scheduling_type: str = "notification",
+    scheduling_type: str = "automatic",
     mode: str = "shareNow",
     thumbnail_offset_ms: int = 1000,
 ) -> dict[str, Any]:
@@ -157,6 +157,11 @@ def create_video_post(
                     }
                 }
             ],
+            "metadata": {
+                "tiktok": {
+                    "isAiGenerated": True,
+                }
+            },
         }
     }
     data = _graphql(api_key, mutation, variables)
@@ -196,7 +201,7 @@ def main() -> int:
             channel_id=str(channel["id"]),
             video_url=args.video_url,
             text=text,
-            scheduling_type="notification",
+            scheduling_type="automatic",
             mode="shareNow" if args.share_now else "addToQueue",
         )
         print(
