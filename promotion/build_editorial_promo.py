@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 from datetime import datetime, timedelta, timezone
@@ -154,12 +155,15 @@ def pick_action(
     targets: list[dict[str, Any]],
     history: list[dict[str, Any]],
     now: datetime,
+    *,
+    allow_manual: bool = False,
 ) -> dict[str, Any] | None:
     done = used_pairs(history)
     candidates = [
         target
         for target in targets
         if target.get("platform") in PUBLISHER_PLATFORMS
+        and (str(target.get("id") or "") in AUTO_TARGETS or allow_manual)
         and target.get("status") not in BLOCKED_TARGET_STATUSES
         and target.get("policy") != "blocked"
         and not in_cooldown(history, str(target.get("id") or ""), now)
@@ -231,7 +235,14 @@ def main() -> int:
     editorial_history = [x for x in history_data.get("entries", []) if isinstance(x, dict)]
     legacy_history = [x for x in legacy_history_data.get("entries", []) if isinstance(x, dict)]
     planning_history = editorial_history + legacy_history
-    action = pick_action(articles, targets, planning_history, now)
+    allow_manual = os.getenv("EDITORIAL_PREPARE_MANUAL") == "1"
+    action = pick_action(
+        articles,
+        targets,
+        planning_history,
+        now,
+        allow_manual=allow_manual,
+    )
 
     entries = []
     if action:
