@@ -3,8 +3,15 @@ name: Promotion — Daily Site Advertising
 on:
   workflow_dispatch:
   schedule:
-    # 10:15 Moscow time (UTC+3): exactly one new catalog attempt per day.
+    # 10:15 Moscow time (UTC+3): keep trying unused automatic catalogs until one succeeds.
     - cron: '15 7 * * *'
+  push:
+    branches: [ main ]
+    paths:
+      - 'promotion/run_catalog_campaign.py'
+      - 'promotion/submit_generic_directory.py'
+      - 'promotion/site_targets.json'
+      - '.github/workflows/site_advertising.yml'
 
 permissions:
   contents: write
@@ -14,7 +21,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  advertise-one-catalog:
+  advertise-until-success:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,33 +38,18 @@ jobs:
         run: |
           python promotion/build_site_promo.py
 
-      - name: Select exactly one catalog for today
-        id: select
-        shell: bash
-        run: |
-          TARGET_ID="$(python promotion/select_daily_catalog.py)"
-          echo "target_id=$TARGET_ID" >> "$GITHUB_OUTPUT"
-          echo "Selected target: $TARGET_ID"
-
       - name: Install browser automation
-        if: steps.select.outputs.target_id != 'none'
         run: |
           python -m pip install --upgrade pip
           pip install playwright
           python -m playwright install --with-deps chromium
 
-      - name: Submit SpecAvtoPortal to today's catalog
-        if: steps.select.outputs.target_id != 'none'
+      - name: Try catalogs until one submission succeeds
         env:
           PROMOTION_CONTACT_EMAIL: ${{ secrets.PROMOTION_CONTACT_EMAIL }}
-          DAILY_TARGET_ID: ${{ steps.select.outputs.target_id }}
+          CATALOG_MAX_ATTEMPTS_PER_RUN: "20"
         run: |
-          python promotion/submit_generic_directory.py --target "$DAILY_TARGET_ID"
-
-      - name: Daily limit already used or queue empty
-        if: steps.select.outputs.target_id == 'none'
-        run: |
-          echo "No external submission today: either today's one-catalog limit is already used or there are no unused active targets."
+          python promotion/run_catalog_campaign.py
 
       - name: Commit promotion state
         if: always()
@@ -69,6 +61,6 @@ jobs:
             echo "No site-promotion state changes"
             exit 0
           fi
-          git commit -m "promotion: daily catalog attempt"
+          git commit -m "promotion: catalog failover run"
           git pull --rebase origin main
           git push origin main
