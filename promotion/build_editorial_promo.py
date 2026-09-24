@@ -137,7 +137,7 @@ def used_pairs(history: list[dict[str, Any]]) -> set[tuple[str, str]]:
     return {
         (str(row.get("target_id") or ""), str(row.get("slug") or ""))
         for row in history
-        if row.get("status") in SUCCESS_STATUSES | {"manual_prepared"}
+        if row.get("status") in SUCCESS_STATUSES | {"manual_prepared", "manual_fallback"}
     }
 
 
