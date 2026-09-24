@@ -932,13 +932,51 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_art
 """
 
 
-def render_brand_page(brand: dict[str, Any], brand_items: list[dict[str, Any]]) -> str:
+HUB_PAGE_SIZE = 36
+
+
+def pagination_html(base_path: str, page: int, total_pages: int) -> str:
+    if total_pages <= 1:
+        return ""
+    links = []
+    if page > 1:
+        prev_href = base_path if page == 2 else f"{base_path}page/{page - 1}/"
+        links.append(f'<a class="secondary-btn" href="{prev_href}">← Новее</a>')
+    links.append(f'<span class="result-count">Страница {page} из {total_pages}</span>')
+    if page < total_pages:
+        links.append(f'<a class="secondary-btn" href="{base_path}page/{page + 1}/">Старее →</a>')
+    return '<nav class="hub-pagination" aria-label="Навигация по архиву">' + "".join(links) + "</nav>"
+
+
+def pagination_head(base_url: str, page: int, total_pages: int) -> str:
+    tags = []
+    if page > 1:
+        prev_url = base_url if page == 2 else f"{base_url}page/{page - 1}/"
+        tags.append(f'<link rel="prev" href="{prev_url}" />')
+    if page < total_pages:
+        tags.append(f'<link rel="next" href="{base_url}page/{page + 1}/" />')
+    return "\n  ".join(tags)
+
+
+def render_brand_page(
+    brand: dict[str, Any],
+    brand_items: list[dict[str, Any]],
+    page: int = 1,
+    page_size: int = HUB_PAGE_SIZE,
+) -> str:
     name = html.escape(brand["name"])
     description = html.escape(brand["description"], quote=True)
-    canonical = brand_url(brand)
+    total_pages = max(1, (len(brand_items) + page_size - 1) // page_size)
+    page = max(1, min(page, total_pages))
+    start = (page - 1) * page_size
+    page_items = brand_items[start:start + page_size]
+    canonical = brand_url(brand) if page == 1 else f"{brand_url(brand)}page/{page}/"
+    page_suffix = "" if page == 1 else f" — страница {page}"
+    page_nav = pagination_html(f"/brands/{brand['slug']}/", page, total_pages)
+    head_nav = pagination_head(brand_url(brand), page, total_pages)
 
     cards = []
-    for item in brand_items[:60]:
+    for item in page_items:
         title = html.escape(get_field(item, "title", "headline", "name", default="Материал"))
         date = display_date(get_field(item, "published_at", "date", "pub_date"))
         source = html.escape(source_domain(item))
@@ -969,7 +1007,7 @@ def render_brand_page(brand: dict[str, Any], brand_items: list[dict[str, Any]]) 
                     "url": article_url(item),
                     "name": get_field(item, "title", "headline", "name", default="Материал"),
                 }
-                for index, item in enumerate(brand_items[:60])
+                for index, item in enumerate(page_items, start=start + 1)
             ],
         },
     }
@@ -994,10 +1032,11 @@ def render_brand_page(brand: dict[str, Any], brand_items: list[dict[str, Any]]) 
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{name} — новости и материалы | СпецАвтоПортал</title>
+  <title>{name} — новости и материалы{page_suffix} | СпецАвтоПортал</title>
   <meta name="description" content="{description}" />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <link rel="canonical" href="{canonical}" />
+  {head_nav}
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="СпецАвтоПортал" />
   <meta property="og:title" content="{name} — СпецАвтоПортал" />
@@ -1052,6 +1091,7 @@ def render_brand_page(brand: dict[str, Any], brand_items: list[dict[str, Any]]) 
     <section class="container topic-layout">
       <div class="topic-feed">
         {''.join(cards)}
+        {page_nav}
       </div>
       <aside class="topic-sidebar">
         <section class="sidebar-block sidebar-dark">
@@ -1174,13 +1214,25 @@ def render_brand_directory(brand_counts: dict[str, int]) -> str:
 """
 
 
-def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) -> str:
+def render_topic_page(
+    topic: dict[str, Any],
+    topic_items: list[dict[str, Any]],
+    page: int = 1,
+    page_size: int = HUB_PAGE_SIZE,
+) -> str:
     name = html.escape(topic["name"])
     description = html.escape(topic["description"], quote=True)
-    canonical = topic_url(topic)
+    total_pages = max(1, (len(topic_items) + page_size - 1) // page_size)
+    page = max(1, min(page, total_pages))
+    start = (page - 1) * page_size
+    page_items = topic_items[start:start + page_size]
+    canonical = topic_url(topic) if page == 1 else f"{topic_url(topic)}page/{page}/"
+    page_suffix = "" if page == 1 else f" — страница {page}"
+    page_nav = pagination_html(f"/topics/{topic['slug']}/", page, total_pages)
+    head_nav = pagination_head(topic_url(topic), page, total_pages)
 
     cards = []
-    for item in topic_items[:60]:
+    for item in page_items:
         title = html.escape(get_field(item, "title", "headline", "name", default="Материал"))
         date = display_date(get_field(item, "published_at", "date", "pub_date"))
         source = html.escape(source_domain(item))
@@ -1210,7 +1262,7 @@ def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) 
                     "url": article_url(item),
                     "name": get_field(item, "title", "headline", "name", default="Материал"),
                 }
-                for index, item in enumerate(topic_items[:60])
+                for index, item in enumerate(page_items, start=start + 1)
             ],
         },
     }
@@ -1221,10 +1273,11 @@ def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) 
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{name} — новости и материалы | СпецАвтоПортал</title>
+  <title>{name} — новости и материалы{page_suffix} | СпецАвтоПортал</title>
   <meta name="description" content="{description}" />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <link rel="canonical" href="{canonical}" />
+  {head_nav}
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="СпецАвтоПортал" />
   <meta property="og:title" content="{name} — СпецАвтоПортал" />
@@ -1278,6 +1331,7 @@ def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) 
     <section class="container topic-layout">
       <div class="topic-feed">
         {''.join(cards)}
+        {page_nav}
       </div>
       <aside class="topic-sidebar">
         <section class="sidebar-block sidebar-dark">
@@ -2137,7 +2191,15 @@ def main() -> None:
         topic_counts[topic["slug"]] = len(topic_items)
         out_dir = TOPICS_DIR / topic["slug"]
         out_dir.mkdir(parents=True, exist_ok=True)
-        (out_dir / "index.html").write_text(render_topic_page(topic, topic_items), encoding="utf-8")
+        total_pages = max(1, (len(topic_items) + HUB_PAGE_SIZE - 1) // HUB_PAGE_SIZE)
+        (out_dir / "index.html").write_text(render_topic_page(topic, topic_items, page=1), encoding="utf-8")
+        for page_number in range(2, total_pages + 1):
+            page_dir = out_dir / "page" / str(page_number)
+            page_dir.mkdir(parents=True, exist_ok=True)
+            (page_dir / "index.html").write_text(
+                render_topic_page(topic, topic_items, page=page_number),
+                encoding="utf-8",
+            )
 
     brand_counts = {}
     for brand in BRAND_RULES:
@@ -2145,7 +2207,15 @@ def main() -> None:
         brand_counts[brand["slug"]] = len(brand_items)
         out_dir = BRANDS_DIR / brand["slug"]
         out_dir.mkdir(parents=True, exist_ok=True)
-        (out_dir / "index.html").write_text(render_brand_page(brand, brand_items), encoding="utf-8")
+        total_pages = max(1, (len(brand_items) + HUB_PAGE_SIZE - 1) // HUB_PAGE_SIZE)
+        (out_dir / "index.html").write_text(render_brand_page(brand, brand_items, page=1), encoding="utf-8")
+        for page_number in range(2, total_pages + 1):
+            page_dir = out_dir / "page" / str(page_number)
+            page_dir.mkdir(parents=True, exist_ok=True)
+            (page_dir / "index.html").write_text(
+                render_brand_page(brand, brand_items, page=page_number),
+                encoding="utf-8",
+            )
 
     (BRANDS_DIR / "index.html").write_text(render_brand_directory(brand_counts), encoding="utf-8")
 
