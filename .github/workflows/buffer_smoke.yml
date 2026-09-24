@@ -1,4 +1,4 @@
-name: Buffer API Smoke
+name: Diagnostics — Buffer API Connection
 
 on:
   workflow_dispatch:
