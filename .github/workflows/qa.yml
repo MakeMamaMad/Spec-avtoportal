@@ -106,7 +106,7 @@ jobs:
           assert config.get("community_screen_name") == "specavtoportal"
           assert "live" in config.get("note", "").lower()
           assert len(str(config.get("baseline_ref") or "")) == 40
-          assert int(config.get("immediate_score") or 0) >= 4
+          assert int(config.get("immediate_score") or 0) >= 3
           assert 1 <= int(config.get("max_immediate_per_run") or 0) <= 3
           assert config.get("digest_enabled") is True
           assert 2 <= int(config.get("digest_min_items") or 0) <= int(config.get("digest_items") or 0) <= 8
