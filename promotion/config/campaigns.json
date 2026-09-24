@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "campaigns": [
+    {
+      "id": "portal-growth",
+      "status": "active",
+      "objective": "qualified_traffic",
+      "destination": "https://spec-avtoportal.ru/",
+      "utm_campaign": "portal_growth",
+      "allowed_channels": [
+        "directory",
+        "publisher",
+        "telegram_community",
+        "telegram_ads"
+      ],
+      "limits": {
+        "directory": 1,
+        "publisher": 1,
+        "telegram_community": 1,
+        "telegram_ads": 0
+      },
+      "notes": "Foundation campaign for unified promotion planning. Existing promotion workflows remain authoritative until later migration PRs."
+    }
+  ]
+}
