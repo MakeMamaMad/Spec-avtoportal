@@ -98,7 +98,7 @@
   scrollbar-width: thin;
   scrollbar-color: #aeb3b6 #e7e9e6;
   padding-right: 8px;
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   contain: layout paint;
   -webkit-overflow-scrolling: touch;
 }
