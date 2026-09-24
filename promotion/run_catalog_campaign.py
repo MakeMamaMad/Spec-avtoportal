@@ -69,18 +69,23 @@ def latest_for_target(rows: list[dict[str, Any]], target_id: str) -> dict[str, A
 
 
 def active_candidates(targets: list[dict[str, Any]], rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    attempted = {
-        str(row.get("target_id"))
-        for row in rows
-        if row.get("target_id") and row.get("status") in FINAL_ATTEMPT_STATUSES
-    }
     out = []
     for target in targets:
         target_id = str(target.get("id") or "")
         status = str(target.get("status") or "")
-        if not target_id or target_id in attempted:
+        if not target_id or status in SKIP_TARGET_STATUSES:
             continue
-        if status in SKIP_TARGET_STATUSES:
+
+        target_rows = [
+            row for row in rows
+            if str(row.get("target_id") or "") == target_id
+            and row.get("status") in FINAL_ATTEMPT_STATUSES
+        ]
+        if any(row.get("status") in SUCCESS_STATUSES for row in target_rows):
+            continue
+
+        max_attempts = max(1, int(target.get("max_attempts") or 1))
+        if len(target_rows) >= max_attempts:
             continue
         out.append(target)
     return out
