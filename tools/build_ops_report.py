@@ -40,6 +40,7 @@ WORKFLOW_TITLES = {
     "Promotion — Prepare Telegram Ads": "Подготовка Telegram Ads",
     "Promotion — Telegram Outreach": "Внешнее продвижение в Telegram",
     "Promotion — Verify Placements": "Проверка рекламных размещений",
+    "Promotion — Editorial Placement": "Отраслевое продвижение материалов",
     "Legacy — Verify MEXZONA Promotion": "Проверка публикации на MEXZONA",
     "VK — Editorial Digest": "Дайджест VK",
 }
@@ -68,6 +69,7 @@ SUCCESS_MESSAGES = {
     "Promotion — Prepare Telegram Ads": "Посадочная публикация и пакет для Telegram Ads подготовлены.",
     "Promotion — Telegram Outreach": "Очередь внешнего продвижения в Telegram обработана.",
     "Promotion — Verify Placements": "Проверены ранее отправленные заявки и состояние опубликованных размещений.",
+    "Promotion — Editorial Placement": "Проверен следующий шаг продвижения через отраслевую площадку.",
     "Legacy — Verify MEXZONA Promotion": "Проверка публикации на MEXZONA завершена.",
     "VK — Editorial Digest": "Редакционный дайджест VK обработан.",
 }
@@ -220,6 +222,30 @@ def placement_verification_details() -> list[str]:
     return lines
 
 
+def editorial_details() -> list[str]:
+    summary = load_json(
+        ROOT / "frontend/data/promotion/editorial_summary.json",
+        {},
+    )
+    status = str(summary.get("status") or "")
+    target = str(summary.get("target_name") or "").strip()
+    title = str(summary.get("title") or "").strip()
+    if status == "submitted":
+        return [
+            f"Материал автоматически отправлен на площадку «{target}».",
+            f"Материал: {title}",
+        ]
+    if status in {"manual_prepared", "manual_fallback"}:
+        return [
+            f"Для площадки «{target}» подготовлено ручное действие.",
+            f"Материал: {title}",
+            "Контакт и готовый текст попадут в ежедневный список «Кому написать сегодня».",
+        ]
+    if status == "nothing_planned":
+        return ["Сегодня нового подходящего отраслевого размещения не запланировано."]
+    return [str(summary.get("detail") or "Отраслевое продвижение обработано.")]
+
+
 def human_title(name: str) -> str:
     return WORKFLOW_TITLES.get(name, "Автоматическая задача")
 
@@ -258,6 +284,8 @@ def main() -> int:
         lines += [""] + ads_details()
     elif name == "Promotion — Verify Placements":
         lines += [""] + placement_verification_details()
+    elif name == "Promotion — Editorial Placement":
+        lines += [""] + editorial_details()
     elif name == "News — Fetch & Publish":
         lines += [""] + ingest_details()
 
