@@ -3,15 +3,29 @@ name: Control — Automation Reports
 on:
   workflow_run:
     workflows:
-      - "Promotion — Daily Site Advertising"
-      - "Ingest & Publish"
       - "Video — Generate & Publish (YouTube + TikTok + Instagram)"
+      - "Diagnostics — Buffer Channels"
+      - "Diagnostics — Instagram Test Upload"
+      - "Diagnostics — Buffer Post Status"
+      - "Diagnostics — Buffer API Connection"
+      - "Diagnostics — TikTok Test Upload"
+      - "Maintenance — Cleanup Promotion Artifact"
+      - "Control — Daily Summary"
       - "Telegram — Editorial Digest"
-      - "VK — Editorial Digest"
+      - "Legacy — External Article Publisher"
+      - "Checks — News Ingest Tests"
+      - "News — Fetch & Publish"
+      - "Control — Telegram Test"
       - "Site — Build, Deploy & VK Publish"
-      - "Promotion — Telegram Outreach"
-      - "Promotion — Prepare Telegram Ads"
+      - "Legacy — External Article Promotion Queue"
       - "Checks — Full QA"
+      - "Maintenance — Safe Auto Merge"
+      - "Video — Preview Generator"
+      - "Promotion — Daily Site Advertising"
+      - "Promotion — Prepare Telegram Ads"
+      - "Promotion — Telegram Outreach"
+      - "Legacy — Verify MEXZONA Promotion"
+      - "VK — Editorial Digest"
     types: [completed]
 
 permissions:
@@ -55,8 +69,8 @@ jobs:
         run: |
           gh issue comment 77 --repo "${{ github.repository }}" --body-file /tmp/specavto-report.md
 
-      - name: Mirror report to private Telegram channel when configured
-        if: steps.build.outputs.skip != 'true'
+      - name: Send successful run summary to private Telegram channel
+        if: steps.build.outputs.skip != 'true' && github.event.workflow_run.conclusion == 'success'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           REPORT_TELEGRAM_CHAT_ID: ${{ secrets.REPORT_TELEGRAM_CHAT_ID }}
