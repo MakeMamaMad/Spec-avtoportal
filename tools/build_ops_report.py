@@ -17,6 +17,60 @@ def load_json(path: Path, default: Any) -> Any:
         return default
 
 
+WORKFLOW_TITLES = {
+    "Video — Generate & Publish (YouTube + TikTok + Instagram)": "Публикация видео",
+    "Diagnostics — Buffer Channels": "Проверка каналов Buffer",
+    "Diagnostics — Instagram Test Upload": "Проверка загрузки в Instagram",
+    "Diagnostics — Buffer Post Status": "Проверка публикации Buffer",
+    "Diagnostics — Buffer API Connection": "Проверка подключения Buffer",
+    "Diagnostics — TikTok Test Upload": "Проверка загрузки в TikTok",
+    "Maintenance — Cleanup Promotion Artifact": "Очистка рекламных файлов",
+    "Control — Daily Summary": "Ежедневная сводка",
+    "Telegram — Editorial Digest": "Дайджест Telegram",
+    "Legacy — External Article Publisher": "Старый механизм внешних публикаций",
+    "Checks — News Ingest Tests": "Проверка загрузки новостей",
+    "News — Fetch & Publish": "Обновление новостей",
+    "Control — Telegram Test": "Проверка канала отчётности",
+    "Site — Build, Deploy & VK Publish": "Обновление сайта",
+    "Legacy — External Article Promotion Queue": "Старая очередь внешнего продвижения",
+    "Checks — Full QA": "Полная проверка проекта",
+    "Maintenance — Safe Auto Merge": "Проверка безопасного объединения изменений",
+    "Video — Preview Generator": "Предпросмотр видео",
+    "Promotion — Daily Site Advertising": "Продвижение сайта",
+    "Promotion — Prepare Telegram Ads": "Подготовка Telegram Ads",
+    "Promotion — Telegram Outreach": "Внешнее продвижение в Telegram",
+    "Legacy — Verify MEXZONA Promotion": "Проверка публикации на MEXZONA",
+    "VK — Editorial Digest": "Дайджест VK",
+}
+
+
+SUCCESS_MESSAGES = {
+    "Video — Generate & Publish (YouTube + TikTok + Instagram)": "Видео подготовлено и обработано для публикации в подключённых соцсетях.",
+    "Diagnostics — Buffer Channels": "Подключённые каналы Buffer проверены.",
+    "Diagnostics — Instagram Test Upload": "Тестовая загрузка в Instagram завершилась успешно.",
+    "Diagnostics — Buffer Post Status": "Состояние публикации в Buffer проверено.",
+    "Diagnostics — Buffer API Connection": "Связь с Buffer работает.",
+    "Diagnostics — TikTok Test Upload": "Тестовая загрузка в TikTok завершилась успешно.",
+    "Maintenance — Cleanup Promotion Artifact": "Служебные рекламные файлы очищены.",
+    "Control — Daily Summary": "Ежедневная сводка состояния автоматизации подготовлена и отправлена.",
+    "Telegram — Editorial Digest": "Редакционный дайджест Telegram обработан.",
+    "Legacy — External Article Publisher": "Старый механизм внешних публикаций проверен; активная рекламная отправка не выполнялась.",
+    "Checks — News Ingest Tests": "Проверки загрузки и обработки новостей прошли без ошибок.",
+    "News — Fetch & Publish": "Источники новостей проверены, база сайта обновлена, новые важные материалы обработаны для Telegram.",
+    "Control — Telegram Test": "Связь с каналом отчётности подтверждена.",
+    "Site — Build, Deploy & VK Publish": "Сайт собран и опубликован; важные материалы обработаны для VK.",
+    "Legacy — External Article Promotion Queue": "Старая очередь внешнего продвижения обновлена.",
+    "Checks — Full QA": "Полная проверка проекта завершилась без ошибок.",
+    "Maintenance — Safe Auto Merge": "Автоматическая проверка возможности безопасно объединить изменения завершена.",
+    "Video — Preview Generator": "Предпросмотр видео подготовлен.",
+    "Promotion — Daily Site Advertising": "Дневной проход по площадкам для продвижения сайта завершён.",
+    "Promotion — Prepare Telegram Ads": "Посадочная публикация и пакет для Telegram Ads подготовлены.",
+    "Promotion — Telegram Outreach": "Очередь внешнего продвижения в Telegram обработана.",
+    "Legacy — Verify MEXZONA Promotion": "Проверка публикации на MEXZONA завершена.",
+    "VK — Editorial Digest": "Редакционный дайджест VK обработан.",
+}
+
+
 def status_icon(conclusion: str) -> str:
     return {
         "success": "✅",
@@ -30,30 +84,32 @@ def status_icon(conclusion: str) -> str:
 def catalog_details() -> list[str]:
     summary = load_json(ROOT / "frontend/data/daily_catalog_target.json", {})
     attempts = summary.get("attempts") or []
-    lines = ["**Каталоги:**"]
+    lines = ["Что произошло с каталогами:"]
     for row in attempts[-8:]:
         name = str(row.get("target_name") or row.get("target_id") or "Каталог")
         status = str(row.get("status") or "")
         detail = str(row.get("detail") or "")
         if status in {"submitted", "accepted", "published"}:
-            result = "✅ заявка отправлена"
+            result = "заявка отправлена"
         elif status == "under_moderation":
-            result = "✅ отправлено на модерацию"
+            result = "заявка отправлена на модерацию"
         elif status == "needs_manual" and ("CAPTCHA" in detail.upper() or "verification" in detail.lower()):
-            result = "⏭️ пропущен — требуется CAPTCHA/ручная проверка"
+            result = "пропущен — нужна ручная проверка"
         elif status == "needs_manual":
-            result = "⏭️ пропущен — требуется ручное действие"
+            result = "пропущен — нужно ручное действие"
         elif status == "technical_failure":
-            result = "⏭️ пропущен — форма не подходит для автоматической отправки"
+            result = "пропущен — автоматическая отправка не подошла"
         elif status == "unavailable":
-            result = "⏭️ пропущен — каталог недоступен"
+            result = "пропущен — площадка недоступна"
         elif status == "rejected":
-            result = "❌ заявка отклонена"
+            result = "заявка отклонена"
         else:
-            result = "ℹ️ проверен"
-        lines.append(f"- {name}: {result}")
-    if attempts and not any(x.get("status") in {"submitted", "under_moderation", "published", "accepted"} for x in attempts):
-        lines.append("- Итог: нового автоматического размещения нет; неподходящие каталоги отсеяны.")
+            result = "проверен"
+        lines.append(f"• {name}: {result}")
+    if not attempts:
+        lines.append("• Новых попыток размещения не было.")
+    elif not any(x.get("status") in {"submitted", "under_moderation", "published", "accepted"} for x in attempts):
+        lines.append("• Нового автоматического размещения нет; неподходящие площадки пропущены.")
     return lines
 
 
@@ -61,32 +117,47 @@ def telegram_promo_details() -> list[str]:
     hist = load_json(ROOT / "frontend/data/telegram_promo_history.json", {"entries": []})
     rows = [x for x in hist.get("entries", []) if isinstance(x, dict)]
     if not rows:
-        return []
+        return ["Что произошло: новых попыток внешнего размещения не было."]
     row = rows[-1]
     status = str(row.get("status") or "")
     detail = str(row.get("detail") or "")
     if status == "published":
-        return [f"**Telegram promotion:** ✅ размещение опубликовано — {row.get('target_name') or row.get('target_id')}"]
+        return [f"Что произошло: размещение опубликовано в {row.get('target_name') or row.get('target_id')}."]
     if status in {"waiting_bot_to_bot", "outreach_unavailable"} and "USER_BOT_TO_BOT_DISABLED" in detail:
         return [
-            "**Telegram promotion:** ⏸️ автоматическое обращение к рекламной площадке пока недоступно.",
-            "- Причина на стороне рекламного бота площадки. От владельца SpecAvtoPortal действий не требуется.",
+            "Что произошло: автоматическое обращение к рекламной площадке не прошло.",
+            "Причина на стороне площадки; дополнительных действий от владельца портала сейчас не требуется.",
         ]
-    return ["**Telegram promotion:** ℹ️ новых внешних размещений пока нет."]
+    return ["Что произошло: новых внешних размещений пока нет."]
 
 
 def ads_details() -> list[str]:
     state = load_json(ROOT / "frontend/data/telegram_ads_state.json", {})
     if state.get("landing_url"):
-        return [f"**Telegram Ads landing:** {state.get('landing_url')}"]
-    return []
+        return [f"Посадочная публикация готова: {state.get('landing_url')}"]
+    return ["Посадочная публикация пока не найдена."]
 
 
 def ingest_details() -> list[str]:
     news = load_json(ROOT / "frontend/data/news.json", [])
     if isinstance(news, list):
-        return [f"**Новости на сайте:** {len(news)} материалов в текущей базе."]
+        return [f"Сейчас на сайте {len(news)} материалов в базе новостей."]
     return []
+
+
+def human_title(name: str) -> str:
+    return WORKFLOW_TITLES.get(name, "Автоматическая задача")
+
+
+def human_result(name: str, conclusion: str) -> str:
+    if conclusion == "success":
+        return SUCCESS_MESSAGES.get(name, "Задача завершилась успешно.")
+    return {
+        "failure": "Задача завершилась с ошибкой.",
+        "cancelled": "Задача была отменена.",
+        "skipped": "Задача была пропущена.",
+        "timed_out": "Задача не успела завершиться вовремя.",
+    }.get(conclusion, "Задача завершена.")
 
 
 def main() -> int:
@@ -94,38 +165,15 @@ def main() -> int:
     event = load_json(event_path, {})
     run = event.get("workflow_run") or {}
 
-    name = str(run.get("name") or "GitHub workflow")
+    name = str(run.get("name") or "")
     conclusion = str(run.get("conclusion") or "unknown")
     run_url = str(run.get("html_url") or "")
-    branch = str(run.get("head_branch") or "")
-    sha = str(run.get("head_sha") or "")[:8]
-    event_name = str(run.get("event") or "")
-    created = str(run.get("created_at") or "")
-    updated = str(run.get("updated_at") or "")
-
-    if name == "Checks — Full QA" and conclusion == "success":
-        print("SKIP_REPORT")
-        return 0
-
-    human_conclusion = {
-        "success": "успешно",
-        "failure": "ошибка",
-        "cancelled": "отменено",
-        "skipped": "пропущено",
-        "timed_out": "тайм-аут",
-    }.get(conclusion, conclusion)
 
     lines = [
-        f"### {status_icon(conclusion)} {name} — {human_conclusion}",
+        f"{status_icon(conclusion)} {human_title(name)}",
         "",
-        f"- Ветка: {branch}",
-        f"- Commit: {sha}",
-        f"- Trigger: {event_name}",
+        human_result(name, conclusion),
     ]
-    if created:
-        lines.append(f"- Старт: {created}")
-    if updated:
-        lines.append(f"- Завершение: {updated}")
 
     if name == "Promotion — Daily Site Advertising":
         lines += [""] + catalog_details()
@@ -133,13 +181,13 @@ def main() -> int:
         lines += [""] + telegram_promo_details()
     elif name == "Promotion — Prepare Telegram Ads":
         lines += [""] + ads_details()
-    elif name == "Ingest & Publish":
+    elif name == "News — Fetch & Publish":
         lines += [""] + ingest_details()
 
     if run_url:
-        lines += ["", f"[Открыть GitHub Actions run]({run_url})"]
+        lines += ["", f"Подробности: {run_url}"]
 
-    lines += ["", f"_SpecAvto Control · {datetime.now(timezone.utc).isoformat(timespec='seconds')}_"]
+    lines += ["", f"SpecAvto Control · {datetime.now(timezone.utc).strftime('%d.%m.%Y %H:%M UTC')}"]
 
     out = Path(os.environ.get("OPS_REPORT_PATH", "/tmp/specavto-report.md"))
     out.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")
