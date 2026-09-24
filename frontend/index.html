@@ -29,7 +29,7 @@
 
   <header class="site-header">
     <div class="container header-inner">
-      <a href="index.html" class="brand" aria-label="СпецАвтоПортал — на главную">
+      <a href="/" class="brand" aria-label="СпецАвтоПортал — на главную">
         <span class="brand-mark" aria-hidden="true">
           <span></span><span></span>
         </span>
@@ -40,7 +40,7 @@
       </a>
 
       <nav class="main-nav" aria-label="Основная навигация">
-        <a href="index.html" class="nav-link nav-link-active">Новости</a>
+        <a href="/" class="nav-link nav-link-active">Новости</a>
         <a href="/brands/" class="nav-link">Бренды</a>
         <a href="/knowledge.html" class="nav-link">База знаний</a>
       </nav>
@@ -64,11 +64,11 @@
         </div>
         <div class="masthead-meta" aria-label="Статистика ленты">
           <div class="metric">
-            <strong id="news-count">—</strong>
+            <strong id="news-count"><!-- SEO_NEWS_COUNT_START -->0<!-- SEO_NEWS_COUNT_END --></strong>
             <span>материалов в базе</span>
           </div>
           <div class="metric">
-            <strong id="latest-date">—</strong>
+            <strong id="latest-date"><!-- SEO_LATEST_DATE_START -->—<!-- SEO_LATEST_DATE_END --></strong>
             <span>последнее обновление</span>
           </div>
         </div>
@@ -86,8 +86,8 @@
         </div>
 
         <div class="featured-grid">
-          <article id="featured-primary" class="featured-primary featured-placeholder"></article>
-          <div id="featured-secondary" class="featured-secondary"></div>
+          <article id="featured-primary" class="featured-primary"><!-- SEO_FEATURED_PRIMARY_START --><!-- SEO_FEATURED_PRIMARY_END --></article>
+          <div id="featured-secondary" class="featured-secondary"><!-- SEO_FEATURED_SECONDARY_START --><!-- SEO_FEATURED_SECONDARY_END --></div>
         </div>
       </div>
     </section>
@@ -151,7 +151,7 @@
         <section class="sidebar-block sidebar-dark">
           <p class="sidebar-eyebrow">Навигация по рынку</p>
           <h3>Популярные темы</h3>
-          <ul id="top-tags" class="tags-cloud"></ul>
+          <ul id="top-tags" class="tags-cloud"><!-- SEO_TOP_TAGS_START --><!-- SEO_TOP_TAGS_END --></ul>
         </section>
       </aside>
 
@@ -168,12 +168,12 @@
               <p class="section-kicker">Хронология</p>
               <h2 class="section-title">Последние новости</h2>
             </div>
-            <span id="result-count" class="result-count"></span>
+            <span id="result-count" class="result-count"><!-- SEO_RESULT_COUNT_START --><!-- SEO_RESULT_COUNT_END --></span>
           </div>
 
-          <div id="news-list" class="news-list"></div>
+          <div id="news-list" class="news-list"><!-- SEO_NEWS_LIST_START --><!-- SEO_NEWS_LIST_END --></div>
 
-          <div id="news-loading" class="loading">Загружаем свежую ленту…</div>
+          <div id="news-loading" class="loading" hidden>Обновляем ленту…</div>
           <div id="news-error" class="error" hidden>Не удалось загрузить новости. Попробуйте обновить страницу.</div>
 
           <button id="load-more" class="load-more" type="button" hidden>Показать больше новостей</button>
@@ -220,7 +220,7 @@
   <footer class="site-footer">
     <div class="container footer-grid">
       <div>
-        <a href="index.html" class="footer-brand">СпецАвтоПортал</a>
+        <a href="/" class="footer-brand">СпецАвтоПортал</a>
         <p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p>
       </div>
       <div class="footer-nav">
@@ -229,10 +229,11 @@
         <a href="guides.html">Гайды</a>
         <a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a>
       </div>
-      <div class="footer-note">© СпецАвтоПортал</div>
+      <div class="footer-note"><a href="/about.html">О проекте и редакция</a> · © СпецАвтоПортал</div>
     </div>
   </footer>
 
-  <script src="news.js?v=14"></script>
+  <!-- SEO_BOOTSTRAP_START --><script id="seo-news-bootstrap" type="application/json">[]</script><!-- SEO_BOOTSTRAP_END -->
+  <script src="news.js?v=15"></script>
 </body>
 </html>
