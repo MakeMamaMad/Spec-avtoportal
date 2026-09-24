@@ -108,12 +108,62 @@ def latest_run(runs: list[dict[str, Any]], name: str) -> dict[str, Any] | None:
     return matches[0] if matches else None
 
 
+def human_run_status(value: str) -> str:
+    return {
+        "success": "✅ работает",
+        "failure": "❌ ошибка",
+        "cancelled": "⚪ отменён",
+        "skipped": "⏭️ пропущен",
+        "in_progress": "⏳ выполняется",
+        "queued": "⏳ в очереди",
+    }.get(value, value or "нет данных")
+
+
 def run_status(runs: list[dict[str, Any]], name: str) -> str:
     row = latest_run(runs, name)
     if not row:
         return "не запускался"
-    status = row.get("conclusion") or row.get("status") or "unknown"
-    return str(status)
+    status = str(row.get("conclusion") or row.get("status") or "")
+    return human_run_status(status)
+
+
+def human_catalog_result(row: dict[str, Any]) -> str:
+    name = str(row.get("target_name") or row.get("target_id") or "Каталог")
+    status = str(row.get("status") or "")
+    detail = str(row.get("detail") or "")
+
+    if status in {"submitted", "accepted", "published"}:
+        return f"• {name}: ✅ заявка отправлена"
+    if status == "under_moderation":
+        return f"• {name}: ✅ отправлено на модерацию"
+    if status == "needs_manual":
+        if "CAPTCHA" in detail.upper() or "verification" in detail.lower():
+            return f"• {name}: ⏭️ пропущен — требуется CAPTCHA/ручная проверка"
+        return f"• {name}: ⏭️ пропущен — требуется ручное действие"
+    if status == "technical_failure":
+        return f"• {name}: ⏭️ пропущен — форма не подходит для автоматической отправки"
+    if status == "unavailable":
+        return f"• {name}: ⏭️ пропущен — каталог сейчас недоступен"
+    if status == "rejected":
+        return f"• {name}: ❌ заявка отклонена"
+    return f"• {name}: ℹ️ проверен"
+
+
+def telegram_promo_summary(rows: list[dict[str, Any]]) -> str:
+    if not rows:
+        return "• Сегодня новых попыток не было"
+    published = [r for r in rows if r.get("status") == "published"]
+    if published:
+        latest = published[-1]
+        return f"• ✅ Размещение опубликовано: {latest.get('target_name') or latest.get('target_id')}"
+    blocked = [
+        r for r in rows
+        if r.get("status") in {"waiting_bot_to_bot", "outreach_unavailable"}
+        and "USER_BOT_TO_BOT_DISABLED" in str(r.get("detail") or "")
+    ]
+    if blocked:
+        return "• ⏸️ Автоматические обращения пока не проходят: рекламные боты площадок не принимают сообщения от других ботов. От вас действий не требуется."
+    return "• ℹ️ Новых размещений сегодня нет"
 
 
 def main() -> int:
@@ -173,7 +223,7 @@ def main() -> int:
         "",
         "✅ Текущее состояние",
         f"• Сайт/деплой: {run_status(runs, 'Site — Build, Deploy & VK Publish')}",
-        f"• Последний QA: {(qa_latest or {}).get('conclusion') or 'нет данных'}",
+        f"• Последний QA: {human_run_status(str((qa_latest or {}).get('conclusion') or (qa_latest or {}).get('status') or ''))}",
         f"• Новостей в базе: {len(news) if isinstance(news, list) else '—'}",
         "",
         "📰 Новости и соцсети",
@@ -185,35 +235,23 @@ def main() -> int:
     ]
 
     if video_latest:
-        lines.append(f"• Последний запуск: {video_latest.get('conclusion') or video_latest.get('status')}")
-        if video_latest.get("conclusion") == "success":
-            lines.append("• YouTube + TikTok + Instagram: публикационный pipeline завершён успешно")
-        if video_failures:
-            lines.append(f"• Ранее сегодня было сбоев: {video_failures}; последний запуск уже успешный")
+        latest_video_status = str(video_latest.get("conclusion") or video_latest.get("status") or "")
+        lines.append(f"• Последний запуск: {human_run_status(latest_video_status)}")
+        if latest_video_status == "success":
+            lines.append("• YouTube + TikTok + Instagram: ✅ публикация завершена")
     else:
         lines.append("• Сегодня не запускался")
 
     lines += ["", "📚 Каталоги"]
     if cat_today:
-        for row in cat_today:
-            name = row.get("target_name") or row.get("target_id")
-            status = row.get("status") or "unknown"
-            detail = str(row.get("detail") or "").strip()
-            suffix = f" — {detail}" if detail else ""
-            lines.append(f"• {name}: {status}{suffix}")
+        lines.extend(human_catalog_result(row) for row in cat_today)
+        if not any(row.get("status") in {"submitted", "under_moderation", "published", "accepted"} for row in cat_today):
+            lines.append("• Итог: нового автоматического размещения сегодня нет; неподходящие каталоги отсеяны.")
     else:
         lines.append("• Сегодня попыток не было")
 
     lines += ["", "📣 Telegram promotion"]
-    if promo_today:
-        latest = promo_today[-1]
-        lines.append(
-            f"• Последняя попытка: {latest.get('target_name') or latest.get('target_id')} — {latest.get('status')}"
-        )
-        if latest.get("detail"):
-            lines.append(f"• Причина: {latest.get('detail')}")
-    else:
-        lines.append("• Сегодня новых попыток не было")
+    lines.append(telegram_promo_summary(promo_today))
 
     lines += ["", "💰 Telegram Ads"]
     if ads.get("landing_url"):
@@ -223,10 +261,13 @@ def main() -> int:
         lines.append("• Посадочный пост не найден")
 
     lines += ["", "🧪 Стабильность"]
-    if qa_failures:
-        lines.append(f"• QA-сбоев за день: {qa_failures}; последний QA — {(qa_latest or {}).get('conclusion') or 'нет данных'}")
+    latest_qa_status = str((qa_latest or {}).get("conclusion") or (qa_latest or {}).get("status") or "")
+    if latest_qa_status == "success":
+        lines.append("• ✅ Последняя полная проверка проекта прошла успешно")
+    elif latest_qa_status:
+        lines.append(f"• {human_run_status(latest_qa_status)} — последняя полная проверка проекта")
     else:
-        lines.append("• QA: без зафиксированных сбоев сегодня")
+        lines.append("• Данных о последней полной проверке нет")
 
     report = "\n".join(lines)
     Path("/tmp/specavto-daily-report.txt").write_text(report + "\n", encoding="utf-8")
