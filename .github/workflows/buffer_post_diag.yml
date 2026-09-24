@@ -2,6 +2,10 @@ name: Buffer Post Diagnostic
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/buffer_post_diag.yml"
 
 permissions:
   contents: read
@@ -39,7 +43,7 @@ jobs:
           """
           body = json.dumps({
               "query": query,
-              "variables": {"id": "6ab4e93419439729d80bcac9"},
+              "variables": {"id": "6ab4e9e43342345f5b20142d"},
           }).encode()
           req = urllib.request.Request(
               "https://api.buffer.com",
