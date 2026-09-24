@@ -78,9 +78,18 @@ class EditorialPlannerTests(unittest.TestCase):
             datetime(2026, 9, 24, 10, 0, tzinfo=timezone.utc),
         )
 
-        self.assertIsNotNone(action)
-        self.assertEqual(action["target_id"], "mashport")
-        self.assertEqual(action["execution"], "manual")
+        self.assertIsNone(action)
+
+        manual_action = pick_action(
+            articles,
+            targets,
+            history,
+            datetime(2026, 9, 24, 10, 0, tzinfo=timezone.utc),
+            allow_manual=True,
+        )
+        self.assertIsNotNone(manual_action)
+        self.assertEqual(manual_action["target_id"], "mashport")
+        self.assertEqual(manual_action["execution"], "manual")
 
     def test_article_body_uses_original_knowledge_content(self) -> None:
         body = article_body(
