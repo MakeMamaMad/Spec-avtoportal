@@ -1,4 +1,4 @@
-name: Prepare Telegram Ads
+name: Promotion — Prepare Telegram Ads
 
 on:
   workflow_dispatch:
