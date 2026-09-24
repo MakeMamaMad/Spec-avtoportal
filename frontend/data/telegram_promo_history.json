@@ -54,6 +54,15 @@
       "attempted_at": "2026-09-24T05:08:47+00:00",
       "status": "waiting_bot_to_bot",
       "detail": "Bad Request: USER_BOT_TO_BOT_DISABLED"
+    },
+    {
+      "target_id": "spec-tehnika24",
+      "target_name": "Спецтехника | Аренда | Продажа",
+      "contact": "@Arenda_Spec_Tehniki_Bot",
+      "tracking_url": "https://spec-avtoportal.ru/?utm_source=spec-tehnika24&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad",
+      "attempted_at": "2026-09-24T05:09:14+00:00",
+      "status": "waiting_bot_to_bot",
+      "detail": "Bad Request: USER_BOT_TO_BOT_DISABLED"
     }
   ]
 }
