@@ -2,14 +2,13 @@ name: Video — Generate & Publish (YouTube + TikTok + Instagram)
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/autoposter.yml"
   schedule:
-    # Moscow time (UTC+3): 10:30 and 18:30 every day.
-    - cron: "30 7 * * *"
-    - cron: "30 15 * * *"
+    # Primary schedule, UTC. Moscow time is UTC+3 year-round.
+    - cron: "30 7 * * *"   # 10:30 MSK
+    - cron: "30 15 * * *"  # 18:30 MSK
+  workflow_run:
+    workflows: ["News — Fetch & Publish"]
+    types: [completed]
 
 permissions:
   contents: write
@@ -19,7 +18,88 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  run:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.slot.outputs.should_run }}
+      slot: ${{ steps.slot.outputs.slot }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Decide daily video slot
+        id: slot
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          SCHEDULE_EXPR: ${{ github.event.schedule }}
+          WORKFLOW_RUN_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime
+          from pathlib import Path
+          from zoneinfo import ZoneInfo
+
+          event = os.environ.get("EVENT_NAME", "")
+          schedule = os.environ.get("SCHEDULE_EXPR", "")
+          conclusion = os.environ.get("WORKFLOW_RUN_CONCLUSION", "")
+          now = datetime.now(ZoneInfo("Europe/Moscow"))
+          today = now.date().isoformat()
+          hour = now.hour
+
+          slot = ""
+          should_run = False
+
+          if event == "workflow_dispatch":
+              slot = "manual"
+              should_run = True
+          elif event == "schedule":
+              if schedule == "30 7 * * *":
+                  slot = "am"
+              elif schedule == "30 15 * * *":
+                  slot = "pm"
+              should_run = bool(slot)
+          elif event == "workflow_run" and conclusion == "success":
+              # Fallback: if GitHub drops/delays the dedicated video cron,
+              # the already reliable news ingest workflow can recover the slot.
+              if 9 <= hour < 15:
+                  slot = "am"
+              elif 17 <= hour < 23:
+                  slot = "pm"
+
+              if slot:
+                  state_path = Path("tools/autoposter/state/video_schedule.json")
+                  state = {}
+                  if state_path.exists():
+                      try:
+                          state = json.loads(state_path.read_text(encoding="utf-8"))
+                      except Exception:
+                          state = {}
+                  done = ((state.get("days") or {}).get(today) or {}).get(slot) == "published"
+                  should_run = not done
+
+          # Dedicated cron also respects the persisted slot state.
+          if event == "schedule" and slot:
+              state_path = Path("tools/autoposter/state/video_schedule.json")
+              state = {}
+              if state_path.exists():
+                  try:
+                      state = json.loads(state_path.read_text(encoding="utf-8"))
+                  except Exception:
+                      state = {}
+              done = ((state.get("days") or {}).get(today) or {}).get(slot) == "published"
+              should_run = should_run and not done
+
+          print(f"event={event} moscow={now.isoformat()} slot={slot or 'none'} should_run={should_run}")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"slot={slot}\n")
+              fh.write(f"should_run={'true' if should_run else 'false'}\n")
+          PY
+
+  publish:
+    needs: gate
+    if: needs.gate.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -112,12 +192,46 @@ jobs:
           cd tools/autoposter
           python -m src.publish.social_v2
 
+      - name: Mark daily slot published
+        if: success() && needs.gate.outputs.slot != 'manual'
+        env:
+          VIDEO_SLOT: ${{ needs.gate.outputs.slot }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime
+          from pathlib import Path
+          from zoneinfo import ZoneInfo
+
+          path = Path("tools/autoposter/state/video_schedule.json")
+          state = {}
+          if path.exists():
+              try:
+                  state = json.loads(path.read_text(encoding="utf-8"))
+              except Exception:
+                  state = {}
+          state.setdefault("schema", 1)
+          state.setdefault("days", {})
+          today = datetime.now(ZoneInfo("Europe/Moscow")).date().isoformat()
+          day = state["days"].setdefault(today, {})
+          day[os.environ["VIDEO_SLOT"]] = "published"
+
+          # Keep state compact.
+          for key in sorted(state["days"])[:-14]:
+              state["days"].pop(key, None)
+
+          path.parent.mkdir(parents=True, exist_ok=True)
+          path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          print(f"Marked {today} {os.environ['VIDEO_SLOT']} as published")
+          PY
+
       - name: Commit social state
         if: always()
         run: |
           git config user.name "specavto-autoposter"
           git config user.email "actions@users.noreply.github.com"
-          git add tools/autoposter/state/v2.json tools/autoposter/state/social_v2.json || true
+          git add tools/autoposter/state/v2.json tools/autoposter/state/social_v2.json tools/autoposter/state/video_schedule.json || true
           if git diff --cached --quiet; then
             echo "No social state changes"
             exit 0
