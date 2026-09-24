@@ -2197,11 +2197,11 @@ def inject_metrika_into_pages() -> int:
         text = path.read_text(encoding="utf-8")
         original = text
         if METRIKA_SCRIPT_TAG not in text and "</head>" in text:
-            text = text.replace("</head>", f"  {METRIKA_SCRIPT_TAG}\\n</head>", 1)
+            text = text.replace("</head>", f"  {METRIKA_SCRIPT_TAG}\n</head>", 1)
         if "mc.yandex.ru/watch/106240080" not in text:
             text = re.sub(
-                r"(<body\\b[^>]*>)",
-                r"\\1\\n  " + METRIKA_NOSCRIPT,
+                r"(<body\b[^>]*>)",
+                lambda match: match.group(1) + "\n  " + METRIKA_NOSCRIPT,
                 text,
                 count=1,
                 flags=re.IGNORECASE,
