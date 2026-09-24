@@ -175,5 +175,6 @@
       "notes": "Публично указаны рекламные контакты через Telega.in и @offer_avtobot; автоматический outreach разрешён только через рекламного бота."
     }
   ],
-  "outreach_probe_nonce": 2
+  "outreach_probe_nonce": 2,
+  "outreach_retry_nonce": 1
 }
