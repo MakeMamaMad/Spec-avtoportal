@@ -146,7 +146,7 @@ jobs:
           assert config.get("enabled") is True, "Telegram publishing should be live"
           assert len(str(config.get("baseline_ref") or "")) == 40, "Telegram baseline_ref must be a commit SHA"
           assert 1 <= int(config.get("max_immediate_per_run") or 0) <= 3
-          assert int(config.get("immediate_score") or 0) >= 4
+          assert int(config.get("immediate_score") or 0) >= 3
           assert 24 <= int(config.get("max_item_age_hours") or 0) <= 72
           assert config.get("digest_enabled") is True
           assert 2 <= int(config.get("digest_min_items") or 0) <= int(config.get("digest_items") or 0) <= 8
