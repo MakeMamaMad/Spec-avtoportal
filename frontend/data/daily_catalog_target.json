@@ -1,7 +1,7 @@
 {
   "schema": 2,
   "date_moscow": "2026-09-24",
-  "status": "queue_exhausted",
+  "status": "success",
   "attempts": [
     {
       "target_id": "catalog-ru-net",
@@ -12,16 +12,16 @@
       "tracking_url": "https://spec-avtoportal.ru/?utm_source=catalog-ru-net&utm_medium=directory&utm_campaign=catalog_promotion&utm_content=site_listing"
     },
     {
-      "target_id": "conti-group",
-      "target_name": "Conti-Group",
-      "status": "needs_manual",
-      "detail": "CAPTCHA/manual verification detected",
-      "result_url": "https://conti-group.ru/dobavlenie/",
-      "tracking_url": "https://spec-avtoportal.ru/?utm_source=conti-group&utm_medium=directory&utm_campaign=catalog_promotion&utm_content=site_listing"
+      "target_id": "otsiv-ru",
+      "target_name": "Отзыв.ру",
+      "status": "under_moderation",
+      "detail": "Automated directory submission completed",
+      "result_url": "https://otsiv.ru/org/create/",
+      "tracking_url": "https://spec-avtoportal.ru/?utm_source=otsiv-ru&utm_medium=directory&utm_campaign=catalog_promotion&utm_content=site_listing"
     }
   ],
-  "detail": "All currently available automatic catalog targets were checked; none accepted a submission.",
-  "updated_at": "2026-09-24T17:36:40+00:00",
-  "target_id": "conti-group",
-  "target_name": "Conti-Group"
+  "detail": "Stopped after successful submission to Отзыв.ру.",
+  "updated_at": "2026-09-24T18:03:39+00:00",
+  "target_id": "otsiv-ru",
+  "target_name": "Отзыв.ру"
 }
