@@ -2188,3 +2188,53 @@ button { color: inherit; }
     grid-template-columns: 1fr;
   }
 }
+
+
+/* SEO/editorial additions */
+.article-editorial-note {
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border-left: 3px solid currentColor;
+  opacity: .82;
+  font-size: .94rem;
+  line-height: 1.55;
+}
+
+.brand-overview {
+  margin-top: 28px;
+  margin-bottom: 10px;
+}
+
+.brand-overview > div {
+  max-width: 900px;
+  padding: 24px;
+  border: 1px solid var(--border, rgba(127,127,127,.22));
+  border-radius: 18px;
+  background: var(--card, rgba(127,127,127,.05));
+}
+
+.brand-overview h2 {
+  margin: 6px 0 10px;
+}
+
+.brand-overview p {
+  margin: 8px 0 0;
+  line-height: 1.65;
+}
+
+.hub-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 28px 0 8px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border, rgba(127,127,127,.22));
+}
+
+.knowledge-article-hero__meta a,
+.regulation-sidebar a:not(.partner-card__button) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
