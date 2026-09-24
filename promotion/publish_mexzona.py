@@ -506,8 +506,7 @@ def main() -> int:
                 history.setdefault("entries", []).append(record)
                 save_json(HISTORY_PATH, history)
                 if os.getenv("PROMOTION_RECURRING") != "1":
-                    if os.getenv("PROMOTION_RECURRING") != "1":
-                save_json(DONE_PATH, record)
+                    save_json(DONE_PATH, record)
                 print("SUBMITTED=" + json.dumps(record, ensure_ascii=False))
                 return 0
 
