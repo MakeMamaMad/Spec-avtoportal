@@ -1,0 +1,35 @@
+name: Control — Daily Summary
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 20:45 Moscow time (UTC+3)
+    - cron: '45 17 * * *'
+  push:
+    branches: [ main ]
+    paths:
+      - 'tools/send_daily_control_report.py'
+      - '.github/workflows/daily_control_summary.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Send daily report to SpecAvto Control
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python tools/send_daily_control_report.py
