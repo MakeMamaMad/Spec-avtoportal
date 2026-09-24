@@ -2,6 +2,11 @@ name: Telegram Editorial Digest
 
 on:
   workflow_dispatch:
+  # Temporary push trigger used once to launch the repaired digest from this commit.
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/daily_digest.yml'
   schedule:
     # 09:30 and 19:30 Moscow time (UTC+3)
     - cron: '30 6 * * *'
@@ -27,6 +32,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: 'pip'
+          cache-dependency-path: aggregator/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r aggregator/requirements.txt
 
       - name: Publish editorial digest
         env:
