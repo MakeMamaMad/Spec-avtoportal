@@ -1,1 +1,2 @@
 Deploy trigger for main after PR #72 merge.
+Deploy mobile readability fix after PR #73.
