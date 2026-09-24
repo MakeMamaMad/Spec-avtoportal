@@ -68,7 +68,14 @@ jobs:
                     "metadata": {"thumbnailOffset": 1000}
                   }
                 }
-              ]
+              ],
+              "metadata": {
+                "instagram": {
+                  "type": "reel",
+                  "shouldShareToFeed": True,
+                  "isAiGenerated": True
+                }
+              }
             }
           }
 
