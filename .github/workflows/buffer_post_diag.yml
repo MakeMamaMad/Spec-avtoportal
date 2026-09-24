@@ -1,4 +1,4 @@
-name: Buffer Post Diagnostic
+name: Diagnostics — Buffer Post Status
 
 on:
   workflow_dispatch:
