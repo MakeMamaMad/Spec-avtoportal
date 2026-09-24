@@ -2095,8 +2095,11 @@ def write_sitemap(
     indexable_items = [item for item in items if is_indexable_news(item)]
 
     for topic in TOPIC_RULES:
-        rows.append(f"  <url><loc>{xml_escape(topic_url(topic))}</loc></url>")
-        topic_count = sum(1 for item in indexable_items if topic in topics_for(item))
+        topic_items = [item for item in indexable_items if topic in topics_for(item)]
+        topic_lastmod = iso_date(get_field(topic_items[0], "updated_at", "published_at", "date", "pub_date")) if topic_items else ""
+        topic_lm = f"<lastmod>{topic_lastmod}</lastmod>" if topic_lastmod else ""
+        rows.append(f"  <url><loc>{xml_escape(topic_url(topic))}</loc>{topic_lm}</url>")
+        topic_count = len(topic_items)
         topic_pages = max(1, (topic_count + HUB_PAGE_SIZE - 1) // HUB_PAGE_SIZE)
         for page_number in range(2, topic_pages + 1):
             rows.append(
@@ -2105,8 +2108,11 @@ def write_sitemap(
 
     rows.append(f"  <url><loc>{xml_escape(f'{BASE_URL}/brands/')}</loc></url>")
     for brand in BRAND_RULES:
-        rows.append(f"  <url><loc>{xml_escape(brand_url(brand))}</loc></url>")
-        brand_count = sum(1 for item in indexable_items if brand in brands_for(item))
+        brand_items = [item for item in indexable_items if brand in brands_for(item)]
+        brand_lastmod = iso_date(get_field(brand_items[0], "updated_at", "published_at", "date", "pub_date")) if brand_items else ""
+        brand_lm = f"<lastmod>{brand_lastmod}</lastmod>" if brand_lastmod else ""
+        rows.append(f"  <url><loc>{xml_escape(brand_url(brand))}</loc>{brand_lm}</url>")
+        brand_count = len(brand_items)
         brand_pages = max(1, (brand_count + HUB_PAGE_SIZE - 1) // HUB_PAGE_SIZE)
         for page_number in range(2, brand_pages + 1):
             rows.append(
@@ -2114,14 +2120,18 @@ def write_sitemap(
             )
 
     if regulations:
+        regulation_lastmod = str(regulations.get("verified_at") or regulations.get("updated_at") or "")
+        regulation_lm = f"<lastmod>{xml_escape(regulation_lastmod)}</lastmod>" if regulation_lastmod else ""
         for item in regulations.get("items", []):
             if item.get("slug"):
-                rows.append(f"  <url><loc>{xml_escape(regulation_url(item))}</loc></url>")
+                rows.append(f"  <url><loc>{xml_escape(regulation_url(item))}</loc>{regulation_lm}</url>")
 
     if knowledge_articles:
+        knowledge_lastmod = str(knowledge_articles.get("updated_at") or "")
+        knowledge_lm = f"<lastmod>{xml_escape(knowledge_lastmod)}</lastmod>" if knowledge_lastmod else ""
         for item in knowledge_articles.get("items", []):
             if item.get("slug"):
-                rows.append(f"  <url><loc>{xml_escape(knowledge_url(item))}</loc></url>")
+                rows.append(f"  <url><loc>{xml_escape(knowledge_url(item))}</loc>{knowledge_lm}</url>")
 
     for item in indexable_items:
         lastmod = iso_date(get_field(item, "updated_at", "published_at", "date", "pub_date"))
