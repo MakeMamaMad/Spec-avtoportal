@@ -76,6 +76,9 @@ jobs:
               visible_markup = re.sub(r"<script\\b.*?</script>", "", text, flags=re.I | re.S)
               if "\\n" in visible_markup:
                   bad.append(str(path))
+                  pos = visible_markup.find("\\n")
+                  snippet = visible_markup[max(0, pos - 140):pos + 180]
+                  print(f"[literal-newline] {path}: {snippet!r}")
           if bad:
               raise SystemExit("Literal \\n escape leaked into visible HTML: " + ", ".join(bad[:20]))
           PY
