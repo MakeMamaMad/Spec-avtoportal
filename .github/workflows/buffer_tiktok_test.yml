@@ -1,4 +1,4 @@
-name: Buffer TikTok Test Upload
+name: Diagnostics — TikTok Test Upload
 
 on:
   workflow_dispatch:
