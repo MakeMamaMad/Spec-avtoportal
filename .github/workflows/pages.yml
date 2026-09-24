@@ -47,11 +47,22 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install Pillow
 
+      - name: Validate SEO builder syntax
+        run: |
+          python3 -m py_compile tools/build_seo.py
+          node --check frontend/news.js
+          node --check frontend/article.js
+
       - name: Build SEO article pages
         run: |
           python3 tools/build_seo.py
           test -f frontend/sitemap.xml || (echo "sitemap.xml not generated" && exit 1)
+          test -f frontend/news-sitemap.xml || (echo "news-sitemap.xml not generated" && exit 1)
           test -f frontend/robots.txt || (echo "robots.txt not generated" && exit 1)
+          test -f frontend/data/news-index.json || (echo "news-index.json not generated" && exit 1)
+          test -f frontend/about.html || (echo "about.html not found" && exit 1)
+          grep -q 'SEO_NEWS_LIST_START --><article' frontend/index.html || (echo "homepage news was not pre-rendered" && exit 1)
+          grep -q 'Sitemap: https://spec-avtoportal.ru/news-sitemap.xml' frontend/robots.txt || (echo "news sitemap missing from robots.txt" && exit 1)
           test -d frontend/social || (echo "social cards not generated" && exit 1)
           test "$(find frontend/social -maxdepth 1 -name '*.png' | wc -l)" -gt 0 || (echo "no social cards generated" && exit 1)
 
