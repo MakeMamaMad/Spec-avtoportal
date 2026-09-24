@@ -1,4 +1,4 @@
-name: Pages
+name: Site — Build, Deploy & VK Publish
 
 on:
   push:
@@ -9,9 +9,9 @@ on:
       - "frontend/data/vk_state.json"
 
 
-  # Запуск после успешного Ingest & Publish
+  # Запуск после успешного News — Fetch & Publish
   workflow_run:
-    workflows: ["Ingest & Publish"]
+    workflows: ["News — Fetch & Publish"]
     types: [completed]
 
   # Ручной запуск из Actions
@@ -28,7 +28,7 @@ concurrency:
 
 jobs:
   build:
-    # Для workflow_run запускаем только если Ingest & Publish прошёл успешно
+    # Для workflow_run запускаем только если News — Fetch & Publish прошёл успешно
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
