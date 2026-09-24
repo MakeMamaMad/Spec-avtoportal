@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "generated_at": "2026-09-24T05:15:09+00:00",
+  "destination": "https://t.me/specavtoportal/1478",
+  "site_tracking_url": "https://spec-avtoportal.ru/?utm_source=telegram_ads&utm_medium=paid_social&utm_campaign=telegram_ads_always_on&utm_content=landing",
+  "account_setup": {
+    "recommended_account": "Organization linked to @specavtoportal",
+    "funding_model": "Account balance is replenished by owner; ads spend while balance and per-ad maximum budget allow."
+  },
+  "ads": [
+    {
+      "id": "ads-truckers-club",
+      "title": "SpecAvtoPortal | @truckers_club",
+      "text": "Новости грузоперевозок и техники без лишнего шума: рынок, грузовики, полуприцепы, ГОСТы и важные изменения. СпецАвтоПортал.",
+      "url": "https://t.me/specavtoportal/1478",
+      "target_channels": [
+        "https://t.me/truckers_club"
+      ],
+      "cpm_ton": 0.1,
+      "maximum_budget_ton": null,
+      "status": "ready_for_one_time_ads_setup",
+      "text_chars": 123
+    },
+    {
+      "id": "ads-cargonomica",
+      "title": "SpecAvtoPortal | @Cargonomica",
+      "text": "Для перевозчиков и владельцев автопарков: рынок, техника, полуприцепы, логистика и регламенты. СпецАвтоПортал — отраслевые обновления.",
+      "url": "https://t.me/specavtoportal/1478",
+      "target_channels": [
+        "https://t.me/Cargonomica"
+      ],
+      "cpm_ton": 0.1,
+      "maximum_budget_ton": null,
+      "status": "ready_for_one_time_ads_setup",
+      "text_chars": 134
+    },
+    {
+      "id": "ads-truksandall",
+      "title": "SpecAvtoPortal | @truksandall",
+      "text": "Коммерческий транспорт каждый день: новые модели, производство, рынок, грузовики и полуприцепы. СпецАвтоПортал в Telegram.",
+      "url": "https://t.me/specavtoportal/1478",
+      "target_channels": [
+        "https://t.me/truksandall"
+      ],
+      "cpm_ton": 0.1,
+      "maximum_budget_ton": null,
+      "status": "ready_for_one_time_ads_setup",
+      "text_chars": 122
+    },
+    {
+      "id": "ads-reiszr",
+      "title": "SpecAvtoPortal | @reiszr",
+      "text": "Новости и практические материалы о коммерческом транспорте и спецтехнике: рынок, модели, ГОСТы и регламенты. СпецАвтоПортал.",
+      "url": "https://t.me/specavtoportal/1478",
+      "target_channels": [
+        "https://t.me/reiszr"
+      ],
+      "cpm_ton": 0.1,
+      "maximum_budget_ton": null,
+      "status": "ready_for_one_time_ads_setup",
+      "text_chars": 124
+    },
+    {
+      "id": "ads-tehnika-info",
+      "title": "SpecAvtoPortal | @tehnika_info",
+      "text": "Спецтехника, грузовики и прицепы: новые модели, рынок, производители, ГОСТы и практические материалы. Читайте СпецАвтоПортал.",
+      "url": "https://t.me/specavtoportal/1478",
+      "target_channels": [
+        "https://t.me/tehnika_info"
+      ],
+      "cpm_ton": 0.1,
+      "maximum_budget_ton": null,
+      "status": "ready_for_one_time_ads_setup",
+      "text_chars": 125
+    },
+    {
+      "id": "ads-logistic-aggregator",
+      "title": "SpecAvtoPortal | @LogisticAggregator",
+      "text": "Логистика и коммерческий транспорт: рынок, перевозки, грузовики, полуприцепы и изменения требований. СпецАвтоПортал.",
+      "url": "https://t.me/specavtoportal/1478",
+      "target_channels": [
+        "https://t.me/LogisticAggregator"
+      ],
+      "cpm_ton": 0.1,
+      "maximum_budget_ton": null,
+      "status": "ready_for_one_time_ads_setup",
+      "text_chars": 116
+    }
+  ],
+  "kpis": {
+    "primary": "telegram_joins_per_ad",
+    "secondary": [
+      "ad_views",
+      "join_rate",
+      "effective_cost_per_join",
+      "site_sessions_from_telegram_ads"
+    ],
+    "analytics_counter": 106240080
+  }
+}
