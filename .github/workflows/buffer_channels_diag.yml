@@ -1,0 +1,52 @@
+name: Buffer Channels Diagnostic
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/buffer_channels_diag.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query Buffer channels
+        env:
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+
+          def gql(query, variables=None):
+              body = json.dumps({"query": query, "variables": variables or {}}).encode()
+              req = urllib.request.Request(
+                  "https://api.buffer.com",
+                  data=body,
+                  headers={
+                      "Authorization": "Bearer " + os.environ["BUFFER_API_KEY"],
+                      "Content-Type": "application/json",
+                  },
+              )
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  return json.loads(r.read().decode())
+
+          orgs = gql("""query { account { organizations { id } } }""")
+          for org in orgs["data"]["account"]["organizations"]:
+              result = gql(
+                  """query GetChannels($organizationId: OrganizationId!) {
+                    channels(input: { organizationId: $organizationId }) {
+                      id
+                      name
+                      displayName
+                      service
+                      isQueuePaused
+                    }
+                  }""",
+                  {"organizationId": org["id"]},
+              )
+              print(json.dumps(result, ensure_ascii=False))
+          PY
