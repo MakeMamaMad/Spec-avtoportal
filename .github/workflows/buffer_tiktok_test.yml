@@ -1,0 +1,80 @@
+name: Buffer TikTok Test Upload
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/buffer_tiktok_test.yml"
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install requests
+        run: python -m pip install requests
+
+      - name: Download known-good Shorts artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: first-youtube-short-v2-retry
+          path: /tmp/shorts
+          repository: MakeMamaMad/Spec-avtoportal
+          run-id: 35961342632
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish test media file to repository
+        run: |
+          test -s /tmp/shorts/tiktok.mp4
+          test -s /tmp/shorts/caption_tiktok.txt
+          mkdir -p buffer-media
+          cp /tmp/shorts/tiktok.mp4 buffer-media/tiktok-test-35961342632.mp4
+          cp /tmp/shorts/caption_tiktok.txt buffer-media/tiktok-test-35961342632.txt
+
+          git config user.name "specavto-buffer"
+          git config user.email "actions@users.noreply.github.com"
+          git add buffer-media/tiktok-test-35961342632.mp4 buffer-media/tiktok-test-35961342632.txt
+
+          if git diff --cached --quiet; then
+            echo "Test media already committed"
+          else
+            git commit -m "test: host TikTok video for Buffer upload"
+            git push origin main
+          fi
+
+      - name: Wait until public video URL is reachable
+        run: |
+          URL="https://raw.githubusercontent.com/MakeMamaMad/Spec-avtoportal/main/buffer-media/tiktok-test-35961342632.mp4"
+          for i in 1 2 3 4 5 6; do
+            code="$(curl -L -s -o /dev/null -w '%{http_code}' "$URL")"
+            echo "attempt=$i http=$code"
+            if [ "$code" = "200" ]; then
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 1
+
+      - name: Create Buffer TikTok notification post
+        env:
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          BUFFER_TIKTOK_CHANNEL_NAME: "specavtoportal"
+        run: |
+          cd tools/autoposter
+          python -m src.publish.buffer \
+            --video-url "https://raw.githubusercontent.com/MakeMamaMad/Spec-avtoportal/main/buffer-media/tiktok-test-35961342632.mp4" \
+            --text-file "/tmp/shorts/caption_tiktok.txt" \
+            --share-now
