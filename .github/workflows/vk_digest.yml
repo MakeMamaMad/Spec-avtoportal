@@ -1,4 +1,4 @@
-name: VK Editorial Digest
+name: VK — Editorial Digest
 
 on:
   workflow_dispatch:
