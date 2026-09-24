@@ -1,4 +1,4 @@
-name: External Telegram Promotion
+name: Promotion — Telegram Outreach
 
 on:
   workflow_dispatch:
