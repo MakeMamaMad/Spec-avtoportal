@@ -1,9 +1,11 @@
 name: autoposter-social-shorts-v2
 
 on:
-  # Keep production publishing manual until YouTube OAuth and the new
-  # Instagram/TikTok credentials have been verified end-to-end.
   workflow_dispatch:
+  schedule:
+    # Moscow time (UTC+3): 10:30 and 18:30 every day.
+    - cron: "30 7 * * *"
+    - cron: "30 15 * * *"
 
 permissions:
   contents: write
@@ -15,7 +17,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,32 +32,25 @@ jobs:
           cache-dependency-path: tools/autoposter/requirements.txt
 
       - name: Install ffmpeg and fonts
-        shell: bash
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg fonts-dejavu-core
 
       - name: Install deps
-        shell: bash
-        run: |
-          pip install -r tools/autoposter/requirements.txt
+        run: pip install -r tools/autoposter/requirements.txt
 
       - name: Restore YouTube credentials
-        shell: bash
         env:
           YT_CLIENT_B64: ${{ secrets.YOUTUBE_CLIENT_SECRETS_B64 }}
           YT_TOKEN_B64: ${{ secrets.YOUTUBE_TOKEN_B64 }}
         run: |
           cd tools/autoposter
-          if [ -n "$YT_CLIENT_B64" ]; then
-            printf '%s' "$YT_CLIENT_B64" | base64 -d > client_secrets.json
-          fi
-          if [ -n "$YT_TOKEN_B64" ]; then
-            printf '%s' "$YT_TOKEN_B64" | base64 -d > youtube_token.json
-          fi
+          printf '%s' "$YT_CLIENT_B64" | base64 -d > client_secrets.json
+          printf '%s' "$YT_TOKEN_B64" | base64 -d > youtube_token.json
+          test -s client_secrets.json
+          test -s youtube_token.json
 
       - name: Generate AI Short v2
-        shell: bash
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           AI_SCRIPT: "1"
@@ -75,30 +70,46 @@ jobs:
           cd tools/autoposter
           python -m src.v2_main
 
-      - name: Publish to YouTube Instagram TikTok
-        shell: bash
+      - name: Publish temporary media for Buffer
         env:
-          SOCIAL_PLATFORMS: "youtube,instagram,tiktok"
-          SOCIAL_STRICT: "0"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          RELEASE_TAG="buffer-media"
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --title "Buffer temporary media" --notes "Temporary media used by the social autoposter." --prerelease
+          fi
+
+          TIKTOK_ASSET="tiktok-${GITHUB_RUN_ID}.mp4"
+          INSTAGRAM_ASSET="instagram-${GITHUB_RUN_ID}.mp4"
+          cp tools/autoposter/out_v2/tiktok.mp4 "/tmp/$TIKTOK_ASSET"
+          cp tools/autoposter/out_v2/master.mp4 "/tmp/$INSTAGRAM_ASSET"
+          gh release upload "$RELEASE_TAG" "/tmp/$TIKTOK_ASSET#$TIKTOK_ASSET" "/tmp/$INSTAGRAM_ASSET#$INSTAGRAM_ASSET" --clobber
+
+          echo "BUFFER_TIKTOK_VIDEO_URL=https://github.com/MakeMamaMad/Spec-avtoportal/releases/download/$RELEASE_TAG/$TIKTOK_ASSET" >> "$GITHUB_ENV"
+          echo "BUFFER_INSTAGRAM_VIDEO_URL=https://github.com/MakeMamaMad/Spec-avtoportal/releases/download/$RELEASE_TAG/$INSTAGRAM_ASSET" >> "$GITHUB_ENV"
+
+      - name: Publish YouTube TikTok Instagram
+        env:
+          SOCIAL_PLATFORMS: "youtube,tiktok,instagram"
+          SOCIAL_STRICT: "1"
 
           YOUTUBE_TOKEN_FILE: "youtube_token.json"
           YOUTUBE_CLIENT_SECRETS: "client_secrets.json"
           YOUTUBE_PRIVACY: "public"
 
-          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
-          INSTAGRAM_IG_USER_ID: ${{ secrets.INSTAGRAM_IG_USER_ID }}
-          INSTAGRAM_API_VERSION: "v26.0"
-          INSTAGRAM_GRAPH_BASE: "https://graph.facebook.com"
-          INSTAGRAM_SHARE_TO_FEED: "1"
-
-          TIKTOK_ACCESS_TOKEN: ${{ secrets.TIKTOK_ACCESS_TOKEN }}
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          BUFFER_TIKTOK_CHANNEL_NAME: "specavtoportal"
+          BUFFER_INSTAGRAM_CHANNEL_NAME: "specavtoportal"
+          BUFFER_TIKTOK_VIDEO_URL: ${{ env.BUFFER_TIKTOK_VIDEO_URL }}
+          BUFFER_INSTAGRAM_VIDEO_URL: ${{ env.BUFFER_INSTAGRAM_VIDEO_URL }}
+          BUFFER_PUBLISH_WAIT_SECONDS: "120"
         run: |
           cd tools/autoposter
           python -m src.publish.social_v2
 
       - name: Commit social state
         if: always()
-        shell: bash
         run: |
           git config user.name "specavto-autoposter"
           git config user.email "actions@users.noreply.github.com"
@@ -111,11 +122,11 @@ jobs:
           git pull --rebase origin main
           git push origin main
 
-      - name: Upload preview artifacts
+      - name: Upload render artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: social-shorts-v2-output
+          name: social-shorts-v2-output-${{ github.run_id }}
           path: tools/autoposter/out_v2/*
           if-no-files-found: ignore
           retention-days: 7
