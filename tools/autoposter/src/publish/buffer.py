@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import argparse
-import os
-from pathlib import Path
+import time
 from typing import Any
 
 import requests
@@ -26,7 +24,7 @@ def _graphql(api_key: str, query: str, variables: dict[str, Any] | None = None) 
             "Content-Type": "application/json",
         },
         json={"query": query, "variables": variables or {}},
-        timeout=45,
+        timeout=60,
     )
     try:
         payload = response.json()
@@ -43,20 +41,18 @@ def _graphql(api_key: str, query: str, variables: dict[str, Any] | None = None) 
 
 
 def list_channels(api_key: str) -> list[dict[str, Any]]:
-    account_query = """
-    query AccountOrganizations {
-      account {
-        organizations {
-          id
+    data = _graphql(
+        api_key,
+        """
+        query AccountOrganizations {
+          account { organizations { id } }
         }
-      }
-    }
-    """
-    data = _graphql(api_key, account_query)
+        """,
+    )
     organizations = ((data.get("account") or {}).get("organizations") or [])
     channels: list[dict[str, Any]] = []
 
-    channel_query = """
+    query = """
     query GetChannels($organizationId: OrganizationId!) {
       channels(input: { organizationId: $organizationId }) {
         id
@@ -71,26 +67,26 @@ def list_channels(api_key: str) -> list[dict[str, Any]]:
         org_id = str((org or {}).get("id") or "").strip()
         if not org_id:
             continue
-        org_data = _graphql(api_key, channel_query, {"organizationId": org_id})
+        org_data = _graphql(api_key, query, {"organizationId": org_id})
         for channel in org_data.get("channels") or []:
             if isinstance(channel, dict):
                 channels.append({"organizationId": org_id, **channel})
     return channels
 
 
-def discover_tiktok_channel(api_key: str, preferred_name: str = "") -> dict[str, Any]:
-    channels = list_channels(api_key)
-    tiktok = [
+def discover_channel(api_key: str, service: str, preferred_name: str = "") -> dict[str, Any]:
+    wanted_service = service.strip().lower()
+    matches = [
         channel
-        for channel in channels
-        if str(channel.get("service") or "").lower() == "tiktok"
+        for channel in list_channels(api_key)
+        if str(channel.get("service") or "").strip().lower() == wanted_service
     ]
-    if not tiktok:
-        raise BufferAPIError("No TikTok channel is connected to this Buffer account")
+    if not matches:
+        raise BufferAPIError(f"No {service} channel is connected to this Buffer account")
 
     preferred = preferred_name.strip().lower()
     if preferred:
-        for channel in tiktok:
+        for channel in matches:
             names = {
                 str(channel.get("name") or "").strip().lower(),
                 str(channel.get("displayName") or "").strip().lower(),
@@ -98,25 +94,22 @@ def discover_tiktok_channel(api_key: str, preferred_name: str = "") -> dict[str,
             if preferred in names:
                 return channel
 
-    if len(tiktok) == 1:
-        return tiktok[0]
+    if len(matches) == 1:
+        return matches[0]
 
     summary = [
-        {
-            "id": x.get("id"),
-            "name": x.get("name"),
-            "displayName": x.get("displayName"),
-        }
-        for x in tiktok
+        {"id": x.get("id"), "name": x.get("name"), "displayName": x.get("displayName")}
+        for x in matches
     ]
     raise BufferAPIError(
-        f"Multiple TikTok channels found; set BUFFER_TIKTOK_CHANNEL_NAME. Candidates: {summary}"
+        f"Multiple {service} channels found; configure the preferred channel name. Candidates: {summary}"
     )
 
 
 def create_video_post(
     *,
     api_key: str,
+    service: str,
     channel_id: str,
     video_url: str,
     text: str,
@@ -124,6 +117,17 @@ def create_video_post(
     mode: str = "shareNow",
     thumbnail_offset_ms: int = 1000,
 ) -> dict[str, Any]:
+    metadata: dict[str, Any] = {}
+    service_name = service.strip().lower()
+    if service_name == "tiktok":
+        metadata["tiktok"] = {"isAiGenerated": True}
+    elif service_name == "instagram":
+        metadata["instagram"] = {
+            "type": "reel",
+            "shouldShareToFeed": True,
+            "isAiGenerated": True,
+        }
+
     mutation = """
     mutation CreateVideoPost($input: CreatePostInput!) {
       createPost(input: $input) {
@@ -157,11 +161,7 @@ def create_video_post(
                     }
                 }
             ],
-            "metadata": {
-                "tiktok": {
-                    "isAiGenerated": True,
-                }
-            },
+            "metadata": metadata,
         }
     }
     data = _graphql(api_key, mutation, variables)
@@ -174,45 +174,85 @@ def create_video_post(
     return post
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--video-url")
-    parser.add_argument("--text-file")
-    parser.add_argument("--share-now", action="store_true")
-    args = parser.parse_args()
+def fetch_post(api_key: str, post_id: str) -> dict[str, Any]:
+    data = _graphql(
+        api_key,
+        """
+        query GetPost($id: PostId!) {
+          post(input: {id: $id}) {
+            id
+            status
+            schedulingType
+            shareMode
+            notificationStatus
+            error {
+              message
+              rawError
+              supportUrl
+            }
+          }
+        }
+        """,
+        {"id": post_id},
+    )
+    post = data.get("post")
+    if not isinstance(post, dict):
+        raise BufferAPIError(f"Buffer post not found: {post_id}")
+    return post
 
-    api_key = os.getenv("BUFFER_API_KEY", "").strip()
-    preferred_name = os.getenv("BUFFER_TIKTOK_CHANNEL_NAME", "specavtoportal")
-    channel = discover_tiktok_channel(api_key, preferred_name)
+
+def publish_video(
+    *,
+    api_key: str,
+    service: str,
+    preferred_name: str,
+    video_url: str,
+    text: str,
+    wait_seconds: int = 120,
+) -> dict[str, Any]:
+    channel = discover_channel(api_key, service, preferred_name)
+    post = create_video_post(
+        api_key=api_key,
+        service=service,
+        channel_id=str(channel["id"]),
+        video_url=video_url,
+        text=text,
+        scheduling_type="automatic",
+        mode="shareNow",
+    )
+    post_id = str(post["id"])
     print(
-        "[buffer] TikTok connected:",
-        f"id={channel.get('id')}",
-        f"name={channel.get('name')}",
-        f"displayName={channel.get('displayName')}",
-        f"paused={channel.get('isQueuePaused')}",
+        f"[buffer] {service}: submitted post_id={post_id} "
+        f"channel={channel.get('displayName') or channel.get('name')} status={post.get('status')}"
     )
 
-    if args.video_url:
-        text = ""
-        if args.text_file:
-            text = Path(args.text_file).read_text(encoding="utf-8").strip()
-        post = create_video_post(
-            api_key=api_key,
-            channel_id=str(channel["id"]),
-            video_url=args.video_url,
-            text=text,
-            scheduling_type="automatic",
-            mode="shareNow" if args.share_now else "addToQueue",
-        )
-        print(
-            "[buffer] post created:",
-            f"id={post.get('id')}",
-            f"status={post.get('status')}",
-            f"schedulingType={post.get('schedulingType')}",
-            f"shareMode={post.get('shareMode')}",
-        )
-    return 0
+    deadline = time.monotonic() + max(0, wait_seconds)
+    latest = post
+    while time.monotonic() < deadline:
+        time.sleep(5)
+        latest = fetch_post(api_key, post_id)
+        status = str(latest.get("status") or "").strip().lower()
+        error = latest.get("error")
+        print(f"[buffer] {service}: post_id={post_id} status={status}")
+        if error or status == "error":
+            detail = error or {"message": "Buffer post failed"}
+            raise BufferAPIError(f"{service} Buffer post failed: {detail}")
+        if status in {"sent", "published", "success", "completed"}:
+            return {
+                "platform": service,
+                "status": "published",
+                "provider": "buffer",
+                "post_id": post_id,
+                "buffer_status": status,
+            }
 
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+    status = str(latest.get("status") or post.get("status") or "").strip().lower()
+    if status == "error" or latest.get("error"):
+        raise BufferAPIError(f"{service} Buffer post failed: {latest.get('error')}")
+    return {
+        "platform": service,
+        "status": "submitted",
+        "provider": "buffer",
+        "post_id": post_id,
+        "buffer_status": status or "submitted",
+    }
