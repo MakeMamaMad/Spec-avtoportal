@@ -2,6 +2,10 @@ name: Buffer TikTok Test Upload
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/buffer_tiktok_test.yml"
 
 permissions:
   contents: write
@@ -64,7 +68,7 @@ jobs:
           done
           exit 1
 
-      - name: Create Buffer TikTok notification post
+      - name: Create Buffer TikTok automatic post
         env:
           BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
           BUFFER_TIKTOK_CHANNEL_NAME: "specavtoportal"
