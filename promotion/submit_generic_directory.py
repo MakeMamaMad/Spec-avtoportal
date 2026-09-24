@@ -127,14 +127,33 @@ def health_check(context) -> None:
 
 
 def control_signature(el: Locator) -> str:
+    try:
+        labels = el.evaluate(
+            """el => Array.from(el.labels || []).map(x => (x.innerText || '').trim()).join(' ')"""
+        )
+    except Exception:
+        labels = ""
     parts = [
         el.get_attribute("name") or "",
         el.get_attribute("id") or "",
         el.get_attribute("placeholder") or "",
         el.get_attribute("aria-label") or "",
         el.get_attribute("type") or "",
+        str(labels or ""),
     ]
     return " ".join(parts).lower()
+
+
+def accept_required_consents(form: Locator) -> None:
+    for el in visible(form.locator('input[type="checkbox"]')):
+        sig = control_signature(el)
+        if not any(k in sig for k in ("соглас", "підтвердж", "подтверж", "правил", "terms", "policy")):
+            continue
+        try:
+            if not el.is_checked():
+                el.check()
+        except Exception:
+            continue
 
 
 def pick_form(page: Page) -> Locator | None:
@@ -250,9 +269,9 @@ def main() -> int:
                 record(target, "technical_failure", result_url=page.url, detail="No suitable submission form found")
                 return 0
 
-            title = str(campaign.get("title") or "СпецАвтоПортал")
+            title = str(target.get("title_override") or campaign.get("title") or "СпецАвтоПортал")
             description = str(target.get("description_override") or campaign.get("full_description") or campaign.get("short_description") or "")
-            keywords = ", ".join(campaign.get("keywords") or [])
+            keywords = str(target.get("keywords_override") or ", ".join(campaign.get("keywords") or []))
             region = str(campaign.get("region") or "Россия")
             promotion_url = tracked_site_url(target)
 
@@ -264,6 +283,7 @@ def main() -> int:
             fill_matching(form, (r"keyword", r"keyw", r"tag", r"ключ"), keywords)
             fill_matching(form, (r"city", r"region", r"город", r"регион"), region)
             fill_selects(form, target)
+            accept_required_consents(form)
 
             if not url_ok:
                 text_inputs = visible(form.locator('input[type="url"], input[type="text"], input:not([type])'))
