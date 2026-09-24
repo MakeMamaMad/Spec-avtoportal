@@ -1,10 +1,15 @@
 """Shared promotion primitives introduced by PR #81.
 
-This package is additive. Existing promotion workflows keep their current
-runtime behaviour until later migration PRs explicitly adopt these modules.
+The core now also contains placement verification primitives. Existing
+promotion executors remain compatible while later PRs migrate them gradually.
 """
 
-from .models import PromotionAction, PromotionEvent
+from .models import PromotionAction, PromotionEvent, PromotionPlacement
 from .tracking import build_tracking_url
 
-__all__ = ["PromotionAction", "PromotionEvent", "build_tracking_url"]
+__all__ = [
+    "PromotionAction",
+    "PromotionEvent",
+    "PromotionPlacement",
+    "build_tracking_url",
+]
