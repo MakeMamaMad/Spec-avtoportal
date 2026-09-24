@@ -1,4 +1,4 @@
-name: Buffer Channels Diagnostic
+name: Diagnostics — Buffer Channels
 
 on:
   workflow_dispatch:
