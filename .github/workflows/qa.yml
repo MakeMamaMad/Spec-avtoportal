@@ -1,4 +1,4 @@
-name: QA
+name: Checks — Full QA
 
 on:
   pull_request:
