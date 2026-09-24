@@ -1,0 +1,59 @@
+name: Promotion — Editorial Placement
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 12:30 Moscow time (UTC+3), before the daily manual-action digest.
+    - cron: '30 9 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: promotion-editorial-placement
+  cancel-in-progress: false
+
+jobs:
+  editorial:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build editorial action
+        run: |
+          python promotion/build_editorial_promo.py
+
+      - name: Install browser automation
+        run: |
+          python -m pip install --upgrade pip
+          pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Execute editorial action
+        env:
+          MEXZONA_LOGIN: ${{ secrets.MEXZONA_LOGIN }}
+          MEXZONA_PASSWORD: ${{ secrets.MEXZONA_PASSWORD }}
+        run: |
+          python promotion/run_editorial_campaign.py
+
+      - name: Commit editorial state
+        if: always()
+        run: |
+          git config user.name "specavto-promotion"
+          git config user.email "actions@users.noreply.github.com"
+          git add frontend/data/promotion/editorial_queue.json frontend/data/promotion/editorial_history.json frontend/data/promotion/editorial_summary.json frontend/data/promotion/manual_queue.json || true
+          if git diff --cached --quiet; then
+            echo "No editorial promotion state changes"
+            exit 0
+          fi
+          git commit -m "promotion: run editorial placement"
+          git pull --rebase origin main
+          git push origin main

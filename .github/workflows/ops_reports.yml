@@ -25,6 +25,7 @@ on:
       - "Promotion — Prepare Telegram Ads"
       - "Promotion — Telegram Outreach"
       - "Promotion — Verify Placements"
+      - "Promotion — Editorial Placement"
       - "Legacy — Verify MEXZONA Promotion"
       - "VK — Editorial Digest"
     types: [completed]
