@@ -121,6 +121,19 @@ def main() -> int:
             entry,
             "Автоматическая публикация на MEXZONA не завершилась; подготовлена ручная задача вместо повторных попыток.",
         )
+        history = load_json(HISTORY_PATH, {"schema": 1, "entries": []})
+        history.setdefault("entries", []).append(
+            {
+                "target_id": entry.get("target_id"),
+                "target_name": entry.get("target_name"),
+                "slug": entry.get("slug"),
+                "title": entry.get("title"),
+                "site_url": entry.get("site_url"),
+                "created_at": utc_now(),
+                "status": "manual_fallback",
+            }
+        )
+        save_json(HISTORY_PATH, history)
         summary["status"] = "manual_fallback"
         summary["detail"] = "Автоматическая публикация не прошла; создана ручная задача."
 
