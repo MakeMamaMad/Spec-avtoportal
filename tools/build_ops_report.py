@@ -39,6 +39,7 @@ WORKFLOW_TITLES = {
     "Promotion — Daily Site Advertising": "Продвижение сайта",
     "Promotion — Prepare Telegram Ads": "Подготовка Telegram Ads",
     "Promotion — Telegram Outreach": "Внешнее продвижение в Telegram",
+    "Promotion — Verify Placements": "Проверка рекламных размещений",
     "Legacy — Verify MEXZONA Promotion": "Проверка публикации на MEXZONA",
     "VK — Editorial Digest": "Дайджест VK",
 }
@@ -66,6 +67,7 @@ SUCCESS_MESSAGES = {
     "Promotion — Daily Site Advertising": "Дневной проход по площадкам для продвижения сайта завершён.",
     "Promotion — Prepare Telegram Ads": "Посадочная публикация и пакет для Telegram Ads подготовлены.",
     "Promotion — Telegram Outreach": "Очередь внешнего продвижения в Telegram обработана.",
+    "Promotion — Verify Placements": "Проверены ранее отправленные заявки и состояние опубликованных размещений.",
     "Legacy — Verify MEXZONA Promotion": "Проверка публикации на MEXZONA завершена.",
     "VK — Editorial Digest": "Редакционный дайджест VK обработан.",
 }
@@ -145,6 +147,43 @@ def ingest_details() -> list[str]:
     return []
 
 
+def placement_verification_details() -> list[str]:
+    summary = load_json(
+        ROOT / "frontend/data/promotion/placement_verification_summary.json",
+        {},
+    )
+    checked = int(summary.get("checked") or 0)
+    created = int(summary.get("created") or 0)
+    states = summary.get("states") or {}
+    lines = []
+    if created:
+        lines.append(f"Добавлено в наблюдение новых заявок: {created}.")
+    if checked:
+        lines.append(f"Проверено размещений: {checked}.")
+    else:
+        lines.append("Сегодня не было размещений, срок проверки которых уже наступил.")
+
+    live = int(states.get("live") or 0)
+    pending = int(states.get("pending_review") or 0) + int(states.get("still_pending") or 0)
+    rejected = int(states.get("rejected") or 0)
+    removed = int(states.get("removed") or 0)
+    lines.append(
+        f"Сейчас подтверждено публикаций: {live}; ожидают подтверждения: {pending}; "
+        f"отклонено: {rejected}; снято с публикации: {removed}."
+    )
+
+    for row in (summary.get("changes") or [])[-5:]:
+        name = str(row.get("target_name") or row.get("target_id") or "Площадка")
+        after = str(row.get("after") or "")
+        if after == "live":
+            lines.append(f"• {name}: публикация подтверждена.")
+        elif after == "rejected":
+            lines.append(f"• {name}: заявка отклонена.")
+        elif after == "removed":
+            lines.append(f"• {name}: ранее найденная публикация больше не доступна.")
+    return lines
+
+
 def human_title(name: str) -> str:
     return WORKFLOW_TITLES.get(name, "Автоматическая задача")
 
@@ -181,6 +220,8 @@ def main() -> int:
         lines += [""] + telegram_promo_details()
     elif name == "Promotion — Prepare Telegram Ads":
         lines += [""] + ads_details()
+    elif name == "Promotion — Verify Placements":
+        lines += [""] + placement_verification_details()
     elif name == "News — Fetch & Publish":
         lines += [""] + ingest_details()
 
