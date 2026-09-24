@@ -2,10 +2,6 @@ name: Buffer Channels Diagnostic
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/buffer_channels_diag.yml"
 
 permissions:
   contents: read
