@@ -2045,12 +2045,26 @@ def write_sitemap(
         lm = f"<lastmod>{lastmod}</lastmod>" if lastmod else ""
         rows.append(f"  <url><loc>{xml_escape(url)}</loc>{lm}</url>")
 
+    indexable_items = [item for item in items if is_indexable_news(item)]
+
     for topic in TOPIC_RULES:
         rows.append(f"  <url><loc>{xml_escape(topic_url(topic))}</loc></url>")
+        topic_count = sum(1 for item in indexable_items if topic in topics_for(item))
+        topic_pages = max(1, (topic_count + HUB_PAGE_SIZE - 1) // HUB_PAGE_SIZE)
+        for page_number in range(2, topic_pages + 1):
+            rows.append(
+                f"  <url><loc>{xml_escape(f'{topic_url(topic)}page/{page_number}/')}</loc></url>"
+            )
 
     rows.append(f"  <url><loc>{xml_escape(f'{BASE_URL}/brands/')}</loc></url>")
     for brand in BRAND_RULES:
         rows.append(f"  <url><loc>{xml_escape(brand_url(brand))}</loc></url>")
+        brand_count = sum(1 for item in indexable_items if brand in brands_for(item))
+        brand_pages = max(1, (brand_count + HUB_PAGE_SIZE - 1) // HUB_PAGE_SIZE)
+        for page_number in range(2, brand_pages + 1):
+            rows.append(
+                f"  <url><loc>{xml_escape(f'{brand_url(brand)}page/{page_number}/')}</loc></url>"
+            )
 
     if regulations:
         for item in regulations.get("items", []):
@@ -2062,7 +2076,6 @@ def write_sitemap(
             if item.get("slug"):
                 rows.append(f"  <url><loc>{xml_escape(knowledge_url(item))}</loc></url>")
 
-    indexable_items = [item for item in items if is_indexable_news(item)]
     for item in indexable_items:
         lastmod = iso_date(get_field(item, "updated_at", "published_at", "date", "pub_date"))
         lm = f"<lastmod>{lastmod}</lastmod>" if lastmod else ""
