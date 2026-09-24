@@ -1,0 +1,58 @@
+name: Buffer Post Diagnostic
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/buffer_post_diag.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query Buffer post error
+        env:
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+
+          query = r"""
+          query GetPost($id: PostId!) {
+            post(input: {id: $id}) {
+              id
+              status
+              schedulingType
+              shareMode
+              notificationStatus
+              error {
+                message
+                rawError
+                supportUrl
+              }
+              assets {
+                source
+                mimeType
+              }
+            }
+          }
+          """
+          body = json.dumps({
+              "query": query,
+              "variables": {"id": "6ab4e93419439729d80bcac9"},
+          }).encode()
+          req = urllib.request.Request(
+              "https://api.buffer.com",
+              data=body,
+              headers={
+                  "Authorization": "Bearer " + os.environ["BUFFER_API_KEY"],
+                  "Content-Type": "application/json",
+              },
+          )
+          with urllib.request.urlopen(req, timeout=30) as r:
+              print(r.read().decode())
+          PY
