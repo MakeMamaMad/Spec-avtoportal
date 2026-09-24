@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import argparse
 import os
+from pathlib import Path
 from typing import Any
 
 import requests
@@ -119,7 +121,7 @@ def create_video_post(
     video_url: str,
     text: str,
     scheduling_type: str = "notification",
-    mode: str = "addToQueue",
+    mode: str = "shareNow",
     thumbnail_offset_ms: int = 1000,
 ) -> dict[str, Any]:
     mutation = """
@@ -131,6 +133,8 @@ def create_video_post(
             text
             dueAt
             status
+            schedulingType
+            shareMode
           }
         }
         ... on MutationError {
@@ -166,6 +170,12 @@ def create_video_post(
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--video-url")
+    parser.add_argument("--text-file")
+    parser.add_argument("--share-now", action="store_true")
+    args = parser.parse_args()
+
     api_key = os.getenv("BUFFER_API_KEY", "").strip()
     preferred_name = os.getenv("BUFFER_TIKTOK_CHANNEL_NAME", "specavtoportal")
     channel = discover_tiktok_channel(api_key, preferred_name)
@@ -176,6 +186,26 @@ def main() -> int:
         f"displayName={channel.get('displayName')}",
         f"paused={channel.get('isQueuePaused')}",
     )
+
+    if args.video_url:
+        text = ""
+        if args.text_file:
+            text = Path(args.text_file).read_text(encoding="utf-8").strip()
+        post = create_video_post(
+            api_key=api_key,
+            channel_id=str(channel["id"]),
+            video_url=args.video_url,
+            text=text,
+            scheduling_type="notification",
+            mode="shareNow" if args.share_now else "addToQueue",
+        )
+        print(
+            "[buffer] post created:",
+            f"id={post.get('id')}",
+            f"status={post.get('status')}",
+            f"schedulingType={post.get('schedulingType')}",
+            f"shareMode={post.get('shareMode')}",
+        )
     return 0
 
 
