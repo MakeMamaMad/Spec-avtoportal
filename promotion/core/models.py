@@ -36,3 +36,25 @@ class PromotionEvent:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+@dataclass(frozen=True)
+class PromotionPlacement:
+    placement_id: str
+    campaign_id: str
+    channel: str
+    target_id: str
+    target_name: str
+    state: str
+    submitted_at: str
+    submission_url: str | None = None
+    result_url: str | None = None
+    tracking_url: str | None = None
+    live_url: str | None = None
+    next_check_at: str | None = None
+    check_index: int = 0
+    checks: list[dict[str, Any]] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
