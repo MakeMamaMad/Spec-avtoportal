@@ -1493,8 +1493,18 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
         "description": description_raw,
         "url": canonical,
         "dateModified": updated_at or None,
-        "author": {"@type": "Organization", "name": "СпецАвтоПортал"},
+        "author": {
+            "@type": "Organization",
+            "name": "Редакция СпецАвтоПортала",
+            "url": f"{BASE_URL}/about.html",
+        },
+        "reviewedBy": {
+            "@type": "Organization",
+            "name": "Редакция СпецАвтоПортала",
+            "url": f"{BASE_URL}/about.html",
+        },
         "publisher": {"@type": "Organization", "name": "СпецАвтоПортал", "url": BASE_URL},
+        "inLanguage": "ru-RU",
     }
     schema_payload = {k: v for k, v in schema_payload.items() if v is not None}
     schema = json.dumps(schema_payload, ensure_ascii=False, separators=(",", ":")).replace("</", "<\/")
@@ -1540,7 +1550,7 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
         <p class="section-kicker"><a href="/knowledge.html">База знаний</a> · {eyebrow}</p>
         <h1>{title}</h1>
         <p>{lead}</p>
-        <div class="knowledge-article-hero__meta">Обновлено · {html.escape(updated_at or "—")}</div>
+        <div class="knowledge-article-hero__meta">Проверено редакцией · {html.escape(updated_at or "—")} · <a href="/about.html">методология</a></div>
       </div>
     </section>
 
@@ -1555,6 +1565,10 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
         <section class="sidebar-block sidebar-dark">
           <p class="sidebar-eyebrow">Источники и документы</p>
           <div class="knowledge-sources">{''.join(source_html)}</div>
+        </section>
+        <section class="sidebar-block">
+          <p class="sidebar-eyebrow">Проверка</p>
+          <p class="sidebar-text">Статус документа проверен редакцией {verified or "при последнем обновлении базы"}. <a href="/about.html">Как мы проверяем материалы</a>.</p>
         </section>
         <section class="sidebar-block">
           <p class="sidebar-eyebrow">Важно</p>
@@ -1640,6 +1654,12 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
         "description": description_raw,
         "url": canonical,
         "dateModified": verified_at or None,
+        "reviewedBy": {
+            "@type": "Organization",
+            "name": "Редакция СпецАвтоПортала",
+            "url": f"{BASE_URL}/about.html",
+        },
+        "inLanguage": "ru-RU",
         "about": {
             "@type": "Legislation",
             "name": get_field(item, "code"),
