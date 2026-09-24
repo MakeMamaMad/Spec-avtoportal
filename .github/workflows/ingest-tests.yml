@@ -1,4 +1,4 @@
-name: Ingest Unit Tests
+name: Checks — News Ingest Tests
 
 on:
   pull_request:
