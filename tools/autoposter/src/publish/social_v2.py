@@ -7,8 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .instagram import publish_reel
-from .tiktok import upload_video_draft
+from .buffer import publish_video as publish_buffer_video
 from .youtube import upload_video
 
 
@@ -43,7 +42,7 @@ def _load_social_state() -> dict[str, Any]:
 
 def _platform_done(entry: dict[str, Any], platform: str) -> bool:
     record = (entry.get("platforms") or {}).get(platform) or {}
-    return record.get("status") in {"published", "draft_uploaded"}
+    return record.get("status") in {"published", "submitted", "draft_uploaded"}
 
 
 def _record(
@@ -120,22 +119,19 @@ def publish_all(*, dry_run: bool = False) -> dict[str, Any]:
     slug = str(manifest.get("slug") or "")
     title = str(board.get("title") or manifest.get("title") or "СпецАвтоПортал")
     master = OUT_DIR / "master.mp4"
-    tiktok_video = OUT_DIR / "tiktok.mp4"
     if not master.exists():
         raise RuntimeError(f"master video missing: {master}")
 
-    platforms = _configured_platforms(os.getenv("SOCIAL_PLATFORMS", "youtube,instagram,tiktok"))
+    platforms = _configured_platforms(os.getenv("SOCIAL_PLATFORMS", "youtube,tiktok,instagram"))
     state = _load_social_state()
     entry = (state.get("content") or {}).get(content_key) or {}
     summary: dict[str, Any] = {"content_key": content_key, "title": title, "platforms": {}}
-    success_count = 0
 
     for platform in platforms:
         if _platform_done(entry, platform):
             previous = (entry.get("platforms") or {}).get(platform) or {}
             print(f"[social] {platform}: already {previous.get('status')}, skip")
             summary["platforms"][platform] = {"status": "already_done"}
-            success_count += 1
             continue
 
         if dry_run:
@@ -147,9 +143,7 @@ def publish_all(*, dry_run: bool = False) -> dict[str, Any]:
             if platform == "youtube":
                 token_file = Path(os.getenv("YOUTUBE_TOKEN_FILE", "youtube_token.json"))
                 if not token_file.exists():
-                    print("[social] youtube: YOUTUBE_TOKEN_FILE missing, skip")
-                    summary["platforms"][platform] = {"status": "not_configured"}
-                    continue
+                    raise RuntimeError("YOUTUBE_TOKEN_FILE missing")
 
                 youtube_title = str(board.get("youtube_title") or title).strip()[:100]
                 description = _caption(OUT_DIR / "caption_youtube.txt")
@@ -168,36 +162,31 @@ def publish_all(*, dry_run: bool = False) -> dict[str, Any]:
                     "url": f"https://www.youtube.com/shorts/{result_id}" if result_id else "",
                 }
 
-            elif platform == "instagram":
-                token = os.getenv("INSTAGRAM_ACCESS_TOKEN", "").strip()
-                ig_user_id = os.getenv("INSTAGRAM_IG_USER_ID", "").strip()
-                if not token or not ig_user_id:
-                    print("[social] instagram: credentials missing, skip")
-                    summary["platforms"][platform] = {"status": "not_configured"}
-                    continue
+            elif platform in {"tiktok", "instagram"}:
+                api_key = os.getenv("BUFFER_API_KEY", "").strip()
+                if not api_key:
+                    raise RuntimeError("BUFFER_API_KEY missing")
 
-                result = publish_reel(
-                    master,
-                    caption=_caption(OUT_DIR / "caption_instagram.txt"),
-                    ig_user_id=ig_user_id,
-                    access_token=token,
-                    share_to_feed=os.getenv("INSTAGRAM_SHARE_TO_FEED", "1").strip() == "1",
-                    api_version=os.getenv("INSTAGRAM_API_VERSION", "v26.0").strip(),
-                    graph_base=os.getenv("INSTAGRAM_GRAPH_BASE", "https://graph.facebook.com").strip(),
+                if platform == "tiktok":
+                    video_url = os.getenv("BUFFER_TIKTOK_VIDEO_URL", "").strip()
+                    caption = _caption(OUT_DIR / "caption_tiktok.txt")
+                    preferred_name = os.getenv("BUFFER_TIKTOK_CHANNEL_NAME", "specavtoportal").strip()
+                else:
+                    video_url = os.getenv("BUFFER_INSTAGRAM_VIDEO_URL", "").strip()
+                    caption = _caption(OUT_DIR / "caption_instagram.txt")
+                    preferred_name = os.getenv("BUFFER_INSTAGRAM_CHANNEL_NAME", "specavtoportal").strip()
+
+                if not video_url:
+                    raise RuntimeError(f"BUFFER_{platform.upper()}_VIDEO_URL missing")
+
+                result = publish_buffer_video(
+                    api_key=api_key,
+                    service=platform,
+                    preferred_name=preferred_name,
+                    video_url=video_url,
+                    text=caption,
+                    wait_seconds=int(os.getenv("BUFFER_PUBLISH_WAIT_SECONDS", "120")),
                 )
-
-            elif platform == "tiktok":
-                token = os.getenv("TIKTOK_ACCESS_TOKEN", "").strip()
-                if not token:
-                    print("[social] tiktok: TIKTOK_ACCESS_TOKEN missing, skip")
-                    summary["platforms"][platform] = {"status": "not_configured"}
-                    continue
-                if not tiktok_video.exists():
-                    raise RuntimeError("TikTok-safe video missing; run current src.v2_main")
-
-                # Until the TikTok app has passed Direct Post review, the compliant
-                # path is upload-to-inbox/drafts for final creator review.
-                result = upload_video_draft(tiktok_video, access_token=token)
 
             else:
                 continue
@@ -206,7 +195,6 @@ def publish_all(*, dry_run: bool = False) -> dict[str, Any]:
             _record(state, content_key, title=title, platform=platform, result=result)
             entry = (state.get("content") or {}).get(content_key) or {}
             summary["platforms"][platform] = result
-            success_count += 1
 
         except Exception as exc:
             error_result = {
@@ -219,13 +207,17 @@ def publish_all(*, dry_run: bool = False) -> dict[str, Any]:
             entry = (state.get("content") or {}).get(content_key) or {}
             summary["platforms"][platform] = error_result
 
-    if success_count > 0:
+    final_entry = (state.get("content") or {}).get(content_key) or {}
+    all_done = bool(platforms) and all(_platform_done(final_entry, platform) for platform in platforms)
+    if all_done:
         _mark_v2_used(content_key, slug, title)
+        print(f"[social] complete: all configured platforms done for {content_key}")
+    else:
+        pending = [platform for platform in platforms if not _platform_done(final_entry, platform)]
+        print(f"[social] incomplete: pending={pending}")
 
-    if os.getenv("SOCIAL_STRICT", "0").strip() == "1":
-        errors = [x for x in summary["platforms"].values() if x.get("status") == "error"]
-        if errors:
-            raise RuntimeError(f"social publish errors: {errors}")
+    if os.getenv("SOCIAL_STRICT", "0").strip() == "1" and not all_done:
+        raise RuntimeError(f"social publish incomplete: {summary['platforms']}")
 
     print("[social] summary", json.dumps(summary, ensure_ascii=False))
     return summary
