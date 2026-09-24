@@ -1,4 +1,4 @@
-name: Safe Auto Merge
+name: Maintenance — Safe Auto Merge
 
 on:
   pull_request_target:
@@ -92,9 +92,9 @@ jobs:
               for name in filenames
           )
 
-          required = {"QA"}
+          required = {"Checks — Full QA"}
           if needs_ingest_tests:
-              required.add("Ingest Unit Tests")
+              required.add("Checks — News Ingest Tests")
 
           print("Required checks:", ", ".join(sorted(required)))
 
