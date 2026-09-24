@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import heapq
 import html
 import json
 import re
@@ -626,40 +627,58 @@ def sat_recommendation_html(products: list[dict[str, Any]], placement: str) -> s
     )
 
 
+_RELATED_PROFILE_CACHE: dict[str, tuple[frozenset[str], frozenset[str], frozenset[str], float, bool]] = {}
+
+
+def related_profile(item: dict[str, Any]) -> tuple[frozenset[str], frozenset[str], frozenset[str], float, bool]:
+    """Cache semantic features once per article so related-link generation stays O(n²) with cheap set ops."""
+    slug = str(item.get("slug") or "")
+    cached = _RELATED_PROFILE_CACHE.get(slug)
+    if cached is not None:
+        return cached
+
+    published = parse_date(get_field(item, "published_at", "date", "pub_date"))
+    profile = (
+        frozenset(brand["slug"] for brand in brands_for(item)),
+        frozenset(topic["slug"] for topic in topics_for(item)),
+        frozenset(tag.lower() for tag in tags(item)),
+        published.timestamp() if published else 0.0,
+        is_indexable_news(item),
+    )
+    if slug:
+        _RELATED_PROFILE_CACHE[slug] = profile
+    return profile
+
+
 def related_news_for(item: dict[str, Any], items: list[dict[str, Any]], limit: int = 3) -> list[dict[str, Any]]:
     """Choose related stories by shared brands/topics/tags, then recency."""
     current_slug = str(item.get("slug") or "")
-    current_brands = {brand["slug"] for brand in brands_for(item)}
-    current_topics = {topic["slug"] for topic in topics_for(item)}
-    current_tags = {tag.lower() for tag in tags(item)}
+    current_brands, current_topics, current_tags, _, _ = related_profile(item)
 
     scored: list[tuple[int, float, dict[str, Any]]] = []
     fallback: list[tuple[float, dict[str, Any]]] = []
     for candidate in items:
-        if not candidate.get("slug") or candidate.get("slug") == current_slug:
-            continue
-        if not is_indexable_news(candidate):
+        candidate_slug = str(candidate.get("slug") or "")
+        if not candidate_slug or candidate_slug == current_slug:
             continue
 
-        candidate_brands = {brand["slug"] for brand in brands_for(candidate)}
-        candidate_topics = {topic["slug"] for topic in topics_for(candidate)}
-        candidate_tags = {tag.lower() for tag in tags(candidate)}
+        candidate_brands, candidate_topics, candidate_tags, stamp, indexable = related_profile(candidate)
+        if not indexable:
+            continue
+
         score = 8 * len(current_brands & candidate_brands)
         score += 4 * len(current_topics & candidate_topics)
         score += 2 * len(current_tags & candidate_tags)
-
-        published = parse_date(get_field(candidate, "published_at", "date", "pub_date"))
-        stamp = published.timestamp() if published else 0.0
         fallback.append((stamp, candidate))
         if score > 0:
             scored.append((score, stamp, candidate))
 
-    scored.sort(key=lambda row: (-row[0], -row[1]))
-    selected = [candidate for _, _, candidate in scored[:limit]]
+    best = heapq.nlargest(limit, scored, key=lambda row: (row[0], row[1]))
+    selected = [candidate for _, _, candidate in best]
     if len(selected) < limit:
         used = {str(candidate.get("slug") or "") for candidate in selected}
-        fallback.sort(key=lambda row: -row[0])
-        for _, candidate in fallback:
+        recent = heapq.nlargest(limit + len(selected) + 2, fallback, key=lambda row: row[0])
+        for _, candidate in recent:
             if str(candidate.get("slug") or "") in used:
                 continue
             selected.append(candidate)
