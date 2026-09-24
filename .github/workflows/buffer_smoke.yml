@@ -2,11 +2,6 @@ name: Buffer API Smoke
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "tools/autoposter/src/publish/buffer.py"
-      - ".github/workflows/buffer_smoke.yml"
 
 permissions:
   contents: read
