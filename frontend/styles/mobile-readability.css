@@ -1,0 +1,53 @@
+/* Mobile readability overrides for Yandex Webmaster and small screens.
+   Keeps all meaningful UI text at 12px or larger. */
+
+@media (max-width: 720px) {
+  .main-nav .nav-link,
+  .eyebrow,
+  .section-kicker,
+  .sidebar-eyebrow,
+  .featured-meta,
+  .featured-tag,
+  .search-wrap label,
+  .filters-label,
+  .search-control kbd,
+  .news-card-category,
+  .news-card-meta,
+  .tag-badge,
+  .tags-cloud li,
+  .partner-card__label,
+  .partner-card__domain,
+  .partner-card__brand,
+  .partner-card__button,
+  .partner-card__product small,
+  .partner-card__product b,
+  .partner-card__note,
+  .tg-promo__label,
+  .footer-note {
+    font-size: 12px;
+  }
+
+  .partner-card__subtitle,
+  .footer-grid p,
+  .footer-nav {
+    font-size: 12px;
+  }
+
+  .main-nav .nav-link {
+    line-height: 1.2;
+  }
+
+  .partner-card__label,
+  .partner-card__domain,
+  .partner-card__brand,
+  .partner-card__product small,
+  .partner-card__note {
+    letter-spacing: .05em;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-nav .nav-link {
+    font-size: 12px;
+  }
+}
