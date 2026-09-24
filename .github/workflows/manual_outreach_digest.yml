@@ -1,0 +1,35 @@
+name: Control — Manual Outreach Digest
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 14:00 Moscow time (UTC+3), after the 13:15 Telegram promotion run.
+    - cron: '0 11 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: specavto-manual-outreach-digest
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Send daily manual outreach list
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          REPORT_TELEGRAM_CHAT_ID: ${{ secrets.REPORT_TELEGRAM_CHAT_ID }}
+        run: |
+          python tools/send_manual_outreach_digest.py
