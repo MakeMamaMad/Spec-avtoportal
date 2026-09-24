@@ -3,15 +3,21 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlencode
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from promotion.core.manual_queue import upsert_manual_action
+from promotion.core.tracking import build_tracking_url
 KNOWLEDGE_PATH = ROOT / "frontend/data/knowledge_articles.json"
 TARGETS_PATH = ROOT / "promotion/targets.json"
 HISTORY_PATH = ROOT / "frontend/data/promotion/editorial_history.json"
+LEGACY_HISTORY_PATH = ROOT / "frontend/data/promotion_history.json"
 QUEUE_PATH = ROOT / "frontend/data/promotion/editorial_queue.json"
 MANUAL_QUEUE_PATH = ROOT / "frontend/data/promotion/manual_queue.json"
 
@@ -86,15 +92,13 @@ def relevance(article: dict[str, Any], target: dict[str, Any]) -> int:
 
 
 def tracking_url(slug: str, target_id: str) -> str:
-    params = urlencode(
-        {
-            "utm_source": target_id,
-            "utm_medium": "editorial",
-            "utm_campaign": "industry_editorial",
-            "utm_content": slug,
-        }
+    return build_tracking_url(
+        f"https://spec-avtoportal.ru/knowledge/{slug}/",
+        source=target_id,
+        medium="editorial",
+        campaign="industry_editorial",
+        content=slug,
     )
-    return f"https://spec-avtoportal.ru/knowledge/{slug}/?{params}"
 
 
 def article_body(article: dict[str, Any], site_url: str) -> str:
@@ -213,35 +217,28 @@ def manual_action(entry: dict[str, Any], now: str) -> dict[str, Any]:
     }
 
 
-def upsert_manual(entries: list[dict[str, Any]], action: dict[str, Any]) -> None:
-    action_id = str(action.get("action_id") or "")
-    for row in entries:
-        if str(row.get("action_id") or "") == action_id:
-            if str(row.get("status") or "") not in {"completed", "dismissed"}:
-                row.update({k: v for k, v in action.items() if k != "created_at"})
-            return
-    entries.append(action)
-
-
 def main() -> int:
     now = datetime.now(timezone.utc)
     now_text = utc_now()
     knowledge = load_json(KNOWLEDGE_PATH, {"items": []})
     targets_data = load_json(TARGETS_PATH, {"targets": []})
     history_data = load_json(HISTORY_PATH, {"entries": []})
+    legacy_history_data = load_json(LEGACY_HISTORY_PATH, {"entries": []})
     manual_data = load_json(MANUAL_QUEUE_PATH, {"schema": 1, "entries": []})
 
     articles = [x for x in knowledge.get("items", []) if isinstance(x, dict)]
     targets = [x for x in targets_data.get("targets", []) if isinstance(x, dict)]
-    history = [x for x in history_data.get("entries", []) if isinstance(x, dict)]
-    action = pick_action(articles, targets, history, now)
+    editorial_history = [x for x in history_data.get("entries", []) if isinstance(x, dict)]
+    legacy_history = [x for x in legacy_history_data.get("entries", []) if isinstance(x, dict)]
+    planning_history = editorial_history + legacy_history
+    action = pick_action(articles, targets, planning_history, now)
 
     entries = []
     if action:
         entries.append(action)
         if action["execution"] == "manual":
-            upsert_manual(manual_data.setdefault("entries", []), manual_action(action, now_text))
-            history.append(
+            upsert_manual_action(manual_data.setdefault("entries", []), manual_action(action, now_text))
+            editorial_history.append(
                 {
                     "target_id": action.get("target_id"),
                     "target_name": action.get("target_name"),
@@ -252,7 +249,7 @@ def main() -> int:
                     "status": "manual_prepared",
                 }
             )
-            history_data["entries"] = history
+            history_data["entries"] = editorial_history
             save_json(HISTORY_PATH, history_data)
             manual_data["updated_at"] = now_text
             save_json(MANUAL_QUEUE_PATH, manual_data)
