@@ -2,6 +2,10 @@ name: Video — Generate & Publish (YouTube + TikTok + Instagram)
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/autoposter.yml"
   schedule:
     # Primary schedule, UTC. Moscow time is UTC+3 year-round.
     - cron: "30 7 * * *"   # 10:30 MSK
@@ -51,7 +55,7 @@ jobs:
           slot = ""
           should_run = False
 
-          if event == "workflow_dispatch":
+          if event in {"workflow_dispatch", "push"}:
               slot = "manual"
               should_run = True
           elif event == "schedule":
@@ -125,13 +129,11 @@ jobs:
 
       - name: Restore YouTube credentials
         env:
-          YT_CLIENT_B64: ${{ secrets.YOUTUBE_CLIENT_SECRETS_B64 }}
           YT_TOKEN_B64: ${{ secrets.YOUTUBE_TOKEN_B64 }}
         run: |
           cd tools/autoposter
-          printf '%s' "$YT_CLIENT_B64" | base64 -d > client_secrets.json
+          test -n "$YT_TOKEN_B64"
           printf '%s' "$YT_TOKEN_B64" | base64 -d > youtube_token.json
-          test -s client_secrets.json
           test -s youtube_token.json
 
       - name: Generate AI Short v2
