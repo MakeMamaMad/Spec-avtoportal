@@ -1,4 +1,4 @@
-name: Legacy External Article Publisher
+name: Legacy — External Article Publisher
 
 on:
   workflow_dispatch:
