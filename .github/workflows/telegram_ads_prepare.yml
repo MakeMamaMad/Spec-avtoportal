@@ -1,0 +1,56 @@
+name: Prepare Telegram Ads
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'promotion/telegram_ads_config.json'
+      - 'promotion/publish_telegram_ads_landing.py'
+      - 'promotion/build_telegram_ads_package.py'
+      - '.github/workflows/telegram_ads_prepare.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: prepare-telegram-ads
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Publish or reuse Telegram Ads landing post
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python promotion/publish_telegram_ads_landing.py
+
+      - name: Build Telegram Ads setup package
+        run: |
+          python promotion/build_telegram_ads_package.py
+
+      - name: Commit Telegram Ads state
+        run: |
+          git config user.name "specavto-promotion"
+          git config user.email "actions@users.noreply.github.com"
+          git add frontend/data/telegram_ads_state.json frontend/data/telegram_ads_package.json || true
+          if git diff --cached --quiet; then
+            echo "No Telegram Ads state changes"
+            exit 0
+          fi
+          git commit -m "promotion: prepare Telegram Ads campaign"
+          git pull --rebase origin main
+          git push origin main
