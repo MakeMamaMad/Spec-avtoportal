@@ -1,4 +1,4 @@
-name: Legacy External Article Promotion Queue
+name: Legacy — External Article Promotion Queue
 
 on:
   workflow_dispatch:
