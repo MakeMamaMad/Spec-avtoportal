@@ -1,4 +1,4 @@
-name: Shorts v2 Preview
+name: Video — Preview Generator
 
 on:
   workflow_dispatch:
