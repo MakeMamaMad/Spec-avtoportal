@@ -30,15 +30,30 @@ def status_icon(conclusion: str) -> str:
 def catalog_details() -> list[str]:
     summary = load_json(ROOT / "frontend/data/daily_catalog_target.json", {})
     attempts = summary.get("attempts") or []
-    lines = []
-    if summary.get("status"):
-        lines.append(f"**Каталоги:** {summary.get('status')}")
+    lines = ["**Каталоги:**"]
     for row in attempts[-8:]:
-        name = row.get("target_name") or row.get("target_id") or "catalog"
-        status = row.get("status") or "unknown"
-        detail = str(row.get("detail") or "").strip()
-        suffix = f" — {detail}" if detail else ""
-        lines.append(f"- {name}: {status}{suffix}")
+        name = str(row.get("target_name") or row.get("target_id") or "Каталог")
+        status = str(row.get("status") or "")
+        detail = str(row.get("detail") or "")
+        if status in {"submitted", "accepted", "published"}:
+            result = "✅ заявка отправлена"
+        elif status == "under_moderation":
+            result = "✅ отправлено на модерацию"
+        elif status == "needs_manual" and ("CAPTCHA" in detail.upper() or "verification" in detail.lower()):
+            result = "⏭️ пропущен — требуется CAPTCHA/ручная проверка"
+        elif status == "needs_manual":
+            result = "⏭️ пропущен — требуется ручное действие"
+        elif status == "technical_failure":
+            result = "⏭️ пропущен — форма не подходит для автоматической отправки"
+        elif status == "unavailable":
+            result = "⏭️ пропущен — каталог недоступен"
+        elif status == "rejected":
+            result = "❌ заявка отклонена"
+        else:
+            result = "ℹ️ проверен"
+        lines.append(f"- {name}: {result}")
+    if attempts and not any(x.get("status") in {"submitted", "under_moderation", "published", "accepted"} for x in attempts):
+        lines.append("- Итог: нового автоматического размещения нет; неподходящие каталоги отсеяны.")
     return lines
 
 
@@ -48,10 +63,16 @@ def telegram_promo_details() -> list[str]:
     if not rows:
         return []
     row = rows[-1]
-    lines = [f"**Telegram promotion:** {row.get('target_name') or row.get('target_id')} — {row.get('status')}"]
-    if row.get("detail"):
-        lines.append(f"- {str(row.get('detail') or '').strip()}")
-    return lines
+    status = str(row.get("status") or "")
+    detail = str(row.get("detail") or "")
+    if status == "published":
+        return [f"**Telegram promotion:** ✅ размещение опубликовано — {row.get('target_name') or row.get('target_id')}"]
+    if status in {"waiting_bot_to_bot", "outreach_unavailable"} and "USER_BOT_TO_BOT_DISABLED" in detail:
+        return [
+            "**Telegram promotion:** ⏸️ автоматическое обращение к рекламной площадке пока недоступно.",
+            "- Причина на стороне рекламного бота площадки. От владельца SpecAvtoPortal действий не требуется.",
+        ]
+    return ["**Telegram promotion:** ℹ️ новых внешних размещений пока нет."]
 
 
 def ads_details() -> list[str]:
@@ -86,8 +107,16 @@ def main() -> int:
         print("SKIP_REPORT")
         return 0
 
+    human_conclusion = {
+        "success": "успешно",
+        "failure": "ошибка",
+        "cancelled": "отменено",
+        "skipped": "пропущено",
+        "timed_out": "тайм-аут",
+    }.get(conclusion, conclusion)
+
     lines = [
-        f"### {status_icon(conclusion)} {name} — {conclusion}",
+        f"### {status_icon(conclusion)} {name} — {human_conclusion}",
         "",
         f"- Ветка: {branch}",
         f"- Commit: {sha}",
