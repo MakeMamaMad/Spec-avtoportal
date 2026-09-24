@@ -8,6 +8,19 @@
       "result_url": "https://pdfcatalog.ru/index.php?page=addsite1",
       "submitted_at": "2026-09-23T13:20:46+00:00",
       "status": "submitted"
+    },
+    {
+      "target_id": "amt-catalog",
+      "target_name": "AMT-Catalog",
+      "site_url": "https://spec-avtoportal.ru/",
+      "tracking_url": "https://spec-avtoportal.ru/?utm_source=amt-catalog&utm_medium=directory&utm_campaign=catalog_promotion&utm_content=site_listing",
+      "utm_source": "amt-catalog",
+      "utm_medium": "directory",
+      "utm_campaign": "catalog_promotion",
+      "result_url": "https://www.amt-catalog.com/add_url/",
+      "attempted_at": "2026-09-24T12:43:47+00:00",
+      "status": "needs_manual",
+      "detail": "CAPTCHA/manual verification detected"
     }
   ]
 }
