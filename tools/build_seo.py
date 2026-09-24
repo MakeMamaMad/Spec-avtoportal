@@ -1567,8 +1567,8 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
           <div class="knowledge-sources">{''.join(source_html)}</div>
         </section>
         <section class="sidebar-block">
-          <p class="sidebar-eyebrow">Проверка</p>
-          <p class="sidebar-text">Статус документа проверен редакцией {verified or "при последнем обновлении базы"}. <a href="/about.html">Как мы проверяем материалы</a>.</p>
+          <p class="sidebar-eyebrow">Редакционная проверка</p>
+          <p class="sidebar-text">Материал проверен при обновлении базы {html.escape(updated_at or "—")}. <a href="/about.html">Методология редакции</a>.</p>
         </section>
         <section class="sidebar-block">
           <p class="sidebar-eyebrow">Важно</p>
@@ -1745,6 +1745,10 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
           <h3>{source_name}</h3>
           <p class="sidebar-text">Перед применением требований проверяйте текущую редакцию и статус документа в официальном источнике.</p>
           <a class="partner-card__button" href="{source_url_escaped}" target="_blank" rel="noopener">Открыть официальный документ <span>↗</span></a>
+        </section>
+        <section class="sidebar-block">
+          <p class="sidebar-eyebrow">Проверка</p>
+          <p class="sidebar-text">Статус документа проверен редакцией {verified or "при последнем обновлении базы"}. <a href="/about.html">Методология редакции</a>.</p>
         </section>
         <section class="sidebar-block">
           <p class="sidebar-eyebrow">Важно</p>
