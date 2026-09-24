@@ -1,0 +1,93 @@
+name: Buffer Instagram Test Upload
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/buffer_instagram_test.yml"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Download known-good Shorts artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: first-youtube-short-v2-retry
+          path: /tmp/shorts
+          repository: MakeMamaMad/Spec-avtoportal
+          run-id: 35961342632
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Buffer Instagram automatic post
+        env:
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+        run: |
+          python - <<'PY'
+          import json, os, pathlib, urllib.request
+
+          video_url = "https://raw.githubusercontent.com/MakeMamaMad/Spec-avtoportal/main/buffer-media/tiktok-test-35961342632.mp4"
+          caption_path = pathlib.Path("/tmp/shorts/caption_instagram.txt")
+          text = caption_path.read_text(encoding="utf-8").strip() if caption_path.exists() else "СпецАвтоПортал"
+
+          query = r"""
+          mutation CreateVideoPost($input: CreatePostInput!) {
+            createPost(input: $input) {
+              ... on PostActionSuccess {
+                post {
+                  id
+                  status
+                  schedulingType
+                  shareMode
+                  text
+                }
+              }
+              ... on MutationError {
+                message
+              }
+            }
+          }
+          """
+
+          variables = {
+            "input": {
+              "text": text,
+              "channelId": "6ab4eb6bea19ca0bded34b83",
+              "schedulingType": "automatic",
+              "mode": "shareNow",
+              "assets": [
+                {
+                  "video": {
+                    "url": video_url,
+                    "metadata": {"thumbnailOffset": 1000}
+                  }
+                }
+              ]
+            }
+          }
+
+          body = json.dumps({"query": query, "variables": variables}).encode()
+          req = urllib.request.Request(
+              "https://api.buffer.com",
+              data=body,
+              headers={
+                  "Authorization": "Bearer " + os.environ["BUFFER_API_KEY"],
+                  "Content-Type": "application/json",
+              },
+          )
+          with urllib.request.urlopen(req, timeout=60) as r:
+              payload = json.loads(r.read().decode())
+          print(json.dumps(payload, ensure_ascii=False))
+          if payload.get("errors"):
+              raise SystemExit(1)
+          result = (payload.get("data") or {}).get("createPost") or {}
+          post = result.get("post") or {}
+          if not post.get("id"):
+              raise SystemExit("Buffer did not return a post id: " + json.dumps(result, ensure_ascii=False))
+          PY
