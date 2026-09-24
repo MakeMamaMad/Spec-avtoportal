@@ -27,6 +27,27 @@
       "sent_at": "2026-09-23T19:48:22+00:00",
       "title": "UMG «СДМ» представит продукцию брянских предприятий  Группы на выставке «Иннопром. Беларусь»",
       "slug": "umg-sdm-predstavit-produktsiyu-bryanskih-predpriyatiy-gruppy-na-vystavke-9cc7bd13"
+    },
+    "http://gruzovoy.ru/news/industry/3379_chmzap_pokazal_nizkoramnii_polypricep_s_samoystanavlivaushimisya_osyami.html": {
+      "digest_id": "2026-09-24:pm",
+      "post_id": 5,
+      "sent_at": "2026-09-24T12:09:05+00:00",
+      "title": "ЧМЗАП показал низкорамный полуприцеп с самоустанавливающимися осями",
+      "slug": "chmzap-pokazal-nizkoramnyy-polupritsep-s-samoustanavlivayuschimisya-osya-ccf60032"
+    },
+    "http://gruzovoy.ru/news/industry/3378_novaya_ekosistema_vistavki_kommercheskogo_transporta_i_tehnologii_comvex.html": {
+      "digest_id": "2026-09-24:pm",
+      "post_id": 5,
+      "sent_at": "2026-09-24T12:09:05+00:00",
+      "title": "Новая экосистема выставки коммерческого транспорта и технологий COMvex",
+      "slug": "novaya-ekosistema-vystavki-kommercheskogo-transporta-i-tehnologiy-comvex-18eeae22"
+    },
+    "https://www.globaltrailermag.com/jost-names-new-apac-ceo/": {
+      "digest_id": "2026-09-24:pm",
+      "post_id": 5,
+      "sent_at": "2026-09-24T12:09:05+00:00",
+      "title": "JOST назвал нового генерального директора APAC",
+      "slug": "jost-nazval-novogo-generalnogo-direktora-apac-7a5f085c"
     }
   },
   "digests": {
@@ -38,6 +59,17 @@
       "items": [
         "http://gruzovoy.ru/news/industry/3376_kamaz_planiryet_nachat_seriinii_vipysk_tyristicheskih_avtobysov_v_2027_gody.html",
         "https://truckmix.ru/news/umg-sdm-predstavit-prodykciu-bryanskih-predpriyatii-gryppi-na-vistavke-innoprom-belarys"
+      ]
+    },
+    "2026-09-24:pm": {
+      "post_id": 5,
+      "sent_at": "2026-09-24T12:09:05+00:00",
+      "slot": "pm",
+      "visual": "link_preview",
+      "items": [
+        "http://gruzovoy.ru/news/industry/3379_chmzap_pokazal_nizkoramnii_polypricep_s_samoystanavlivaushimisya_osyami.html",
+        "http://gruzovoy.ru/news/industry/3378_novaya_ekosistema_vistavki_kommercheskogo_transporta_i_tehnologii_comvex.html",
+        "https://www.globaltrailermag.com/jost-names-new-apac-ceo/"
       ]
     }
   }
