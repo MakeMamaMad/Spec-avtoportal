@@ -2,11 +2,6 @@ name: Telegram Editorial Digest
 
 on:
   workflow_dispatch:
-  # Temporary push trigger used once to launch the repaired digest from this commit.
-  push:
-    branches: [ main ]
-    paths:
-      - '.github/workflows/daily_digest.yml'
   schedule:
     # 09:30 and 19:30 Moscow time (UTC+3)
     - cron: '30 6 * * *'
