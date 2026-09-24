@@ -68,13 +68,16 @@ jobs:
           grep -qx 'google-site-verification: google503ab71f3bfbea30.html' frontend/google503ab71f3bfbea30.html || (echo "Google verification file modified during build" && exit 1)
           ! grep -q 'metrika.js' frontend/google503ab71f3bfbea30.html || (echo "Metrika leaked into Google verification file" && exit 1)
           python3 - <<'PY'
+          import re
           from pathlib import Path
           bad = []
           for path in Path("frontend").rglob("*.html"):
-              if "\\n" in path.read_text(encoding="utf-8"):
+              text = path.read_text(encoding="utf-8")
+              visible_markup = re.sub(r"<script\\b.*?</script>", "", text, flags=re.I | re.S)
+              if "\\n" in visible_markup:
                   bad.append(str(path))
           if bad:
-              raise SystemExit("Literal \\n escape leaked into HTML: " + ", ".join(bad[:20]))
+              raise SystemExit("Literal \\n escape leaked into visible HTML: " + ", ".join(bad[:20]))
           PY
           grep -q 'SEO_NEWS_LIST_START --><article' frontend/index.html || (echo "homepage news was not pre-rendered" && exit 1)
           grep -q 'Sitemap: https://spec-avtoportal.ru/news-sitemap.xml' frontend/robots.txt || (echo "news sitemap missing from robots.txt" && exit 1)
