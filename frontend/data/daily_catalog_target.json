@@ -1,8 +1,27 @@
 {
-  "schema": 1,
+  "schema": 2,
   "date_moscow": "2026-09-24",
-  "target_id": "amt-catalog",
-  "target_name": "AMT-Catalog",
-  "submission_url": "https://www.amt-catalog.com/add_url/",
-  "selected_at": "2026-09-24T12:43:03+00:00"
+  "status": "queue_exhausted",
+  "attempts": [
+    {
+      "target_id": "catalog-ru-net",
+      "target_name": "Catalog.ru.net",
+      "status": "technical_failure",
+      "detail": "Required fields not confidently identified: url=False, title=False, description=True",
+      "result_url": "https://catalog.ru.net/",
+      "tracking_url": "https://spec-avtoportal.ru/?utm_source=catalog-ru-net&utm_medium=directory&utm_campaign=catalog_promotion&utm_content=site_listing"
+    },
+    {
+      "target_id": "conti-group",
+      "target_name": "Conti-Group",
+      "status": "needs_manual",
+      "detail": "CAPTCHA/manual verification detected",
+      "result_url": "https://conti-group.ru/dobavlenie/",
+      "tracking_url": "https://spec-avtoportal.ru/?utm_source=conti-group&utm_medium=directory&utm_campaign=catalog_promotion&utm_content=site_listing"
+    }
+  ],
+  "detail": "All currently available automatic catalog targets were checked; none accepted a submission.",
+  "updated_at": "2026-09-24T17:36:40+00:00",
+  "target_id": "conti-group",
+  "target_name": "Conti-Group"
 }
