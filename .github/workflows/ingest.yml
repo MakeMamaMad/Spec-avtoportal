@@ -1,4 +1,4 @@
-name: Ingest & Publish
+name: News — Fetch & Publish
 
 on:
   workflow_dispatch:
