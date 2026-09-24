@@ -1,4 +1,4 @@
-name: Buffer Instagram Test Upload
+name: Diagnostics — Instagram Test Upload
 
 on:
   workflow_dispatch:
