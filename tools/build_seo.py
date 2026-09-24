@@ -2178,10 +2178,22 @@ def write_sitemap(
     (FRONTEND / "robots.txt").write_text(robots, encoding="utf-8")
 
 
+def is_search_verification_file(path: Path) -> bool:
+    """Keep search-engine ownership verification files byte-stable."""
+    name = path.name.lower()
+    return bool(
+        re.fullmatch(r"yandex_[a-z0-9]+\\.html", name)
+        or re.fullmatch(r"google[a-z0-9]+\\.html", name)
+        or name in {"bingSiteAuth.xml".lower()}
+    )
+
+
 def inject_metrika_into_pages() -> int:
-    """Inject Yandex Metrika into every deployable HTML page exactly once."""
+    """Inject Yandex Metrika into normal site HTML, never verification files."""
     changed = 0
     for path in FRONTEND.rglob("*.html"):
+        if is_search_verification_file(path):
+            continue
         text = path.read_text(encoding="utf-8")
         original = text
         if METRIKA_SCRIPT_TAG not in text and "</head>" in text:
