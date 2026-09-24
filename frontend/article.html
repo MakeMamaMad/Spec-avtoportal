@@ -2,9 +2,10 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <title>Статья — СпецАвтоПортал</title>
+  <title>Материал перенесён — СпецАвтоПортал</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex,follow" />
+  <link rel="canonical" href="https://spec-avtoportal.ru/" />
   <link rel="stylesheet" href="./styles.css" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon">
   <link rel="shortcut icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon">
@@ -14,35 +15,26 @@
 <body class="article-page">
   <header class="site-header">
     <div class="container header-inner">
-      <a href="index.html" class="logo">
-        <img src="assets/logo.png" alt="СпецТрейлеры" class="logo-img" />
-        <span class="logo-text">
-          СпецТрейлеры
-          <span class="logo-sub">Новости, ГОСТы и гайды</span>
-        </span>
+      <a href="/" class="brand" aria-label="СпецАвтоПортал — на главную">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
+        <span class="brand-copy"><strong>СпецАвтоПортал</strong><small>рынок · техника · регламенты</small></span>
       </a>
-
-      <nav class="main-nav">
-        <a href="./index.html" class="nav-link nav-link-active">Новости</a>
-        <a href="./law.html" class="nav-link">Законодательство / ГОСТы</a>
-        <a href="./guides.html" class="nav-link">Гайды и регламенты</a>
-        <a href="./video.html" class="nav-link">Видео</a>
+      <nav class="main-nav" aria-label="Основная навигация">
+        <a href="/" class="nav-link nav-link-active">Новости</a>
+        <a href="/brands/" class="nav-link">Бренды</a>
+        <a href="/knowledge.html" class="nav-link">База знаний</a>
       </nav>
-
-      <a href="/go/tg.html?utm_source=site&utm_medium=button"
-         class="tg-badge"
-         target="_blank"
-         rel="noopener">
-
-        <span class="tg-badge__icon">✈️</span>
-        <span class="tg-badge__text">Новости в Telegram</span>
-      </a>
     </div>
   </header>
 
   <main class="page-main">
     <div class="container article-layout">
-      <article id="article" class="article"></article>
+      <article id="article" class="article">
+        <div class="empty-state">
+          <h1>Материал перенесён</h1>
+          <p>Определяем новый постоянный адрес публикации…</p>
+        </div>
+      </article>
 
       <aside class="article-sidebar">
         <!-- Сначала Telegram-блок -->
@@ -80,32 +72,6 @@
   <script src="./article.js"></script>
 
   <!-- Скрипт, который превращает две последние ссылки в «таб-кнопки» -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const article = document.getElementById('article');
-      if (!article) return;
-
-      const links = article.querySelectorAll('a');
-      if (links.length < 2) return;
-
-      // считаем, что две последние ссылки в статье —
-      // это «Читать в источнике» и «Назад к ленте»
-      const sourceLink = links[links.length - 2];
-      const backLink = links[links.length - 1];
-
-      const parent = sourceLink.parentNode;
-      if (!parent || parent !== backLink.parentNode) return;
-
-      const actions = document.createElement('div');
-      actions.className = 'article-actions';
-
-      sourceLink.classList.add('article-action', 'article-action-primary');
-      backLink.classList.add('article-action', 'article-action-secondary');
-
-      parent.insertBefore(actions, sourceLink);
-      actions.appendChild(sourceLink);
-      actions.appendChild(backLink);
-    });
-  </script>
+  
 </body>
 </html>

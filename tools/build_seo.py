@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import heapq
 import html
 import json
 import re
@@ -33,6 +34,8 @@ from telegram_visual import render_social_card
 
 FRONTEND = ROOT / "frontend"
 NEWS_JSON = FRONTEND / "data" / "news.json"
+NEWS_INDEX_JSON = FRONTEND / "data" / "news-index.json"
+HOME_HTML = FRONTEND / "index.html"
 REGULATIONS_JSON = FRONTEND / "data" / "regulations.json"
 KNOWLEDGE_ARTICLES_JSON = FRONTEND / "data" / "knowledge_articles.json"
 NEWS_DIR = FRONTEND / "news"
@@ -289,12 +292,46 @@ def summary_text(item: dict[str, Any]) -> str:
 
 
 def article_text(item: dict[str, Any]) -> tuple[str, bool]:
-    """Return the longest text explicitly supplied by the feed."""
-    full = strip_html(get_field(item, "content", "content_text", "full_text"))
+    """Return only the short editorial/feed summary for public rendering.
+
+    Full source content may remain in news.json as ingestion material, but it is
+    intentionally never republished on an indexable page. This avoids mirroring
+    third-party articles and also means foreign full-text content never needs to
+    be machine-translated.
+    """
+    return summary_text(item), False
+
+
+def cyrillic_ratio(value: str) -> float:
+    letters = re.findall(r"[A-Za-zА-Яа-яЁё]", value or "")
+    if not letters:
+        return 0.0
+    russian = sum(1 for char in letters if re.match(r"[А-Яа-яЁё]", char))
+    return russian / len(letters)
+
+
+def news_quality_issues(item: dict[str, Any]) -> list[str]:
+    """Return reasons why a news page should not be submitted for indexing."""
+    issues: list[str] = []
+    title = strip_html(get_field(item, "title", "headline", "name"))
     summary = summary_text(item)
-    if full and len(full) > len(summary) + 120:
-        return full, True
-    return summary, False
+    url = source_url(item)
+
+    if not str(item.get("slug") or "").strip():
+        issues.append("missing_slug")
+    if len(title) < 18:
+        issues.append("short_title")
+    if len(summary) < 80:
+        issues.append("thin_summary")
+    if cyrillic_ratio(f"{title} {summary}") < 0.35:
+        issues.append("non_russian")
+    if not url.startswith(("http://", "https://")):
+        issues.append("missing_source")
+    return issues
+
+
+def is_indexable_news(item: dict[str, Any]) -> bool:
+    return not news_quality_issues(item)
 
 
 def source_url(item: dict[str, Any]) -> str:
@@ -590,21 +627,70 @@ def sat_recommendation_html(products: list[dict[str, Any]], placement: str) -> s
     )
 
 
-def random_news_for(item: dict[str, Any], items: list[dict[str, Any]], limit: int = 3) -> list[dict[str, Any]]:
-    """Deterministic pseudo-random picks so each article has a stable varied sidebar."""
+_RELATED_PROFILE_CACHE: dict[str, tuple[frozenset[str], frozenset[str], frozenset[str], float, bool]] = {}
+
+
+def related_profile(item: dict[str, Any]) -> tuple[frozenset[str], frozenset[str], frozenset[str], float, bool]:
+    """Cache semantic features once per article so related-link generation stays O(n²) with cheap set ops."""
+    slug = str(item.get("slug") or "")
+    cached = _RELATED_PROFILE_CACHE.get(slug)
+    if cached is not None:
+        return cached
+
+    published = parse_date(get_field(item, "published_at", "date", "pub_date"))
+    profile = (
+        frozenset(brand["slug"] for brand in brands_for(item)),
+        frozenset(topic["slug"] for topic in topics_for(item)),
+        frozenset(tag.lower() for tag in tags(item)),
+        published.timestamp() if published else 0.0,
+        is_indexable_news(item),
+    )
+    if slug:
+        _RELATED_PROFILE_CACHE[slug] = profile
+    return profile
+
+
+def related_news_for(item: dict[str, Any], items: list[dict[str, Any]], limit: int = 3) -> list[dict[str, Any]]:
+    """Choose related stories by shared brands/topics/tags, then recency."""
     current_slug = str(item.get("slug") or "")
-    candidates = [candidate for candidate in items if candidate.get("slug") and candidate.get("slug") != current_slug]
+    current_brands, current_topics, current_tags, _, _ = related_profile(item)
 
-    def score(candidate: dict[str, Any]) -> str:
-        seed = f"{current_slug}|{candidate.get('slug', '')}"
-        return hashlib.sha1(seed.encode("utf-8", "ignore")).hexdigest()
+    scored: list[tuple[int, float, dict[str, Any]]] = []
+    fallback: list[tuple[float, dict[str, Any]]] = []
+    for candidate in items:
+        candidate_slug = str(candidate.get("slug") or "")
+        if not candidate_slug or candidate_slug == current_slug:
+            continue
 
-    return sorted(candidates, key=score)[:limit]
+        candidate_brands, candidate_topics, candidate_tags, stamp, indexable = related_profile(candidate)
+        if not indexable:
+            continue
+
+        score = 8 * len(current_brands & candidate_brands)
+        score += 4 * len(current_topics & candidate_topics)
+        score += 2 * len(current_tags & candidate_tags)
+        fallback.append((stamp, candidate))
+        if score > 0:
+            scored.append((score, stamp, candidate))
+
+    best = heapq.nlargest(limit, scored, key=lambda row: (row[0], row[1]))
+    selected = [candidate for _, _, candidate in best]
+    if len(selected) < limit:
+        used = {str(candidate.get("slug") or "") for candidate in selected}
+        recent = heapq.nlargest(limit + len(selected) + 2, fallback, key=lambda row: row[0])
+        for _, candidate in recent:
+            if str(candidate.get("slug") or "") in used:
+                continue
+            selected.append(candidate)
+            used.add(str(candidate.get("slug") or ""))
+            if len(selected) >= limit:
+                break
+    return selected
 
 
 def random_news_html(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
     cards = []
-    for candidate in random_news_for(item, items):
+    for candidate in related_news_for(item, items):
         title = html.escape(get_field(candidate, "title", "headline", "name", default="Материал"))
         date = display_date(get_field(candidate, "published_at", "date", "pub_date"))
         candidate_tags = tags(candidate)
@@ -632,16 +718,24 @@ def json_ld(item: dict[str, Any]) -> str:
         "description": clamp(summary_text(item), 300),
         "mainEntityOfPage": {"@type": "WebPage", "@id": article_url(item)},
         "url": article_url(item),
+        "author": {
+            "@type": "Organization",
+            "name": "Редакция СпецАвтоПортала",
+            "url": f"{BASE_URL}/about.html",
+        },
         "publisher": {
             "@type": "Organization",
             "name": "СпецАвтоПортал",
             "url": BASE_URL,
             "logo": {"@type": "ImageObject", "url": f"{BASE_URL}/assets/logo.png"},
         },
+        "inLanguage": "ru-RU",
+        "isAccessibleForFree": True,
+        "articleSection": cover_topic(item),
     }
     if published:
         payload["datePublished"] = published
-        payload["dateModified"] = published
+        payload["dateModified"] = get_field(item, "updated_at", default=published)
     image = absolute_image(item)
     if image:
         payload["image"] = [image]
@@ -654,6 +748,8 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_art
     summary_raw = summary_text(item)
     article_raw, has_full_text = article_text(item)
     article_body = html.escape(article_raw)
+    indexable = is_indexable_news(item)
+    robots = "index,follow,max-image-preview:large" if indexable else "noindex,follow"
     description = html.escape(clamp(summary_raw or article_raw or title_raw, 160), quote=True)
     canonical = article_url(item)
     image = html.escape(absolute_image(item), quote=True)
@@ -690,8 +786,14 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_art
         paragraphs = [p.strip() for p in article_body.split("\n\n") if p.strip()]
         body = "".join(f"<p>{p}</p>" for p in paragraphs)
     if not body:
-        body = "<p>Текст материала не передан источником. Подробности доступны в первоисточнике.</p>"
-    body_label = "Материал" if has_full_text else "Кратко"
+        body = "<p>Краткое описание материала пока недоступно. Подробности доступны в первоисточнике.</p>"
+    body_label = "Кратко"
+    editorial_note = (
+        '<p class="article-editorial-note">'
+        'СпецАвтоПортал публикует краткое отраслевое изложение. '
+        'Полный текст и исходные данные доступны у первоисточника.'
+        '</p>'
+    )
 
     editorial_cover = f"""
         <div class="article-cover" aria-hidden="true">
@@ -744,7 +846,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_art
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title} — СпецАвтоПортал</title>
   <meta name="description" content="{description}" />
-  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <meta name="robots" content="{robots}" />
   <link rel="canonical" href="{canonical}" />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="СпецАвтоПортал" />
@@ -811,7 +913,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_art
             <p class="section-kicker">{body_label}</p>
             <span class="article-body__rule"></span>
           </div>
-          {f'<p class="article-lead">{html.escape(summary_raw)}</p>' if has_full_text and summary_raw else ''}
+          {editorial_note}
           <div class="article-copy">{body}</div>
         </section>
         {knowledge_html}
@@ -849,13 +951,69 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_art
 """
 
 
-def render_brand_page(brand: dict[str, Any], brand_items: list[dict[str, Any]]) -> str:
+HUB_PAGE_SIZE = 36
+
+
+def pagination_html(base_path: str, page: int, total_pages: int) -> str:
+    if total_pages <= 1:
+        return ""
+    links = []
+    if page > 1:
+        prev_href = base_path if page == 2 else f"{base_path}page/{page - 1}/"
+        links.append(f'<a class="secondary-btn" href="{prev_href}">← Новее</a>')
+    links.append(f'<span class="result-count">Страница {page} из {total_pages}</span>')
+    if page < total_pages:
+        links.append(f'<a class="secondary-btn" href="{base_path}page/{page + 1}/">Старее →</a>')
+    return '<nav class="hub-pagination" aria-label="Навигация по архиву">' + "".join(links) + "</nav>"
+
+
+def pagination_head(base_url: str, page: int, total_pages: int) -> str:
+    tags = []
+    if page > 1:
+        prev_url = base_url if page == 2 else f"{base_url}page/{page - 1}/"
+        tags.append(f'<link rel="prev" href="{prev_url}" />')
+    if page < total_pages:
+        tags.append(f'<link rel="next" href="{base_url}page/{page + 1}/" />')
+    return "\n  ".join(tags)
+
+
+def render_brand_page(
+    brand: dict[str, Any],
+    brand_items: list[dict[str, Any]],
+    page: int = 1,
+    page_size: int = HUB_PAGE_SIZE,
+) -> str:
     name = html.escape(brand["name"])
     description = html.escape(brand["description"], quote=True)
-    canonical = brand_url(brand)
+    total_pages = max(1, (len(brand_items) + page_size - 1) // page_size)
+    page = max(1, min(page, total_pages))
+    start = (page - 1) * page_size
+    page_items = brand_items[start:start + page_size]
+    canonical = brand_url(brand) if page == 1 else f"{brand_url(brand)}page/{page}/"
+    page_suffix = "" if page == 1 else f" — страница {page}"
+    page_nav = pagination_html(f"/brands/{brand['slug']}/", page, total_pages)
+    head_nav = pagination_head(brand_url(brand), page, total_pages)
+
+    topic_counts = []
+    for topic in TOPIC_RULES:
+        count = sum(1 for item in brand_items if topic in topics_for(item))
+        if count:
+            topic_counts.append((count, topic["name"]))
+    topic_counts.sort(reverse=True)
+    topic_labels = [name for _, name in topic_counts[:3]]
+    source_count = len({source_domain(item) for item in brand_items if source_domain(item)})
+    latest_label = display_date(get_field(brand_items[0], "published_at", "date", "pub_date")) if brand_items else ""
+    overview_bits = []
+    if topic_labels:
+        overview_bits.append("Основные темы архива: " + ", ".join(topic_labels) + ".")
+    if source_count:
+        overview_bits.append(f"Материалы собраны минимум из {source_count} отраслевых источников.")
+    if latest_label:
+        overview_bits.append(f"Последнее обновление подборки: {latest_label}.")
+    overview_text = " ".join(overview_bits)
 
     cards = []
-    for item in brand_items[:60]:
+    for item in page_items:
         title = html.escape(get_field(item, "title", "headline", "name", default="Материал"))
         date = display_date(get_field(item, "published_at", "date", "pub_date"))
         source = html.escape(source_domain(item))
@@ -886,7 +1044,7 @@ def render_brand_page(brand: dict[str, Any], brand_items: list[dict[str, Any]]) 
                     "url": article_url(item),
                     "name": get_field(item, "title", "headline", "name", default="Материал"),
                 }
-                for index, item in enumerate(brand_items[:60])
+                for index, item in enumerate(page_items, start=start + 1)
             ],
         },
     }
@@ -911,10 +1069,11 @@ def render_brand_page(brand: dict[str, Any], brand_items: list[dict[str, Any]]) 
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{name} — новости и материалы | СпецАвтоПортал</title>
+  <title>{name} — новости и материалы{page_suffix} | СпецАвтоПортал</title>
   <meta name="description" content="{description}" />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <link rel="canonical" href="{canonical}" />
+  {head_nav}
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="СпецАвтоПортал" />
   <meta property="og:title" content="{name} — СпецАвтоПортал" />
@@ -966,9 +1125,19 @@ def render_brand_page(brand: dict[str, Any], brand_items: list[dict[str, Any]]) 
       </div>
     </section>
 
+    <section class="container brand-overview">
+      <div>
+        <p class="section-kicker">О разделе</p>
+        <h2>Материалы о {name}</h2>
+        <p>{html.escape(brand["description"])}</p>
+        {f'<p>{html.escape(overview_text)}</p>' if overview_text else ''}
+      </div>
+    </section>
+
     <section class="container topic-layout">
       <div class="topic-feed">
         {''.join(cards)}
+        {page_nav}
       </div>
       <aside class="topic-sidebar">
         <section class="sidebar-block sidebar-dark">
@@ -1091,13 +1260,25 @@ def render_brand_directory(brand_counts: dict[str, int]) -> str:
 """
 
 
-def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) -> str:
+def render_topic_page(
+    topic: dict[str, Any],
+    topic_items: list[dict[str, Any]],
+    page: int = 1,
+    page_size: int = HUB_PAGE_SIZE,
+) -> str:
     name = html.escape(topic["name"])
     description = html.escape(topic["description"], quote=True)
-    canonical = topic_url(topic)
+    total_pages = max(1, (len(topic_items) + page_size - 1) // page_size)
+    page = max(1, min(page, total_pages))
+    start = (page - 1) * page_size
+    page_items = topic_items[start:start + page_size]
+    canonical = topic_url(topic) if page == 1 else f"{topic_url(topic)}page/{page}/"
+    page_suffix = "" if page == 1 else f" — страница {page}"
+    page_nav = pagination_html(f"/topics/{topic['slug']}/", page, total_pages)
+    head_nav = pagination_head(topic_url(topic), page, total_pages)
 
     cards = []
-    for item in topic_items[:60]:
+    for item in page_items:
         title = html.escape(get_field(item, "title", "headline", "name", default="Материал"))
         date = display_date(get_field(item, "published_at", "date", "pub_date"))
         source = html.escape(source_domain(item))
@@ -1127,7 +1308,7 @@ def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) 
                     "url": article_url(item),
                     "name": get_field(item, "title", "headline", "name", default="Материал"),
                 }
-                for index, item in enumerate(topic_items[:60])
+                for index, item in enumerate(page_items, start=start + 1)
             ],
         },
     }
@@ -1138,10 +1319,11 @@ def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) 
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{name} — новости и материалы | СпецАвтоПортал</title>
+  <title>{name} — новости и материалы{page_suffix} | СпецАвтоПортал</title>
   <meta name="description" content="{description}" />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <link rel="canonical" href="{canonical}" />
+  {head_nav}
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="СпецАвтоПортал" />
   <meta property="og:title" content="{name} — СпецАвтоПортал" />
@@ -1195,6 +1377,7 @@ def render_topic_page(topic: dict[str, Any], topic_items: list[dict[str, Any]]) 
     <section class="container topic-layout">
       <div class="topic-feed">
         {''.join(cards)}
+        {page_nav}
       </div>
       <aside class="topic-sidebar">
         <section class="sidebar-block sidebar-dark">
@@ -1329,8 +1512,18 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
         "description": description_raw,
         "url": canonical,
         "dateModified": updated_at or None,
-        "author": {"@type": "Organization", "name": "СпецАвтоПортал"},
+        "author": {
+            "@type": "Organization",
+            "name": "Редакция СпецАвтоПортала",
+            "url": f"{BASE_URL}/about.html",
+        },
+        "reviewedBy": {
+            "@type": "Organization",
+            "name": "Редакция СпецАвтоПортала",
+            "url": f"{BASE_URL}/about.html",
+        },
         "publisher": {"@type": "Organization", "name": "СпецАвтоПортал", "url": BASE_URL},
+        "inLanguage": "ru-RU",
     }
     schema_payload = {k: v for k, v in schema_payload.items() if v is not None}
     schema = json.dumps(schema_payload, ensure_ascii=False, separators=(",", ":")).replace("</", "<\/")
@@ -1376,7 +1569,7 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
         <p class="section-kicker"><a href="/knowledge.html">База знаний</a> · {eyebrow}</p>
         <h1>{title}</h1>
         <p>{lead}</p>
-        <div class="knowledge-article-hero__meta">Обновлено · {html.escape(updated_at or "—")}</div>
+        <div class="knowledge-article-hero__meta">Проверено редакцией · {html.escape(updated_at or "—")} · <a href="/about.html">методология</a></div>
       </div>
     </section>
 
@@ -1391,6 +1584,10 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
         <section class="sidebar-block sidebar-dark">
           <p class="sidebar-eyebrow">Источники и документы</p>
           <div class="knowledge-sources">{''.join(source_html)}</div>
+        </section>
+        <section class="sidebar-block">
+          <p class="sidebar-eyebrow">Редакционная проверка</p>
+          <p class="sidebar-text">Материал проверен при обновлении базы {html.escape(updated_at or "—")}. <a href="/about.html">Методология редакции</a>.</p>
         </section>
         <section class="sidebar-block">
           <p class="sidebar-eyebrow">Важно</p>
@@ -1476,6 +1673,12 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
         "description": description_raw,
         "url": canonical,
         "dateModified": verified_at or None,
+        "reviewedBy": {
+            "@type": "Organization",
+            "name": "Редакция СпецАвтоПортала",
+            "url": f"{BASE_URL}/about.html",
+        },
+        "inLanguage": "ru-RU",
         "about": {
             "@type": "Legislation",
             "name": get_field(item, "code"),
@@ -1561,6 +1764,10 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
           <h3>{source_name}</h3>
           <p class="sidebar-text">Перед применением требований проверяйте текущую редакцию и статус документа в официальном источнике.</p>
           <a class="partner-card__button" href="{source_url_escaped}" target="_blank" rel="noopener">Открыть официальный документ <span>↗</span></a>
+        </section>
+        <section class="sidebar-block">
+          <p class="sidebar-eyebrow">Проверка</p>
+          <p class="sidebar-text">Статус документа проверен редакцией {verified or "при последнем обновлении базы"}. <a href="/about.html">Методология редакции</a>.</p>
         </section>
         <section class="sidebar-block">
           <p class="sidebar-eyebrow">Важно</p>
@@ -1710,6 +1917,187 @@ def render_regulations_index(regulations: dict[str, Any]) -> str:
 """
 
 
+def compact_news_item(item: dict[str, Any]) -> dict[str, Any]:
+    """Lightweight public index used by the homepage instead of the multi-MB raw feed."""
+    return {
+        "id": str(item.get("id") or ""),
+        "slug": str(item.get("slug") or ""),
+        "title": get_field(item, "title", "headline", "name"),
+        "summary": summary_text(item),
+        "published_at": get_field(item, "published_at", "date", "pub_date"),
+        "source_name": source_name(item),
+        "image_url": source_image(item),
+        "tags": tags(item)[:6],
+    }
+
+
+def news_sort_key(item: dict[str, Any]) -> float:
+    published = parse_date(get_field(item, "published_at", "date", "pub_date"))
+    return published.timestamp() if published else 0.0
+
+
+def write_news_index(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    public_items = [item for item in items if is_indexable_news(item)]
+    public_items.sort(key=news_sort_key, reverse=True)
+    payload = [compact_news_item(item) for item in public_items]
+    NEWS_INDEX_JSON.write_text(
+        json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    return public_items
+
+
+def home_feature_html(item: dict[str, Any], primary: bool) -> str:
+    title = html.escape(get_field(item, "title", "headline", "name", default="Без заголовка"))
+    summary = html.escape(clamp(summary_text(item), 230 if primary else 115))
+    image = html.escape(source_image(item), quote=True)
+    date = html.escape(display_date(get_field(item, "published_at", "date", "pub_date")))
+    source = html.escape(source_name(item))
+    item_tags = tags(item)
+    tag = html.escape(item_tags[0] if item_tags else "Новости")
+    url = f"/news/{html.escape(str(item['slug']), quote=True)}/"
+
+    media = ""
+    if image:
+        media = (
+            f'<a class="featured-media" href="{url}" aria-label="{title}">'
+            f'<img src="{image}" alt="" class="featured-image" loading="{"eager" if primary else "lazy"}"></a>'
+        )
+    meta = "".join(f"<span>{value}</span>" for value in (date, source) if value)
+    summary_html = f'<p class="featured-summary">{summary}</p>' if summary else ""
+    return (
+        media
+        + '<div class="featured-content"><div class="featured-topline">'
+        + f'<span class="featured-tag">{tag}</span></div>'
+        + f'<h3><a href="{url}">{title}</a></h3>'
+        + summary_html
+        + f'<div class="featured-meta">{meta}</div></div>'
+    )
+
+
+def home_card_html(item: dict[str, Any], position: int, total: int) -> str:
+    title = html.escape(get_field(item, "title", "headline", "name", default="Без заголовка"))
+    summary = html.escape(clamp(summary_text(item), 320 if position == 0 else 220))
+    date = html.escape(display_date(get_field(item, "published_at", "date", "pub_date")))
+    source = html.escape(source_name(item))
+    item_topics = topics_for(item)
+    item_tags = tags(item)
+    primary_tag = html.escape(
+        item_topics[0]["name"] if item_topics else (item_tags[0] if item_tags else "Новости")
+    )
+    url = f"/news/{html.escape(str(item['slug']), quote=True)}/"
+    lead = position == 0
+    wide = position == total - 1 and position > 0 and max(0, total - 1) % 2 == 1
+    classes = "news-card" + (" news-card--lead" if lead else "") + (" news-card--wide" if wide else "")
+    meta = "".join(f"<span>{value}</span>" for value in (date, source) if value)
+    summary_html = f'<p class="news-card-summary">{summary}</p>' if summary else ""
+    return (
+        f'<article class="{classes}"><div class="news-card-body">'
+        f'<span class="news-card-category">{primary_tag}</span>'
+        f'<div class="news-card-meta">{meta}</div>'
+        f'<h3 class="news-card-title"><a href="{url}">{title}</a></h3>'
+        f'{summary_html}'
+        f'<div class="news-card-footer"><a class="news-card-read" href="{url}">'
+        'Открыть материал <span>↗</span></a></div>'
+        '</div></article>'
+    )
+
+
+def replace_home_block(page: str, name: str, payload: str) -> str:
+    pattern = rf"<!-- {re.escape(name)}_START -->.*?<!-- {re.escape(name)}_END -->"
+    replacement = f"<!-- {name}_START -->{payload}<!-- {name}_END -->"
+    updated, count = re.subn(pattern, replacement, page, count=1, flags=re.DOTALL)
+    if count != 1:
+        raise RuntimeError(f"Homepage SEO marker not found: {name}")
+    return updated
+
+
+def build_homepage(items: list[dict[str, Any]]) -> None:
+    """Pre-render the first screen so crawlers/users do not depend on JavaScript."""
+    if not HOME_HTML.exists():
+        return
+    page = HOME_HTML.read_text(encoding="utf-8")
+    featured = [item for item in items if source_image(item)][:3]
+    if len(featured) < 3:
+        used = {str(item.get("slug") or "") for item in featured}
+        featured.extend(item for item in items if str(item.get("slug") or "") not in used)
+        featured = featured[:3]
+
+    primary = home_feature_html(featured[0], True) if featured else ""
+    secondary = "".join(
+        f'<article class="featured-mini">{home_feature_html(item, False)}</article>'
+        for item in featured[1:3]
+    )
+    visible = items[:12]
+    cards = "".join(home_card_html(item, index, len(visible)) for index, item in enumerate(visible))
+    topic_counts = {
+        topic["slug"]: sum(1 for item in items if topic in topics_for(item))
+        for topic in TOPIC_RULES
+    }
+    top_tags = "".join(
+        f'<li><a href="/topics/{topic["slug"]}/">{html.escape(topic["name"])} · {topic_counts[topic["slug"]]}</a></li>'
+        for topic in sorted(TOPIC_RULES, key=lambda row: topic_counts[row["slug"]], reverse=True)
+        if topic_counts[topic["slug"]]
+    )
+    bootstrap = json.dumps(
+        [compact_news_item(item) for item in items[:36]],
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ).replace("</", "<\/")
+
+    page = replace_home_block(page, "SEO_FEATURED_PRIMARY", primary)
+    page = replace_home_block(page, "SEO_FEATURED_SECONDARY", secondary)
+    page = replace_home_block(page, "SEO_NEWS_LIST", cards)
+    page = replace_home_block(page, "SEO_TOP_TAGS", top_tags)
+    page = replace_home_block(page, "SEO_NEWS_COUNT", str(len(items)))
+    latest = display_date(get_field(items[0], "published_at", "date", "pub_date")) if items else "—"
+    page = replace_home_block(page, "SEO_LATEST_DATE", html.escape(latest))
+    page = replace_home_block(
+        page,
+        "SEO_RESULT_COUNT",
+        f'{len(items):,}'.replace(",", " ") + " материалов" if items else "",
+    )
+    page = replace_home_block(
+        page,
+        "SEO_BOOTSTRAP",
+        f'<script id="seo-news-bootstrap" type="application/json">{bootstrap}</script>',
+    )
+    HOME_HTML.write_text(page, encoding="utf-8")
+
+
+def write_news_sitemap(items: list[dict[str, Any]]) -> None:
+    cutoff = datetime.now(timezone.utc) - timedelta(days=2)
+    rows: list[str] = []
+    for item in items:
+        published = parse_date(get_field(item, "published_at", "date", "pub_date"))
+        if not published:
+            continue
+        if published.tzinfo is None:
+            published = published.replace(tzinfo=timezone.utc)
+        if published.astimezone(timezone.utc) < cutoff:
+            continue
+        title = xml_escape(get_field(item, "title", "headline", "name"))
+        published_iso = xml_escape(published.astimezone(timezone.utc).isoformat())
+        rows.append(
+            "  <url>"
+            f"<loc>{xml_escape(article_url(item))}</loc>"
+            "<news:news><news:publication>"
+            "<news:name>СпецАвтоПортал</news:name><news:language>ru</news:language>"
+            "</news:publication>"
+            f"<news:publication_date>{published_iso}</news:publication_date>"
+            f"<news:title>{title}</news:title>"
+            "</news:news></url>"
+        )
+    sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    sitemap += (
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
+        'xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">\n'
+    )
+    sitemap += "\n".join(rows)
+    sitemap += "\n</urlset>\n"
+    (FRONTEND / "news-sitemap.xml").write_text(sitemap, encoding="utf-8")
+
+
 def write_sitemap(
     items: list[dict[str, Any]],
     regulations: dict[str, Any] | None = None,
@@ -1720,31 +2108,56 @@ def write_sitemap(
         (f"{BASE_URL}/knowledge.html", ""),
         (f"{BASE_URL}/law.html", ""),
         (f"{BASE_URL}/guides.html", ""),
+        (f"{BASE_URL}/about.html", ""),
     ]
     rows = []
     for url, lastmod in static_pages:
         lm = f"<lastmod>{lastmod}</lastmod>" if lastmod else ""
         rows.append(f"  <url><loc>{xml_escape(url)}</loc>{lm}</url>")
 
+    indexable_items = [item for item in items if is_indexable_news(item)]
+
     for topic in TOPIC_RULES:
-        rows.append(f"  <url><loc>{xml_escape(topic_url(topic))}</loc></url>")
+        topic_items = [item for item in indexable_items if topic in topics_for(item)]
+        topic_lastmod = iso_date(get_field(topic_items[0], "updated_at", "published_at", "date", "pub_date")) if topic_items else ""
+        topic_lm = f"<lastmod>{topic_lastmod}</lastmod>" if topic_lastmod else ""
+        rows.append(f"  <url><loc>{xml_escape(topic_url(topic))}</loc>{topic_lm}</url>")
+        topic_count = len(topic_items)
+        topic_pages = max(1, (topic_count + HUB_PAGE_SIZE - 1) // HUB_PAGE_SIZE)
+        for page_number in range(2, topic_pages + 1):
+            rows.append(
+                f"  <url><loc>{xml_escape(f'{topic_url(topic)}page/{page_number}/')}</loc></url>"
+            )
 
     rows.append(f"  <url><loc>{xml_escape(f'{BASE_URL}/brands/')}</loc></url>")
     for brand in BRAND_RULES:
-        rows.append(f"  <url><loc>{xml_escape(brand_url(brand))}</loc></url>")
+        brand_items = [item for item in indexable_items if brand in brands_for(item)]
+        brand_lastmod = iso_date(get_field(brand_items[0], "updated_at", "published_at", "date", "pub_date")) if brand_items else ""
+        brand_lm = f"<lastmod>{brand_lastmod}</lastmod>" if brand_lastmod else ""
+        rows.append(f"  <url><loc>{xml_escape(brand_url(brand))}</loc>{brand_lm}</url>")
+        brand_count = len(brand_items)
+        brand_pages = max(1, (brand_count + HUB_PAGE_SIZE - 1) // HUB_PAGE_SIZE)
+        for page_number in range(2, brand_pages + 1):
+            rows.append(
+                f"  <url><loc>{xml_escape(f'{brand_url(brand)}page/{page_number}/')}</loc></url>"
+            )
 
     if regulations:
+        regulation_lastmod = str(regulations.get("verified_at") or regulations.get("updated_at") or "")
+        regulation_lm = f"<lastmod>{xml_escape(regulation_lastmod)}</lastmod>" if regulation_lastmod else ""
         for item in regulations.get("items", []):
             if item.get("slug"):
-                rows.append(f"  <url><loc>{xml_escape(regulation_url(item))}</loc></url>")
+                rows.append(f"  <url><loc>{xml_escape(regulation_url(item))}</loc>{regulation_lm}</url>")
 
     if knowledge_articles:
+        knowledge_lastmod = str(knowledge_articles.get("updated_at") or "")
+        knowledge_lm = f"<lastmod>{xml_escape(knowledge_lastmod)}</lastmod>" if knowledge_lastmod else ""
         for item in knowledge_articles.get("items", []):
             if item.get("slug"):
-                rows.append(f"  <url><loc>{xml_escape(knowledge_url(item))}</loc></url>")
+                rows.append(f"  <url><loc>{xml_escape(knowledge_url(item))}</loc>{knowledge_lm}</url>")
 
-    for item in items:
-        lastmod = iso_date(get_field(item, "published_at", "date", "pub_date"))
+    for item in indexable_items:
+        lastmod = iso_date(get_field(item, "updated_at", "published_at", "date", "pub_date"))
         lm = f"<lastmod>{lastmod}</lastmod>" if lastmod else ""
         rows.append(f"  <url><loc>{xml_escape(article_url(item))}</loc>{lm}</url>")
 
@@ -1754,11 +2167,13 @@ def write_sitemap(
     sitemap += "\n</urlset>\n"
     (FRONTEND / "sitemap.xml").write_text(sitemap, encoding="utf-8")
 
+    write_news_sitemap(indexable_items)
     robots = (
         "User-agent: *\n"
         "Allow: /\n"
         "Disallow: /data/\n\n"
         f"Sitemap: {BASE_URL}/sitemap.xml\n"
+        f"Sitemap: {BASE_URL}/news-sitemap.xml\n"
     )
     (FRONTEND / "robots.txt").write_text(robots, encoding="utf-8")
 
@@ -1850,6 +2265,10 @@ def main() -> None:
         )
     (FRONTEND / "law.html").write_text(render_regulations_index(regulations), encoding="utf-8")
 
+    public_items = write_news_index(items)
+    build_homepage(public_items)
+    quality_blocked = len(items) - len(public_items)
+
     social_cards = 0
     for item in items:
         out_dir = NEWS_DIR / item["slug"]
@@ -1861,19 +2280,35 @@ def main() -> None:
 
     topic_counts = {}
     for topic in TOPIC_RULES:
-        topic_items = [item for item in items if topic in topics_for(item)]
+        topic_items = [item for item in public_items if topic in topics_for(item)]
         topic_counts[topic["slug"]] = len(topic_items)
         out_dir = TOPICS_DIR / topic["slug"]
         out_dir.mkdir(parents=True, exist_ok=True)
-        (out_dir / "index.html").write_text(render_topic_page(topic, topic_items), encoding="utf-8")
+        total_pages = max(1, (len(topic_items) + HUB_PAGE_SIZE - 1) // HUB_PAGE_SIZE)
+        (out_dir / "index.html").write_text(render_topic_page(topic, topic_items, page=1), encoding="utf-8")
+        for page_number in range(2, total_pages + 1):
+            page_dir = out_dir / "page" / str(page_number)
+            page_dir.mkdir(parents=True, exist_ok=True)
+            (page_dir / "index.html").write_text(
+                render_topic_page(topic, topic_items, page=page_number),
+                encoding="utf-8",
+            )
 
     brand_counts = {}
     for brand in BRAND_RULES:
-        brand_items = [item for item in items if brand in brands_for(item)]
+        brand_items = [item for item in public_items if brand in brands_for(item)]
         brand_counts[brand["slug"]] = len(brand_items)
         out_dir = BRANDS_DIR / brand["slug"]
         out_dir.mkdir(parents=True, exist_ok=True)
-        (out_dir / "index.html").write_text(render_brand_page(brand, brand_items), encoding="utf-8")
+        total_pages = max(1, (len(brand_items) + HUB_PAGE_SIZE - 1) // HUB_PAGE_SIZE)
+        (out_dir / "index.html").write_text(render_brand_page(brand, brand_items, page=1), encoding="utf-8")
+        for page_number in range(2, total_pages + 1):
+            page_dir = out_dir / "page" / str(page_number)
+            page_dir.mkdir(parents=True, exist_ok=True)
+            (page_dir / "index.html").write_text(
+                render_brand_page(brand, brand_items, page=page_number),
+                encoding="utf-8",
+            )
 
     (BRANDS_DIR / "index.html").write_text(render_brand_directory(brand_counts), encoding="utf-8")
 
@@ -1881,12 +2316,15 @@ def main() -> None:
     metrika_pages = inject_metrika_into_pages()
     print(f"[SEO] Yandex Metrika 106240080 injected into {metrika_pages} HTML pages")
     print(f"[SEO] generated {len(items)} static article pages")
+    print(f"[SEO] public/indexable news: {len(public_items)}; quality-gated: {quality_blocked}")
+    print(f"[SEO] lightweight news index: {NEWS_INDEX_JSON}")
     print(f"[SEO] generated {social_cards} fresh social cards")
     print(f"[SEO] generated {len(knowledge_articles.get('items', []))} knowledge articles")
     print(f"[SEO] generated {len(regulations.get('items', []))} regulation pages")
     print(f"[SEO] generated topic hubs: {topic_counts}")
     print(f"[SEO] generated brand hubs: {brand_counts}")
     print(f"[SEO] sitemap: {FRONTEND / 'sitemap.xml'}")
+    print(f"[SEO] news sitemap: {FRONTEND / 'news-sitemap.xml'}")
     print(f"[SEO] robots: {FRONTEND / 'robots.txt'}")
 
 

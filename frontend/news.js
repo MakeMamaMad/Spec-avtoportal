@@ -1,6 +1,6 @@
 // news.js — redesign v1
 (function () {
-  const NEWS_URLS = ["data/news.json", "frontend/data/news.json"];
+  const NEWS_URLS = ["data/news-index.json", "frontend/data/news-index.json"];
   const PAGE_SIZE = 12;
   const TOPICS = [
     { slug: "rynok-i-proizvodstvo", name: "Рынок и производство", needles: ["рынок","продаж","производ","завод","manufactur"] },
@@ -66,7 +66,7 @@
   }
 
   function summaryText(item) {
-    const direct = ["summary", "lead", "description", "content"];
+    const direct = ["summary", "lead", "description"];
     for (const key of direct) {
       const text = cleanText(item && item[key]);
       if (text) return text;
@@ -101,7 +101,7 @@
 
   function articleUrl(item) {
     const slug = String(item.slug || "").trim();
-    return slug ? "news/" + encodeURIComponent(slug) + "/" : "article.html?i=" + encodeURIComponent(item.__index);
+    return slug ? "/news/" + encodeURIComponent(slug) + "/" : "/";
   }
 
   function normalize() {
@@ -338,14 +338,36 @@
     });
   }
 
+  function bootstrapNews() {
+    const node = document.getElementById("seo-news-bootstrap");
+    if (!node) return [];
+    try {
+      const data = JSON.parse(node.textContent || "[]");
+      return Array.isArray(data) ? data : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
   async function loadNews() {
+    allNews = bootstrapNews();
+    if (allNews.length) {
+      normalize();
+      buildRubrics();
+      buildTopTags();
+      els.loading.hidden = true;
+    }
+
     for (const url of NEWS_URLS) {
       try {
-        const resp = await fetch(url, { cache: "no-store" });
+        const resp = await fetch(url, { cache: "default" });
         if (!resp.ok) continue;
         const data = await resp.json();
-        allNews = Array.isArray(data) ? data : (data.items || []);
-        if (allNews.length) break;
+        const loaded = Array.isArray(data) ? data : (data.items || []);
+        if (loaded.length) {
+          allNews = loaded;
+          break;
+        }
       } catch (_) {}
     }
 
