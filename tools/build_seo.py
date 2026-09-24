@@ -203,6 +203,9 @@ def get_field(item: dict[str, Any], *keys: str, default: str = "") -> str:
 def strip_html(value: str) -> str:
     if not value:
         return ""
+    # Some feeds store escaped control sequences as visible text (for example
+    # "\\n"). Normalize those before rendering so they never leak into HTML.
+    value = value.replace("\\r\\n", "\n").replace("\\n", "\n").replace("\\r", "\n").replace("\\t", " ")
     value = re.sub(r"<\s*br\s*/?>", "\n", value, flags=re.I)
     value = re.sub(r"</\s*(p|div|li|h[1-6])\s*>", "\n", value, flags=re.I)
     value = re.sub(r"<[^>]+>", " ", value)
@@ -691,7 +694,7 @@ def related_news_for(item: dict[str, Any], items: list[dict[str, Any]], limit: i
 def random_news_html(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
     cards = []
     for candidate in related_news_for(item, items):
-        title = html.escape(get_field(candidate, "title", "headline", "name", default="Материал"))
+        title = html.escape(strip_html(get_field(candidate, "title", "headline", "name", default="Материал")))
         date = display_date(get_field(candidate, "published_at", "date", "pub_date"))
         candidate_tags = tags(candidate)
         tag = html.escape(candidate_tags[0]) if candidate_tags else "Новости"
@@ -709,7 +712,7 @@ def random_news_html(item: dict[str, Any], items: list[dict[str, Any]]) -> str:
 
 
 def json_ld(item: dict[str, Any]) -> str:
-    title = get_field(item, "title", "headline", "name", default="Новость")
+    title = strip_html(get_field(item, "title", "headline", "name", default="Новость"))
     published = get_field(item, "published_at", "date", "pub_date")
     payload: dict[str, Any] = {
         "@context": "https://schema.org",
@@ -743,7 +746,7 @@ def json_ld(item: dict[str, Any]) -> str:
 
 
 def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_articles: dict[str, Any]) -> str:
-    title_raw = get_field(item, "title", "headline", "name", default="Новость")
+    title_raw = strip_html(get_field(item, "title", "headline", "name", default="Новость"))
     title = html.escape(title_raw)
     summary_raw = summary_text(item)
     article_raw, has_full_text = article_text(item)
