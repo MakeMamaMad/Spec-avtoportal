@@ -116,21 +116,57 @@ def catalog_details() -> list[str]:
 
 
 def telegram_promo_details() -> list[str]:
-    hist = load_json(ROOT / "frontend/data/telegram_promo_history.json", {"entries": []})
-    rows = [x for x in hist.get("entries", []) if isinstance(x, dict)]
-    if not rows:
-        return ["Что произошло: новых попыток внешнего размещения не было."]
-    row = rows[-1]
-    status = str(row.get("status") or "")
-    detail = str(row.get("detail") or "")
-    if status == "published":
-        return [f"Что произошло: размещение опубликовано в {row.get('target_name') or row.get('target_id')}."]
-    if status in {"waiting_bot_to_bot", "outreach_unavailable"} and "USER_BOT_TO_BOT_DISABLED" in detail:
-        return [
-            "Что произошло: автоматическое обращение к рекламной площадке не прошло.",
-            "Причина на стороне площадки; дополнительных действий от владельца портала сейчас не требуется.",
-        ]
-    return ["Что произошло: новых внешних размещений пока нет."]
+    summary = load_json(
+        ROOT / "frontend/data/promotion/telegram_outreach_summary.json",
+        {},
+    )
+    status = str(summary.get("status") or "")
+    migrated = int(summary.get("migrated_legacy_failures") or 0)
+    manual_created = int(summary.get("manual_actions_created") or 0)
+    manual_updated = int(summary.get("manual_actions_updated") or 0)
+    contact = str(summary.get("manual_contact") or "").strip()
+    lines: list[str] = []
+
+    if migrated:
+        lines.append(
+            f"Остановлены повторные попытки обращения к рекламным ботам: {migrated}."
+        )
+    if manual_created or manual_updated:
+        count = manual_created + manual_updated
+        lines.append(
+            f"Подготовлено ручных задач для связи с администраторами: {count}."
+        )
+
+    if status == "outreach_sent":
+        name = str(summary.get("attempted_target_name") or "площадке")
+        lines.append(f"Обращение рекламному боту площадки «{name}» отправлено.")
+    elif status == "manual_required":
+        if contact:
+            lines.append(
+                f"Автоматически написать не получилось. Подготовлена задача: связаться с {contact} вручную."
+            )
+        else:
+            lines.append(
+                "Автоматически написать не получилось. Подготовлена ручная задача для связи с администратором."
+            )
+        lines.append("Повторно беспокоить этого рекламного бота система больше не будет.")
+    elif status == "bot_unsupported":
+        lines.append(
+            "Рекламный бот не принимает сообщения от других ботов. Повторные попытки отключены."
+        )
+        lines.append("Отдельного контакта администратора у этой площадки нет.")
+    elif status == "outreach_unavailable":
+        lines.append("Площадка не приняла автоматическое обращение.")
+    elif status == "no_bot_target":
+        lines.append("Новых рекламных ботов для автоматического обращения сейчас нет.")
+    elif status == "token_missing":
+        lines.append("Автоматическое обращение не выполнялось: не настроен доступ Telegram.")
+    elif status == "no_message":
+        lines.append("Для выбранной площадки не был подготовлен текст обращения.")
+    elif not lines:
+        lines.append("Новых действий по внешнему продвижению в Telegram не было.")
+
+    return lines
 
 
 def ads_details() -> list[str]:
