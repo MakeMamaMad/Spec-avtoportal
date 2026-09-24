@@ -61,7 +61,7 @@ def main() -> int:
     done = {
         str(x.get("target_id"))
         for x in history.get("entries", [])
-        if x.get("status") in {"published", "rejected", "do_not_contact"}
+        if x.get("status") in {"published", "rejected", "do_not_contact", "bot_outreach_unsupported"}
     }
 
     rows = []

@@ -11,6 +11,8 @@ on:
       - 'promotion/telegram_targets.json'
       - 'promotion/build_telegram_promo.py'
       - 'promotion/outreach_telegram_ad_bots.py'
+      - 'promotion/core/telegram_failover.py'
+      - 'promotion/core/manual_queue.py'
       - 'promotion/publish_telegram_approved.py'
       - '.github/workflows/telegram_promotion.yml'
 
@@ -56,7 +58,7 @@ jobs:
         run: |
           git config user.name "specavto-promotion"
           git config user.email "actions@users.noreply.github.com"
-          git add frontend/data/telegram_promo_queue.json frontend/data/telegram_promo_history.json || true
+          git add frontend/data/telegram_promo_queue.json frontend/data/telegram_promo_history.json frontend/data/promotion/manual_queue.json frontend/data/promotion/telegram_outreach_summary.json || true
           if git diff --cached --quiet; then
             echo "No Telegram promotion state changes"
             exit 0
