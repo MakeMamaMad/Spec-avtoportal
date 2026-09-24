@@ -975,6 +975,24 @@ def render_brand_page(
     page_nav = pagination_html(f"/brands/{brand['slug']}/", page, total_pages)
     head_nav = pagination_head(brand_url(brand), page, total_pages)
 
+    topic_counts = []
+    for topic in TOPIC_RULES:
+        count = sum(1 for item in brand_items if topic in topics_for(item))
+        if count:
+            topic_counts.append((count, topic["name"]))
+    topic_counts.sort(reverse=True)
+    topic_labels = [name for _, name in topic_counts[:3]]
+    source_count = len({source_domain(item) for item in brand_items if source_domain(item)})
+    latest_label = display_date(get_field(brand_items[0], "published_at", "date", "pub_date")) if brand_items else ""
+    overview_bits = []
+    if topic_labels:
+        overview_bits.append("Основные темы архива: " + ", ".join(topic_labels) + ".")
+    if source_count:
+        overview_bits.append(f"Материалы собраны минимум из {source_count} отраслевых источников.")
+    if latest_label:
+        overview_bits.append(f"Последнее обновление подборки: {latest_label}.")
+    overview_text = " ".join(overview_bits)
+
     cards = []
     for item in page_items:
         title = html.escape(get_field(item, "title", "headline", "name", default="Материал"))
@@ -1085,6 +1103,15 @@ def render_brand_page(
           <strong>{len(brand_items)}</strong>
           <span>материалов</span>
         </div>
+      </div>
+    </section>
+
+    <section class="container brand-overview">
+      <div>
+        <p class="section-kicker">О разделе</p>
+        <h2>Материалы о {name}</h2>
+        <p>{html.escape(brand["description"])}</p>
+        {f'<p>{html.escape(overview_text)}</p>' if overview_text else ''}
       </div>
     </section>
 
