@@ -2182,8 +2182,8 @@ def is_search_verification_file(path: Path) -> bool:
     """Keep search-engine ownership verification files byte-stable."""
     name = path.name.lower()
     return bool(
-        re.fullmatch(r"yandex_[a-z0-9]+\\.html", name)
-        or re.fullmatch(r"google[a-z0-9]+\\.html", name)
+        re.fullmatch(r"yandex_[a-z0-9]+\.html", name)
+        or re.fullmatch(r"google[a-z0-9]+\.html", name)
         or name in {"bingSiteAuth.xml".lower()}
     )
 
