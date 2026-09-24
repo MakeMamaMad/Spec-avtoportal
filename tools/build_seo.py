@@ -45,6 +45,13 @@ REGULATIONS_DIR = FRONTEND / "regulations"
 KNOWLEDGE_DIR = FRONTEND / "knowledge"
 SOCIAL_DIR = FRONTEND / "social"
 BASE_URL = "https://spec-avtoportal.ru"
+SOCIAL_URLS = [
+    "https://t.me/specavtoportal",
+    "https://www.tiktok.com/@specavtoportal",
+    "https://www.youtube.com/@Specavtoportal",
+    "https://www.instagram.com/specavtoportal",
+    "https://vk.ru/specavtoportal",
+]
 METRIKA_ID = 106240080
 METRIKA_SCRIPT_TAG = '<script defer src="/metrika.js"></script>'
 METRIKA_NOSCRIPT = (
@@ -731,6 +738,7 @@ def json_ld(item: dict[str, Any]) -> str:
             "name": "СпецАвтоПортал",
             "url": BASE_URL,
             "logo": {"@type": "ImageObject", "url": f"{BASE_URL}/assets/logo.png"},
+            "sameAs": SOCIAL_URLS,
         },
         "inLanguage": "ru-RU",
         "isAccessibleForFree": True,
@@ -945,7 +953,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_art
   <footer class="site-footer">
     <div class="container footer-grid">
       <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
-      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/brands/">Бренды</a><a href="/law.html">Нормативы</a><a href="https://t.me/specavtoportal">Telegram ↗</a></div>
+      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/brands/">Бренды</a><a href="/law.html">Нормативы</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a><a href="https://www.tiktok.com/@specavtoportal" target="_blank" rel="noopener">TikTok ↗</a><a href="https://www.youtube.com/@Specavtoportal" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.instagram.com/specavtoportal" target="_blank" rel="noopener">Instagram ↗</a><a href="https://vk.ru/specavtoportal" target="_blank" rel="noopener">VK ↗</a></div>
       <div class="footer-note">© СпецАвтоПортал</div>
     </div>
   </footer>
@@ -1155,7 +1163,7 @@ def render_brand_page(
   <footer class="site-footer">
     <div class="container footer-grid">
       <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
-      <div class="footer-nav"><a href="/brands/">Бренды</a><a href="/law.html">ГОСТы и законы</a><a href="/guides.html">Гайды</a><a href="https://t.me/specavtoportal">Telegram ↗</a></div>
+      <div class="footer-nav"><a href="/brands/">Бренды</a><a href="/law.html">ГОСТы и законы</a><a href="/guides.html">Гайды</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a><a href="https://www.tiktok.com/@specavtoportal" target="_blank" rel="noopener">TikTok ↗</a><a href="https://www.youtube.com/@Specavtoportal" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.instagram.com/specavtoportal" target="_blank" rel="noopener">Instagram ↗</a><a href="https://vk.ru/specavtoportal" target="_blank" rel="noopener">VK ↗</a></div>
       <div class="footer-note">© СпецАвтоПортал</div>
     </div>
   </footer>
@@ -1254,7 +1262,7 @@ def render_brand_directory(brand_counts: dict[str, int]) -> str:
   <footer class="site-footer">
     <div class="container footer-grid">
       <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
-      <div class="footer-nav"><a href="/brands/">Бренды</a><a href="/law.html">ГОСТы и законы</a><a href="/guides.html">Гайды</a><a href="https://t.me/specavtoportal">Telegram ↗</a></div>
+      <div class="footer-nav"><a href="/brands/">Бренды</a><a href="/law.html">ГОСТы и законы</a><a href="/guides.html">Гайды</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a><a href="https://www.tiktok.com/@specavtoportal" target="_blank" rel="noopener">TikTok ↗</a><a href="https://www.youtube.com/@Specavtoportal" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.instagram.com/specavtoportal" target="_blank" rel="noopener">Instagram ↗</a><a href="https://vk.ru/specavtoportal" target="_blank" rel="noopener">VK ↗</a></div>
       <div class="footer-note">© СпецАвтоПортал</div>
     </div>
   </footer>
@@ -1396,7 +1404,7 @@ def render_topic_page(
   <footer class="site-footer">
     <div class="container footer-grid">
       <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
-      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/brands/">Бренды</a><a href="/law.html">Нормативы</a><a href="https://t.me/specavtoportal">Telegram ↗</a></div>
+      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/brands/">Бренды</a><a href="/law.html">Нормативы</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a><a href="https://www.tiktok.com/@specavtoportal" target="_blank" rel="noopener">TikTok ↗</a><a href="https://www.youtube.com/@Specavtoportal" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.instagram.com/specavtoportal" target="_blank" rel="noopener">Instagram ↗</a><a href="https://vk.ru/specavtoportal" target="_blank" rel="noopener">VK ↗</a></div>
       <div class="footer-note">© СпецАвтоПортал</div>
     </div>
   </footer>
@@ -1525,7 +1533,7 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
             "name": "Редакция СпецАвтоПортала",
             "url": f"{BASE_URL}/about.html",
         },
-        "publisher": {"@type": "Organization", "name": "СпецАвтоПортал", "url": BASE_URL},
+        "publisher": {"@type": "Organization", "name": "СпецАвтоПортал", "url": BASE_URL, "sameAs": SOCIAL_URLS},
         "inLanguage": "ru-RU",
     }
     schema_payload = {k: v for k, v in schema_payload.items() if v is not None}
@@ -1603,7 +1611,7 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
   <footer class="site-footer">
     <div class="container footer-grid">
       <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
-      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/law.html">Нормативы</a><a href="/guides.html">Гайды</a><a href="/brands/">Бренды</a></div>
+      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/law.html">Нормативы</a><a href="/guides.html">Гайды</a><a href="/brands/">Бренды</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a><a href="https://www.tiktok.com/@specavtoportal" target="_blank" rel="noopener">TikTok ↗</a><a href="https://www.youtube.com/@Specavtoportal" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.instagram.com/specavtoportal" target="_blank" rel="noopener">Instagram ↗</a><a href="https://vk.ru/specavtoportal" target="_blank" rel="noopener">VK ↗</a></div>
       <div class="footer-note">© СпецАвтоПортал</div>
     </div>
   </footer>
@@ -1783,7 +1791,7 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
   <footer class="site-footer">
     <div class="container footer-grid">
       <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
-      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/law.html">Нормативы</a><a href="/guides.html">Гайды</a><a href="/brands/">Бренды</a></div>
+      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/law.html">Нормативы</a><a href="/guides.html">Гайды</a><a href="/brands/">Бренды</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a><a href="https://www.tiktok.com/@specavtoportal" target="_blank" rel="noopener">TikTok ↗</a><a href="https://www.youtube.com/@Specavtoportal" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.instagram.com/specavtoportal" target="_blank" rel="noopener">Instagram ↗</a><a href="https://vk.ru/specavtoportal" target="_blank" rel="noopener">VK ↗</a></div>
       <div class="footer-note">© СпецАвтоПортал</div>
     </div>
   </footer>
@@ -1911,7 +1919,7 @@ def render_regulations_index(regulations: dict[str, Any]) -> str:
   <footer class="site-footer">
     <div class="container footer-grid">
       <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
-      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/law.html">Нормативы</a><a href="/guides.html">Гайды</a><a href="/brands/">Бренды</a></div>
+      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/law.html">Нормативы</a><a href="/guides.html">Гайды</a><a href="/brands/">Бренды</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a><a href="https://www.tiktok.com/@specavtoportal" target="_blank" rel="noopener">TikTok ↗</a><a href="https://www.youtube.com/@Specavtoportal" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.instagram.com/specavtoportal" target="_blank" rel="noopener">Instagram ↗</a><a href="https://vk.ru/specavtoportal" target="_blank" rel="noopener">VK ↗</a></div>
       <div class="footer-note">© СпецАвтоПортал</div>
     </div>
   </footer>
