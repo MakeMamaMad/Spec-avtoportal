@@ -63,6 +63,15 @@
       "attempted_at": "2026-09-24T05:09:14+00:00",
       "status": "waiting_bot_to_bot",
       "detail": "Bad Request: USER_BOT_TO_BOT_DISABLED"
+    },
+    {
+      "target_id": "moskva-spectehnika-arenda",
+      "target_name": "Аренда спецтехники грузоперевозки",
+      "contact": "@spectehnika_mosk_bot",
+      "tracking_url": "https://spec-avtoportal.ru/?utm_source=moskva-spectehnika-arenda&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad",
+      "attempted_at": "2026-09-24T09:57:38+00:00",
+      "status": "waiting_bot_to_bot",
+      "detail": "Bad Request: USER_BOT_TO_BOT_DISABLED"
     }
   ]
 }
