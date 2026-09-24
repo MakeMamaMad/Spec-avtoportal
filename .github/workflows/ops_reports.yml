@@ -1,0 +1,64 @@
+name: Control — Automation Reports
+
+on:
+  workflow_run:
+    workflows:
+      - "Promotion — Daily Site Advertising"
+      - "Ingest & Publish"
+      - "Video — Generate & Publish (YouTube + TikTok + Instagram)"
+      - "Telegram — Editorial Digest"
+      - "VK — Editorial Digest"
+      - "Site — Build, Deploy & VK Publish"
+      - "Promotion — Telegram Outreach"
+      - "Promotion — Prepare Telegram Ads"
+      - "Checks — Full QA"
+    types: [completed]
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: specavto-control-reports
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build report
+        id: build
+        run: |
+          OUTPUT="$(python tools/build_ops_report.py)"
+          echo "builder_output=$OUTPUT" >> "$GITHUB_OUTPUT"
+          if [ "$OUTPUT" = "SKIP_REPORT" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Post to SpecAvto Control issue
+        if: steps.build.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue comment 77 --repo "${{ github.repository }}" --body-file /tmp/specavto-report.md
+
+      - name: Mirror report to private Telegram channel when configured
+        if: steps.build.outputs.skip != 'true'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          REPORT_TELEGRAM_CHAT_ID: ${{ secrets.REPORT_TELEGRAM_CHAT_ID }}
+        run: |
+          python tools/send_ops_report_telegram.py
