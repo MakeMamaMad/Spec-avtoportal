@@ -1,5 +1,6 @@
 requests==2.32.3
 python-dateutil==2.9.0.post0
+python-dotenv>=1.0.1,<2
 Pillow==10.4.0
 
 edge-tts==6.1.12
