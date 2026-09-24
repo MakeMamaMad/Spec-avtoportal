@@ -2,7 +2,17 @@
   "schema": 1,
   "welcome_post_id": 2,
   "welcome_sent_at": "2026-09-23T10:35:05+00:00",
-  "posts": {},
+  "posts": {
+    "http://gruzovoy.ru/news/industry/3377_magistralnii_tyagach_valdai_45_lng_na_sjijennom_gaze_vishel_na_rinok.html": {
+      "post_id": 4,
+      "sent_at": "2026-09-24T11:41:19+00:00",
+      "title": "Магистральный тягач «Валдай 45 LNG» на сжиженном газе вышел на рынок",
+      "slug": "magistralnyy-tyagach-valday-45-lng-na-szhizhennom-gaze-vyshel-na-rynok-a97ddc75",
+      "site_url": "https://spec-avtoportal.ru/news/magistralnyy-tyagach-valday-45-lng-na-szhizhennom-gaze-vyshel-na-rynok-a97ddc75/?utm_source=vk&utm_medium=social&utm_campaign=important_news&utm_content=magistralnyy-tyagach-valday-45-lng-na-szhizhennom-gaze-vyshel-na-rynok-a97ddc75",
+      "score": 4,
+      "visual": "link_preview"
+    }
+  },
   "digested": {
     "http://gruzovoy.ru/news/industry/3376_kamaz_planiryet_nachat_seriinii_vipysk_tyristicheskih_avtobysov_v_2027_gody.html": {
       "digest_id": "2026-09-23:pm",
