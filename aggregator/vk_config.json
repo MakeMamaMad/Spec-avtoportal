@@ -4,7 +4,7 @@
   "baseline_ref": "8b72061d0064da02454e45c9a0984dc50ec4d5a6",
   "community_screen_name": "specavtoportal",
   "welcome_enabled": true,
-  "immediate_score": 5,
+  "immediate_score": 3,
   "max_immediate_per_run": 3,
   "max_item_age_hours": 48,
   "digest_enabled": true,
