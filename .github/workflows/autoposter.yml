@@ -1,4 +1,4 @@
-name: autoposter-social-shorts-v2
+name: Video — Generate & Publish (YouTube + TikTok + Instagram)
 
 on:
   workflow_dispatch:
