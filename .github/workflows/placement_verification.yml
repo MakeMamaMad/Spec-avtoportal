@@ -1,0 +1,57 @@
+name: Promotion — Verify Placements
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 11:45 Moscow time (UTC+3); only due placements are checked.
+    - cron: '45 8 * * *'
+  push:
+    branches: [ main ]
+    paths:
+      - 'frontend/data/site_promo_history.json'
+      - 'promotion/site_targets.json'
+      - 'promotion/core/placements.py'
+      - 'promotion/jobs/verify_placements.py'
+      - '.github/workflows/placement_verification.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: promotion-placement-verification
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run placement tests
+        run: |
+          python -m unittest promotion.tests.test_placements
+
+      - name: Check submitted placements
+        run: |
+          python promotion/jobs/verify_placements.py
+
+      - name: Commit placement state
+        run: |
+          git config user.name "specavto-promotion"
+          git config user.email "actions@users.noreply.github.com"
+          git add frontend/data/promotion/placements.json frontend/data/promotion/placement_verification_summary.json || true
+          if git diff --cached --quiet; then
+            echo "No placement state changes"
+            exit 0
+          fi
+          git commit -m "promotion: verify submitted placements"
+          git pull --rebase origin main
+          git push origin main
