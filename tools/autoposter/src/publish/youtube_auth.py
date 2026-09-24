@@ -12,7 +12,7 @@ SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 
 def main():
     flow = InstalledAppFlow.from_client_secrets_file(cfg.YOUTUBE_CLIENT_SECRETS, SCOPES)
-    creds = flow.run_local_server(port=0)
+    creds = flow.run_local_server(port=0, access_type="offline", prompt="consent")
     data = {
         "token": creds.token,
         "refresh_token": creds.refresh_token,
