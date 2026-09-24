@@ -226,6 +226,40 @@ jobs:
           sample = pages[0].read_text("utf-8")
           for marker in ('rel="canonical"', 'application/ld+json', 'property="og:title"', 'name="description"'):
               assert marker in sample, f"missing SEO marker: {marker}"
+
+          # Indexable news pages must never republish the scraped full source body.
+          import importlib.util
+          seo_spec = importlib.util.spec_from_file_location("seo_builder", "tools/build_seo.py")
+          seo_builder = importlib.util.module_from_spec(seo_spec)
+          seo_spec.loader.exec_module(seo_builder)
+          indexable_items = [item for item in items if seo_builder.is_indexable_news(item)]
+          blocked_items = [item for item in items if not seo_builder.is_indexable_news(item)]
+          assert indexable_items, "quality gate unexpectedly blocked every news item"
+          for item in indexable_items[:80]:
+              page = root / "news" / str(item["slug"]) / "index.html"
+              page_html = page.read_text("utf-8")
+              assert 'content="index,follow,max-image-preview:large"' in page_html, f"indexable page robots mismatch: {page}"
+              full = seo_builder.strip_html(str(item.get("content") or item.get("content_text") or item.get("full_text") or ""))
+              summary = seo_builder.summary_text(item)
+              if len(full) > len(summary) + 300:
+                  distinctive = full[min(220, len(full)):min(420, len(full))].strip()
+                  if len(distinctive) >= 80:
+                      assert distinctive not in page_html, f"scraped full text leaked into public article: {page}"
+          for item in blocked_items[:80]:
+              page = root / "news" / str(item["slug"]) / "index.html"
+              assert 'content="noindex,follow"' in page.read_text("utf-8"), f"quality-blocked page must be noindex: {page}"
+
+          compact_index = root / "data" / "news-index.json"
+          assert compact_index.exists(), "lightweight news-index.json not generated"
+          compact_items = json.loads(compact_index.read_text("utf-8"))
+          assert len(compact_items) == len(indexable_items), "news-index must contain only indexable items"
+          assert compact_index.stat().st_size < (root / "data" / "news.json").stat().st_size, "news-index must be smaller than raw news.json"
+          assert all("content" not in item and "full_text" not in item for item in compact_items), "news-index must not expose source full text"
+
+          home_html = (root / "index.html").read_text("utf-8")
+          assert 'id="seo-news-bootstrap"' in home_html, "homepage bootstrap missing"
+          assert '<div id="news-list" class="news-list"><!-- SEO_NEWS_LIST_START --><article' in home_html, "homepage news must be statically rendered"
+          assert 'featured-primary' in home_html and '<!-- SEO_FEATURED_PRIMARY_START -->' in home_html, "homepage featured content must be statically rendered"
           linked_news_pages = sum(
               1 for page in pages
               if 'Полезно по теме' in page.read_text("utf-8")
@@ -312,12 +346,17 @@ jobs:
           assert '/knowledge.html' in video_html, "video page must point to knowledge base"
 
           sitemap = root / "sitemap.xml"
+          news_sitemap = root / "news-sitemap.xml"
           robots = root / "robots.txt"
           assert sitemap.exists(), "sitemap.xml not generated"
+          assert news_sitemap.exists(), "news-sitemap.xml not generated"
           assert robots.exists(), "robots.txt not generated"
           ET.parse(sitemap)
+          ET.parse(news_sitemap)
           robots_text = robots.read_text("utf-8")
           assert "Sitemap: https://spec-avtoportal.ru/sitemap.xml" in robots_text
+          assert "Sitemap: https://spec-avtoportal.ru/news-sitemap.xml" in robots_text
+          assert "Disallow: /data/" in robots_text
 
           topic_slugs = [
               "rynok-i-proizvodstvo",
@@ -359,10 +398,15 @@ jobs:
                   assert marker in brand_html, f"brand {slug} missing SEO marker: {marker}"
 
           urls = re.findall(r"<loc>(.*?)</loc>", sitemap.read_text("utf-8"))
-          assert len(urls) >= len(items) + len(topic_slugs) + len(brand_slugs) + 1, "sitemap missing article/topic/brand URLs"
+          article_urls = [url for url in urls if "/news/" in url]
+          assert len(article_urls) == len(indexable_items), "sitemap must contain exactly the quality-approved news URLs"
+          for item in blocked_items:
+              assert seo_builder.article_url(item) not in urls, f"quality-blocked article leaked into sitemap: {item.get('slug')}"
+          assert len(urls) >= len(indexable_items) + len(topic_slugs) + len(brand_slugs) + 1, "sitemap missing article/topic/brand URLs"
           for slug in topic_slugs:
               assert f"https://spec-avtoportal.ru/topics/{slug}/" in urls, f"topic missing from sitemap: {slug}"
           assert "https://spec-avtoportal.ru/knowledge.html" in urls, "knowledge base missing from sitemap"
+          assert "https://spec-avtoportal.ru/about.html" in urls, "editorial/about page missing from sitemap"
           assert "https://spec-avtoportal.ru/video.html" not in urls, "video archive must not be in sitemap"
           for slug in regulation_slugs:
               assert f"https://spec-avtoportal.ru/regulations/{slug}/" in urls, f"regulation missing from sitemap: {slug}"
@@ -372,5 +416,5 @@ jobs:
           for slug in brand_slugs:
               assert f"https://spec-avtoportal.ru/brands/{slug}/" in urls, f"brand missing from sitemap: {slug}"
 
-          print(f"QA OK: {len(items)} items, {len(pages)} pages, {linked_news_pages} news pages with knowledge links, {sat_news_pages} contextual SAT news placements, {knowledge_pages_with_news} knowledge pages with news, {len(regulation_items)} regulations, {len(urls)} sitemap URLs")
+          print(f"QA OK: {len(items)} raw items, {len(indexable_items)} indexable, {len(blocked_items)} noindex, {len(pages)} pages, {linked_news_pages} news pages with knowledge links, {sat_news_pages} contextual SAT news placements, {knowledge_pages_with_news} knowledge pages with news, {len(regulation_items)} regulations, {len(urls)} sitemap URLs")
           PY
