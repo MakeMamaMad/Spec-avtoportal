@@ -1,4 +1,4 @@
-name: Daily Site Advertising
+name: Promotion — Daily Site Advertising
 
 on:
   workflow_dispatch:
