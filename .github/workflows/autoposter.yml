@@ -2,10 +2,11 @@ name: Video — Generate & Publish (YouTube + TikTok + Instagram)
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/autoposter.yml"
+    inputs:
+      slot:
+        description: "Какой слот запустить: manual, am или pm"
+        required: false
+        default: "manual"
   schedule:
     # Primary schedule, UTC. Moscow time is UTC+3 year-round.
     - cron: "30 7 * * *"   # 10:30 MSK
@@ -37,6 +38,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           SCHEDULE_EXPR: ${{ github.event.schedule }}
           WORKFLOW_RUN_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          REQUESTED_SLOT: ${{ github.event.inputs.slot }}
         run: |
           python - <<'PY'
           import json
@@ -48,6 +50,7 @@ jobs:
           event = os.environ.get("EVENT_NAME", "")
           schedule = os.environ.get("SCHEDULE_EXPR", "")
           conclusion = os.environ.get("WORKFLOW_RUN_CONCLUSION", "")
+          requested_slot = os.environ.get("REQUESTED_SLOT", "").strip()
           now = datetime.now(ZoneInfo("Europe/Moscow"))
           today = now.date().isoformat()
           hour = now.hour
@@ -55,8 +58,8 @@ jobs:
           slot = ""
           should_run = False
 
-          if event in {"workflow_dispatch", "push"}:
-              slot = "manual"
+          if event == "workflow_dispatch":
+              slot = requested_slot if requested_slot in {"am", "pm"} else "manual"
               should_run = True
           elif event == "schedule":
               if schedule == "30 7 * * *":
@@ -83,8 +86,8 @@ jobs:
                   done = ((state.get("days") or {}).get(today) or {}).get(slot) == "published"
                   should_run = not done
 
-          # Dedicated cron also respects the persisted slot state.
-          if event == "schedule" and slot:
+          # Dedicated cron and watchdog dispatches respect the persisted slot state.
+          if event in {"schedule", "workflow_dispatch"} and slot in {"am", "pm"}:
               state_path = Path("tools/autoposter/state/video_schedule.json")
               state = {}
               if state_path.exists():
