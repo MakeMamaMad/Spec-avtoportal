@@ -144,7 +144,7 @@ def render_important_card(item: dict[str, Any], output: str | Path) -> Path:
     category = _category(item)
     draw.text((80, 205), category, font=category_font, fill=ORANGE)
 
-    title = _clean(item.get("title") or "Важная новость")
+    title = _clean(item.get("title") or "Новости отрасли")
     title_lines = _fit_lines(draw, title, title_font, 770, 5)
     y = 270
     for line in title_lines:
@@ -159,7 +159,7 @@ def render_important_card(item: dict[str, Any], output: str | Path) -> Path:
         summary_y += 38
 
     draw.rounded_rectangle((790, 860, 1000, 924), radius=16, fill=ORANGE)
-    draw.text((848, 879), "ВАЖНО", font=badge_font, fill="#FFFFFF")
+    draw.text((820, 879), "НОВОСТЬ", font=badge_font, fill="#FFFFFF")
 
     # Abstract trailer / axle motif.
     draw.rectangle((815, 300, 982, 390), outline="#353B42", width=4)

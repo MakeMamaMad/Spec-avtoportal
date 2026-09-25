@@ -2,14 +2,13 @@
 """VK Editorial publisher for SpecAvtoPortal.
 
 Modes:
-- immediate: publish only recent high-priority stories;
-- digest: publish recent ordinary stories as a morning/evening digest.
+- immediate: publish recent new stories without importance scoring;
+- digest: randomly select recent stories for a morning/evening digest.
 
 Safety:
-- disabled by config until credentials are connected;
 - archive items from before baseline_ref are never published;
 - text fallback is used if visual upload fails;
-- shared state prevents duplicates between immediate posts and digests.
+- state prevents duplicate standalone posts and repeated digest items.
 """
 from __future__ import annotations
 
@@ -18,6 +17,7 @@ import hashlib
 import html
 import json
 import os
+import random
 import re
 import subprocess
 import sys
@@ -40,42 +40,6 @@ STATE_PATH = Path("frontend/data/vk_state.json")
 CONFIG_PATH = Path("aggregator/vk_config.json")
 
 TAG_RE = re.compile(r"<[^>]+>")
-
-HIGH_PRIORITY_TERMS: tuple[tuple[str, int], ...] = (
-    ("гост", 5),
-    ("тр тс", 5),
-    ("техрегламент", 5),
-    ("регламент", 4),
-    ("закон", 4),
-    ("штраф", 5),
-    ("запрет", 5),
-    ("ограничен", 4),
-    ("вступил", 4),
-    ("тамож", 4),
-    ("границ", 4),
-    ("санкц", 4),
-    ("отзыв", 5),
-    ("дефект", 4),
-    ("авар", 4),
-    ("пожар", 4),
-    ("подорож", 4),
-    ("подешев", 4),
-    ("рост цен", 4),
-    ("снижение цен", 4),
-    ("весогабарит", 5),
-    ("нагрузк на ос", 5),
-    ("производство", 2),
-    ("завод", 2),
-    ("рынок", 2),
-)
-
-HIGH_PRIORITY_TAGS = {
-    "регулирование": 4,
-    "таможня": 4,
-    "рынок": 2,
-    "безопасность": 3,
-    "логистика": 1,
-}
 
 CATEGORY_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("Правила и контроль", ("гост", "тр тс", "закон", "регламент", "штраф", "тамож", "контроль")),
@@ -219,23 +183,6 @@ def tags_for(item: dict[str, Any]) -> list[str]:
     return [str(tag).strip() for tag in raw if str(tag).strip()]
 
 
-def importance_score(item: dict[str, Any]) -> int:
-    title = strip_html(str(item.get("title") or "")).lower()
-    summary = strip_html(str(item.get("summary") or item.get("description") or "")).lower()
-    haystack = f"{title} {summary}"
-    score = 0
-    for needle, weight in HIGH_PRIORITY_TERMS:
-        if needle in title:
-            score += weight
-        elif needle in haystack:
-            score += max(1, weight // 2)
-    for tag in tags_for(item):
-        score += HIGH_PRIORITY_TAGS.get(tag.lower(), 0)
-    if re.search(r"\b\d{1,3}(?:[.,]\d+)?\s*%", title):
-        score += 3
-    return score
-
-
 def category_for(item: dict[str, Any]) -> str:
     haystack = " ".join(
         [
@@ -287,22 +234,22 @@ def unhandled_items(
     state: dict[str, Any],
 ) -> list[dict[str, Any]]:
     baseline_keys = {make_key(item) for item in baseline}
-    handled = set(state["posts"]) | set(state["digested"])
+    posted = set(state["posts"])
     return [
         item
         for item in current
         if make_key(item) not in baseline_keys
-        and make_key(item) not in handled
+        and make_key(item) not in posted
     ]
 
 
-def important_message(item: dict[str, Any], site_url: str) -> str:
-    title = strip_html(str(item.get("title") or "Важная новость"))
+def news_message(item: dict[str, Any], site_url: str) -> str:
+    title = strip_html(str(item.get("title") or "Новость отрасли"))
     summary = clamp(strip_html(str(item.get("summary") or item.get("description") or "")), 650)
     source = display_source(item)
     tags = [tag for tag in tags_for(item) if tag.lower() not in {"новости", "partner", "партнёр"}][:3]
 
-    parts = ["⚡ ВАЖНО", "", title]
+    parts = ["📰 СпецАвтоПортал", "", title]
     if summary:
         parts.extend(["", summary])
     if tags:
@@ -514,29 +461,25 @@ def run_immediate(
     baseline: list[dict[str, Any]],
     site_base: str,
 ) -> int:
-    threshold = int(config.get("immediate_score") or 5)
     max_age = int(config.get("max_item_age_hours") or 48)
     max_posts = int(os.getenv("VK_MAX_POSTS", str(config.get("max_immediate_per_run") or 3)))
 
-    candidates: list[tuple[int, str, dict[str, Any]]] = []
-    for item in unhandled_items(baseline, current, state):
-        if not is_recent(item, max_age):
-            continue
-        score = importance_score(item)
-        if score >= threshold:
-            candidates.append((score, item_date(item), item))
-
-    candidates.sort(key=lambda row: (-row[0], row[1]))
+    candidates = [
+        item
+        for item in unhandled_items(baseline, current, state)
+        if is_recent(item, max_age)
+    ]
+    candidates.sort(key=item_date, reverse=True)
     chosen = candidates[:max_posts]
     if not chosen:
-        print("VK: no important items; ordinary items wait for digest.")
+        print("VK: no fresh unpublished news items.")
         return 0
 
     errors = 0
-    for score, _, item in chosen:
+    for item in chosen:
         key = make_key(item)
-        site_url = build_site_url(site_base, item, "important_news")
-        message = important_message(item, site_url)
+        site_url = build_site_url(site_base, item, "news")
+        message = news_message(item, site_url)
         try:
             wait_for_preview_page(site_url)
             post_id, visual = send_with_visual_fallback(
@@ -544,7 +487,7 @@ def run_immediate(
                 api_version,
                 group_id,
                 message,
-                kind="important",
+                kind="news",
                 key=key,
                 item=item,
             )
@@ -554,11 +497,10 @@ def run_immediate(
                 "title": str(item.get("title") or ""),
                 "slug": str(item.get("slug") or ""),
                 "site_url": site_url,
-                "score": score,
                 "visual": visual,
             }
             save_state(state)
-            print(f"VK OK post_id={post_id} score={score}: {str(item.get('title') or '')[:90]}")
+            print(f"VK OK post_id={post_id}: {str(item.get('title') or '')[:90]}")
         except Exception as exc:
             errors += 1
             print(f"VK ERR: {exc}", file=sys.stderr)
@@ -586,27 +528,28 @@ def run_digest(
         print(f"VK digest already sent: {current_digest_id}")
         return 0
 
-    threshold = int(config.get("immediate_score") or 5)
     max_age = int(config.get("max_item_age_hours") or 48)
     limit = int(config.get("digest_items") or 5)
     min_items = int(config.get("digest_min_items") or 2)
+    baseline_keys = {make_key(item) for item in baseline}
+    already_digested = set(state["digested"])
 
-    candidates: list[tuple[datetime, int, dict[str, Any]]] = []
-    for item in unhandled_items(baseline, current, state):
-        if not is_recent(item, max_age):
-            continue
-        score = importance_score(item)
-        if score >= threshold:
-            continue
-        published = parse_item_datetime(item)
-        if published is None:
-            continue
-        candidates.append((published, score, item))
+    candidates = [
+        item
+        for item in current
+        if make_key(item) not in baseline_keys
+        and make_key(item) not in already_digested
+        and is_recent(item, max_age)
+        and parse_item_datetime(item) is not None
+    ]
+    if len(candidates) <= limit:
+        random.shuffle(candidates)
+        items = candidates
+    else:
+        items = random.SystemRandom().sample(candidates, limit)
 
-    candidates.sort(key=lambda row: (row[0], row[1]), reverse=True)
-    items = [item for _, _, item in candidates[:limit]]
     if len(items) < min_items:
-        print(f"VK: not enough ordinary items for digest: {len(items)} < {min_items}")
+        print(f"VK: not enough recent items for digest: {len(items)} < {min_items}")
         return 0
 
     message = digest_message(items, slot, site_base)
@@ -648,9 +591,7 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.self_test:
-        assert importance_score({"title": "Новый ГОСТ вступил в силу"}) >= 5
-        assert importance_score({"title": "Компания показала новый полуприцеп"}) < 5
-        assert guid_for("important", "abc") == guid_for("important", "abc")
+        assert guid_for("news", "abc") == guid_for("news", "abc")
         assert group_id_from_response([{"id": 12345}]) == 12345
         assert group_id_from_response({"groups": [{"id": 67890}]}) == 67890
         print("VK Editorial self-test OK")

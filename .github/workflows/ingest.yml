@@ -122,7 +122,7 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_MAX_POSTS: "3"       # only high-priority stories; ordinary items wait for digest
+          TELEGRAM_MAX_POSTS: "3"       # publish up to three fresh unposted news items
         run: |
           python aggregator/post_to_telegram.py || echo "Telegram publishing failed; state/news changes will still be committed for safe retry"
 

@@ -1,0 +1,83 @@
+name: Social — Schedule Watchdog
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'tools/social_schedule_watchdog.py'
+      - '.github/workflows/social_schedule_watchdog.yml'
+  schedule:
+    # News backup checks after every 3-hour slot.
+    - cron: '17,37 */3 * * *'
+    # Extra checks shortly after morning/evening Telegram and VK digests.
+    - cron: '47,57 6,16 * * *'
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: social-schedule-watchdog
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Detect overdue social jobs
+        id: due
+        run: |
+          ACTIONS="$(python tools/social_schedule_watchdog.py | tail -n 1)"
+          echo "actions=$ACTIONS" >> "$GITHUB_OUTPUT"
+          echo "Overdue actions: ${ACTIONS:-none}"
+
+      - name: Recover news ingest
+        if: contains(steps.due.outputs.actions, 'news')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run ingest.yml --ref main
+          echo "Requested recovery: News — Fetch & Publish"
+
+      - name: Recover Telegram morning digest
+        if: contains(steps.due.outputs.actions, 'telegram_am')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run daily_digest.yml --ref main
+          echo "Requested recovery: Telegram morning digest"
+
+      - name: Recover Telegram evening digest
+        if: contains(steps.due.outputs.actions, 'telegram_pm')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run daily_digest.yml --ref main
+          echo "Requested recovery: Telegram evening digest"
+
+      - name: Recover VK morning digest
+        if: contains(steps.due.outputs.actions, 'vk_am')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run vk_digest.yml --ref main
+          echo "Requested recovery: VK morning digest"
+
+      - name: Recover VK evening digest
+        if: contains(steps.due.outputs.actions, 'vk_pm')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run vk_digest.yml --ref main
+          echo "Requested recovery: VK evening digest"
