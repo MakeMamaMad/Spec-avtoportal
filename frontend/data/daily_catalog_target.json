@@ -6,14 +6,19 @@
     {
       "target_id": "clubcoua",
       "target_name": "ClubCoua — Клубный каталог сайтов",
-      "status": "technical_failure",
-      "detail": "Required fields not confidently identified: url=False, title=False, description=True",
+      "site_url": "https://spec-avtoportal.ru/",
+      "tracking_url": "https://spec-avtoportal.ru/?utm_source=clubcoua&utm_medium=directory&utm_campaign=catalog_promotion&utm_content=site_listing",
+      "utm_source": "clubcoua",
+      "utm_medium": "directory",
+      "utm_campaign": "catalog_promotion",
       "result_url": "https://catalog.clubcoua.com/new_site/lang/ru/",
-      "tracking_url": "https://spec-avtoportal.ru/?utm_source=clubcoua&utm_medium=directory&utm_campaign=catalog_promotion&utm_content=site_listing"
+      "attempted_at": "2026-09-25T12:25:48+00:00",
+      "status": "technical_failure",
+      "detail": "Required fields not confidently identified: url=False, title=False, description=True"
     }
   ],
-  "detail": "All currently available automatic catalog targets were checked; none accepted a submission.",
-  "updated_at": "2026-09-25T12:25:48+00:00",
+  "detail": "No unused automatic catalog targets remain.",
+  "updated_at": "2026-09-25T12:45:58+00:00",
   "target_id": "clubcoua",
   "target_name": "ClubCoua — Клубный каталог сайтов"
 }
