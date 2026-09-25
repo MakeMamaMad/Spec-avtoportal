@@ -44,6 +44,36 @@
         }
       },
       "updated_at": "2026-09-24T19:33:37.209953+00:00"
+    },
+    "ccf600328eba": {
+      "title": "ЧМЗАП показал низкорамный полуприцеп с самоустанавливающимися осями",
+      "created_at": "2026-09-25T08:01:25.972150+00:00",
+      "platforms": {
+        "youtube": {
+          "platform": "youtube",
+          "status": "published",
+          "video_id": "FHd9tmhlVTU",
+          "url": "https://www.youtube.com/shorts/FHd9tmhlVTU",
+          "updated_at": "2026-09-25T08:01:25.972163+00:00"
+        },
+        "tiktok": {
+          "platform": "tiktok",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6ab62a574be5473030aa712f",
+          "buffer_status": "sent",
+          "updated_at": "2026-09-25T08:03:19.673168+00:00"
+        },
+        "instagram": {
+          "platform": "instagram",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6ab62ac88c95968bb031741f",
+          "buffer_status": "sent",
+          "updated_at": "2026-09-25T08:04:16.543318+00:00"
+        }
+      },
+      "updated_at": "2026-09-25T08:04:16.543315+00:00"
     }
   }
 }

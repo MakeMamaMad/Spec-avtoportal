@@ -2,7 +2,8 @@
   "schema": 1,
   "used": [
     "f9985dadb358",
-    "a97ddc75afdb"
+    "a97ddc75afdb",
+    "ccf600328eba"
   ],
   "renders": [
     {
@@ -17,6 +18,13 @@
       "slug": "magistralnyy-tyagach-valday-45-lng-na-szhizhennom-gaze-vyshel-na-rynok-a97ddc75",
       "title": "«Валдай 45 LNG» вышел на рынок",
       "created_at": "2026-09-24T19:33:37.210452+00:00",
+      "format": "social-v2"
+    },
+    {
+      "content_key": "ccf600328eba",
+      "slug": "chmzap-pokazal-nizkoramnyy-polupritsep-s-samoustanavlivayuschimisya-osya-ccf60032",
+      "title": "ЧМЗАП показал низкорамный полуприцеп с самоустанавливающимися осями",
+      "created_at": "2026-09-25T08:04:16.543815+00:00",
       "format": "social-v2"
     }
   ]
