@@ -44,6 +44,37 @@ def pending_entries(payload: dict[str, Any]) -> list[dict[str, Any]]:
     return rows
 
 
+def pending_action_ids(payload: dict[str, Any]) -> list[str]:
+    ids = []
+    for row in pending_entries(payload):
+        action_id = str(row.get("action_id") or "").strip()
+        if action_id:
+            ids.append(action_id)
+    return sorted(set(ids))
+
+
+def should_send(payload: dict[str, Any], state: dict[str, Any], now: datetime | None = None) -> bool:
+    now = now or datetime.now(MSK)
+    rows = pending_entries(payload)
+    if not rows:
+        return False
+
+    current_ids = set(pending_action_ids(payload))
+    sent_ids = {
+        str(value)
+        for value in state.get("action_ids", [])
+        if str(value).strip()
+    }
+    if current_ids - sent_ids:
+        return True
+
+    today = now.astimezone(MSK).date().isoformat()
+    if str(state.get("date_moscow") or "") != today and now.astimezone(MSK).hour >= 14:
+        return True
+
+    return False
+
+
 def task_text(row: dict[str, Any], index: int) -> str:
     name = str(row.get("target_name") or row.get("target_id") or "Площадка")
     contact = str(row.get("contact") or "").strip() or "контакт не указан"
@@ -122,6 +153,11 @@ def telegram_send(token: str, chat_id: str, text: str) -> None:
 
 def main() -> int:
     payload = load_json(QUEUE_PATH, {"entries": []})
+    state = load_json(STATE_PATH, {"schema": 1, "action_ids": []})
+    if not should_send(payload, state):
+        print("MANUAL_OUTREACH_DIGEST_SKIP")
+        return 0
+
     messages = build_messages(payload)
 
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
@@ -138,6 +174,7 @@ def main() -> int:
         "date_moscow": datetime.now(MSK).date().isoformat(),
         "sent_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "task_count": tasks,
+        "action_ids": pending_action_ids(payload),
     }
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     STATE_PATH.write_text(
