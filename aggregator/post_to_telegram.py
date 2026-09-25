@@ -210,14 +210,12 @@ def get_unhandled_items(
 ) -> list[dict[str, Any]]:
     baseline_keys = {make_key(item) for item in baseline}
     posted_keys = set(state.get("posts", {}).keys())
-    digested_keys = set(state.get("digested", {}).keys())
 
     queue = [
         item
         for item in current
         if make_key(item) not in baseline_keys
         and make_key(item) not in posted_keys
-        and make_key(item) not in digested_keys
     ]
     queue.sort(key=item_date)
     return queue
