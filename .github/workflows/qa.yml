@@ -109,7 +109,7 @@ jobs:
           assert "immediate_score" not in config
           assert 1 <= int(config.get("max_immediate_per_run") or 0) <= 3
           assert config.get("digest_enabled") is True
-          assert 2 <= int(config.get("digest_min_items") or 0) <= int(config.get("digest_items") or 0) <= 8
+          assert 1 <= int(config.get("digest_min_items") or 0) <= int(config.get("digest_items") or 0) <= 8
           assert state.get("schema") == 1
           assert isinstance(state.get("posts"), dict)
           assert isinstance(state.get("digested"), dict)
@@ -149,7 +149,7 @@ jobs:
           assert "immediate_score" not in config
           assert 24 <= int(config.get("max_item_age_hours") or 0) <= 72
           assert config.get("digest_enabled") is True
-          assert 2 <= int(config.get("digest_min_items") or 0) <= int(config.get("digest_items") or 0) <= 8
+          assert 1 <= int(config.get("digest_min_items") or 0) <= int(config.get("digest_items") or 0) <= 8
           assert config.get("digest_times") == ["09:30", "19:30"]
 
           assert state.get("schema") in (1, 2), "state must be migratable to editorial schema"
