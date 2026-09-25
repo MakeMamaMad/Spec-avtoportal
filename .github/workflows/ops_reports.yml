@@ -33,6 +33,7 @@ on:
 permissions:
   contents: read
   issues: write
+  actions: write
 
 concurrency:
   group: specavto-control-reports
@@ -78,3 +79,33 @@ jobs:
           REPORT_TELEGRAM_CHAT_ID: ${{ secrets.REPORT_TELEGRAM_CHAT_ID }}
         run: |
           python tools/send_ops_report_telegram.py
+
+      - name: Recover overdue news and social digests
+        if: github.event.workflow_run.conclusion == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          ACTIONS="$(python tools/social_schedule_watchdog.py | tail -n 1)"
+          echo "Overdue social actions: ${ACTIONS:-none}"
+
+          if echo " $ACTIONS " | grep -q " news "; then
+            gh workflow run ingest.yml --ref main
+            echo "Requested recovery: News — Fetch & Publish"
+          fi
+          if echo " $ACTIONS " | grep -q " telegram_am "; then
+            gh workflow run daily_digest.yml --ref main
+            echo "Requested recovery: Telegram morning digest"
+          fi
+          if echo " $ACTIONS " | grep -q " telegram_pm "; then
+            gh workflow run daily_digest.yml --ref main
+            echo "Requested recovery: Telegram evening digest"
+          fi
+          if echo " $ACTIONS " | grep -q " vk_am "; then
+            gh workflow run vk_digest.yml --ref main
+            echo "Requested recovery: VK morning digest"
+          fi
+          if echo " $ACTIONS " | grep -q " vk_pm "; then
+            gh workflow run vk_digest.yml --ref main
+            echo "Requested recovery: VK evening digest"
+          fi
