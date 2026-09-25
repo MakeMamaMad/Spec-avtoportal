@@ -1,27 +1,19 @@
 {
   "schema": 2,
-  "date_moscow": "2026-09-24",
-  "status": "success",
+  "date_moscow": "2026-09-25",
+  "status": "queue_exhausted",
   "attempts": [
     {
-      "target_id": "catalog-ru-net",
-      "target_name": "Catalog.ru.net",
+      "target_id": "clubcoua",
+      "target_name": "ClubCoua — Клубный каталог сайтов",
       "status": "technical_failure",
       "detail": "Required fields not confidently identified: url=False, title=False, description=True",
-      "result_url": "https://catalog.ru.net/",
-      "tracking_url": "https://spec-avtoportal.ru/?utm_source=catalog-ru-net&utm_medium=directory&utm_campaign=catalog_promotion&utm_content=site_listing"
-    },
-    {
-      "target_id": "otsiv-ru",
-      "target_name": "Отзыв.ру",
-      "status": "under_moderation",
-      "detail": "Automated directory submission completed",
-      "result_url": "https://otsiv.ru/org/create/",
-      "tracking_url": "https://spec-avtoportal.ru/?utm_source=otsiv-ru&utm_medium=directory&utm_campaign=catalog_promotion&utm_content=site_listing"
+      "result_url": "https://catalog.clubcoua.com/new_site/lang/ru/",
+      "tracking_url": "https://spec-avtoportal.ru/?utm_source=clubcoua&utm_medium=directory&utm_campaign=catalog_promotion&utm_content=site_listing"
     }
   ],
-  "detail": "Stopped after successful submission to Отзыв.ру.",
-  "updated_at": "2026-09-24T18:03:39+00:00",
-  "target_id": "otsiv-ru",
-  "target_name": "Отзыв.ру"
+  "detail": "All currently available automatic catalog targets were checked; none accepted a submission.",
+  "updated_at": "2026-09-25T12:25:48+00:00",
+  "target_id": "clubcoua",
+  "target_name": "ClubCoua — Клубный каталог сайтов"
 }
