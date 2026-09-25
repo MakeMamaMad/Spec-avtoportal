@@ -95,6 +95,33 @@
       "slug": "jost-nazval-novogo-generalnogo-direktora-apac-7a5f085c",
       "kind": "news",
       "visual": "visual"
+    },
+    "https://truckmix.ru/news/djak-avtomobil-predstavil-na-comtrans-novie-mysorovoz-i-samosval-na-shassi-jac": {
+      "message_id": 1488,
+      "sent_at": "2026-09-25T11:41:31+00:00",
+      "site_url": "https://spec-avtoportal.ru/news/dzhak-avtomobil-predstavil-na-comtrans-novye-musorovoz-i-samosval-na-sha-06501839/?utm_source=telegram&utm_medium=social&utm_campaign=news&utm_content=dzhak-avtomobil-predstavil-na-comtrans-novye-musorovoz-i-samosval-na-sha-06501839",
+      "title": "«Джак Автомобиль» представил на Comtrans новые мусоровоз и самосвал на шасси JAC",
+      "slug": "dzhak-avtomobil-predstavil-na-comtrans-novye-musorovoz-i-samosval-na-sha-06501839",
+      "kind": "news",
+      "visual": "visual"
+    },
+    "http://gruzovoy.ru/news/industry/3380_dongfeng_pokazal_tri_vodorodnih_gryzovika.html": {
+      "message_id": 1489,
+      "sent_at": "2026-09-25T11:41:32+00:00",
+      "site_url": "https://spec-avtoportal.ru/news/dongfeng-pokazal-tri-vodorodnyh-gruzovika-4802d464/?utm_source=telegram&utm_medium=social&utm_campaign=news&utm_content=dongfeng-pokazal-tri-vodorodnyh-gruzovika-4802d464",
+      "title": "Dongfeng показал три водородных грузовика",
+      "slug": "dongfeng-pokazal-tri-vodorodnyh-gruzovika-4802d464",
+      "kind": "news",
+      "visual": "visual"
+    },
+    "http://gruzovoy.ru/news/industry/3376_kamaz_planiryet_nachat_seriinii_vipysk_tyristicheskih_avtobysov_v_2027_gody.html": {
+      "message_id": 1490,
+      "sent_at": "2026-09-25T11:41:33+00:00",
+      "site_url": "https://spec-avtoportal.ru/news/kamaz-planiruet-nachat-seriynyy-vypusk-turisticheskih-avtobusov-v-2027-g-f9985dad/?utm_source=telegram&utm_medium=social&utm_campaign=news&utm_content=kamaz-planiruet-nachat-seriynyy-vypusk-turisticheskih-avtobusov-v-2027-g-f9985dad",
+      "title": "КАМАЗ планирует начать серийный выпуск туристических автобусов в 2027 году",
+      "slug": "kamaz-planiruet-nachat-seriynyy-vypusk-turisticheskih-avtobusov-v-2027-g-f9985dad",
+      "kind": "news",
+      "visual": "visual"
     }
   },
   "digested": {
