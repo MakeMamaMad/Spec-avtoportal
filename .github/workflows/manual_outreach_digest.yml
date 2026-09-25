@@ -2,6 +2,16 @@ name: Control — Manual Outreach Digest
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'frontend/data/promotion/manual_queue.json'
+      - 'tools/send_manual_outreach_digest.py'
+      - '.github/workflows/manual_outreach_digest.yml'
+  workflow_run:
+    workflows:
+      - "News — Fetch & Publish"
+    types: [completed]
   schedule:
     # 14:00 Moscow time (UTC+3), after the 13:15 Telegram promotion run.
     - cron: '0 11 * * *'
@@ -15,6 +25,7 @@ concurrency:
 
 jobs:
   send:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main
