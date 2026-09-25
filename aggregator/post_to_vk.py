@@ -2,14 +2,13 @@
 """VK Editorial publisher for SpecAvtoPortal.
 
 Modes:
-- immediate: publish only recent high-priority stories;
-- digest: publish recent ordinary stories as a morning/evening digest.
+- immediate: publish recent new stories without importance scoring;
+- digest: randomly select recent stories for a morning/evening digest.
 
 Safety:
-- disabled by config until credentials are connected;
 - archive items from before baseline_ref are never published;
 - text fallback is used if visual upload fails;
-- shared state prevents duplicates between immediate posts and digests.
+- state prevents duplicate standalone posts and repeated digest items.
 """
 from __future__ import annotations
 
