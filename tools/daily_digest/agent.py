@@ -12,6 +12,7 @@ from __future__ import annotations
 import html
 import json
 import os
+import random
 import re
 import subprocess
 import sys
@@ -36,42 +37,6 @@ STATE_PATH = Path("frontend/data/telegram_state.json")
 CONFIG_PATH = Path("aggregator/telegram_config.json")
 
 TAG_RE = re.compile(r"<[^>]+>")
-
-HIGH_PRIORITY_TERMS: tuple[tuple[str, int], ...] = (
-    ("гост", 5),
-    ("тр тс", 5),
-    ("техрегламент", 5),
-    ("регламент", 4),
-    ("закон", 4),
-    ("штраф", 5),
-    ("запрет", 5),
-    ("ограничен", 4),
-    ("вступил", 4),
-    ("тамож", 4),
-    ("границ", 4),
-    ("санкц", 4),
-    ("отзыв", 5),
-    ("дефект", 4),
-    ("авар", 4),
-    ("пожар", 4),
-    ("подорож", 4),
-    ("подешев", 4),
-    ("рост цен", 4),
-    ("снижение цен", 4),
-    ("весогабарит", 5),
-    ("нагрузк на ос", 5),
-    ("производство", 2),
-    ("завод", 2),
-    ("рынок", 2),
-)
-
-HIGH_PRIORITY_TAGS = {
-    "регулирование": 4,
-    "таможня": 4,
-    "рынок": 2,
-    "безопасность": 3,
-    "логистика": 1,
-}
 
 CATEGORY_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("⚠️ Правила и контроль", ("гост", "тр тс", "закон", "регламент", "штраф", "тамож", "контроль")),
@@ -222,23 +187,6 @@ def tags_for(item: dict[str, Any]) -> list[str]:
     return [str(tag).strip() for tag in raw if str(tag).strip()]
 
 
-def importance_score(item: dict[str, Any]) -> int:
-    title = strip_html(str(item.get("title") or "")).lower()
-    summary = strip_html(str(item.get("summary") or item.get("description") or "")).lower()
-    haystack = f"{title} {summary}"
-    score = 0
-    for needle, weight in HIGH_PRIORITY_TERMS:
-        if needle in title:
-            score += weight
-        elif needle in haystack:
-            score += max(1, weight // 2)
-    for tag in tags_for(item):
-        score += HIGH_PRIORITY_TAGS.get(tag.lower(), 0)
-    if re.search(r"\b\d{1,3}(?:[.,]\d+)?\s*%", title):
-        score += 3
-    return score
-
-
 def category_for(item: dict[str, Any]) -> str:
     haystack = " ".join(
         [
@@ -273,33 +221,27 @@ def choose_digest_items(
     current: list[dict[str, Any]],
     state: dict[str, Any],
     *,
-    immediate_threshold: int,
     max_age_hours: int,
     limit: int,
 ) -> list[dict[str, Any]]:
     baseline_keys = {make_key(item) for item in baseline}
-    handled = set(state.get("posts", {})) | set(state.get("digested", {}))
+    already_digested = set(state.get("digested", {}))
 
-    candidates: list[tuple[datetime, int, dict[str, Any]]] = []
+    candidates: list[dict[str, Any]] = []
     for item in current:
         key = make_key(item)
-        if key in baseline_keys or key in handled:
+        if key in baseline_keys or key in already_digested:
             continue
         if not is_recent(item, max_age_hours):
             continue
-        score = importance_score(item)
-        if score >= immediate_threshold:
-            # Keep important items available for the immediate publisher.
+        if parse_item_datetime(item) is None:
             continue
-        published = parse_item_datetime(item)
-        if published is None:
-            continue
-        candidates.append((published, score, item))
+        candidates.append(item)
 
-    # Newest first, then slightly prefer more meaningful ordinary stories.
-    candidates.sort(key=lambda row: (row[0], row[1]), reverse=True)
-    return [item for _, _, item in candidates[:limit]]
-
+    if len(candidates) <= limit:
+        random.shuffle(candidates)
+        return candidates
+    return random.SystemRandom().sample(candidates, limit)
 
 def digest_slot() -> str:
     forced = os.getenv("DIGEST_SLOT", "").strip().lower()
@@ -482,14 +424,13 @@ def main() -> int:
         baseline,
         current,
         state,
-        immediate_threshold=int(config.get("immediate_score") or 5),
         max_age_hours=int(config.get("max_item_age_hours") or 48),
         limit=int(config.get("digest_items") or 5),
     )
 
     min_items = int(config.get("digest_min_items") or 2)
     if len(items) < min_items:
-        print(f"Not enough ordinary items for digest: {len(items)} < {min_items}")
+        print(f"Not enough recent items for digest: {len(items)} < {min_items}")
         return 0
 
     site_base = os.getenv("SITE_URL", "https://spec-avtoportal.ru/").rstrip("/") + "/"
