@@ -68,6 +68,33 @@
       "kind": "important",
       "score": 4,
       "visual": "visual"
+    },
+    "http://gruzovoy.ru/news/industry/3379_chmzap_pokazal_nizkoramnii_polypricep_s_samoystanavlivaushimisya_osyami.html": {
+      "message_id": 1483,
+      "sent_at": "2026-09-25T08:31:54+00:00",
+      "site_url": "https://spec-avtoportal.ru/news/chmzap-pokazal-nizkoramnyy-polupritsep-s-samoustanavlivayuschimisya-osya-ccf60032/?utm_source=telegram&utm_medium=social&utm_campaign=news&utm_content=chmzap-pokazal-nizkoramnyy-polupritsep-s-samoustanavlivayuschimisya-osya-ccf60032",
+      "title": "ЧМЗАП показал низкорамный полуприцеп с самоустанавливающимися осями",
+      "slug": "chmzap-pokazal-nizkoramnyy-polupritsep-s-samoustanavlivayuschimisya-osya-ccf60032",
+      "kind": "news",
+      "visual": "visual"
+    },
+    "http://gruzovoy.ru/news/industry/3378_novaya_ekosistema_vistavki_kommercheskogo_transporta_i_tehnologii_comvex.html": {
+      "message_id": 1484,
+      "sent_at": "2026-09-25T08:31:56+00:00",
+      "site_url": "https://spec-avtoportal.ru/news/novaya-ekosistema-vystavki-kommercheskogo-transporta-i-tehnologiy-comvex-18eeae22/?utm_source=telegram&utm_medium=social&utm_campaign=news&utm_content=novaya-ekosistema-vystavki-kommercheskogo-transporta-i-tehnologiy-comvex-18eeae22",
+      "title": "Новая экосистема выставки коммерческого транспорта и технологий COMvex",
+      "slug": "novaya-ekosistema-vystavki-kommercheskogo-transporta-i-tehnologiy-comvex-18eeae22",
+      "kind": "news",
+      "visual": "visual"
+    },
+    "https://www.globaltrailermag.com/jost-names-new-apac-ceo/": {
+      "message_id": 1485,
+      "sent_at": "2026-09-25T08:31:57+00:00",
+      "site_url": "https://spec-avtoportal.ru/news/jost-nazval-novogo-generalnogo-direktora-apac-7a5f085c/?utm_source=telegram&utm_medium=social&utm_campaign=news&utm_content=jost-nazval-novogo-generalnogo-direktora-apac-7a5f085c",
+      "title": "JOST назвал нового генерального директора APAC",
+      "slug": "jost-nazval-novogo-generalnogo-direktora-apac-7a5f085c",
+      "kind": "news",
+      "visual": "visual"
     }
   },
   "digested": {
