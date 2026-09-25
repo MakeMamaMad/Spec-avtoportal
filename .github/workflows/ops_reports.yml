@@ -80,6 +80,48 @@ jobs:
         run: |
           python tools/send_ops_report_telegram.py
 
+      - name: Remove duplicate Telegram morning digest
+        if: github.event.workflow_run.conclusion == 'success'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import urllib.parse
+          import urllib.request
+
+          token = os.environ["TELEGRAM_BOT_TOKEN"]
+          chat_id = os.environ["TELEGRAM_CHAT_ID"]
+          message_id = 1486
+
+          data = urllib.parse.urlencode({
+              "chat_id": chat_id,
+              "message_id": str(message_id),
+          }).encode("utf-8")
+          request = urllib.request.Request(
+              f"https://api.telegram.org/bot{token}/deleteMessage",
+              data=data,
+              method="POST",
+          )
+          try:
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  body = json.loads(response.read().decode("utf-8"))
+          except Exception as exc:
+              print(f"Duplicate cleanup request failed: {exc}")
+              raise
+
+          if body.get("ok"):
+              print(f"DUPLICATE_TELEGRAM_MESSAGE_DELETED={message_id}")
+          else:
+              description = str(body.get("description") or "")
+              if "message to delete not found" in description.lower():
+                  print(f"DUPLICATE_TELEGRAM_MESSAGE_ALREADY_GONE={message_id}")
+              else:
+                  raise RuntimeError(description or str(body))
+          PY
+
       - name: Recover overdue news and social digests
         if: github.event.workflow_run.conclusion == 'success'
         env:
