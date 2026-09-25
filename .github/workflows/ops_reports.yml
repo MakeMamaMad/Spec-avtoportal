@@ -89,28 +89,35 @@ jobs:
           ACTIONS="$(python tools/social_schedule_watchdog.py | tail -n 1)"
           echo "Overdue social actions: ${ACTIONS:-none}"
 
+          dispatch_if_idle() {
+            WF="$1"
+            LABEL="$2"
+            ACTIVE="$(gh run list --workflow "$WF" --branch main --limit 10 --json status --jq '[.[] | select(.status == "queued" or .status == "in_progress" or .status == "pending")] | length')"
+            if [ "$ACTIVE" = "0" ]; then
+              gh workflow run "$WF" --ref main
+              echo "Requested recovery: $LABEL"
+            else
+              echo "$WF already active; skip duplicate recovery."
+            fi
+          }
+
           if echo " $ACTIONS " | grep -q " news "; then
-            gh workflow run ingest.yml --ref main
-            echo "Requested recovery: News — Fetch & Publish"
+            dispatch_if_idle "ingest.yml" "News — Fetch & Publish"
           fi
           if echo " $ACTIONS " | grep -q " telegram_am "; then
-            gh workflow run daily_digest.yml --ref main
-            echo "Requested recovery: Telegram morning digest"
+            dispatch_if_idle "daily_digest.yml" "Telegram morning digest"
           fi
           if echo " $ACTIONS " | grep -q " telegram_pm "; then
-            gh workflow run daily_digest.yml --ref main
-            echo "Requested recovery: Telegram evening digest"
+            dispatch_if_idle "daily_digest.yml" "Telegram evening digest"
           fi
           if echo " $ACTIONS " | grep -q " vk_am "; then
-            gh workflow run vk_digest.yml --ref main
-            echo "Requested recovery: VK morning digest"
+            dispatch_if_idle "vk_digest.yml" "VK morning digest"
           fi
           if echo " $ACTIONS " | grep -q " vk_pm "; then
-            gh workflow run vk_digest.yml --ref main
-            echo "Requested recovery: VK evening digest"
+            dispatch_if_idle "vk_digest.yml" "VK evening digest"
           fi
 
-      - name: Recover overdue promotion step
+      - name: Ensure promotion recovery is running
         if: github.event.workflow_run.conclusion == 'success'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -118,22 +125,14 @@ jobs:
           set -euo pipefail
           ACTION="$(python tools/promotion_schedule_watchdog.py | tail -n 1)"
           echo "Overdue promotion action: ${ACTION:-none}"
-
-          case "$ACTION" in
-            catalog) WF="site_advertising.yml" ;;
-            placements) WF="placement_verification.yml" ;;
-            editorial) WF="editorial_promotion.yml" ;;
-            telegram_promotion) WF="telegram_promotion.yml" ;;
-            manual_outreach) WF="manual_outreach_digest.yml" ;;
-            "") exit 0 ;;
-            *) echo "Unknown promotion action: $ACTION"; exit 1 ;;
-          esac
-
-          ACTIVE="$(gh run list --workflow "$WF" --branch main --limit 10 --json status --jq '[.[] | select(.status == "queued" or .status == "in_progress" or .status == "pending")] | length')"
-          if [ "$ACTIVE" != "0" ]; then
-            echo "$WF already has an active run; skip duplicate dispatch."
+          if [ -z "$ACTION" ]; then
             exit 0
           fi
 
-          gh workflow run "$WF" --ref main
-          echo "Requested promotion recovery: $ACTION -> $WF"
+          ACTIVE="$(gh run list --workflow promotion_schedule_watchdog.yml --branch main --limit 10 --json status --jq '[.[] | select(.status == "queued" or .status == "in_progress" or .status == "pending")] | length')"
+          if [ "$ACTIVE" = "0" ]; then
+            gh workflow run promotion_schedule_watchdog.yml --ref main
+            echo "Requested Promotion — Schedule Watchdog"
+          else
+            echo "Promotion watchdog already active; skip duplicate dispatch."
+          fi
