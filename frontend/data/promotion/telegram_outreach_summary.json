@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "updated_at": "2026-09-24T18:36:58+00:00",
+  "updated_at": "2026-09-25T12:36:37+00:00",
   "status": "no_bot_target",
-  "migrated_legacy_failures": 3,
-  "manual_actions_created": 1,
+  "migrated_legacy_failures": 0,
+  "manual_actions_created": 0,
   "manual_actions_updated": 0,
   "attempted_target_id": null,
   "attempted_target_name": null,

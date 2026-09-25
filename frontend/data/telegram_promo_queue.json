@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-09-24T18:36:57+00:00",
+  "generated_at": "2026-09-25T12:36:36+00:00",
   "campaign": "telegram_external_site_promotion",
   "entries": [
     {
@@ -15,19 +15,6 @@
       "tracking_url": "https://spec-avtoportal.ru/?utm_source=truckers-club&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad",
       "outreach_pitch": "Здравствуйте! Ведём СпецАвтоПортал — отраслевой ресурс о грузовой и специальной технике, прицепах и полуприцепах, рынке, производителях, ГОСТах и регламентах. Хотим аккуратно познакомить аудиторию Дальнобойщики с порталом. Подскажите, пожалуйста, возможен ли у вас рекламный или партнёрский пост о самом ресурсе? Готовый короткий текст и ссылка: https://spec-avtoportal.ru/?utm_source=truckers-club&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad",
       "ad_copy": "🚛 СпецАвтоПортал — отраслевой ресурс о грузовой и специальной технике.\n\nНовости рынка, грузовики, прицепы и полуприцепы, производители, ГОСТы, регламенты и практические материалы — в одном месте.\n\nОткрыть портал: https://spec-avtoportal.ru/?utm_source=truckers-club&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad"
-    },
-    {
-      "target_id": "spec-tehnika24",
-      "target_name": "Спецтехника | Аренда | Продажа",
-      "handle": "@Spec_Tehnika24",
-      "contact": "@All_Admino",
-      "contact_type": "advertising_contact",
-      "policy": "advertising_by_agreement",
-      "status": "approval_required",
-      "approx_audience": 18222,
-      "tracking_url": "https://spec-avtoportal.ru/?utm_source=spec-tehnika24&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad",
-      "outreach_pitch": "Здравствуйте! Ведём СпецАвтоПортал — отраслевой ресурс о грузовой и специальной технике, прицепах и полуприцепах, рынке, производителях, ГОСТах и регламентах. Хотим аккуратно познакомить аудиторию Спецтехника | Аренда | Продажа с порталом. Подскажите, пожалуйста, возможен ли у вас рекламный или партнёрский пост о самом ресурсе? Готовый короткий текст и ссылка: https://spec-avtoportal.ru/?utm_source=spec-tehnika24&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad",
-      "ad_copy": "🚛 СпецАвтоПортал — отраслевой ресурс о грузовой и специальной технике.\n\nНовости рынка, грузовики, прицепы и полуприцепы, производители, ГОСТы, регламенты и практические материалы — в одном месте.\n\nОткрыть портал: https://spec-avtoportal.ru/?utm_source=spec-tehnika24&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad"
     },
     {
       "target_id": "spec-tehnika-info",
@@ -56,19 +43,6 @@
       "ad_copy": "🚛 СпецАвтоПортал — отраслевой ресурс о грузовой и специальной технике.\n\nНовости рынка, грузовики, прицепы и полуприцепы, производители, ГОСТы, регламенты и практические материалы — в одном месте.\n\nОткрыть портал: https://spec-avtoportal.ru/?utm_source=cargonomica&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad"
     },
     {
-      "target_id": "moskva-spectehnika-arenda",
-      "target_name": "Аренда спецтехники грузоперевозки",
-      "handle": "@moskva_spectehnika_arenda",
-      "contact": "@spectehnika_mosk_bot",
-      "contact_type": "advertising_bot",
-      "policy": "advertising_by_agreement",
-      "status": "approval_required",
-      "approx_audience": 7213,
-      "tracking_url": "https://spec-avtoportal.ru/?utm_source=moskva-spectehnika-arenda&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad",
-      "outreach_pitch": "Здравствуйте! Ведём СпецАвтоПортал — отраслевой ресурс о грузовой и специальной технике, прицепах и полуприцепах, рынке, производителях, ГОСТах и регламентах. Хотим аккуратно познакомить аудиторию Аренда спецтехники грузоперевозки с порталом. Подскажите, пожалуйста, возможен ли у вас рекламный или партнёрский пост о самом ресурсе? Готовый короткий текст и ссылка: https://spec-avtoportal.ru/?utm_source=moskva-spectehnika-arenda&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad",
-      "ad_copy": "🚛 СпецАвтоПортал — отраслевой ресурс о грузовой и специальной технике.\n\nНовости рынка, грузовики, прицепы и полуприцепы, производители, ГОСТы, регламенты и практические материалы — в одном месте.\n\nОткрыть портал: https://spec-avtoportal.ru/?utm_source=moskva-spectehnika-arenda&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad"
-    },
-    {
       "target_id": "truksandall",
       "target_name": "Грузовики и вообще",
       "handle": "@truksandall",
@@ -93,19 +67,6 @@
       "tracking_url": "https://spec-avtoportal.ru/?utm_source=spetctexnika&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad",
       "outreach_pitch": "Здравствуйте! Ведём СпецАвтоПортал — отраслевой ресурс о грузовой и специальной технике, прицепах и полуприцепах, рынке, производителях, ГОСТах и регламентах. Хотим аккуратно познакомить аудиторию Спецтехника / Грузовики / Автобусы / Запчасти с порталом. Подскажите, пожалуйста, возможен ли у вас рекламный или партнёрский пост о самом ресурсе? Готовый короткий текст и ссылка: https://spec-avtoportal.ru/?utm_source=spetctexnika&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad",
       "ad_copy": "🚛 СпецАвтоПортал — отраслевой ресурс о грузовой и специальной технике.\n\nНовости рынка, грузовики, прицепы и полуприцепы, производители, ГОСТы, регламенты и практические материалы — в одном месте.\n\nОткрыть портал: https://spec-avtoportal.ru/?utm_source=spetctexnika&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad"
-    },
-    {
-      "target_id": "logistic-aggregator",
-      "target_name": "Logistic Aggregator Cargo and Transport",
-      "handle": "@LogisticAggregator",
-      "contact": "@offer_avtobot",
-      "contact_type": "advertising_bot",
-      "policy": "advertising_by_agreement",
-      "status": "approval_required",
-      "approx_audience": 5914,
-      "tracking_url": "https://spec-avtoportal.ru/?utm_source=logistic-aggregator&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad",
-      "outreach_pitch": "Здравствуйте! Ведём СпецАвтоПортал — отраслевой ресурс о грузовой и специальной технике, прицепах и полуприцепах, рынке, производителях, ГОСТах и регламентах. Хотим аккуратно познакомить аудиторию Logistic Aggregator Cargo and Transport с порталом. Подскажите, пожалуйста, возможен ли у вас рекламный или партнёрский пост о самом ресурсе? Готовый короткий текст и ссылка: https://spec-avtoportal.ru/?utm_source=logistic-aggregator&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad",
-      "ad_copy": "🚛 СпецАвтоПортал — отраслевой ресурс о грузовой и специальной технике.\n\nНовости рынка, грузовики, прицепы и полуприцепы, производители, ГОСТы, регламенты и практические материалы — в одном месте.\n\nОткрыть портал: https://spec-avtoportal.ru/?utm_source=logistic-aggregator&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad"
     },
     {
       "target_id": "spectehnika7",
