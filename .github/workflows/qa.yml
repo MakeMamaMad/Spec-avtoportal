@@ -194,7 +194,7 @@ jobs:
 
       - name: Promotion core tests
         run: |
-          python -m unittest promotion.tests.test_core promotion.tests.test_placements promotion.tests.test_telegram_failover promotion.tests.test_manual_outreach_digest promotion.tests.test_editorial_promotion promotion.tests.test_telegram_control
+          python -m unittest promotion.tests.test_core promotion.tests.test_placements promotion.tests.test_telegram_failover promotion.tests.test_manual_outreach_digest promotion.tests.test_editorial_promotion promotion.tests.test_telegram_control promotion.tests.test_ops_report_content
 
       - name: JavaScript syntax
         run: |
