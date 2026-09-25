@@ -74,6 +74,36 @@
         }
       },
       "updated_at": "2026-09-25T08:04:16.543315+00:00"
+    },
+    "4802d4647c21": {
+      "title": "Dongfeng показал три водородных грузовика",
+      "created_at": "2026-09-25T17:07:39.965897+00:00",
+      "platforms": {
+        "youtube": {
+          "platform": "youtube",
+          "status": "published",
+          "video_id": "1e3SQNaL9_E",
+          "url": "https://www.youtube.com/shorts/1e3SQNaL9_E",
+          "updated_at": "2026-09-25T17:07:39.965919+00:00"
+        },
+        "tiktok": {
+          "platform": "tiktok",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6ab6aa5d30cf61defe787293",
+          "buffer_status": "sent",
+          "updated_at": "2026-09-25T17:09:55.281358+00:00"
+        },
+        "instagram": {
+          "platform": "instagram",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6ab6aae4890a2cd1ec812eb1",
+          "buffer_status": "sent",
+          "updated_at": "2026-09-25T17:10:58.226015+00:00"
+        }
+      },
+      "updated_at": "2026-09-25T17:10:58.226012+00:00"
     }
   }
 }

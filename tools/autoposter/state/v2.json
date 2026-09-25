@@ -3,7 +3,8 @@
   "used": [
     "f9985dadb358",
     "a97ddc75afdb",
-    "ccf600328eba"
+    "ccf600328eba",
+    "4802d4647c21"
   ],
   "renders": [
     {
@@ -25,6 +26,13 @@
       "slug": "chmzap-pokazal-nizkoramnyy-polupritsep-s-samoustanavlivayuschimisya-osya-ccf60032",
       "title": "ЧМЗАП показал низкорамный полуприцеп с самоустанавливающимися осями",
       "created_at": "2026-09-25T08:04:16.543815+00:00",
+      "format": "social-v2"
+    },
+    {
+      "content_key": "4802d4647c21",
+      "slug": "dongfeng-pokazal-tri-vodorodnyh-gruzovika-4802d464",
+      "title": "Dongfeng показал три водородных грузовика",
+      "created_at": "2026-09-25T17:10:58.226616+00:00",
       "format": "social-v2"
     }
   ]
