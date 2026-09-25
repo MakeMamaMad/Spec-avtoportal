@@ -1,7 +1,9 @@
 {
   "schema": 1,
-  "date_moscow": null,
-  "sent_at": null,
-  "task_count": 0,
-  "action_ids": []
+  "date_moscow": "2026-09-25",
+  "sent_at": "2026-09-25T12:37:11+00:00",
+  "task_count": 1,
+  "action_ids": [
+    "telegram-contact:spec-tehnika24"
+  ]
 }
