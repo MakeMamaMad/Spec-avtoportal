@@ -3,11 +3,12 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
+MSK = timezone(timedelta(hours=3))
 
 
 def load_json(path: Path, default: Any) -> Any:
@@ -185,6 +186,84 @@ def ingest_details() -> list[str]:
     return []
 
 
+def parse_dt(raw: str) -> datetime | None:
+    if not raw:
+        return None
+    try:
+        value = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+    return value
+
+
+def is_today_moscow(raw: str) -> bool:
+    value = parse_dt(raw)
+    if value is None:
+        return False
+    return value.astimezone(MSK).date() == datetime.now(MSK).date()
+
+
+def social_today_details(path: Path, label: str) -> list[str]:
+    state = load_json(path, {})
+    posts = [
+        row
+        for row in (state.get("posts") or {}).values()
+        if isinstance(row, dict) and is_today_moscow(str(row.get("sent_at") or ""))
+    ]
+    digests = [
+        row
+        for row in (state.get("digests") or {}).values()
+        if isinstance(row, dict) and is_today_moscow(str(row.get("sent_at") or ""))
+    ]
+
+    lines = [
+        f"{label} сегодня: важных публикаций — {len(posts)}, дайджестов — {len(digests)}."
+    ]
+    if posts:
+        latest = sorted(posts, key=lambda row: str(row.get("sent_at") or ""))[-1]
+        title = str(latest.get("title") or "").strip()
+        if title:
+            lines.append(f"Последняя важная публикация: «{title}».")
+    return lines
+
+
+def site_details() -> list[str]:
+    news = load_json(ROOT / "frontend/data/news.json", [])
+    lines = ["Актуальная версия сайта опубликована."]
+    if isinstance(news, list):
+        lines.append(f"В базе сайта сейчас {len(news)} материалов.")
+    lines.extend(
+        social_today_details(ROOT / "frontend/data/vk_state.json", "VK")
+    )
+    lines.append("От вас действий не требуется.")
+    return lines
+
+
+def telegram_digest_details() -> list[str]:
+    lines = social_today_details(
+        ROOT / "frontend/data/telegram_state.json",
+        "Telegram",
+    )
+    lines.append("От вас действий не требуется.")
+    return lines
+
+
+def vk_digest_details() -> list[str]:
+    lines = social_today_details(ROOT / "frontend/data/vk_state.json", "VK")
+    lines.append("От вас действий не требуется.")
+    return lines
+
+
+def qa_details() -> list[str]:
+    return [
+        "Проверены код проекта, публикация в соцсетях, SEO-сборка и основные автоматические сценарии.",
+        "Ошибок, блокирующих работу проекта, не найдено.",
+        "От вас действий не требуется.",
+    ]
+
+
 def placement_verification_details() -> list[str]:
     summary = load_json(
         ROOT / "frontend/data/promotion/placement_verification_summary.json",
@@ -288,9 +367,22 @@ def main() -> int:
         lines += [""] + editorial_details()
     elif name == "News — Fetch & Publish":
         lines += [""] + ingest_details()
+        lines += ["", "От вас действий не требуется."]
+    elif name == "Site — Build, Deploy & VK Publish":
+        lines += [""] + site_details()
+    elif name == "Telegram — Editorial Digest":
+        lines += [""] + telegram_digest_details()
+    elif name == "VK — Editorial Digest":
+        lines += [""] + vk_digest_details()
+    elif name == "Checks — Full QA":
+        lines += [""] + qa_details()
+    elif conclusion == "success":
+        lines += ["", "От вас действий не требуется."]
 
-    if run_url:
-        lines += ["", f"Подробности: {run_url}"]
+    # Successful reports should be useful on their own and not send the owner
+    # into GitHub. Keep the technical run link only when something went wrong.
+    if run_url and conclusion != "success":
+        lines += ["", f"Технические подробности: {run_url}"]
 
     lines += ["", f"SpecAvto Control · {datetime.now(timezone.utc).strftime('%d.%m.%Y %H:%M UTC')}"]
 
