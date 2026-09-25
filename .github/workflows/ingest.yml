@@ -145,4 +145,5 @@ jobs:
           fi
 
           git commit -m "Update data json (automated ingest + translation)"
+          git pull --rebase origin main
           git push origin main
