@@ -16,6 +16,7 @@ from telegram_control import resolve_control_chat_id, telegram_call
 
 ROOT = Path(__file__).resolve().parents[1]
 QUEUE_PATH = ROOT / "frontend/data/promotion/manual_queue.json"
+STATE_PATH = ROOT / "frontend/data/promotion/manual_outreach_digest_state.json"
 MSK = timezone(timedelta(hours=3))
 READY_STATUSES = {"ready", "pending", "todo"}
 
@@ -131,7 +132,20 @@ def main() -> int:
     for message in messages:
         telegram_send(token, chat_id, message)
 
-    print(f"MANUAL_OUTREACH_DIGEST_SENT tasks={len(pending_entries(payload))}")
+    tasks = len(pending_entries(payload))
+    state = {
+        "schema": 1,
+        "date_moscow": datetime.now(MSK).date().isoformat(),
+        "sent_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "task_count": tasks,
+    }
+    STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    STATE_PATH.write_text(
+        json.dumps(state, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    print(f"MANUAL_OUTREACH_DIGEST_SENT tasks={tasks}")
     return 0
 
 
