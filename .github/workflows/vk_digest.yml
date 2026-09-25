@@ -52,4 +52,5 @@ jobs:
             exit 0
           fi
           git commit -m "vk: update editorial state"
+          git pull --rebase origin main
           git push origin main
