@@ -3,11 +3,16 @@ from __future__ import annotations
 
 import json
 import os
-import urllib.parse
-import urllib.request
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+
+TOOLS_DIR = Path(__file__).resolve().parent
+if str(TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(TOOLS_DIR))
+
+from telegram_control import resolve_control_chat_id, telegram_call
 
 ROOT = Path(__file__).resolve().parents[1]
 QUEUE_PATH = ROOT / "frontend/data/promotion/manual_queue.json"
@@ -103,22 +108,15 @@ def build_messages(payload: dict[str, Any]) -> list[str]:
 
 
 def telegram_send(token: str, chat_id: str, text: str) -> None:
-    data = urllib.parse.urlencode(
+    telegram_call(
+        token,
+        "sendMessage",
         {
             "chat_id": chat_id,
             "text": text,
             "disable_web_page_preview": "true",
-        }
-    ).encode("utf-8")
-    request = urllib.request.Request(
-        f"https://api.telegram.org/bot{token}/sendMessage",
-        data=data,
-        method="POST",
+        },
     )
-    with urllib.request.urlopen(request, timeout=30) as response:
-        body = json.loads(response.read().decode("utf-8"))
-    if not body.get("ok"):
-        raise RuntimeError(body.get("description") or "Telegram send failed")
 
 
 def main() -> int:
@@ -126,11 +124,9 @@ def main() -> int:
     messages = build_messages(payload)
 
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
-    chat_id = os.environ.get("REPORT_TELEGRAM_CHAT_ID", "").strip()
     if not token:
         raise SystemExit("TELEGRAM_BOT_TOKEN is not configured")
-    if not chat_id:
-        raise SystemExit("REPORT_TELEGRAM_CHAT_ID is not configured")
+    chat_id = resolve_control_chat_id(token)
 
     for message in messages:
         telegram_send(token, chat_id, message)

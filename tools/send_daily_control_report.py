@@ -3,11 +3,17 @@ from __future__ import annotations
 
 import json
 import os
-import urllib.parse
+import sys
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+
+TOOLS_DIR = Path(__file__).resolve().parent
+if str(TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(TOOLS_DIR))
+
+from telegram_control import resolve_control_chat_id, telegram_call
 
 ROOT = Path(__file__).resolve().parents[1]
 MSK = timezone(timedelta(hours=3))
@@ -53,54 +59,6 @@ def github_get(path: str) -> Any:
     )
     with urllib.request.urlopen(req, timeout=30) as resp:
         return json.loads(resp.read().decode("utf-8"))
-
-
-def telegram_call(token: str, method: str, payload: dict[str, Any] | None = None) -> Any:
-    data = urllib.parse.urlencode(payload or {}).encode("utf-8")
-    req = urllib.request.Request(
-        f"https://api.telegram.org/bot{token}/{method}",
-        data=data,
-        method="POST",
-    )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        body = json.loads(resp.read().decode("utf-8"))
-    if not body.get("ok"):
-        raise RuntimeError(body.get("description") or str(body))
-    return body.get("result")
-
-
-def discover_control_channel(token: str) -> str:
-    webhook = telegram_call(token, "getWebhookInfo") or {}
-    if webhook.get("url"):
-        raise RuntimeError("Bot has an active webhook; cannot safely use getUpdates.")
-
-    updates = telegram_call(
-        token,
-        "getUpdates",
-        {
-            "timeout": 0,
-            "limit": 100,
-            "allowed_updates": json.dumps(["my_chat_member", "channel_post"]),
-        },
-    ) or []
-
-    channels: list[tuple[int, dict[str, Any]]] = []
-    for update in updates:
-        for key in ("my_chat_member", "channel_post"):
-            obj = update.get(key) or {}
-            chat = obj.get("chat") or {}
-            if chat.get("type") == "channel":
-                channels.append((int(update.get("update_id") or 0), chat))
-
-    if not channels:
-        raise RuntimeError("No Telegram channel update found.")
-
-    channels.sort(key=lambda x: x[0])
-    preferred = [
-        item for item in channels
-        if "control" in str(item[1].get("title") or "").lower()
-    ]
-    return str((preferred[-1] if preferred else channels[-1])[1]["id"])
 
 
 def latest_run(runs: list[dict[str, Any]], name: str) -> dict[str, Any] | None:
@@ -278,7 +236,7 @@ def main() -> int:
         print("TELEGRAM_BOT_TOKEN missing; report not sent.")
         return 0
 
-    chat_id = discover_control_channel(token)
+    chat_id = resolve_control_chat_id(token)
     telegram_call(
         token,
         "sendMessage",
