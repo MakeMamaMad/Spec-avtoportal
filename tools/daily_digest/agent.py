@@ -4,7 +4,7 @@
 Uses the same baseline and state as the Telegram news publisher:
 - only post-reboot, recent items are eligible;
 - no importance rating is used;
-- each digest randomly selects recent items not used in earlier digests;
+- each digest randomly selects exactly three recent items when at least three are available;
 - digested items are persisted in frontend/data/telegram_state.json.
 """
 from __future__ import annotations
@@ -227,21 +227,20 @@ def choose_digest_items(
     baseline_keys = {make_key(item) for item in baseline}
     already_digested = set(state.get("digested", {}))
 
-    candidates: list[dict[str, Any]] = []
-    for item in current:
-        key = make_key(item)
-        if key in baseline_keys or key in already_digested:
-            continue
-        if not is_recent(item, max_age_hours):
-            continue
-        if parse_item_datetime(item) is None:
-            continue
-        candidates.append(item)
+    eligible = [
+        item
+        for item in current
+        if make_key(item) not in baseline_keys
+        and is_recent(item, max_age_hours)
+        and parse_item_datetime(item) is not None
+    ]
 
-    if len(candidates) <= limit:
-        random.shuffle(candidates)
-        return candidates
-    return random.SystemRandom().sample(candidates, limit)
+    fresh = [item for item in eligible if make_key(item) not in already_digested]
+    reused = [item for item in eligible if make_key(item) in already_digested]
+    rng = random.SystemRandom()
+    rng.shuffle(fresh)
+    rng.shuffle(reused)
+    return (fresh + reused)[:limit]
 
 def digest_slot() -> str:
     forced = os.getenv("DIGEST_SLOT", "").strip().lower()
