@@ -3,8 +3,8 @@
 
 Rules:
 - archive items that existed before the reboot baseline are never published;
-- only recent, high-importance items are published immediately;
-- ordinary recent items are left for the morning/evening digest;
+- recent new items are published without importance scoring;
+- morning/evening digests are selected independently from recent items;
 - a shared state prevents duplicates between immediate posts and digests;
 - every successful Telegram message_id is persisted.
 """
@@ -37,42 +37,6 @@ STATE_PATH = Path("frontend/data/telegram_state.json")
 CONFIG_PATH = Path("aggregator/telegram_config.json")
 
 TAG_RE = re.compile(r"<[^>]+>")
-
-HIGH_PRIORITY_TERMS: tuple[tuple[str, int], ...] = (
-    ("гост", 5),
-    ("тр тс", 5),
-    ("техрегламент", 5),
-    ("регламент", 4),
-    ("закон", 4),
-    ("штраф", 5),
-    ("запрет", 5),
-    ("ограничен", 4),
-    ("вступил", 4),
-    ("тамож", 4),
-    ("границ", 4),
-    ("санкц", 4),
-    ("отзыв", 5),
-    ("дефект", 4),
-    ("авар", 4),
-    ("пожар", 4),
-    ("подорож", 4),
-    ("подешев", 4),
-    ("рост цен", 4),
-    ("снижение цен", 4),
-    ("весогабарит", 5),
-    ("нагрузк на ос", 5),
-    ("производство", 2),
-    ("завод", 2),
-    ("рынок", 2),
-)
-
-HIGH_PRIORITY_TAGS = {
-    "регулирование": 4,
-    "таможня": 4,
-    "рынок": 2,
-    "безопасность": 3,
-    "логистика": 1,
-}
 
 
 def utc_now() -> str:
@@ -239,28 +203,6 @@ def tags_for(item: dict[str, Any]) -> list[str]:
     return [str(tag).strip() for tag in raw if str(tag).strip()]
 
 
-def importance_score(item: dict[str, Any]) -> int:
-    title = strip_html(str(item.get("title") or "")).lower()
-    summary = strip_html(str(item.get("summary") or item.get("description") or "")).lower()
-    haystack = f"{title} {summary}"
-
-    score = 0
-    for needle, weight in HIGH_PRIORITY_TERMS:
-        if needle in title:
-            score += weight
-        elif needle in haystack:
-            score += max(1, weight // 2)
-
-    for tag in tags_for(item):
-        score += HIGH_PRIORITY_TAGS.get(tag.lower(), 0)
-
-    # Numeric changes in market stories are often worth a standalone post.
-    if re.search(r"\b\d{1,3}(?:[.,]\d+)?\s*%", title):
-        score += 3
-
-    return score
-
-
 def get_unhandled_items(
     baseline: list[dict[str, Any]],
     current: list[dict[str, Any]],
@@ -315,7 +257,7 @@ def display_source(item: dict[str, Any]) -> str:
     return source
 
 
-def build_text(item: dict[str, Any], site_url: str, score: int) -> str:
+def build_text(item: dict[str, Any], site_url: str) -> str:
     title = html_lib.escape(str(item.get("title") or "(без заголовка)").strip())
     source = html_lib.escape(display_source(item))
     summary = html_lib.escape(
@@ -338,7 +280,7 @@ def build_text(item: dict[str, Any], site_url: str, score: int) -> str:
         or ""
     ).strip()
 
-    parts = [f"⚡ <b>ВАЖНО</b> · СпецАвтоПортал", f"<b>{title}</b>"]
+    parts = ["📰 <b>СпецАвтоПортал</b>", f"<b>{title}</b>"]
     if summary:
         parts.append(summary)
     if visible_tags:
@@ -575,39 +517,28 @@ def main() -> int:
 
     send_welcome(token, chat_id, site_base, state, config)
 
-    threshold = int(config.get("immediate_score") or 5)
     max_age_hours = int(config.get("max_item_age_hours") or 48)
     configured_max = int(config.get("max_immediate_per_run") or 3)
     max_posts = int(os.environ.get("TELEGRAM_MAX_POSTS", str(configured_max)))
     disable_preview = os.environ.get("TELEGRAM_DISABLE_PREVIEW") == "1"
 
-    scored: list[tuple[int, str, dict[str, Any]]] = []
-    stale = 0
-    for item in queue:
-        if not is_recent(item, max_age_hours):
-            stale += 1
-            continue
-        score = importance_score(item)
-        if score >= threshold:
-            scored.append((score, item_date(item), item))
-
-    scored.sort(key=lambda row: (-row[0], row[1]))
-    immediate = scored[:max_posts]
+    fresh = [item for item in queue if is_recent(item, max_age_hours)]
+    fresh.sort(key=item_date, reverse=True)
+    immediate = fresh[:max_posts]
 
     if not immediate:
         print(
-            f"No important Telegram items. queued={len(queue)} stale_or_undated={stale}; "
-            "ordinary items are reserved for digest.",
+            f"No fresh Telegram items. queued={len(queue)}.",
             file=sys.stderr,
         )
         save_state(state)
         return 0
 
     key_to_index = {make_key(item): idx for idx, item in enumerate(current)}
-    print(f"Publishing {len(immediate)} important Telegram item(s)...")
+    print(f"Publishing {len(immediate)} Telegram news item(s)...")
     errors = 0
 
-    for score, _, item in immediate:
+    for item in immediate:
         key = make_key(item)
         idx = key_to_index.get(key)
         site_url = build_site_url(
@@ -615,9 +546,9 @@ def main() -> int:
             item,
             idx,
             medium="social",
-            campaign="important_news",
+            campaign="news",
         )
-        text = build_text(item, site_url, score)
+        text = build_text(item, site_url)
 
         try:
             message_id, visual_mode = send_visual_or_fallback(
@@ -634,12 +565,11 @@ def main() -> int:
                 "site_url": site_url,
                 "title": str(item.get("title") or ""),
                 "slug": str(item.get("slug") or ""),
-                "kind": "important",
-                "score": score,
+                "kind": "news",
                 "visual": visual_mode,
             }
             save_state(state)
-            print(f" OK {message_id} score={score}: {str(item.get('title') or '')[:90]}")
+            print(f" OK {message_id}: {str(item.get('title') or '')[:90]}")
         except Exception as exc:
             errors += 1
             print(f" ERR {str(item.get('title') or '')[:90]}: {exc}", file=sys.stderr)
@@ -648,7 +578,7 @@ def main() -> int:
         print(f"Telegram completed with {errors} error(s).", file=sys.stderr)
         return 1
 
-    print("Telegram important-news publishing completed.")
+    print("Telegram news publishing completed.")
     return 0
 
 
