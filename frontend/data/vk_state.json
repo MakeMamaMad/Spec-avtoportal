@@ -48,6 +48,13 @@
       "sent_at": "2026-09-24T12:09:05+00:00",
       "title": "JOST назвал нового генерального директора APAC",
       "slug": "jost-nazval-novogo-generalnogo-direktora-apac-7a5f085c"
+    },
+    "http://gruzovoy.ru/news/industry/3377_magistralnii_tyagach_valdai_45_lng_na_sjijennom_gaze_vishel_na_rinok.html": {
+      "digest_id": "2026-09-25:am",
+      "post_id": 6,
+      "sent_at": "2026-09-25T08:33:15+00:00",
+      "title": "Магистральный тягач «Валдай 45 LNG» на сжиженном газе вышел на рынок",
+      "slug": "magistralnyy-tyagach-valday-45-lng-na-szhizhennom-gaze-vyshel-na-rynok-a97ddc75"
     }
   },
   "digests": {
@@ -70,6 +77,15 @@
         "http://gruzovoy.ru/news/industry/3379_chmzap_pokazal_nizkoramnii_polypricep_s_samoystanavlivaushimisya_osyami.html",
         "http://gruzovoy.ru/news/industry/3378_novaya_ekosistema_vistavki_kommercheskogo_transporta_i_tehnologii_comvex.html",
         "https://www.globaltrailermag.com/jost-names-new-apac-ceo/"
+      ]
+    },
+    "2026-09-25:am": {
+      "post_id": 6,
+      "sent_at": "2026-09-25T08:33:15+00:00",
+      "slot": "am",
+      "visual": "link_preview",
+      "items": [
+        "http://gruzovoy.ru/news/industry/3377_magistralnii_tyagach_valdai_45_lng_na_sjijennom_gaze_vishel_na_rinok.html"
       ]
     }
   }
