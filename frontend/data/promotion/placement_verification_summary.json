@@ -1,21 +1,12 @@
 {
   "schema": 1,
-  "updated_at": "2026-09-24T18:30:56+00:00",
-  "created": 2,
-  "checked": 1,
-  "changed": 1,
+  "updated_at": "2026-09-25T12:30:22+00:00",
+  "created": 0,
+  "checked": 0,
+  "changed": 0,
   "states": {
     "pending_review": 1,
     "still_pending": 1
   },
-  "changes": [
-    {
-      "target_id": "pdfcatalog",
-      "target_name": "PDFcatalog",
-      "before": "pending_review",
-      "after": "still_pending",
-      "live_url": null,
-      "detail": "Публичный адрес размещения пока неизвестен."
-    }
-  ]
+  "changes": []
 }
