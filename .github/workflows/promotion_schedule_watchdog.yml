@@ -2,6 +2,11 @@ name: Promotion — Schedule Watchdog
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/promotion_schedule_watchdog.yml'
+      - 'tools/promotion_schedule_watchdog.py'
   workflow_run:
     workflows:
       - "News — Fetch & Publish"
@@ -33,29 +38,56 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Recover one overdue promotion step
+      - name: Recover entire overdue promotion chain
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+
+          for STEP in 1 2 3 4 5; do
+            ACTION="$(python tools/promotion_schedule_watchdog.py | tail -n 1)"
+            echo "Promotion due action: ${ACTION:-none}"
+
+            case "$ACTION" in
+              catalog) WF="site_advertising.yml" ;;
+              placements) WF="placement_verification.yml" ;;
+              editorial) WF="editorial_promotion.yml" ;;
+              telegram_promotion) WF="telegram_promotion.yml" ;;
+              manual_outreach) WF="manual_outreach_digest.yml" ;;
+              "") echo "Promotion chain is up to date."; exit 0 ;;
+              *) echo "Unknown action: $ACTION"; exit 1 ;;
+            esac
+
+            RUN_ID="$(gh run list --workflow "$WF" --branch main --limit 10 --json databaseId,status --jq '[.[] | select(.status == "queued" or .status == "in_progress" or .status == "pending")][0].databaseId // empty')"
+            if [ -z "$RUN_ID" ]; then
+              gh workflow run "$WF" --ref main
+              echo "Requested promotion recovery: $ACTION -> $WF"
+
+              for WAIT in 1 2 3 4 5 6 7 8 9 10; do
+                sleep 2
+                RUN_ID="$(gh run list --workflow "$WF" --branch main --event workflow_dispatch --limit 1 --json databaseId --jq '.[0].databaseId // empty')"
+                if [ -n "$RUN_ID" ]; then
+                  break
+                fi
+              done
+            else
+              echo "Waiting for already active $WF run $RUN_ID"
+            fi
+
+            if [ -z "$RUN_ID" ]; then
+              echo "Could not locate workflow run for $WF"
+              exit 1
+            fi
+
+            gh run watch "$RUN_ID" --exit-status
+
+            git fetch origin main
+            git reset --hard origin/main
+          done
+
           ACTION="$(python tools/promotion_schedule_watchdog.py | tail -n 1)"
-          echo "Promotion due action: ${ACTION:-none}"
-
-          case "$ACTION" in
-            catalog) WF="site_advertising.yml" ;;
-            placements) WF="placement_verification.yml" ;;
-            editorial) WF="editorial_promotion.yml" ;;
-            telegram_promotion) WF="telegram_promotion.yml" ;;
-            manual_outreach) WF="manual_outreach_digest.yml" ;;
-            "") exit 0 ;;
-            *) echo "Unknown action: $ACTION"; exit 1 ;;
-          esac
-
-          ACTIVE="$(gh run list --workflow "$WF" --branch main --limit 10 --json status --jq '[.[] | select(.status == "queued" or .status == "in_progress" or .status == "pending")] | length')"
-          if [ "$ACTIVE" != "0" ]; then
-            echo "$WF already has an active run; skip duplicate dispatch."
-            exit 0
+          if [ -n "$ACTION" ]; then
+            echo "Promotion chain still has overdue action after safety limit: $ACTION"
+            exit 1
           fi
-
-          gh workflow run "$WF" --ref main
-          echo "Requested promotion recovery: $ACTION -> $WF"
+          echo "Promotion chain is up to date."
