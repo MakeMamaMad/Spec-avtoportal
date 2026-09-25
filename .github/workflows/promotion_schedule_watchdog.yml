@@ -1,0 +1,61 @@
+name: Promotion — Schedule Watchdog
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - "News — Fetch & Publish"
+    types: [completed]
+  schedule:
+    # Frequent odd-minute checks across the promotion window.
+    - cron: '7,22,37,52 7-12 * * *'
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: promotion-schedule-watchdog
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Recover one overdue promotion step
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          ACTION="$(python tools/promotion_schedule_watchdog.py | tail -n 1)"
+          echo "Promotion due action: ${ACTION:-none}"
+
+          case "$ACTION" in
+            catalog) WF="site_advertising.yml" ;;
+            placements) WF="placement_verification.yml" ;;
+            editorial) WF="editorial_promotion.yml" ;;
+            telegram_promotion) WF="telegram_promotion.yml" ;;
+            manual_outreach) WF="manual_outreach_digest.yml" ;;
+            "") exit 0 ;;
+            *) echo "Unknown action: $ACTION"; exit 1 ;;
+          esac
+
+          ACTIVE="$(gh run list --workflow "$WF" --branch main --limit 10 --json status --jq '[.[] | select(.status == "queued" or .status == "in_progress" or .status == "pending")] | length')"
+          if [ "$ACTIVE" != "0" ]; then
+            echo "$WF already has an active run; skip duplicate dispatch."
+            exit 0
+          fi
+
+          gh workflow run "$WF" --ref main
+          echo "Requested promotion recovery: $ACTION -> $WF"
