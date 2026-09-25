@@ -96,6 +96,7 @@ def main() -> int:
         load_json(TG_STATE_PATH, {}),
         load_json(VK_STATE_PATH, {}),
     )
+    print(f"detected={actions or ['none']}")
     print(" ".join(actions))
     return 0
 
