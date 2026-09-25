@@ -8,7 +8,7 @@
   "max_item_age_hours": 48,
   "digest_enabled": true,
   "digest_items": 5,
-  "digest_min_items": 2,
+  "digest_min_items": 1,
   "digest_times_msk": [
     "09:40",
     "19:40"
