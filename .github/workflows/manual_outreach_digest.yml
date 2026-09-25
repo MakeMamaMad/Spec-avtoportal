@@ -7,7 +7,7 @@ on:
     - cron: '0 11 * * *'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: specavto-manual-outreach-digest
@@ -33,3 +33,16 @@ jobs:
           REPORT_TELEGRAM_CHAT_ID: ${{ secrets.REPORT_TELEGRAM_CHAT_ID }}
         run: |
           python tools/send_manual_outreach_digest.py
+
+      - name: Commit manual outreach delivery state
+        run: |
+          git config user.name "specavto-control"
+          git config user.email "actions@users.noreply.github.com"
+          git add frontend/data/promotion/manual_outreach_digest_state.json || true
+          if git diff --cached --quiet; then
+            echo "No manual outreach state changes"
+            exit 0
+          fi
+          git commit -m "control: record manual outreach digest delivery"
+          git pull --rebase origin main
+          git push origin main
