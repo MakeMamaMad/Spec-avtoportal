@@ -166,6 +166,20 @@
       "sent_at": "2026-09-25T08:34:21+00:00",
       "title": "Магистральный тягач «Валдай 45 LNG» на сжиженном газе вышел на рынок",
       "slug": "magistralnyy-tyagach-valday-45-lng-na-szhizhennom-gaze-vyshel-na-rynok-a97ddc75"
+    },
+    "http://gruzovoy.ru/news/industry/3380_dongfeng_pokazal_tri_vodorodnih_gryzovika.html": {
+      "digest_id": "2026-09-25:pm",
+      "message_id": 1491,
+      "sent_at": "2026-09-25T12:02:50+00:00",
+      "title": "Dongfeng показал три водородных грузовика",
+      "slug": "dongfeng-pokazal-tri-vodorodnyh-gruzovika-4802d464"
+    },
+    "https://truckmix.ru/news/djak-avtomobil-predstavil-na-comtrans-novie-mysorovoz-i-samosval-na-shassi-jac": {
+      "digest_id": "2026-09-25:pm",
+      "message_id": 1491,
+      "sent_at": "2026-09-25T12:02:50+00:00",
+      "title": "«Джак Автомобиль» представил на Comtrans новые мусоровоз и самосвал на шасси JAC",
+      "slug": "dzhak-avtomobil-predstavil-na-comtrans-novye-musorovoz-i-samosval-na-sha-06501839"
     }
   },
   "digests": {
@@ -196,6 +210,16 @@
       "slot": "am",
       "items": [
         "http://gruzovoy.ru/news/industry/3377_magistralnii_tyagach_valdai_45_lng_na_sjijennom_gaze_vishel_na_rinok.html"
+      ],
+      "visual": "visual"
+    },
+    "2026-09-25:pm": {
+      "message_id": 1491,
+      "sent_at": "2026-09-25T12:02:50+00:00",
+      "slot": "pm",
+      "items": [
+        "http://gruzovoy.ru/news/industry/3380_dongfeng_pokazal_tri_vodorodnih_gryzovika.html",
+        "https://truckmix.ru/news/djak-avtomobil-predstavil-na-comtrans-novie-mysorovoz-i-samosval-na-shassi-jac"
       ],
       "visual": "visual"
     }
