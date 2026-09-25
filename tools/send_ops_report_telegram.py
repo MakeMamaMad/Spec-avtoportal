@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import json
 import os
 import re
-import urllib.parse
-import urllib.request
 from pathlib import Path
+
+from telegram_control import resolve_control_chat_id, telegram_call
 
 
 def clean_markdown(text: str) -> str:
@@ -17,15 +16,10 @@ def clean_markdown(text: str) -> str:
 
 def main() -> int:
     token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
-    chat_id = os.getenv("REPORT_TELEGRAM_CHAT_ID", "").strip()
     report_path = Path(os.getenv("OPS_REPORT_PATH", "/tmp/specavto-report.md"))
 
-    if not chat_id:
-        print("REPORT_TELEGRAM_CHAT_ID is not configured; Telegram report skipped.")
-        return 0
     if not token:
-        print("TELEGRAM_BOT_TOKEN is not configured; Telegram report skipped.")
-        return 0
+        raise RuntimeError("TELEGRAM_BOT_TOKEN is not configured")
     if not report_path.exists():
         print("Report file is missing; Telegram report skipped.")
         return 0
@@ -34,20 +28,16 @@ def main() -> int:
     if len(text) > 3900:
         text = text[:3890].rstrip() + "…"
 
-    data = urllib.parse.urlencode({
-        "chat_id": chat_id,
-        "text": text,
-        "disable_web_page_preview": "true",
-    }).encode("utf-8")
-    req = urllib.request.Request(
-        f"https://api.telegram.org/bot{token}/sendMessage",
-        data=data,
-        method="POST",
+    chat_id = resolve_control_chat_id(token)
+    telegram_call(
+        token,
+        "sendMessage",
+        {
+            "chat_id": chat_id,
+            "text": text,
+            "disable_web_page_preview": "true",
+        },
     )
-    with urllib.request.urlopen(req, timeout=30) as response:
-        body = json.loads(response.read().decode("utf-8"))
-    if not body.get("ok"):
-        raise RuntimeError(body.get("description") or "Telegram report failed")
     print("Telegram ops report sent.")
     return 0
 
