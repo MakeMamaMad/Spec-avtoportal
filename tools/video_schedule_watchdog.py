@@ -40,7 +40,9 @@ def main() -> int:
     now = datetime.now(MSK)
     state = load_state()
     slot = due_slot(now, state)
-    print(f"moscow={now.isoformat()} due_slot={slot or 'none'}")
+    today = now.astimezone(MSK).date().isoformat()
+    day_state = (state.get("days") or {}).get(today) or {}
+    print(f"moscow={now.isoformat()} state={day_state} due_slot={slot or 'none'}")
     print(slot)
     return 0
 
