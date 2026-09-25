@@ -8,13 +8,14 @@
       "target_name": "Спецтехника | Аренда | Продажа",
       "action": "contact_admin",
       "contact": "@All_Admino",
-      "status": "ready",
+      "status": "completed",
       "reason": "Рекламный бот площадки не принимает сообщения от других ботов. Автоматические повторы отключены.",
       "message": "Здравствуйте! Ведём СпецАвтоПортал — отраслевой ресурс о грузовой и специальной технике, прицепах и полуприцепах, рынке, производителях, ГОСТах и регламентах. Хотим аккуратно познакомить аудиторию Спецтехника | Аренда | Продажа с порталом. Подскажите, пожалуйста, возможен ли у вас рекламный или партнёрский пост о самом ресурсе? Готовый короткий текст и ссылка: https://spec-avtoportal.ru/?utm_source=spec-tehnika24&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad",
       "tracking_url": "https://spec-avtoportal.ru/?utm_source=spec-tehnika24&utm_medium=telegram&utm_campaign=community_promotion&utm_content=site_ad",
       "created_at": "2026-09-24T18:36:58+00:00",
-      "updated_at": "2026-09-24T18:36:58+00:00"
+      "updated_at": "2026-09-24T18:36:58+00:00",
+      "completion_note": "Владелец сообщил, что сообщение @All_Admino отправлено вручную."
     }
   ],
-  "updated_at": "2026-09-25T12:36:37+00:00"
+  "updated_at": "2026-09-25"
 }
