@@ -1,0 +1,57 @@
+name: Video — Schedule Watchdog
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/video_schedule_watchdog.yml'
+      - 'tools/video_schedule_watchdog.py'
+      - '.github/workflows/autoposter.yml'
+  schedule:
+    # Redundant lightweight checks around both publication windows.
+    # Odd minutes reduce collisions with GitHub's busiest top-of-hour cron traffic.
+    - cron: '7,22,37,52 7-11 * * *'   # 10:07–14:52 MSK
+    - cron: '7,22,37,52 15-19 * * *'  # 18:07–22:52 MSK
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: video-schedule-watchdog
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Decide whether a Shorts slot is overdue
+        id: due
+        run: |
+          SLOT="$(python tools/video_schedule_watchdog.py | tail -n 1)"
+          echo "slot=$SLOT" >> "$GITHUB_OUTPUT"
+          if [ -n "$SLOT" ]; then
+            echo "Найден пропущенный слот: $SLOT"
+          else
+            echo "Все нужные Shorts уже опубликованы или время слота ещё не наступило."
+          fi
+
+      - name: Recover missed Shorts slot
+        if: steps.due.outputs.slot != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLOT: ${{ steps.due.outputs.slot }}
+        run: |
+          gh workflow run autoposter.yml --ref main -f slot="$SLOT"
+          echo "Запущено восстановление Shorts: $SLOT"
