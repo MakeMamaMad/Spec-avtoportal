@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Morning/evening Telegram digest for SpecAvtoPortal.
 
-Uses the same baseline and state as the immediate Telegram publisher:
+Uses the same baseline and state as the Telegram news publisher:
 - only post-reboot, recent items are eligible;
-- high-importance items are reserved for immediate publishing;
-- ordinary items are collected into deterministic editorial digests;
+- no importance rating is used;
+- each digest randomly selects recent items not used in earlier digests;
 - digested items are persisted in frontend/data/telegram_state.json.
 """
 from __future__ import annotations
