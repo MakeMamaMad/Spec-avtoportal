@@ -7,12 +7,12 @@
   "max_immediate_per_run": 3,
   "max_item_age_hours": 48,
   "digest_enabled": true,
-  "digest_items": 5,
-  "digest_min_items": 1,
+  "digest_items": 3,
+  "digest_min_items": 3,
   "digest_times_msk": [
     "09:40",
     "19:40"
   ],
   "api_version": "5.199",
-  "note": "VK live: свежие новости публикуются без рейтинга; утренний и вечерний дайджест выбирают случайные свежие материалы. vk_state.json защищает от дублей."
+  "note": "VK live: свежие новости публикуются без рейтинга; утром и вечером дайджест содержит 3 случайные свежие новости. vk_state.json защищает от дублей."
 }

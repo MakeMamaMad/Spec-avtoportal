@@ -534,19 +534,19 @@ def run_digest(
     baseline_keys = {make_key(item) for item in baseline}
     already_digested = set(state["digested"])
 
-    candidates = [
+    eligible = [
         item
         for item in current
         if make_key(item) not in baseline_keys
-        and make_key(item) not in already_digested
         and is_recent(item, max_age)
         and parse_item_datetime(item) is not None
     ]
-    if len(candidates) <= limit:
-        random.shuffle(candidates)
-        items = candidates
-    else:
-        items = random.SystemRandom().sample(candidates, limit)
+    fresh = [item for item in eligible if make_key(item) not in already_digested]
+    reused = [item for item in eligible if make_key(item) in already_digested]
+    rng = random.SystemRandom()
+    rng.shuffle(fresh)
+    rng.shuffle(reused)
+    items = (fresh + reused)[:limit]
 
     if len(items) < min_items:
         print(f"VK: not enough recent items for digest: {len(items)} < {min_items}")
