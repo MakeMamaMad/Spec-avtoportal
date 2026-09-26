@@ -1,20 +1,11 @@
 {
   "schema": 1,
-  "updated_at": "2026-09-26T11:15:31+00:00",
+  "updated_at": "2026-09-26T13:23:44+00:00",
   "created": 0,
   "checked": 1,
   "changed": 1,
   "states": {
     "still_pending": 2
   },
-  "changes": [
-    {
-      "target_id": "otsiv-ru",
-      "target_name": "Отзыв.ру",
-      "before": "pending_review",
-      "after": "still_pending",
-      "live_url": null,
-      "detail": "Публичный адрес размещения пока неизвестен."
-    }
-  ]
+  "changes": []
 }
