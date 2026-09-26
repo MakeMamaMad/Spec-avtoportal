@@ -104,6 +104,36 @@
         }
       },
       "updated_at": "2026-09-25T17:10:58.226012+00:00"
+    },
+    "065018397658": {
+      "title": "JAC показал на Comtrans мусоровоз и самосвал",
+      "created_at": "2026-09-26T11:23:40.706684+00:00",
+      "platforms": {
+        "youtube": {
+          "platform": "youtube",
+          "status": "published",
+          "video_id": "DDe42u-dhek",
+          "url": "https://www.youtube.com/shorts/DDe42u-dhek",
+          "updated_at": "2026-09-26T11:23:40.706703+00:00"
+        },
+        "tiktok": {
+          "platform": "tiktok",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6ab7ab3d712d68a8b146bc80",
+          "buffer_status": "sent",
+          "updated_at": "2026-09-26T11:25:28.974541+00:00"
+        },
+        "instagram": {
+          "platform": "instagram",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6ab7aba9e18c79c97102ac99",
+          "buffer_status": "sent",
+          "updated_at": "2026-09-26T11:26:31.195580+00:00"
+        }
+      },
+      "updated_at": "2026-09-26T11:26:31.195576+00:00"
     }
   }
 }
