@@ -5,7 +5,8 @@
     "a97ddc75afdb",
     "ccf600328eba",
     "4802d4647c21",
-    "065018397658"
+    "065018397658",
+    "a8a951d24563"
   ],
   "renders": [
     {
@@ -41,6 +42,13 @@
       "slug": "dzhak-avtomobil-predstavil-na-comtrans-novye-musorovoz-i-samosval-na-sha-06501839",
       "title": "JAC показал на Comtrans мусоровоз и самосвал",
       "created_at": "2026-09-26T11:26:31.196173+00:00",
+      "format": "social-v2"
+    },
+    {
+      "content_key": "a8a951d24563",
+      "slug": "hankook-sotrudnichaet-s-schmitz-cargobull-a8a951d2",
+      "title": "Hankook и Schmitz Cargobull заключили соглашение на четыре года",
+      "created_at": "2026-09-26T16:23:35.710609+00:00",
       "format": "social-v2"
     }
   ]

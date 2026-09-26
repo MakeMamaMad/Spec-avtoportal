@@ -134,6 +134,36 @@
         }
       },
       "updated_at": "2026-09-26T11:26:31.195576+00:00"
+    },
+    "a8a951d24563": {
+      "title": "Hankook и Schmitz Cargobull заключили соглашение на четыре года",
+      "created_at": "2026-09-26T16:20:49.803776+00:00",
+      "platforms": {
+        "youtube": {
+          "platform": "youtube",
+          "status": "published",
+          "video_id": "N_v2U21ZFhA",
+          "url": "https://www.youtube.com/shorts/N_v2U21ZFhA",
+          "updated_at": "2026-09-26T16:20:49.803794+00:00"
+        },
+        "tiktok": {
+          "platform": "tiktok",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6ab7f0e33d66d464e5b62776",
+          "buffer_status": "sent",
+          "updated_at": "2026-09-26T16:22:38.416348+00:00"
+        },
+        "instagram": {
+          "platform": "instagram",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6ab7f14f3d66d464e5b62eb5",
+          "buffer_status": "sent",
+          "updated_at": "2026-09-26T16:23:35.709989+00:00"
+        }
+      },
+      "updated_at": "2026-09-26T16:23:35.709987+00:00"
     }
   }
 }
