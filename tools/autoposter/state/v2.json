@@ -6,7 +6,8 @@
     "ccf600328eba",
     "4802d4647c21",
     "065018397658",
-    "a8a951d24563"
+    "a8a951d24563",
+    "21b04a437347"
   ],
   "renders": [
     {
@@ -49,6 +50,13 @@
       "slug": "hankook-sotrudnichaet-s-schmitz-cargobull-a8a951d2",
       "title": "Hankook и Schmitz Cargobull заключили соглашение на четыре года",
       "created_at": "2026-09-26T16:23:35.710609+00:00",
+      "format": "social-v2"
+    },
+    {
+      "content_key": "21b04a437347",
+      "slug": "itogi-mezhdunarodnoy-vystavki-belagro-2026-21b04a43",
+      "title": "Итоги «Белагро-2026»: универсальный самосвальный полуприцеп SAT500",
+      "created_at": "2026-09-27T12:00:19.353418+00:00",
       "format": "social-v2"
     }
   ]
