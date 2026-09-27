@@ -194,6 +194,36 @@
         }
       },
       "updated_at": "2026-09-27T12:00:19.352777+00:00"
+    },
+    "599978ff07d5": {
+      "title": "SATPRICEP представил новый полуприцеп-самосвал",
+      "created_at": "2026-09-27T16:56:14.661338+00:00",
+      "platforms": {
+        "youtube": {
+          "platform": "youtube",
+          "status": "published",
+          "video_id": "0aO6yXdokiY",
+          "url": "https://www.youtube.com/shorts/0aO6yXdokiY",
+          "updated_at": "2026-09-27T16:56:14.661359+00:00"
+        },
+        "tiktok": {
+          "platform": "tiktok",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6ab94aaf1bf030e330af4a07",
+          "buffer_status": "sent",
+          "updated_at": "2026-09-27T16:58:04.336107+00:00"
+        },
+        "instagram": {
+          "platform": "instagram",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6ab94b1d54f1e60c7e731b9a",
+          "buffer_status": "sent",
+          "updated_at": "2026-09-27T16:59:07.465601+00:00"
+        }
+      },
+      "updated_at": "2026-09-27T16:59:07.465598+00:00"
     }
   }
 }
