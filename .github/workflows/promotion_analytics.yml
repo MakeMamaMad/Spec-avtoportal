@@ -10,6 +10,7 @@ on:
     branches: [ main ]
     paths:
       - 'tools/fetch_promotion_metrika.py'
+      - 'tools/fetch_site_analytics.py'
       - '.github/workflows/promotion_analytics.yml'
 
 permissions:
@@ -39,15 +40,22 @@ jobs:
         run: |
           python tools/fetch_promotion_metrika.py
 
+      - name: Fetch whole-site traffic and Yandex Webmaster data
+        env:
+          YANDEX_METRIKA_OAUTH_TOKEN: ${{ secrets.YANDEX_METRIKA_OAUTH_TOKEN }}
+          YANDEX_WEBMASTER_OAUTH_TOKEN: ${{ secrets.YANDEX_WEBMASTER_OAUTH_TOKEN }}
+        run: |
+          python tools/fetch_site_analytics.py
+
       - name: Commit analytics summary
         run: |
           git config user.name "specavto-analytics"
           git config user.email "actions@users.noreply.github.com"
-          git add frontend/data/promotion/traffic_summary.json
+          git add frontend/data/promotion/traffic_summary.json frontend/data/promotion/site_analytics.json
           if git diff --cached --quiet; then
             echo "No promotion analytics changes"
             exit 0
           fi
-          git commit -m "analytics: update promotion UTM feedback"
+          git commit -m "analytics: update promotion UTM and site-wide feedback"
           git pull --rebase origin main
           git push origin main

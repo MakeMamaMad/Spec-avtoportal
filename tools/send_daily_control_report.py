@@ -124,6 +124,64 @@ def telegram_promo_summary(rows: list[dict[str, Any]]) -> str:
     return "• ℹ️ Новых размещений сегодня нет"
 
 
+def site_analytics_lines(summary: dict[str, Any]) -> list[str]:
+    """Whole-site traffic (Metrika) and Yandex search (Webmaster) block."""
+    lines = ["", "🌐 Сайт целиком — последние 7 дней"]
+    metrika = summary.get("metrika") or {}
+    m_status = str(metrika.get("status") or "")
+    if m_status == "ok":
+        lines.append(
+            f"• Всего визитов — {int(metrika.get('visits') or 0)}, "
+            f"пользователей — {int(metrika.get('users') or 0)}"
+        )
+        for row in (metrika.get("sources") or [])[:5]:
+            lines.append(f"• {row.get('name')}: {int(row.get('visits') or 0)} виз.")
+    elif m_status == "missing_token":
+        lines.append("• Общая посещаемость: нет токена Метрики")
+    elif m_status == "error":
+        lines.append(f"• ❌ Общая посещаемость не получена ({metrika.get('detail') or 'ошибка'})")
+    else:
+        lines.append("• Отчёт по общей посещаемости ещё не выполнялся")
+
+    lines += ["", "🔎 Яндекс Поиск (Вебмастер)"]
+    webmaster = summary.get("webmaster") or {}
+    w_status = str(webmaster.get("status") or "")
+    if w_status == "ok":
+        index = webmaster.get("index") or {}
+        problems = index.get("problems") or {}
+        lines.append(
+            f"• В поиске страниц — {int(index.get('searchable_pages') or 0)}, "
+            f"исключено — {int(index.get('excluded_pages') or 0)}, ИКС — {int(index.get('sqi') or 0)}"
+        )
+        serious = int(problems.get("fatal") or 0) + int(problems.get("critical") or 0)
+        if serious:
+            lines.append(f"• ⚠️ Серьёзных проблем сайта в Вебмастере: {serious}")
+        search = webmaster.get("search") or {}
+        if search.get("status") == "error":
+            lines.append(f"• ❌ Поисковые запросы не получены ({search.get('detail') or 'ошибка'})")
+        elif "shows" in search:
+            lines.append(
+                f"• Показы — {int(search.get('shows') or 0)}, клики — {int(search.get('clicks') or 0)} "
+                f"({search.get('date_from')} … {search.get('date_to')}, данные Вебмастера приходят с задержкой)"
+            )
+            for row in (search.get("top_queries") or [])[:5]:
+                position = row.get("position")
+                pos = f", поз. {position}" if position is not None else ""
+                lines.append(
+                    f"• «{row.get('query')}»: {int(row.get('shows') or 0)} пок., "
+                    f"{int(row.get('clicks') or 0)} кл.{pos}"
+                )
+    elif w_status == "missing_token":
+        lines.append("• Нужен секрет YANDEX_WEBMASTER_OAUTH_TOKEN с правом webmaster:hostinfo")
+    elif w_status == "host_not_found":
+        lines.append(f"• ❌ {webmaster.get('detail') or 'Сайт не найден в Вебмастере'}")
+    elif w_status == "error":
+        lines.append(f"• ❌ Данные Вебмастера не получены ({webmaster.get('detail') or 'ошибка'})")
+    else:
+        lines.append("• Отчёт Вебмастера ещё не выполнялся")
+    return lines
+
+
 def main() -> int:
     today = datetime.now(MSK).date()
     news = load_json(ROOT / "frontend/data/news.json", [])
@@ -140,6 +198,7 @@ def main() -> int:
     manual_queue = load_json(ROOT / "frontend/data/promotion/manual_queue.json", {"entries": []})
     video_schedule = load_json(ROOT / "tools/autoposter/state/video_schedule.json", {"days": {}})
     traffic_summary = load_json(ROOT / "frontend/data/promotion/traffic_summary.json", {})
+    site_analytics = load_json(ROOT / "frontend/data/promotion/site_analytics.json", {})
 
     runs_data = github_get("actions/runs?per_page=100") or {}
     runs = runs_data.get("workflow_runs") or []
@@ -324,6 +383,8 @@ def main() -> int:
         lines.append("• ❌ Не удалось получить рекламную статистику из Метрики")
     else:
         lines.append("• Автоматический UTM-отчёт ещё не выполнялся")
+
+    lines += site_analytics_lines(site_analytics)
 
     lines += ["", "💰 Telegram Ads"]
     if ads.get("landing_url"):
