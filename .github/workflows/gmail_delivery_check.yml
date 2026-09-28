@@ -1,4 +1,5 @@
 name: Promotion — Gmail Delivery Check
+# recheck gmail readonly token
 
 on:
   workflow_dispatch:
