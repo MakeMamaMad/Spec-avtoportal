@@ -49,6 +49,8 @@ jobs:
         env:
           MEXZONA_LOGIN: ${{ secrets.MEXZONA_LOGIN }}
           MEXZONA_PASSWORD: ${{ secrets.MEXZONA_PASSWORD }}
+          TRUCKMIX_LOGIN: ${{ secrets.TRUCKMIX_LOGIN }}
+          TRUCKMIX_PASSWORD: ${{ secrets.TRUCKMIX_PASSWORD }}
         run: |
           python promotion/run_editorial_campaign.py
 
