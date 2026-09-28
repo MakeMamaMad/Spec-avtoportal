@@ -174,6 +174,15 @@ def create_video_post(
     return post
 
 
+def _ensure_automatic_post(service: str, post: dict[str, Any]) -> None:
+    scheduling_type = str(post.get("schedulingType") or "").strip().lower()
+    if scheduling_type and scheduling_type != "automatic":
+        raise BufferAPIError(
+            f"{service} Buffer post is not automatic: "
+            f"schedulingType={scheduling_type} notificationStatus={post.get('notificationStatus')}"
+        )
+
+
 def fetch_post(api_key: str, post_id: str) -> dict[str, Any]:
     data = _graphql(
         api_key,
@@ -220,6 +229,7 @@ def publish_video(
         scheduling_type="automatic",
         mode="shareNow",
     )
+    _ensure_automatic_post(service, post)
     post_id = str(post["id"])
     print(
         f"[buffer] {service}: submitted post_id={post_id} "
@@ -231,6 +241,7 @@ def publish_video(
     while time.monotonic() < deadline:
         time.sleep(5)
         latest = fetch_post(api_key, post_id)
+        _ensure_automatic_post(service, latest)
         status = str(latest.get("status") or "").strip().lower()
         error = latest.get("error")
         print(f"[buffer] {service}: post_id={post_id} status={status}")
