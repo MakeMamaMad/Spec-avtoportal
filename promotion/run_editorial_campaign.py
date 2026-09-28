@@ -96,7 +96,13 @@ def main() -> int:
         print("EDITORIAL_MANUAL_PREPARED")
         return 0
 
-    if entry.get("target_id") != "mexzona":
+    target_id = str(entry.get("target_id") or "")
+    adapters = {
+        "mexzona": ROOT / "promotion/publish_mexzona.py",
+        "truckmix-publishing": ROOT / "promotion/publish_truckmix.py",
+    }
+    adapter = adapters.get(target_id)
+    if adapter is None:
         add_manual(entry, "Автоматического адаптера для этой площадки пока нет.")
         summary["status"] = "manual_prepared"
         summary["detail"] = "Автоматического адаптера нет; создана ручная задача."
@@ -114,7 +120,7 @@ def main() -> int:
         }
     )
     proc = subprocess.run(
-        [sys.executable, str(ROOT / "promotion/publish_mexzona.py")],
+        [sys.executable, str(adapter)],
         cwd=ROOT,
         env=env,
         check=False,
@@ -122,7 +128,7 @@ def main() -> int:
 
     if proc.returncode == 0:
         summary["status"] = "submitted"
-        summary["detail"] = "Материал автоматически отправлен в MEXZONA и найден в кабинете автора."
+        summary["detail"] = f"Материал автоматически отправлен на {entry.get('target_name') or target_id}."
     else:
         add_manual(
             entry,
