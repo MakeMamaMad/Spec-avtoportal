@@ -151,9 +151,9 @@
       "slug": "dzhak-avtomobil-predstavil-na-comtrans-novye-musorovoz-i-samosval-na-sha-06501839"
     },
     "https://www.globaltrailermag.com/tip-expands-tht-new-cool-partnership/": {
-      "digest_id": "2026-09-28:am",
-      "post_id": 16,
-      "sent_at": "2026-09-28T09:17:20+00:00",
+      "digest_id": "2026-09-28:pm",
+      "post_id": 19,
+      "sent_at": "2026-09-28T14:24:23+00:00",
       "title": "TIP расширяет партнерство THT New Cool",
       "slug": "tip-rasshiryaet-partnerstvo-tht-new-cool-f18141ed"
     },
@@ -165,11 +165,18 @@
       "slug": "krone-i-aerodyne-kommertsializiruyut-sistemu-aerodinamicheskih-pritsepov-0d099836"
     },
     "https://truckmix.ru/news/v-samarskoi-oblasti-nachalis-priemochnie-ispitaniya-modernizirovannogo-traktora-btz-254k-20": {
-      "digest_id": "2026-09-28:am",
-      "post_id": 16,
-      "sent_at": "2026-09-28T09:17:20+00:00",
+      "digest_id": "2026-09-28:pm",
+      "post_id": 19,
+      "sent_at": "2026-09-28T14:24:23+00:00",
       "title": "В Самарской области начались приемочные испытания модернизированного трактора БТЗ 254К.20",
       "slug": "v-samarskoy-oblasti-nachalis-priemochnye-ispytaniya-modernizirovannogo-t-a8cdb6cd"
+    },
+    "http://gruzovoy.ru/news/industry/3382_eek_predlojila_vvesti_antidempingovie_poshlini_na_gryzovie_shini_iz_tailanda_i_vetnama.html": {
+      "digest_id": "2026-09-28:pm",
+      "post_id": 19,
+      "sent_at": "2026-09-28T14:24:23+00:00",
+      "title": "ЕЭК предложила ввести антидемпинговые пошлины на грузовые шины из Таиланда и Вьетнама",
+      "slug": "eek-predlozhila-vvesti-antidempingovye-poshliny-na-gruzovye-shiny-iz-tai-f4d58e1f"
     }
   },
   "digests": {
@@ -222,6 +229,17 @@
         "https://www.globaltrailermag.com/tip-expands-tht-new-cool-partnership/",
         "https://www.globaltrailermag.com/krone-and-aerodyne-to-commercialise-aerodynamic-trailer-system/",
         "https://truckmix.ru/news/v-samarskoi-oblasti-nachalis-priemochnie-ispitaniya-modernizirovannogo-traktora-btz-254k-20"
+      ]
+    },
+    "2026-09-28:pm": {
+      "post_id": 19,
+      "sent_at": "2026-09-28T14:24:23+00:00",
+      "slot": "pm",
+      "visual": "link_preview",
+      "items": [
+        "http://gruzovoy.ru/news/industry/3382_eek_predlojila_vvesti_antidempingovie_poshlini_na_gryzovie_shini_iz_tailanda_i_vetnama.html",
+        "https://truckmix.ru/news/v-samarskoi-oblasti-nachalis-priemochnie-ispitaniya-modernizirovannogo-traktora-btz-254k-20",
+        "https://www.globaltrailermag.com/tip-expands-tht-new-cool-partnership/"
       ]
     }
   }
