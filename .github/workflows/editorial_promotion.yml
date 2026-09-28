@@ -8,6 +8,7 @@ on:
       - 'promotion/targets.json'
       - 'promotion/build_editorial_promo.py'
       - 'promotion/run_editorial_campaign.py'
+      - 'promotion/send_editorial_email.py'
       - '.github/workflows/editorial_promotion.yml'
   schedule:
     # 12:30 Moscow time (UTC+3), before the daily manual-action digest.
@@ -41,7 +42,7 @@ jobs:
       - name: Install browser automation
         run: |
           python -m pip install --upgrade pip
-          pip install playwright
+          pip install playwright google-auth google-auth-oauthlib
           python -m playwright install --with-deps chromium
 
       - name: Execute editorial action
@@ -50,6 +51,23 @@ jobs:
           MEXZONA_PASSWORD: ${{ secrets.MEXZONA_PASSWORD }}
         run: |
           python promotion/run_editorial_campaign.py
+
+      - name: Restore Gmail send-only credentials
+        env:
+          GMAIL_TOKEN_B64: ${{ secrets.GMAIL_TOKEN_B64 }}
+        run: |
+          if [ -z "$GMAIL_TOKEN_B64" ]; then
+            echo "GMAIL_AUTOMATION_NOT_CONFIGURED"
+            exit 0
+          fi
+          printf '%s' "$GMAIL_TOKEN_B64" | base64 -d > gmail_token.json
+          test -s gmail_token.json
+
+      - name: Send prepared editorial email
+        env:
+          GMAIL_TOKEN_FILE: gmail_token.json
+        run: |
+          python promotion/send_editorial_email.py
 
       - name: Commit editorial state
         if: always()
