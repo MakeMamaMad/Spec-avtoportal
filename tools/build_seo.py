@@ -943,7 +943,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_art
   <meta name="twitter:description" content="{description}" />
   <meta name="twitter:image" content="{image}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=24" />
+  <link rel="stylesheet" href="/styles.css?v=25" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{json_ld(item)}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -1165,7 +1165,7 @@ def render_brand_page(
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=24" />
+  <link rel="stylesheet" href="/styles.css?v=25" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -1302,7 +1302,7 @@ def render_brand_directory(brand_counts: dict[str, int]) -> str:
   <meta property="og:title" content="Производители и бренды — СпецАвтоПортал" />
   <meta property="og:description" content="Архив новостей о производителях грузовой и прицепной техники." />
   <meta property="og:url" content="{BASE_URL}/brands/" />
-  <link rel="stylesheet" href="/styles.css?v=24" />
+  <link rel="stylesheet" href="/styles.css?v=25" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -1429,7 +1429,7 @@ def render_topic_page(
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=24" />
+  <link rel="stylesheet" href="/styles.css?v=25" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -1658,7 +1658,7 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
   <meta property="og:title" content="{title}" />
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
-  <link rel="stylesheet" href="/styles.css?v=24" />
+  <link rel="stylesheet" href="/styles.css?v=25" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -1920,7 +1920,7 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
   <meta property="og:title" content="{page_title}" />
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
-  <link rel="stylesheet" href="/styles.css?v=24" />
+  <link rel="stylesheet" href="/styles.css?v=25" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>{faq_schema_tag}
 </head>
@@ -2083,7 +2083,7 @@ def render_regulations_index(regulations: dict[str, Any]) -> str:
   <meta property="og:title" content="Нормативы и ГОСТы — СпецАвтоПортал" />
   <meta property="og:description" content="Действующие нормативы для прицепов, полуприцепов, крепления грузов и безопасной эксплуатации." />
   <meta property="og:url" content="{BASE_URL}/law.html" />
-  <link rel="stylesheet" href="/styles.css?v=24" />
+  <link rel="stylesheet" href="/styles.css?v=25" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -2244,6 +2244,38 @@ def replace_home_block(page: str, name: str, payload: str) -> str:
     return updated
 
 
+HOME_GUIDES_LIMIT = 5
+
+
+def home_guides_html(regulations: dict[str, Any]) -> str:
+    """Cards for the homepage: the axle load calculator plus regulation breakdowns.
+
+    Only regulations with an editorial guide are shown, newest effective date
+    first, so every new breakdown reaches the homepage without editing HTML.
+    """
+    cards = [
+        '<a class="home-guide home-guide--tool" href="/tools/nagruzka-na-os/">'
+        '<span class="home-guide__eyebrow">Инструмент</span>'
+        '<strong>Калькулятор нагрузки на ось</strong>'
+        '<span class="home-guide__text">Проверьте автопоезд до весов: нагрузки на оси и общая масса по ПП № 2060.</span>'
+        '</a>'
+    ]
+    guided = [item for item in regulations.get("items", []) if isinstance(item, dict) and item.get("guide") and item.get("slug")]
+    guided.sort(key=lambda item: str(item.get("effective_from") or ""), reverse=True)
+    for item in guided[: HOME_GUIDES_LIMIT - 1]:
+        guide = item["guide"]
+        title = get_field(item, "code", default="Норматив")
+        text = clamp(get_field(guide, "description") or get_field(item, "scope"), 120)
+        cards.append(
+            f'<a class="home-guide" href="/regulations/{html.escape(str(item["slug"]), quote=True)}/">'
+            f'<span class="home-guide__eyebrow">{html.escape(get_field(item, "type", default="Норматив"))}</span>'
+            f"<strong>{html.escape(title)}</strong>"
+            f'<span class="home-guide__text">{html.escape(text)}</span>'
+            "</a>"
+        )
+    return "".join(cards)
+
+
 def build_homepage(items: list[dict[str, Any]]) -> None:
     """Pre-render the first screen so crawlers/users do not depend on JavaScript."""
     if not HOME_HTML.exists():
@@ -2281,6 +2313,7 @@ def build_homepage(items: list[dict[str, Any]]) -> None:
     page = replace_home_block(page, "SEO_FEATURED_SECONDARY", secondary)
     page = replace_home_block(page, "SEO_NEWS_LIST", cards)
     page = replace_home_block(page, "SEO_TOP_TAGS", top_tags)
+    page = replace_home_block(page, "SEO_HOME_GUIDES", home_guides_html(load_regulations()))
     page = replace_home_block(page, "SEO_NEWS_COUNT", str(len(items)))
     latest = display_date(get_field(items[0], "published_at", "date", "pub_date")) if items else "—"
     page = replace_home_block(page, "SEO_LATEST_DATE", html.escape(latest))
