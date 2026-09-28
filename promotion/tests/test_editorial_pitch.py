@@ -54,6 +54,7 @@ class EditorialPitchTests(unittest.TestCase):
         self.assertIn("https://spec-avtoportal.ru/files/check.pdf", body)
         self.assertIn(action["site_url"], body)
         self.assertIn("Иван Петров, редактор", body)
+        self.assertIn("Отраслевое медиа о грузовой и прицепной технике", body)
 
     def test_featured_pitch_is_sent_once_then_knowledge_follows(self) -> None:
         articles = load_articles(KNOWLEDGE, CONFIG)

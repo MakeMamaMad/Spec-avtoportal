@@ -166,7 +166,7 @@ def signature_lines(config: dict[str, Any] | None) -> list[str]:
     lines = ["С уважением,"]
     if name:
         lines.append(f"{name}, {role}" if role else name)
-        lines.append("СпецАвтоПортал — отраслевое медиа о грузовой и прицепной технике")
+        lines.append("Отраслевое медиа о грузовой и прицепной технике")
     else:
         lines.append("редакция СпецАвтоПортала")
     lines.append("https://spec-avtoportal.ru/ · https://t.me/specavtoportal")

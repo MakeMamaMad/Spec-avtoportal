@@ -2,7 +2,7 @@
   "schema": 1,
   "active": true,
   "note": "Тематическое предложение для редакций. Пока active=true, каждой email-редакции сначала уходит это письмо (один раз), потом — обычные материалы базы знаний.",
-  "sender_name": "",
+  "sender_name": "Редакция SpecAvtoPortal",
   "sender_role": "",
   "featured": {
     "slug": "mintrans-212-2026",
