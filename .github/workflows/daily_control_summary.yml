@@ -30,6 +30,7 @@ jobs:
       - name: Send daily report to SpecAvto Control
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          REPORT_TELEGRAM_CHAT_ID: ${{ secrets.REPORT_TELEGRAM_CHAT_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python tools/send_daily_control_report.py
