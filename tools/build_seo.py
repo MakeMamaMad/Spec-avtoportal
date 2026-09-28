@@ -29,8 +29,12 @@ ROOT = Path(__file__).resolve().parents[1]
 AGGREGATOR = ROOT / "aggregator"
 if str(AGGREGATOR) not in sys.path:
     sys.path.insert(0, str(AGGREGATOR))
+TOOLS = ROOT / "tools"
+if str(TOOLS) not in sys.path:
+    sys.path.insert(0, str(TOOLS))
 
 from telegram_visual import render_social_card
+from axle_calculator import PAGE_PATH as AXLE_CALC_PATH, render_axle_calculator_page
 
 FRONTEND = ROOT / "frontend"
 NEWS_JSON = FRONTEND / "data" / "news.json"
@@ -44,6 +48,7 @@ BRANDS_DIR = FRONTEND / "brands"
 REGULATIONS_DIR = FRONTEND / "regulations"
 KNOWLEDGE_DIR = FRONTEND / "knowledge"
 SOCIAL_DIR = FRONTEND / "social"
+TOOLS_DIR = FRONTEND / "tools"
 BASE_URL = "https://spec-avtoportal.ru"
 SOCIAL_URLS = [
     "https://t.me/specavtoportal",
@@ -2376,6 +2381,7 @@ def write_sitemap(
         (f"{BASE_URL}/law.html", ""),
         (f"{BASE_URL}/guides.html", ""),
         (f"{BASE_URL}/about.html", ""),
+        (f"{BASE_URL}{AXLE_CALC_PATH}", ""),
     ]
     rows = []
     for url, lastmod in static_pages:
@@ -2545,6 +2551,21 @@ def main() -> None:
             encoding="utf-8",
         )
     (FRONTEND / "law.html").write_text(render_regulations_index(regulations), encoding="utf-8")
+
+    if TOOLS_DIR.exists():
+        shutil.rmtree(TOOLS_DIR)
+    calc_dir = FRONTEND / AXLE_CALC_PATH.strip("/")
+    calc_dir.mkdir(parents=True, exist_ok=True)
+    (calc_dir / "index.html").write_text(
+        render_axle_calculator_page(
+            BASE_URL,
+            telegram_cta_html(
+                "Разборы норм для перевозчиков",
+                "Нагрузки, габариты, новые правила 2026 года — коротко и со ссылкой на первоисточник в нашем Telegram-канале.",
+            ),
+        ),
+        encoding="utf-8",
+    )
 
     public_items = write_news_index(items)
     build_homepage(public_items)
