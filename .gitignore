@@ -10,3 +10,7 @@ Thumbs.db
 
 # Logs
 *.log
+client_secrets.json
+gmail_token.json
+youtube_token.json
+client_secret_*.json
