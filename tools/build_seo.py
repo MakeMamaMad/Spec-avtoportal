@@ -943,7 +943,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_art
   <meta name="twitter:description" content="{description}" />
   <meta name="twitter:image" content="{image}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=23" />
+  <link rel="stylesheet" href="/styles.css?v=24" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{json_ld(item)}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -967,6 +967,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_art
         <a href="/" class="nav-link nav-link-active">Новости</a>
         <a href="/brands/" class="nav-link">Бренды</a>
         <a href="/knowledge.html" class="nav-link">База знаний</a>
+        <a href="/tools/nagruzka-na-os/" class="nav-link">Калькулятор</a>
       </nav>
       <div class="header-socials" aria-label="Социальные сети">
         <a href="https://t.me/specavtoportal" class="header-social-link header-social-link--telegram" target="_blank" rel="noopener" aria-label="Telegram"><span class="social-full">Telegram</span><span class="social-short">TG</span></a>
@@ -1026,7 +1027,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_art
   <footer class="site-footer">
     <div class="container footer-grid">
       <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
-      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/brands/">Бренды</a><a href="/law.html">Нормативы</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a><a href="https://www.tiktok.com/@specavtoportal" target="_blank" rel="noopener">TikTok ↗</a><a href="https://www.youtube.com/@Specavtoportal" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.instagram.com/specavtoportal" target="_blank" rel="noopener">Instagram ↗</a><a href="https://vk.ru/specavtoportal" target="_blank" rel="noopener">VK ↗</a></div>
+      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/brands/">Бренды</a><a href="/law.html">Нормативы</a><a href="/tools/nagruzka-na-os/">Калькулятор нагрузки</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a><a href="https://www.tiktok.com/@specavtoportal" target="_blank" rel="noopener">TikTok ↗</a><a href="https://www.youtube.com/@Specavtoportal" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.instagram.com/specavtoportal" target="_blank" rel="noopener">Instagram ↗</a><a href="https://vk.ru/specavtoportal" target="_blank" rel="noopener">VK ↗</a></div>
       <div class="footer-note">© СпецАвтоПортал</div>
     </div>
   </footer>
@@ -1164,7 +1165,7 @@ def render_brand_page(
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=23" />
+  <link rel="stylesheet" href="/styles.css?v=24" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -1188,6 +1189,7 @@ def render_brand_page(
         <a href="/" class="nav-link">Новости</a>
         <a href="/brands/" class="nav-link nav-link-active">Бренды</a>
         <a href="/knowledge.html" class="nav-link">База знаний</a>
+        <a href="/tools/nagruzka-na-os/" class="nav-link">Калькулятор</a>
       </nav>
       <div class="header-socials" aria-label="Социальные сети">
         <a href="https://t.me/specavtoportal" class="header-social-link header-social-link--telegram" target="_blank" rel="noopener" aria-label="Telegram"><span class="social-full">Telegram</span><span class="social-short">TG</span></a>
@@ -1300,7 +1302,7 @@ def render_brand_directory(brand_counts: dict[str, int]) -> str:
   <meta property="og:title" content="Производители и бренды — СпецАвтоПортал" />
   <meta property="og:description" content="Архив новостей о производителях грузовой и прицепной техники." />
   <meta property="og:url" content="{BASE_URL}/brands/" />
-  <link rel="stylesheet" href="/styles.css?v=23" />
+  <link rel="stylesheet" href="/styles.css?v=24" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -1322,6 +1324,7 @@ def render_brand_directory(brand_counts: dict[str, int]) -> str:
         <a href="/" class="nav-link">Новости</a>
         <a href="/brands/" class="nav-link nav-link-active">Бренды</a>
         <a href="/knowledge.html" class="nav-link">База знаний</a>
+        <a href="/tools/nagruzka-na-os/" class="nav-link">Калькулятор</a>
       </nav>
       <div class="header-socials" aria-label="Социальные сети">
         <a href="https://t.me/specavtoportal" class="header-social-link header-social-link--telegram" target="_blank" rel="noopener" aria-label="Telegram"><span class="social-full">Telegram</span><span class="social-short">TG</span></a>
@@ -1426,7 +1429,7 @@ def render_topic_page(
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=23" />
+  <link rel="stylesheet" href="/styles.css?v=24" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -1450,6 +1453,7 @@ def render_topic_page(
         <a href="/" class="nav-link">Новости</a>
         <a href="/brands/" class="nav-link">Бренды</a>
         <a href="/knowledge.html" class="nav-link">База знаний</a>
+        <a href="/tools/nagruzka-na-os/" class="nav-link">Калькулятор</a>
       </nav>
       <div class="header-socials" aria-label="Социальные сети">
         <a href="https://t.me/specavtoportal" class="header-social-link header-social-link--telegram" target="_blank" rel="noopener" aria-label="Telegram"><span class="social-full">Telegram</span><span class="social-short">TG</span></a>
@@ -1495,7 +1499,7 @@ def render_topic_page(
   <footer class="site-footer">
     <div class="container footer-grid">
       <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
-      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/brands/">Бренды</a><a href="/law.html">Нормативы</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a><a href="https://www.tiktok.com/@specavtoportal" target="_blank" rel="noopener">TikTok ↗</a><a href="https://www.youtube.com/@Specavtoportal" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.instagram.com/specavtoportal" target="_blank" rel="noopener">Instagram ↗</a><a href="https://vk.ru/specavtoportal" target="_blank" rel="noopener">VK ↗</a></div>
+      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/brands/">Бренды</a><a href="/law.html">Нормативы</a><a href="/tools/nagruzka-na-os/">Калькулятор нагрузки</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a><a href="https://www.tiktok.com/@specavtoportal" target="_blank" rel="noopener">TikTok ↗</a><a href="https://www.youtube.com/@Specavtoportal" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.instagram.com/specavtoportal" target="_blank" rel="noopener">Instagram ↗</a><a href="https://vk.ru/specavtoportal" target="_blank" rel="noopener">VK ↗</a></div>
       <div class="footer-note">© СпецАвтоПортал</div>
     </div>
   </footer>
@@ -1654,7 +1658,7 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
   <meta property="og:title" content="{title}" />
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
-  <link rel="stylesheet" href="/styles.css?v=23" />
+  <link rel="stylesheet" href="/styles.css?v=24" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -1670,6 +1674,7 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
         <a href="/" class="nav-link">Новости</a>
         <a href="/brands/" class="nav-link">Бренды</a>
         <a href="/knowledge.html" class="nav-link nav-link-active">База знаний</a>
+        <a href="/tools/nagruzka-na-os/" class="nav-link">Калькулятор</a>
       </nav>
       <div class="header-socials" aria-label="Социальные сети">
         <a href="https://t.me/specavtoportal" class="header-social-link header-social-link--telegram" target="_blank" rel="noopener" aria-label="Telegram"><span class="social-full">Telegram</span><span class="social-short">TG</span></a>
@@ -1719,7 +1724,7 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
   <footer class="site-footer">
     <div class="container footer-grid">
       <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
-      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/law.html">Нормативы</a><a href="/guides.html">Гайды</a><a href="/brands/">Бренды</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a><a href="https://www.tiktok.com/@specavtoportal" target="_blank" rel="noopener">TikTok ↗</a><a href="https://www.youtube.com/@Specavtoportal" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.instagram.com/specavtoportal" target="_blank" rel="noopener">Instagram ↗</a><a href="https://vk.ru/specavtoportal" target="_blank" rel="noopener">VK ↗</a></div>
+      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/law.html">Нормативы</a><a href="/tools/nagruzka-na-os/">Калькулятор нагрузки</a><a href="/guides.html">Гайды</a><a href="/brands/">Бренды</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a><a href="https://www.tiktok.com/@specavtoportal" target="_blank" rel="noopener">TikTok ↗</a><a href="https://www.youtube.com/@Specavtoportal" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.instagram.com/specavtoportal" target="_blank" rel="noopener">Instagram ↗</a><a href="https://vk.ru/specavtoportal" target="_blank" rel="noopener">VK ↗</a></div>
       <div class="footer-note">© СпецАвтоПортал</div>
     </div>
   </footer>
@@ -1915,7 +1920,7 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
   <meta property="og:title" content="{page_title}" />
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
-  <link rel="stylesheet" href="/styles.css?v=23" />
+  <link rel="stylesheet" href="/styles.css?v=24" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>{faq_schema_tag}
 </head>
@@ -1931,6 +1936,7 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
         <a href="/" class="nav-link">Новости</a>
         <a href="/brands/" class="nav-link">Бренды</a>
         <a href="/knowledge.html" class="nav-link nav-link-active">База знаний</a>
+        <a href="/tools/nagruzka-na-os/" class="nav-link">Калькулятор</a>
       </nav>
       <div class="header-socials" aria-label="Социальные сети">
         <a href="https://t.me/specavtoportal" class="header-social-link header-social-link--telegram" target="_blank" rel="noopener" aria-label="Telegram"><span class="social-full">Telegram</span><span class="social-short">TG</span></a>
@@ -1999,7 +2005,7 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
   <footer class="site-footer">
     <div class="container footer-grid">
       <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
-      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/law.html">Нормативы</a><a href="/guides.html">Гайды</a><a href="/brands/">Бренды</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a><a href="https://www.tiktok.com/@specavtoportal" target="_blank" rel="noopener">TikTok ↗</a><a href="https://www.youtube.com/@Specavtoportal" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.instagram.com/specavtoportal" target="_blank" rel="noopener">Instagram ↗</a><a href="https://vk.ru/specavtoportal" target="_blank" rel="noopener">VK ↗</a></div>
+      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/law.html">Нормативы</a><a href="/tools/nagruzka-na-os/">Калькулятор нагрузки</a><a href="/guides.html">Гайды</a><a href="/brands/">Бренды</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a><a href="https://www.tiktok.com/@specavtoportal" target="_blank" rel="noopener">TikTok ↗</a><a href="https://www.youtube.com/@Specavtoportal" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.instagram.com/specavtoportal" target="_blank" rel="noopener">Instagram ↗</a><a href="https://vk.ru/specavtoportal" target="_blank" rel="noopener">VK ↗</a></div>
       <div class="footer-note">© СпецАвтоПортал</div>
     </div>
   </footer>
@@ -2077,7 +2083,7 @@ def render_regulations_index(regulations: dict[str, Any]) -> str:
   <meta property="og:title" content="Нормативы и ГОСТы — СпецАвтоПортал" />
   <meta property="og:description" content="Действующие нормативы для прицепов, полуприцепов, крепления грузов и безопасной эксплуатации." />
   <meta property="og:url" content="{BASE_URL}/law.html" />
-  <link rel="stylesheet" href="/styles.css?v=23" />
+  <link rel="stylesheet" href="/styles.css?v=24" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -2093,6 +2099,7 @@ def render_regulations_index(regulations: dict[str, Any]) -> str:
         <a href="/" class="nav-link">Новости</a>
         <a href="/brands/" class="nav-link">Бренды</a>
         <a href="/knowledge.html" class="nav-link nav-link-active">База знаний</a>
+        <a href="/tools/nagruzka-na-os/" class="nav-link">Калькулятор</a>
       </nav>
       <div class="header-socials" aria-label="Социальные сети">
         <a href="https://t.me/specavtoportal" class="header-social-link header-social-link--telegram" target="_blank" rel="noopener" aria-label="Telegram"><span class="social-full">Telegram</span><span class="social-short">TG</span></a>
@@ -2133,7 +2140,7 @@ def render_regulations_index(regulations: dict[str, Any]) -> str:
   <footer class="site-footer">
     <div class="container footer-grid">
       <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
-      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/law.html">Нормативы</a><a href="/guides.html">Гайды</a><a href="/brands/">Бренды</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a><a href="https://www.tiktok.com/@specavtoportal" target="_blank" rel="noopener">TikTok ↗</a><a href="https://www.youtube.com/@Specavtoportal" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.instagram.com/specavtoportal" target="_blank" rel="noopener">Instagram ↗</a><a href="https://vk.ru/specavtoportal" target="_blank" rel="noopener">VK ↗</a></div>
+      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/law.html">Нормативы</a><a href="/tools/nagruzka-na-os/">Калькулятор нагрузки</a><a href="/guides.html">Гайды</a><a href="/brands/">Бренды</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a><a href="https://www.tiktok.com/@specavtoportal" target="_blank" rel="noopener">TikTok ↗</a><a href="https://www.youtube.com/@Specavtoportal" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.instagram.com/specavtoportal" target="_blank" rel="noopener">Instagram ↗</a><a href="https://vk.ru/specavtoportal" target="_blank" rel="noopener">VK ↗</a></div>
       <div class="footer-note">© СпецАвтоПортал</div>
     </div>
   </footer>

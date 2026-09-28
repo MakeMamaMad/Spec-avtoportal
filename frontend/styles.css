@@ -1020,7 +1020,7 @@ button { color: inherit; }
     margin: 0;
     padding: 0 0 8px;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 4px;
     overflow: visible;
   }
@@ -2400,4 +2400,9 @@ button { color: inherit; }
 .tg-cta__button:hover { background: var(--orange-dark); }
 @media (max-width: 620px) {
   .tg-cta { flex-direction: column; align-items: flex-start; padding: 20px; }
+}
+
+/* Four menu items on very narrow phones */
+@media (max-width: 360px) {
+  .main-nav .nav-link { padding: 6px 1px; font-size: 10px; white-space: normal; text-align: center; }
 }
