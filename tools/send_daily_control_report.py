@@ -132,6 +132,12 @@ def main() -> int:
     catalogs = load_json(ROOT / "frontend/data/site_promo_history.json", {"entries": []})
     tg_promo = load_json(ROOT / "frontend/data/telegram_promo_history.json", {"entries": []})
     ads = load_json(ROOT / "frontend/data/telegram_ads_state.json", {})
+    catalog_summary = load_json(ROOT / "frontend/data/daily_catalog_target.json", {})
+    placement_summary = load_json(ROOT / "frontend/data/promotion/placement_verification_summary.json", {})
+    editorial_summary = load_json(ROOT / "frontend/data/promotion/editorial_summary.json", {})
+    telegram_outreach = load_json(ROOT / "frontend/data/promotion/telegram_outreach_summary.json", {})
+    manual_queue = load_json(ROOT / "frontend/data/promotion/manual_queue.json", {"entries": []})
+    video_schedule = load_json(ROOT / "tools/autoposter/state/video_schedule.json", {"days": {}})
 
     runs_data = github_get("actions/runs?per_page=100") or {}
     runs = runs_data.get("workflow_runs") or []
@@ -186,19 +192,24 @@ def main() -> int:
         "",
         "📰 Новости и соцсети",
         f"• News Fetch & Publish: {run_status(runs, 'News — Fetch & Publish')}",
-        f"• Telegram: {len(tg_posts)} важных пост(а/ов) + {len(tg_digests)} дайджест(а/ов), {tg_digest_items} новостей в дайджестах",
-        f"• VK: {len(vk_posts)} важных пост(а/ов) + {len(vk_digests)} дайджест(а/ов), {vk_digest_items} новостей в дайджестах",
+        f"• Telegram: обычных постов — {len(tg_posts)}, дайджестов — {len(tg_digests)}, новостей в дайджестах — {tg_digest_items}",
+        f"• VK: обычных постов — {len(vk_posts)}, дайджестов — {len(vk_digests)}, новостей в дайджестах — {vk_digest_items}",
         "",
         "🎬 Видео",
     ]
 
+    day_video = ((video_schedule.get("days") or {}).get(today.isoformat()) or {})
+    lines.append(
+        "• Утренний Shorts: "
+        + ("✅ опубликован" if day_video.get("am") == "published" else "❌ не опубликован")
+    )
+    lines.append(
+        "• Вечерний Shorts: "
+        + ("✅ опубликован" if day_video.get("pm") == "published" else "❌ не опубликован")
+    )
     if video_latest:
         latest_video_status = str(video_latest.get("conclusion") or video_latest.get("status") or "")
-        lines.append(f"• Последний запуск: {human_run_status(latest_video_status)}")
-        if latest_video_status == "success":
-            lines.append("• YouTube + TikTok + Instagram: ✅ публикация завершена")
-    else:
-        lines.append("• Сегодня не запускался")
+        lines.append(f"• Последний video-workflow: {human_run_status(latest_video_status)}")
 
     lines += ["", "📚 Каталоги"]
     if cat_today:
@@ -210,6 +221,56 @@ def main() -> int:
 
     lines += ["", "📣 Telegram promotion"]
     lines.append(telegram_promo_summary(promo_today))
+
+    lines += ["", "📢 Продвижение — результат за день"]
+    catalog_status = str(catalog_summary.get("status") or "")
+    if catalog_status == "queue_exhausted":
+        lines.append("• Новых размещений в каталогах: 0 — автоматическая очередь каталогов исчерпана")
+    elif catalog_status in {"success", "already_successful_today"}:
+        lines.append("• Каталоги: ✅ сегодня есть отправленная заявка/размещение")
+    elif catalog_status:
+        lines.append(f"• Каталоги: {catalog_status}")
+    else:
+        lines.append("• Каталоги: данных за сегодня нет")
+
+    placement_states = placement_summary.get("states") or {}
+    pending_count = int(placement_states.get("pending_review") or 0) + int(placement_states.get("still_pending") or 0)
+    changed_count = int(placement_summary.get("changed") or 0)
+    lines.append(f"• Проверка старых размещений: изменений — {changed_count}, всё ещё ждут — {pending_count}")
+
+    editorial_status = str(editorial_summary.get("status") or "")
+    if editorial_status == "nothing_planned":
+        lines.append("• Отраслевые площадки: новых публикаций нет — подходящего автоматического действия сегодня не было")
+    elif editorial_status:
+        lines.append(f"• Отраслевые площадки: {editorial_status}")
+    else:
+        lines.append("• Отраслевые площадки: данных за сегодня нет")
+
+    outreach_status = str(telegram_outreach.get("status") or "")
+    if outreach_status == "no_bot_target":
+        lines.append("• Telegram-реклама: новых автоматических контактов нет — доступные рекламные боты исчерпаны")
+    elif outreach_status:
+        lines.append(f"• Telegram-реклама: {outreach_status}")
+    else:
+        lines.append("• Telegram-реклама: данных за сегодня нет")
+
+    pending_manual = [
+        row for row in (manual_queue.get("entries") or [])
+        if str(row.get("status") or "").lower() in {"ready", "pending", "todo"}
+    ]
+    if pending_manual:
+        lines.append(f"• Ручные задачи: {len(pending_manual)} — требуется ваше действие")
+    else:
+        lines.append("• Ручные задачи: 0")
+
+    if (
+        catalog_status == "queue_exhausted"
+        and editorial_status == "nothing_planned"
+        and outreach_status == "no_bot_target"
+        and not pending_manual
+    ):
+        lines.append("• Итог: новых рекламных размещений за день — 0")
+        lines.append("• Причина: текущий автоматический пул площадок исчерпан или временно недоступен; это не считается успешным продвижением.")
 
     lines += ["", "💰 Telegram Ads"]
     if ads.get("landing_url"):
@@ -236,18 +297,23 @@ def main() -> int:
         print("TELEGRAM_BOT_TOKEN missing; report not sent.")
         return 0
 
-    chat_id = resolve_control_chat_id(token)
-    telegram_call(
-        token,
-        "sendMessage",
-        {
-            "chat_id": chat_id,
-            "text": report[:4000],
-            "disable_web_page_preview": "true",
-        },
-    )
-    print("DAILY_CONTROL_REPORT_SENT")
-    return 0
+    try:
+        chat_id = resolve_control_chat_id(token)
+        telegram_call(
+            token,
+            "sendMessage",
+            {
+                "chat_id": chat_id,
+                "text": report[:4000],
+                "disable_web_page_preview": "true",
+            },
+        )
+        print("DAILY_CONTROL_REPORT_SENT")
+        return 0
+    except Exception as exc:
+        print(report)
+        print(f"DAILY_CONTROL_REPORT_TELEGRAM_FAILED: {exc}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
