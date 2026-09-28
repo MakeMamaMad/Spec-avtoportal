@@ -243,6 +243,7 @@ def generate_storyboard(item: dict[str, Any]) -> Storyboard:
             "commercial trucks, trailers, logistics and regulations. Create factual, compact vertical-video storyboards. "
             "Never invent numbers, quotes, companies or consequences that are absent from the supplied source. "
             "Aim for 24-34 seconds, 4-6 scenes, a strong factual hook in the first 2 seconds, then context and practical meaning. "
+            "Each scene narration must be one short spoken sentence, normally 8-16 Russian words, so the presenter can speak naturally without rushing. "
             "Write idiomatic professional Russian. Avoid literal calques from English such as using 'приложения' when 'сферы применения' is meant. "
             "Set format to exactly 'breaking' for a straight news item or 'explainer' only when the source supports an explanatory angle. "
             "Visual prompts must describe realistic premium editorial industrial photography and MUST request no text, logos or watermarks. "
