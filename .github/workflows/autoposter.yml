@@ -180,6 +180,7 @@ jobs:
 
       - name: Publish YouTube TikTok Instagram
         env:
+          SITE_URL: "https://spec-avtoportal.ru/"
           SOCIAL_PLATFORMS: "youtube,tiktok,instagram"
           SOCIAL_STRICT: "1"
 
