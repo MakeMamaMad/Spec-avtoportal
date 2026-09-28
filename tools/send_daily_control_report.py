@@ -271,8 +271,14 @@ def main() -> int:
         if row.get("status") == "email_sent"
         and is_today(str(row.get("sent_at") or row.get("created_at") or ""))
     ]
+    bounced_email_today = [
+        row for row in (editorial_history.get("entries") or [])
+        if row.get("status") in {"email_bounced", "email_invalid_domain"}
+        and is_today(str(row.get("bounced_at") or row.get("delivery_checked_at") or row.get("sent_at") or row.get("created_at") or ""))
+    ]
     lines.append(
-        f"• Редакционные email: отправлено сегодня — {len(sent_email_today)}, в очереди — {len(pending_email)}"
+        f"• Редакционные email: доставлены/ожидают ответа — {len(sent_email_today)}, "
+        f"возвратов/невалидных адресов — {len(bounced_email_today)}, в очереди — {len(pending_email)}"
     )
 
     if pending_manual:
