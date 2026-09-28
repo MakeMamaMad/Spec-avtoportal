@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_at": "2026-09-28T11:30:50+00:00",
+  "updated_at": "2026-09-28T11:32:43+00:00",
   "counter_id": "106240080",
   "metrika": {
     "status": "ok",
@@ -53,6 +53,7 @@
   "webmaster": {
     "status": "error",
     "host": "https://spec-avtoportal.ru",
-    "detail": "Вебмастер: HTTPError 403"
+    "detail": "Вебмастер: HTTPError 403",
+    "hint": "У токена нет доступа к Вебмастеру: добавьте в OAuth-приложении право «Яндекс.Вебмастер → Получение информации о сайтах» (webmaster:hostinfo), перевыпустите токен и обновите секрет YANDEX_METRIKA_OAUTH_TOKEN."
   }
 }
