@@ -1,0 +1,113 @@
+name: Diagnostics — SdelanoU nas Login
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/sdelanounas_login_diag.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Playwright
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Check credentials, login and article form
+        env:
+          SDELANOUNAS_LOGIN: ${{ secrets.SDELANOUNAS_LOGIN }}
+          SDELANOUNAS_PASSWORD: ${{ secrets.SDELANOUNAS_PASSWORD }}
+        run: |
+          python - <<'PY'
+          import json, os, re
+          from playwright.sync_api import sync_playwright
+
+          login = os.environ.get("SDELANOUNAS_LOGIN", "").strip()
+          password = os.environ.get("SDELANOUNAS_PASSWORD", "").strip()
+
+          if not login or not password:
+              print("SDELANOUNAS_CREDENTIALS_MISSING")
+              raise SystemExit(0)
+
+          def inventory(page):
+              rows = []
+              fields = page.locator("input, textarea, select, [contenteditable='true']")
+              for i in range(min(fields.count(), 120)):
+                  f = fields.nth(i)
+                  try:
+                      rows.append({
+                          "tag": f.evaluate("(el)=>el.tagName.toLowerCase()"),
+                          "type": f.get_attribute("type") or "",
+                          "name": f.get_attribute("name") or "",
+                          "id": f.get_attribute("id") or "",
+                          "placeholder": f.get_attribute("placeholder") or "",
+                          "required": f.get_attribute("required") is not None,
+                      })
+                  except Exception:
+                      pass
+              return rows
+
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True)
+              page = browser.new_page(locale="ru-RU")
+              page.goto("https://sdelanounas.ru/blogs/add/", wait_until="domcontentloaded", timeout=60000)
+
+              body = (page.locator("body").inner_text() or "").lower()
+              if "войти на сайт" not in body:
+                  print("SDELANOUNAS_LOGIN_OK already_authenticated")
+              else:
+                  print("SDELANOUNAS_LOGIN_FORM=" + json.dumps(inventory(page), ensure_ascii=False))
+                  user = page.locator('input[name*="login" i], input[name*="user" i], input[type="text"]').first
+                  pwd = page.locator('input[type="password"]').first
+                  user.fill(login)
+                  pwd.fill(password)
+
+                  submit = page.get_by_role("button", name=re.compile(r"войти", re.I))
+                  if not submit.count():
+                      submit = page.locator('button[type="submit"], input[type="submit"]')
+                  if not submit.count():
+                      print("SDELANOUNAS_LOGIN_SUBMIT_NOT_FOUND")
+                      browser.close()
+                      raise SystemExit(0)
+
+                  submit.first.click()
+                  try:
+                      page.wait_for_load_state("domcontentloaded", timeout=30000)
+                  except Exception:
+                      pass
+                  page.wait_for_timeout(1200)
+
+              page.goto("https://sdelanounas.ru/blogs/add/", wait_until="domcontentloaded", timeout=60000)
+              body = (page.locator("body").inner_text() or "").lower()
+              if "войти на сайт" in body:
+                  print("SDELANOUNAS_LOGIN_REJECTED")
+              else:
+                  print("SDELANOUNAS_LOGIN_OK")
+                  print("SDELANOUNAS_ADD_URL=" + page.url)
+                  print("SDELANOUNAS_FORM=" + json.dumps(inventory(page), ensure_ascii=False))
+                  heads = []
+                  for sel in ("h1","h2","h3","label","legend"):
+                      loc = page.locator(sel)
+                      for i in range(min(loc.count(),30)):
+                          try:
+                              t=(loc.nth(i).inner_text() or "").strip()
+                              if t: heads.append(t[:250])
+                          except Exception:
+                              pass
+                  print("SDELANOUNAS_HEADINGS=" + json.dumps(heads[:60], ensure_ascii=False))
+              browser.close()
+          PY
