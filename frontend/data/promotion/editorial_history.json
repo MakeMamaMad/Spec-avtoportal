@@ -10,9 +10,16 @@
       "site_url": "https://spec-avtoportal.ru/knowledge/gabarity-i-massy/?utm_source=com-stil-editorial&utm_medium=editorial&utm_campaign=industry_editorial&utm_content=gabarity-i-massy",
       "contact": "info@com-stil.com",
       "created_at": "2026-09-28T05:47:04+00:00",
-      "status": "email_sent",
+      "status": "email_bounced",
       "sent_at": "2026-09-28T07:18:39+00:00",
-      "gmail_message_id": "1a0e6e1469552da0"
+      "gmail_message_id": "1a0e6e1469552da0",
+      "bounced_recipients": [
+        "info@com-stil.com"
+      ],
+      "last_bounce_message_id": "1a0e6e1526b372ff",
+      "bounced_at": "2026-09-28T08:12:51+00:00",
+      "delivery_detail": "Gmail delivery failure detected automatically.",
+      "delivery_status": "bounced"
     },
     {
       "target_id": "gruz-info-editorial",
@@ -52,9 +59,17 @@
       "contact": "e_koroleva@abercade.ru; info@abercade.ru",
       "item_key": "knowledge:gabarity-i-massy",
       "created_at": "2026-09-28T07:29:14+00:00",
-      "status": "email_sent",
+      "status": "email_bounced",
       "sent_at": "2026-09-28T07:29:47+00:00",
-      "gmail_message_id": "1a0e6eb7c6e257df"
+      "gmail_message_id": "1a0e6eb7c6e257df",
+      "bounced_recipients": [
+        "e_koroleva@abercade.ru",
+        "info@abercade.ru"
+      ],
+      "last_bounce_message_id": "1a0e6ebbc3f58dd9",
+      "bounced_at": "2026-09-28T08:12:51+00:00",
+      "delivery_detail": "Gmail delivery failure detected automatically.",
+      "delivery_status": "bounced"
     }
   ]
 }

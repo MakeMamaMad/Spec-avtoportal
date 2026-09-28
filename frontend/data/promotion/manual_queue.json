@@ -23,15 +23,20 @@
       "target_name": "COM-STIL",
       "action": "send_editorial_email",
       "contact": "info@com-stil.com",
-      "status": "completed",
+      "status": "email_bounced",
       "reason": "Нужно отправить подготовленное редакционное предложение по email.",
       "email_subject": "Материал для COM-STIL: Габариты и массы автопоезда: основные пределы",
       "message": "Здравствуйте!\n\nМы развиваем СпецАвтоПортал — отраслевое медиа о грузовой и прицепной технике, эксплуатации, рынке и нормативных требованиях.\n\nПредлагаем редакции «COM-STIL» рассмотреть оригинальный практический материал: «Габариты и массы автопоезда: основные пределы».\nПеред загрузкой важно проверять четыре параметра: длину, ширину, высоту и массу. Для перевозчика они определяют, проходит ли автопоезд как обычный или уже требует специальных условий движения.\n\nМатериал: https://spec-avtoportal.ru/knowledge/gabarity-i-massy/?utm_source=com-stil-editorial&utm_medium=editorial&utm_campaign=industry_editorial&utm_content=gabarity-i-massy\n\nЕсли тема подходит вашей аудитории, готовы предоставить текст целиком и адаптировать его под требования редакции. Просим сохранить ссылку на СпецАвтоПортал как на источник материала.\n\nС уважением,\nредакция СпецАвтоПортала\nhttps://spec-avtoportal.ru/",
       "tracking_url": "https://spec-avtoportal.ru/knowledge/gabarity-i-massy/?utm_source=com-stil-editorial&utm_medium=editorial&utm_campaign=industry_editorial&utm_content=gabarity-i-massy",
       "created_at": "2026-09-28T05:47:04+00:00",
-      "updated_at": "2026-09-28T07:18:39+00:00",
+      "updated_at": "2026-09-28T08:12:51+00:00",
       "sent_at": "2026-09-28T07:18:39+00:00",
-      "gmail_message_id": "1a0e6e1469552da0"
+      "gmail_message_id": "1a0e6e1469552da0",
+      "delivery_status": "bounced",
+      "bounced_recipients": [
+        "info@com-stil.com"
+      ],
+      "bounced_at": "2026-09-28T08:12:51+00:00"
     },
     {
       "action_id": "editorial:gruz-info-editorial:gabarity-i-massy",
@@ -77,15 +82,21 @@
       "target_name": "Abercade",
       "action": "send_editorial_email",
       "contact": "e_koroleva@abercade.ru; info@abercade.ru",
-      "status": "completed",
+      "status": "email_bounced",
       "reason": "Нужно отправить подготовленное редакционное предложение по email.",
       "email_subject": "Материал для Abercade: Габариты и массы автопоезда: основные пределы",
       "message": "Здравствуйте!\n\nМы развиваем СпецАвтоПортал — отраслевое медиа о грузовой и прицепной технике, эксплуатации, рынке и нормативных требованиях.\n\nПредлагаем редакции «Abercade» рассмотреть оригинальный практический материал: «Габариты и массы автопоезда: основные пределы».\nПеред загрузкой важно проверять четыре параметра: длину, ширину, высоту и массу. Для перевозчика они определяют, проходит ли автопоезд как обычный или уже требует специальных условий движения.\n\nМатериал: https://spec-avtoportal.ru/knowledge/gabarity-i-massy/?utm_source=abercade&utm_medium=editorial&utm_campaign=industry_editorial&utm_content=gabarity-i-massy\n\nЕсли тема подходит вашей аудитории, готовы предоставить текст целиком и адаптировать его под требования редакции. Просим сохранить ссылку на СпецАвтоПортал как на источник материала.\n\nС уважением,\nредакция СпецАвтоПортала\nhttps://spec-avtoportal.ru/",
       "tracking_url": "https://spec-avtoportal.ru/knowledge/gabarity-i-massy/?utm_source=abercade&utm_medium=editorial&utm_campaign=industry_editorial&utm_content=gabarity-i-massy",
       "created_at": "2026-09-28T07:29:14+00:00",
-      "updated_at": "2026-09-28T07:29:47+00:00",
+      "updated_at": "2026-09-28T08:12:51+00:00",
       "sent_at": "2026-09-28T07:29:47+00:00",
-      "gmail_message_id": "1a0e6eb7c6e257df"
+      "gmail_message_id": "1a0e6eb7c6e257df",
+      "delivery_status": "bounced",
+      "bounced_recipients": [
+        "e_koroleva@abercade.ru",
+        "info@abercade.ru"
+      ],
+      "bounced_at": "2026-09-28T08:12:51+00:00"
     }
   ],
   "updated_at": "2026-09-28T07:29:47+00:00"

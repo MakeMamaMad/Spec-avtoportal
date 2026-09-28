@@ -92,28 +92,28 @@
       "platform": "publisher",
       "name": "COM-STIL",
       "url": "https://www.com-stil.com/services-prices/reklama-na-portale",
-      "contact": "info@com-stil.com",
+      "contact": "",
       "audience_hint": "грузоперевозки логистика грузовики прицепы полуприцепы эксплуатация транспорт",
-      "policy": "editorial_email",
-      "status": "priority_candidate",
+      "policy": "editorial_manual_contact",
+      "status": "paused",
       "login_required": false,
-      "automation": "email_submission",
+      "automation": "manual_verify_contact",
       "content_filter": "Оригинальные профильные статьи, практические материалы и новости для перевозчиков и транспортной отрасли.",
-      "notes": "Площадка публично заявляет бесплатное размещение профильных статей и новостных материалов после модерации. Использовать редакционную подачу, не баннерную рекламу."
+      "notes": "Площадка публично заявляет бесплатное размещение профильных статей и новостных материалов после модерации. Использовать редакционную подачу, не баннерную рекламу. Все известные email вернулись как недоставляемые: info@com-stil.com. Автоматические письма приостановлены."
     },
     {
       "id": "abercade",
       "platform": "publisher",
       "name": "Abercade",
       "url": "https://www.abercade.ru/press/",
-      "contact": "e_koroleva@abercade.ru; info@abercade.ru",
+      "contact": "",
       "audience_hint": "строительная и дорожная спецтехника, промышленные рынки",
-      "policy": "editorial_email",
-      "status": "candidate",
+      "policy": "editorial_manual_contact",
+      "status": "paused",
       "login_required": false,
-      "automation": "email_submission",
+      "automation": "manual_verify_contact",
       "content_filter": "Только актуальные отраслевые новости: инновации, новые продукты, заводы, крупные контракты, события. Не рекламный текст.",
-      "notes": "Бесплатное размещение отраслевых новостей; материалы проверяет редактор."
+      "notes": "Бесплатное размещение отраслевых новостей; материалы проверяет редактор. Все известные email вернулись как недоставляемые: e_koroleva@abercade.ru, info@abercade.ru. Автоматические письма приостановлены."
     },
     {
       "id": "km-press",

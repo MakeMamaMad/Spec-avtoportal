@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "updated_at": "2026-09-28T07:29:47+00:00",
-  "status": "email_sent",
-  "target_name": "Abercade",
+  "updated_at": "2026-09-28T08:12:51+00:00",
+  "status": "email_bounce_detected",
+  "target_name": "COM-STIL",
   "title": "Материал для Abercade: Габариты и массы автопоезда: основные пределы",
-  "detail": "Редакционное письмо автоматически отправлено через Gmail."
+  "detail": "Автоматически обнаружено возвратов Gmail: 2."
 }
