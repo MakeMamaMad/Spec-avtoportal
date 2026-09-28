@@ -2,6 +2,10 @@ name: Diagnostics — Buffer Post Status
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/buffer_post_diag.yml'
 
 permissions:
   contents: read
@@ -10,12 +14,25 @@ jobs:
   diagnose:
     runs-on: ubuntu-latest
     steps:
-      - name: Query Buffer post error
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Query recent TikTok Buffer posts
         env:
           BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
         run: |
           python - <<'PY'
           import json, os, urllib.request
+          from pathlib import Path
+
+          state = json.loads(Path("tools/autoposter/state/social_v2.json").read_text(encoding="utf-8"))
+          ids = []
+          for entry in (state.get("content") or {}).values():
+              row = ((entry or {}).get("platforms") or {}).get("tiktok") or {}
+              post_id = str(row.get("post_id") or "")
+              if post_id:
+                  ids.append(post_id)
+          ids = ids[-6:]
 
           query = r"""
           query GetPost($id: PostId!) {
@@ -30,25 +47,21 @@ jobs:
                 rawError
                 supportUrl
               }
-              assets {
-                source
-                mimeType
-              }
             }
           }
           """
-          body = json.dumps({
-              "query": query,
-              "variables": {"id": "6ab4ec02317f3cf64de70d00"},
-          }).encode()
-          req = urllib.request.Request(
-              "https://api.buffer.com",
-              data=body,
-              headers={
-                  "Authorization": "Bearer " + os.environ["BUFFER_API_KEY"],
-                  "Content-Type": "application/json",
-              },
-          )
-          with urllib.request.urlopen(req, timeout=30) as r:
-              print(r.read().decode())
+
+          for post_id in ids:
+              body = json.dumps({"query": query, "variables": {"id": post_id}}).encode()
+              req = urllib.request.Request(
+                  "https://api.buffer.com",
+                  data=body,
+                  headers={
+                      "Authorization": "Bearer " + os.environ["BUFFER_API_KEY"],
+                      "Content-Type": "application/json",
+                  },
+              )
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  payload = json.loads(r.read().decode())
+              print("BUFFER_POST_DIAG " + json.dumps(payload, ensure_ascii=False))
           PY
