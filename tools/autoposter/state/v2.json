@@ -8,7 +8,8 @@
     "065018397658",
     "a8a951d24563",
     "21b04a437347",
-    "599978ff07d5"
+    "599978ff07d5",
+    "0d099836f07d"
   ],
   "renders": [
     {
@@ -65,6 +66,13 @@
       "slug": "novyy-polupritsep-samosval-599978ff",
       "title": "SATPRICEP представил новый полуприцеп-самосвал",
       "created_at": "2026-09-27T16:59:07.466355+00:00",
+      "format": "social-v2"
+    },
+    {
+      "content_key": "0d099836f07d",
+      "slug": "krone-i-aerodyne-kommertsializiruyut-sistemu-aerodinamicheskih-pritsepov-0d099836",
+      "title": "KRONE и Aerodyne коммерциализируют аэродинамику прицепов",
+      "created_at": "2026-09-28T09:03:26.109198+00:00",
       "format": "social-v2"
     }
   ]

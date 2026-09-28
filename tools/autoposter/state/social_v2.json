@@ -224,6 +224,36 @@
         }
       },
       "updated_at": "2026-09-27T16:59:07.465598+00:00"
+    },
+    "0d099836f07d": {
+      "title": "KRONE и Aerodyne коммерциализируют аэродинамику прицепов",
+      "created_at": "2026-09-28T08:59:56.097197+00:00",
+      "platforms": {
+        "youtube": {
+          "platform": "youtube",
+          "status": "published",
+          "video_id": "7pfKhAz3xwE",
+          "url": "https://www.youtube.com/shorts/7pfKhAz3xwE",
+          "updated_at": "2026-09-28T08:59:56.097219+00:00"
+        },
+        "tiktok": {
+          "platform": "tiktok",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6aba2c8dc60ce5c8dcc60db1",
+          "buffer_status": "sent",
+          "updated_at": "2026-09-28T09:01:21.071213+00:00"
+        },
+        "instagram": {
+          "platform": "instagram",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6aba2ce229541a28ca8da516",
+          "buffer_status": "sent",
+          "updated_at": "2026-09-28T09:03:26.108432+00:00"
+        }
+      },
+      "updated_at": "2026-09-28T09:03:26.108429+00:00"
     }
   }
 }
