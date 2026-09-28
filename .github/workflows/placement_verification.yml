@@ -43,11 +43,15 @@ jobs:
         run: |
           python promotion/jobs/verify_placements.py
 
+      - name: Verify TruckMix editorial publication
+        run: |
+          python promotion/verify_truckmix_public.py
+
       - name: Commit placement state
         run: |
           git config user.name "specavto-promotion"
           git config user.email "actions@users.noreply.github.com"
-          git add frontend/data/promotion/placements.json frontend/data/promotion/placement_verification_summary.json || true
+          git add frontend/data/promotion/placements.json frontend/data/promotion/placement_verification_summary.json frontend/data/promotion/editorial_history.json || true
           if git diff --cached --quiet; then
             echo "No placement state changes"
             exit 0
