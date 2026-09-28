@@ -78,7 +78,7 @@ jobs:
               links=link_rows(page)
               print("ZEMA_LINKS="+json.dumps(links[:100],ensure_ascii=False))
 
-              add_url=""
+              add_url="https://zema.su/addcontent"
               reg_url=""
               for row in links:
                   low=row["text"].lower()
@@ -96,19 +96,35 @@ jobs:
                       if not reg_url and "регист" in row["text"].lower():
                           reg_url=row["url"]
 
-              if reg_url:
-                  page.goto(reg_url, wait_until="domcontentloaded", timeout=60000)
-                  print("ZEMA_REGISTER_URL="+page.url)
-                  print("ZEMA_REGISTER_FIELDS="+json.dumps(inv(page),ensure_ascii=False))
-                  body=page.locator("body").inner_text() or ""
-                  print("ZEMA_REGISTER_TEXT="+json.dumps(body[:3000],ensure_ascii=False))
-                  captcha=(
-                      page.locator('iframe[src*="captcha" i], .g-recaptcha, [class*="captcha" i], [id*="captcha" i]').count()
-                      or "капча" in body.lower()
-                      or "я не робот" in body.lower()
-                      or "код с картинки" in body.lower()
-                  )
-                  print("ZEMA_REGISTER_CAPTCHA="+("yes" if captcha else "no"))
+              candidates=[reg_url] if reg_url else []
+              candidates += [
+                  "https://zema.su/user/register",
+                  "https://zema.su/user/register/",
+                  "https://zema.su/register",
+              ]
+              seen=set()
+              for candidate in candidates:
+                  if not candidate or candidate in seen:
+                      continue
+                  seen.add(candidate)
+                  try:
+                      page.goto(candidate, wait_until="domcontentloaded", timeout=30000)
+                      body=page.locator("body").inner_text() or ""
+                      fields=inv(page)
+                      if fields or "регист" in body.lower() or "создать" in body.lower():
+                          print("ZEMA_REGISTER_URL="+page.url)
+                          print("ZEMA_REGISTER_FIELDS="+json.dumps(fields,ensure_ascii=False))
+                          print("ZEMA_REGISTER_TEXT="+json.dumps(body[:3000],ensure_ascii=False))
+                          captcha=(
+                              page.locator('iframe[src*="captcha" i], .g-recaptcha, [class*="captcha" i], [id*="captcha" i]').count()
+                              or "капча" in body.lower()
+                              or "я не робот" in body.lower()
+                              or "код с картинки" in body.lower()
+                          )
+                          print("ZEMA_REGISTER_CAPTCHA="+("yes" if captcha else "no"))
+                          break
+                  except Exception as exc:
+                      print("ZEMA_REGISTER_TRY_ERROR="+candidate+" "+type(exc).__name__)
 
               if login and password:
                   for login_url in ("https://zema.su/user/login","https://zema.su/user"):
