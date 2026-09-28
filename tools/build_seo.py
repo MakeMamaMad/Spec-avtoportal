@@ -340,8 +340,70 @@ def news_quality_issues(item: dict[str, Any]) -> list[str]:
     return issues
 
 
-def is_indexable_news(item: dict[str, Any]) -> bool:
+# Sources whose feed is written in another language. Their items reach the
+# site as our own Russian translation, so the page text is not a copy of a
+# Russian-language original. Keep in sync with aggregator/translate_news.py.
+FOREIGN_SOURCE_DOMAINS = frozenset(
+    {
+        "globaltrailermag.com",
+        "krone-trailer.com",
+        "pressebox.de",
+        "stockwatch.pl",
+        "trucknews.com",
+        "ttnews.com",
+        "trailertechnician.com",
+    }
+)
+OWN_DOMAINS = frozenset({"spec-avtoportal.ru"})
+EDITORIAL_TEXT_FIELDS = ("editorial_text", "editorial_note", "our_comment")
+MIN_EDITORIAL_TEXT = 300
+
+
+def normalized_domain(item: dict[str, Any]) -> str:
+    domain = str(item.get("domain") or "").strip().lower()
+    if not domain:
+        try:
+            domain = urlparse(source_url(item)).netloc.lower()
+        except Exception:
+            domain = ""
+    return domain[4:] if domain.startswith("www.") else domain
+
+
+def has_editorial_text(item: dict[str, Any]) -> bool:
+    for key in EDITORIAL_TEXT_FIELDS:
+        if len(strip_html(str(item.get(key) or ""))) >= MIN_EDITORIAL_TEXT:
+            return True
+    return False
+
+
+def news_index_issues(item: dict[str, Any]) -> list[str]:
+    """Reasons to keep a public news page out of search engines.
+
+    A page that only repeats the lead of a Russian-language source adds nothing
+    the original does not already have; Yandex treats a site full of such pages
+    as low-value and that hurts the site's own articles too. Such pages stay
+    visible on the site and in RSS but are marked noindex and left out of the
+    sitemap until someone adds our own text (see EDITORIAL_TEXT_FIELDS).
+    """
+    issues = news_quality_issues(item)
+    if issues:
+        return issues
+    domain = normalized_domain(item)
+    if domain in OWN_DOMAINS or item.get("partner") or has_editorial_text(item):
+        return []
+    if domain not in FOREIGN_SOURCE_DOMAINS:
+        return ["russian_source_copy"]
+    return []
+
+
+def is_public_news(item: dict[str, Any]) -> bool:
+    """Shown on the site, in hubs and in RSS."""
     return not news_quality_issues(item)
+
+
+def is_indexable_news(item: dict[str, Any]) -> bool:
+    """Offered to search engines (robots index + sitemaps)."""
+    return not news_index_issues(item)
 
 
 def source_url(item: dict[str, Any]) -> str:
@@ -653,7 +715,7 @@ def related_profile(item: dict[str, Any]) -> tuple[frozenset[str], frozenset[str
         frozenset(topic["slug"] for topic in topics_for(item)),
         frozenset(tag.lower() for tag in tags(item)),
         published.timestamp() if published else 0.0,
-        is_indexable_news(item),
+        is_public_news(item),
     )
     if slug:
         _RELATED_PROFILE_CACHE[slug] = profile
@@ -1988,7 +2050,7 @@ def news_sort_key(item: dict[str, Any]) -> float:
 
 
 def write_news_index(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    public_items = [item for item in items if is_indexable_news(item)]
+    public_items = [item for item in items if is_public_news(item)]
     public_items.sort(key=news_sort_key, reverse=True)
     payload = [compact_news_item(item) for item in public_items]
     NEWS_INDEX_JSON.write_text(
@@ -2215,9 +2277,11 @@ def write_sitemap(
         rows.append(f"  <url><loc>{xml_escape(url)}</loc>{lm}</url>")
 
     indexable_items = [item for item in items if is_indexable_news(item)]
+    # Hub pages list every public story, so their pagination follows the public set.
+    hub_items = [item for item in items if is_public_news(item)]
 
     for topic in TOPIC_RULES:
-        topic_items = [item for item in indexable_items if topic in topics_for(item)]
+        topic_items = [item for item in hub_items if topic in topics_for(item)]
         topic_lastmod = iso_date(get_field(topic_items[0], "updated_at", "published_at", "date", "pub_date")) if topic_items else ""
         topic_lm = f"<lastmod>{topic_lastmod}</lastmod>" if topic_lastmod else ""
         rows.append(f"  <url><loc>{xml_escape(topic_url(topic))}</loc>{topic_lm}</url>")
@@ -2230,7 +2294,7 @@ def write_sitemap(
 
     rows.append(f"  <url><loc>{xml_escape(f'{BASE_URL}/brands/')}</loc></url>")
     for brand in BRAND_RULES:
-        brand_items = [item for item in indexable_items if brand in brands_for(item)]
+        brand_items = [item for item in hub_items if brand in brands_for(item)]
         brand_lastmod = iso_date(get_field(brand_items[0], "updated_at", "published_at", "date", "pub_date")) if brand_items else ""
         brand_lm = f"<lastmod>{brand_lastmod}</lastmod>" if brand_lastmod else ""
         rows.append(f"  <url><loc>{xml_escape(brand_url(brand))}</loc>{brand_lm}</url>")
@@ -2428,7 +2492,9 @@ def main() -> None:
     metrika_pages = inject_metrika_into_pages()
     print(f"[SEO] Yandex Metrika 106240080 injected into {metrika_pages} HTML pages")
     print(f"[SEO] generated {len(items)} static article pages")
-    print(f"[SEO] public/indexable news: {len(public_items)}; quality-gated: {quality_blocked}")
+    indexable_count = sum(1 for item in items if is_indexable_news(item))
+    print(f"[SEO] public news: {len(public_items)}; quality-gated: {quality_blocked}")
+    print(f"[SEO] indexable news: {indexable_count}; noindex (no own text): {len(public_items) - indexable_count}")
     print(f"[SEO] lightweight news index: {NEWS_INDEX_JSON}")
     print(f"[SEO] generated {social_cards} fresh social cards")
     print(f"[SEO] generated {len(knowledge_articles.get('items', []))} knowledge articles")
