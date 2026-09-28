@@ -16,6 +16,7 @@ MSK = timezone(timedelta(hours=3))
 TRACKED_CAMPAIGNS = {
     "catalog_promotion",
     "industry_editorial",
+    "industry_promotion",
     "community_promotion",
     "telegram_ads",
 }
