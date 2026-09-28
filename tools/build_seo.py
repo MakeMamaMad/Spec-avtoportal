@@ -621,6 +621,7 @@ def regulation_knowledge_matches(regulation: dict[str, Any], knowledge_articles:
         "gost-r-70474-2023": ["kreplenie-gruzov"],
         "gost-r-70477-2022": ["kreplenie-gruzov"],
         "mintrans-212-2026": ["tehnicheskoe-obsluzhivanie-polupricepa", "nagruzka-na-os"],
+        "elektronnye-perevozochnye-dokumenty-2026": ["nagruzka-na-os", "kreplenie-gruzov"],
     }
     wanted = mapping.get(str(regulation.get("slug") or ""), [])
     by_slug = {str(item.get("slug") or ""): item for item in knowledge_articles.get("items", [])}

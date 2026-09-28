@@ -55,6 +55,20 @@ class RegulationGuideTests(unittest.TestCase):
         self.assertEqual(len(faq[0]["mainEntity"]), 1)
         self.assertEqual(faq[0]["mainEntity"][0]["acceptedAnswer"]["text"], "Да.")
 
+    def test_every_guide_is_well_formed(self) -> None:
+        data = json.loads((ROOT / "frontend/data/regulations.json").read_text("utf-8"))
+        guides = [x for x in data["items"] if x.get("guide")]
+        self.assertGreaterEqual(len(guides), 2)
+        for item in guides:
+            guide = item["guide"]
+            self.assertTrue(item["official_url"].startswith("https://"), item["slug"])
+            self.assertLessEqual(len(guide["description"]), 200, item["slug"])
+            self.assertTrue(guide["sections"], item["slug"])
+            for row in guide.get("faq", []):
+                self.assertTrue(row["q"] and row["a"], item["slug"])
+            for source in guide.get("sources", []):
+                self.assertTrue(source["url"].startswith("https://"), item["slug"])
+
     def test_order_212_has_guide(self) -> None:
         data = json.loads((ROOT / "frontend/data/regulations.json").read_text("utf-8"))
         item = next(x for x in data["items"] if x["slug"] == "mintrans-212-2026")
