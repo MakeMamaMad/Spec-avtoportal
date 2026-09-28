@@ -154,10 +154,11 @@ def mark_sent(
             }
         )
 
-    if str(summary.get("target_name") or "") == str(row.get("target_name") or ""):
-        summary["status"] = "email_sent"
-        summary["updated_at"] = sent_at
-        summary["detail"] = "Редакционное письмо автоматически отправлено через Gmail."
+    summary["status"] = "email_sent"
+    summary["updated_at"] = sent_at
+    summary["target_name"] = row.get("target_name")
+    summary["title"] = row.get("email_subject")
+    summary["detail"] = "Редакционное письмо автоматически отправлено через Gmail."
 
     queue["updated_at"] = sent_at
 
