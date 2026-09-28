@@ -936,7 +936,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_art
   <meta name="twitter:description" content="{description}" />
   <meta name="twitter:image" content="{image}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=22" />
+  <link rel="stylesheet" href="/styles.css?v=23" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{json_ld(item)}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -1157,7 +1157,7 @@ def render_brand_page(
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=22" />
+  <link rel="stylesheet" href="/styles.css?v=23" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -1293,7 +1293,7 @@ def render_brand_directory(brand_counts: dict[str, int]) -> str:
   <meta property="og:title" content="Производители и бренды — СпецАвтоПортал" />
   <meta property="og:description" content="Архив новостей о производителях грузовой и прицепной техники." />
   <meta property="og:url" content="{BASE_URL}/brands/" />
-  <link rel="stylesheet" href="/styles.css?v=22" />
+  <link rel="stylesheet" href="/styles.css?v=23" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -1419,7 +1419,7 @@ def render_topic_page(
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=22" />
+  <link rel="stylesheet" href="/styles.css?v=23" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -1647,7 +1647,7 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
   <meta property="og:title" content="{title}" />
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
-  <link rel="stylesheet" href="/styles.css?v=22" />
+  <link rel="stylesheet" href="/styles.css?v=23" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -1688,6 +1688,7 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
       <article class="knowledge-article">
         {''.join(section_html)}
         {sat_html}
+        {telegram_cta_html("Практика для владельцев прицепной техники", "Чек-листы, разборы нормативов и главное о рынке прицепов и грузовиков — в нашем Telegram-канале.")}
         {recent_news_html}
       </article>
       <aside class="knowledge-article-sidebar">
@@ -1734,6 +1735,23 @@ def load_regulations() -> dict[str, Any]:
 
 def regulation_url(item: dict[str, Any]) -> str:
     return f"{BASE_URL}/regulations/{item['slug']}/"
+
+
+TELEGRAM_CHANNEL_URL = "https://t.me/specavtoportal"
+
+
+def telegram_cta_html(title: str, text: str) -> str:
+    """In-content invitation to the Telegram channel (visible on mobile before the sidebar)."""
+    return (
+        '<section class="tg-cta">'
+        '<div class="tg-cta__copy">'
+        '<p class="tg-cta__eyebrow">Telegram · СпецАвтоПортал</p>'
+        f'<h2>{html.escape(title)}</h2>'
+        f'<p>{html.escape(text)}</p>'
+        '</div>'
+        f'<a class="tg-cta__button" href="{TELEGRAM_CHANNEL_URL}" target="_blank" rel="noopener">Подписаться ↗</a>'
+        '</section>'
+    )
 
 
 def render_regulation_guide(guide: dict[str, Any]) -> tuple[str, list[tuple[str, str]]]:
@@ -1890,7 +1908,7 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
   <meta property="og:title" content="{page_title}" />
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
-  <link rel="stylesheet" href="/styles.css?v=22" />
+  <link rel="stylesheet" href="/styles.css?v=23" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>{faq_schema_tag}
 </head>
@@ -1944,6 +1962,7 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
         </section>
 
         {guide_html}
+        {telegram_cta_html("Разборы новых правил для перевозчиков", "Что изменилось в нормативах для грузоперевозок и прицепной техники — коротко, простым языком и со ссылкой на первоисточник.")}
         <section class="regulation-section">
           <p class="section-kicker">Ключевые темы</p>
           <div class="news-card-tags">{keyword_html}</div>
@@ -2051,7 +2070,7 @@ def render_regulations_index(regulations: dict[str, Any]) -> str:
   <meta property="og:title" content="Нормативы и ГОСТы — СпецАвтоПортал" />
   <meta property="og:description" content="Действующие нормативы для прицепов, полуприцепов, крепления грузов и безопасной эксплуатации." />
   <meta property="og:url" content="{BASE_URL}/law.html" />
-  <link rel="stylesheet" href="/styles.css?v=22" />
+  <link rel="stylesheet" href="/styles.css?v=23" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
