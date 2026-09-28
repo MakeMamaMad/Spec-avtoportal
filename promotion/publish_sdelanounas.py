@@ -121,6 +121,45 @@ def fill_message(page: Page, body: str) -> None:
     raise RuntimeError("SdelanoU nas article editor was not found")
 
 
+def validation_messages(page: Page) -> list[str]:
+    messages: list[str] = []
+    selectors = (
+        ".error", ".errors", ".alert", ".alert-danger", ".invalid-feedback",
+        ".help-block", "[role='alert']", ".fx-error", ".form-error",
+    )
+    for selector in selectors:
+        loc = page.locator(selector)
+        for i in range(min(loc.count(), 40)):
+            try:
+                text = (loc.nth(i).inner_text() or "").strip()
+                if text and text not in messages:
+                    messages.append(text[:500])
+            except Exception:
+                pass
+    return messages[:50]
+
+
+def structural_inventory(page: Page) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    fields = page.locator("input, textarea, select, [contenteditable='true']")
+    for i in range(min(fields.count(), 120)):
+        field = fields.nth(i)
+        try:
+            rows.append(
+                {
+                    "tag": field.evaluate("(el)=>el.tagName.toLowerCase()"),
+                    "type": field.get_attribute("type") or "",
+                    "name": field.get_attribute("name") or "",
+                    "id": field.get_attribute("id") or "",
+                    "required": field.get_attribute("required") is not None,
+                    "visible": field.is_visible(),
+                }
+            )
+        except Exception:
+            continue
+    return rows
+
+
 def submit(page: Page) -> None:
     buttons = page.get_by_role(
         "button",
@@ -242,6 +281,19 @@ def main() -> int:
             if "/blogs/add" in page.url and any(
                 marker in lowered for marker in ("ошибка", "обязатель", "заполните", "необходимо")
             ):
+                print("SDELANOUNAS_VALIDATION=" + json.dumps(validation_messages(page), ensure_ascii=False))
+                print("SDELANOUNAS_FORM_AFTER_SUBMIT=" + json.dumps(structural_inventory(page), ensure_ascii=False))
+                headings = []
+                for selector in ("h1", "h2", "h3", "label", "legend"):
+                    loc = page.locator(selector)
+                    for i in range(min(loc.count(), 40)):
+                        try:
+                            text = (loc.nth(i).inner_text() or "").strip()
+                            if text:
+                                headings.append(text[:300])
+                        except Exception:
+                            pass
+                print("SDELANOUNAS_HEADINGS_AFTER_SUBMIT=" + json.dumps(headings[:80], ensure_ascii=False))
                 raise RuntimeError("SdelanoU nas validation failed after submit")
 
             status = "published" if "/blogs/" in page.url and not page.url.rstrip("/").endswith("/blogs/add") else "submitted"
