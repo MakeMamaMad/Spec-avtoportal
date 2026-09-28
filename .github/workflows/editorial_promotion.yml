@@ -2,6 +2,13 @@ name: Promotion — Editorial Placement
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'promotion/targets.json'
+      - 'promotion/build_editorial_promo.py'
+      - 'promotion/run_editorial_campaign.py'
+      - '.github/workflows/editorial_promotion.yml'
   schedule:
     # 12:30 Moscow time (UTC+3), before the daily manual-action digest.
     - cron: '30 9 * * *'
