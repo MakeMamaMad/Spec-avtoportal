@@ -344,6 +344,11 @@ def main() -> int:
     report = "\n".join(lines)
     Path("/tmp/specavto-daily-report.txt").write_text(report + "\n", encoding="utf-8")
 
+    if os.environ.get("CONTROL_TELEGRAM_ENABLED", "1").strip() == "0":
+        print(report)
+        print("CONTROL_TELEGRAM_DISABLED")
+        return 0
+
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
     if not token:
         print(report)
