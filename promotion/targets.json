@@ -1,6 +1,6 @@
 {
   "schema": 2,
-  "updated_at": "2026-09-23",
+  "updated_at": "2026-09-28",
   "targets": [
     {
       "id": "sdelanounas",
@@ -58,6 +58,48 @@
       "automation": "browser_after_login",
       "content_filter": "Новости и практические статьи по спецтехнике.",
       "notes": "На портале доступны «Добавить новость» и «Добавить статью»; сам портал заявляет бесплатное размещение."
+    },
+    {
+      "id": "igrader-editorial",
+      "platform": "publisher",
+      "name": "iGrader / журнал «Грейдер»",
+      "url": "https://igrader.ru/",
+      "contact": "igrader@pgmedia.ru",
+      "audience_hint": "спецтехника грузовики коммерческий транспорт эксплуатация полуприцепы обслуживание техника",
+      "policy": "editorial_email",
+      "status": "priority_candidate",
+      "login_required": false,
+      "automation": "email_submission",
+      "content_filter": "Практические экспертные материалы о спецтехнике, грузовиках и коммерческом транспорте; редакционная подача.",
+      "notes": "Действующая профильная редакция; общий редакционный адрес опубликован на сайте. Предлагать полезный материал, а не прямой рекламный пост."
+    },
+    {
+      "id": "gruz-info-editorial",
+      "platform": "publisher",
+      "name": "GRUZ-info",
+      "url": "https://www.gruz-info.ru/advertisement",
+      "contact": "admin@gruz-info.su",
+      "audience_hint": "грузоперевозки перевозчики логистика грузовой транспорт полуприцепы безопасность эксплуатация",
+      "policy": "editorial_email",
+      "status": "priority_candidate",
+      "login_required": false,
+      "automation": "email_submission",
+      "content_filter": "Практические статьи для перевозчиков и материал о профильном отраслевом ресурсе; без агрессивной рекламы.",
+      "notes": "Площадка публично предлагает бесплатный обмен ссылками и возможность разместить статью о своём сайте; условия согласуются с администратором."
+    },
+    {
+      "id": "com-stil-editorial",
+      "platform": "publisher",
+      "name": "COM-STIL",
+      "url": "https://www.com-stil.com/services-prices/reklama-na-portale",
+      "contact": "info@com-stil.com",
+      "audience_hint": "грузоперевозки логистика грузовики прицепы полуприцепы эксплуатация транспорт",
+      "policy": "editorial_email",
+      "status": "priority_candidate",
+      "login_required": false,
+      "automation": "email_submission",
+      "content_filter": "Оригинальные профильные статьи, практические материалы и новости для перевозчиков и транспортной отрасли.",
+      "notes": "Площадка публично заявляет бесплатное размещение профильных статей и новостных материалов после модерации. Использовать редакционную подачу, не баннерную рекламу."
     },
     {
       "id": "abercade",
