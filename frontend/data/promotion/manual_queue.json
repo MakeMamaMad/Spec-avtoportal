@@ -40,16 +40,19 @@
       "target_name": "GRUZ-info",
       "action": "send_editorial_email",
       "contact": "admin@gruz-info.su",
-      "status": "completed",
+      "status": "email_bounced",
       "reason": "Нужно отправить подготовленное редакционное предложение по email.",
       "email_subject": "Материал для GRUZ-info: Габариты и массы автопоезда: основные пределы",
       "message": "Здравствуйте!\n\nМы развиваем СпецАвтоПортал — отраслевое медиа о грузовой и прицепной технике, эксплуатации, рынке и нормативных требованиях.\n\nПредлагаем редакции «GRUZ-info» рассмотреть оригинальный практический материал: «Габариты и массы автопоезда: основные пределы».\nПеред загрузкой важно проверять четыре параметра: длину, ширину, высоту и массу. Для перевозчика они определяют, проходит ли автопоезд как обычный или уже требует специальных условий движения.\n\nМатериал: https://spec-avtoportal.ru/knowledge/gabarity-i-massy/?utm_source=gruz-info-editorial&utm_medium=editorial&utm_campaign=industry_editorial&utm_content=gabarity-i-massy\n\nЕсли тема подходит вашей аудитории, готовы предоставить текст целиком и адаптировать его под требования редакции. Просим сохранить ссылку на СпецАвтоПортал как на источник материала.\n\nС уважением,\nредакция СпецАвтоПортала\nhttps://spec-avtoportal.ru/",
       "tracking_url": "https://spec-avtoportal.ru/knowledge/gabarity-i-massy/?utm_source=gruz-info-editorial&utm_medium=editorial&utm_campaign=industry_editorial&utm_content=gabarity-i-massy",
       "created_at": "2026-09-28T06:57:23+00:00",
-      "updated_at": "2026-09-28T07:20:20+00:00",
+      "updated_at": "2026-09-28T07:21:00+00:00",
       "sent_at": "2026-09-28T07:20:20+00:00",
-      "gmail_message_id": "1a0e6e2d6d77ab11"
+      "gmail_message_id": "1a0e6e2d6d77ab11",
+      "delivery_status": "bounced",
+      "delivery_detail": "NXDOMAIN: домен gruz-info.su не найден; письмо не доставлено.",
+      "bounced_at": "2026-09-28T07:21:00+00:00"
     }
   ],
-  "updated_at": "2026-09-28T07:20:20+00:00"
+  "updated_at": "2026-09-28T07:21:00+00:00"
 }
