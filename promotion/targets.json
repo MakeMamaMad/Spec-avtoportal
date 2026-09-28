@@ -78,14 +78,14 @@
       "platform": "publisher",
       "name": "GRUZ-info",
       "url": "https://www.gruz-info.ru/advertisement",
-      "contact": "admin@gruz-info.su",
+      "contact": "",
       "audience_hint": "грузоперевозки перевозчики логистика грузовой транспорт полуприцепы безопасность эксплуатация",
-      "policy": "editorial_email",
-      "status": "priority_candidate",
+      "policy": "editorial_manual_contact",
+      "status": "paused",
       "login_required": false,
-      "automation": "email_submission",
+      "automation": "manual_verify_form",
       "content_filter": "Практические статьи для перевозчиков и материал о профильном отраслевом ресурсе; без агрессивной рекламы.",
-      "notes": "Площадка публично предлагает бесплатный обмен ссылками и возможность разместить статью о своём сайте; условия согласуются с администратором."
+      "notes": "Официальный сайт всё ещё публикует admin@gruz-info.su и предлагает бесплатный обмен ссылками/размещение статьи, но 28.09.2026 письмо вернулось с NXDOMAIN: домен gruz-info.su не существует в DNS. Автоматические email отключены. Возвращать площадку в email-очередь только после подтверждения нового действующего контакта; до этого использовать ручную проверку формы/службы поддержки сайта."
     },
     {
       "id": "com-stil-editorial",
