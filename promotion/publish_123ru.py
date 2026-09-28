@@ -158,7 +158,29 @@ def main() -> int:
                 raise RuntimeError("123ru required article fields were not found")
 
             title_field.fill(title)
-            body_field.fill(body)
+
+            if body_field.is_visible():
+                body_field.fill(body)
+            else:
+                body_field.evaluate(
+                    """(el, value) => {
+                        el.value = value;
+                        el.textContent = value;
+                        el.dispatchEvent(new Event('input', {bubbles:true}));
+                        el.dispatchEvent(new Event('change', {bubbles:true}));
+                    }""",
+                    body,
+                )
+                # Keep a visual rich editor in sync when the page wraps the textarea.
+                for frame in page.frames:
+                    try:
+                        editor = frame.locator('body[contenteditable="true"], [contenteditable="true"]')
+                        if editor.count() and editor.first.is_visible():
+                            editor.first.fill(body)
+                            break
+                    except Exception:
+                        pass
+
             link_field.fill(source_url)
             email_field.fill(email)
 
