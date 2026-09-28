@@ -125,12 +125,28 @@ class WebmasterTests(unittest.TestCase):
         self.assertEqual(block["search"]["status"], "error")
 
     def test_forbidden_gives_scope_hint(self) -> None:
-        err = HTTPError("u", 403, "Forbidden", {}, None)
+        import io
+
+        body = io.BytesIO(b'{"error_code":"INSUFFICIENT_SCOPE","error_message":"no hostinfo"}')
+        err = HTTPError("u", 403, "Forbidden", {}, body)
         block = fsa.fetch_webmaster("t", fsa.DEFAULT_HOST, date(2026, 9, 28), fake_api({"/user": err}))
         self.assertEqual(block["status"], "error")
+        self.assertEqual(block["step"], "user")
+        self.assertIn("INSUFFICIENT_SCOPE: no hostinfo", block["detail"])
         self.assertIn("webmaster:hostinfo", block["hint"])
         text = "\n".join(site_analytics_lines({"webmaster": block}))
-        self.assertIn("перевыпустите токен", text)
+        self.assertIn("внешних ссылках", text)
+
+    def test_token_secret_is_recorded(self) -> None:
+        def fetch(url: str, token: str):
+            raise RuntimeError("stop")
+
+        both = fsa.build_summary(
+            {"YANDEX_METRIKA_OAUTH_TOKEN": "m", "YANDEX_WEBMASTER_OAUTH_TOKEN": "w"}, date(2026, 9, 28), fetch
+        )
+        self.assertEqual(both["webmaster"]["token_secret"], "YANDEX_WEBMASTER_OAUTH_TOKEN")
+        only_metrika = fsa.build_summary({"YANDEX_METRIKA_OAUTH_TOKEN": "m"}, date(2026, 9, 28), fetch)
+        self.assertEqual(only_metrika["webmaster"]["token_secret"], "YANDEX_METRIKA_OAUTH_TOKEN")
 
     def test_webmaster_falls_back_to_metrika_token(self) -> None:
         seen: list[str] = []
