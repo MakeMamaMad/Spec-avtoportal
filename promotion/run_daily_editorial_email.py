@@ -20,6 +20,8 @@ from promotion.build_editorial_promo import (
     MANUAL_QUEUE_PATH,
     email_pitch,
     is_email_target,
+    load_articles,
+    load_pitch_config,
     manual_action,
     pick_action,
 )
@@ -97,7 +99,8 @@ def prepare_next_email(
     targets_data = load_json(TARGETS_PATH, {"targets": []})
     legacy = load_json(LEGACY_HISTORY_PATH, {"entries": []})
 
-    articles = [row for row in knowledge.get("items", []) if isinstance(row, dict)]
+    pitch_config = load_pitch_config()
+    articles = load_articles(knowledge, pitch_config)
     targets = [
         row
         for row in targets_data.get("targets", [])
@@ -109,7 +112,7 @@ def prepare_next_email(
         row for row in legacy.get("entries", []) if isinstance(row, dict)
     ]
 
-    action = pick_action(articles, targets, planning_history, now, allow_manual=False)
+    action = pick_action(articles, targets, planning_history, now, allow_manual=False, pitch_config=pitch_config)
     if not action or action.get("execution") != "email":
         return None
 

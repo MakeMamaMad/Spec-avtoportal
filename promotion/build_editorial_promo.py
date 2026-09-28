@@ -16,6 +16,8 @@ if str(ROOT) not in sys.path:
 from promotion.core.manual_queue import upsert_manual_action
 from promotion.core.tracking import build_tracking_url
 KNOWLEDGE_PATH = ROOT / "frontend/data/knowledge_articles.json"
+PITCH_CONFIG_PATH = ROOT / "promotion/config/editorial_pitch.json"
+SITE_BASE = "https://spec-avtoportal.ru"
 TARGETS_PATH = ROOT / "promotion/targets.json"
 HISTORY_PATH = ROOT / "frontend/data/promotion/editorial_history.json"
 LEGACY_HISTORY_PATH = ROOT / "frontend/data/promotion_history.json"
@@ -95,9 +97,14 @@ def relevance(article: dict[str, Any], target: dict[str, Any]) -> int:
     return sum(1 for token in words(str(target.get("audience_hint") or "")) if token in hay)
 
 
-def tracking_url(slug: str, target_id: str) -> str:
+def article_path(article: dict[str, Any]) -> str:
+    path = str(article.get("path") or "").strip()
+    return path or f"/knowledge/{article.get('slug')}/"
+
+
+def tracking_url(slug: str, target_id: str, path: str | None = None) -> str:
     return build_tracking_url(
-        f"https://spec-avtoportal.ru/knowledge/{slug}/",
+        SITE_BASE + (path or f"/knowledge/{slug}/"),
         source=target_id,
         medium="editorial",
         campaign="industry_editorial",
@@ -119,7 +126,83 @@ def has_pending_editorial_email(manual_data: dict[str, Any]) -> bool:
     )
 
 
-def email_pitch(article: dict[str, Any], target: dict[str, Any], site_url: str) -> tuple[str, str]:
+def load_pitch_config(path: Path | None = None) -> dict[str, Any]:
+    return load_json(path or PITCH_CONFIG_PATH, {})
+
+
+def featured_article(config: dict[str, Any]) -> dict[str, Any] | None:
+    """A time-bound topical pitch (e.g. new regulations) offered to editors first.
+
+    It is email-only: automatic publishers keep receiving knowledge articles.
+    """
+    featured = config.get("featured") if isinstance(config.get("featured"), dict) else None
+    if not config.get("active") or not featured or not featured.get("slug"):
+        return None
+    return {
+        "slug": str(featured["slug"]),
+        "path": featured.get("path"),
+        "kind": featured.get("kind") or "featured",
+        "title": featured.get("title"),
+        "lead": featured.get("news_hook"),
+        "priority": 1,
+        "email_only": True,
+        "pitch": dict(featured),
+    }
+
+
+def load_articles(knowledge: dict[str, Any], pitch_config: dict[str, Any]) -> list[dict[str, Any]]:
+    articles = [x for x in knowledge.get("items", []) if isinstance(x, dict)]
+    featured = featured_article(pitch_config)
+    return ([featured] if featured else []) + articles
+
+
+def signature_lines(config: dict[str, Any] | None) -> list[str]:
+    config = config or {}
+    name = str(config.get("sender_name") or "").strip()
+    role = str(config.get("sender_role") or "").strip()
+    lines = ["С уважением,"]
+    if name:
+        lines.append(f"{name}, {role}" if role else name)
+        lines.append("СпецАвтоПортал — отраслевое медиа о грузовой и прицепной технике")
+    else:
+        lines.append("редакция СпецАвтоПортала")
+    lines.append("https://spec-avtoportal.ru/ · https://t.me/specavtoportal")
+    return lines
+
+
+def featured_pitch(article: dict[str, Any], target: dict[str, Any], site_url: str, config: dict[str, Any] | None) -> tuple[str, str]:
+    pitch = article.get("pitch") or {}
+    target_name = str(target.get("name") or "вашей редакции").strip()
+    lines = [
+        "Здравствуйте!",
+        "",
+        str(pitch.get("news_hook") or "").strip(),
+        "",
+        str(pitch.get("offer") or "").strip(),
+        "",
+        f"Предлагаем «{target_name}» бесплатно использовать этот материал:",
+        "• опубликовать разбор целиком или в сокращении — пришлём текст в удобном формате и адаптируем под ваш стиль;",
+    ]
+    if pitch.get("pdf_url"):
+        lines.append(f"• дать читателям PDF-чек-лист на 2 страницы: {pitch['pdf_url']}")
+    lines += [
+        "",
+        f"Единственная просьба — указать источник со ссылкой: {site_url}",
+        "",
+        *signature_lines(config),
+    ]
+    subject = str(pitch.get("subject") or article.get("title") or "Материал для редакции").strip()
+    return subject, "\n".join(line for line in lines if line is not None).strip()
+
+
+def email_pitch(
+    article: dict[str, Any],
+    target: dict[str, Any],
+    site_url: str,
+    config: dict[str, Any] | None = None,
+) -> tuple[str, str]:
+    if article.get("pitch"):
+        return featured_pitch(article, target, site_url, config)
     title = str(article.get("title") or "Практический материал СпецАвтоПортала").strip()
     lead = str(article.get("lead") or article.get("description") or "").strip()
     target_name = str(target.get("name") or "редакция").strip()
@@ -137,9 +220,7 @@ def email_pitch(article: dict[str, Any], target: dict[str, Any], site_url: str) 
             "",
             "Если тема подходит вашей аудитории, готовы предоставить текст целиком и адаптировать его под требования редакции. Просим сохранить ссылку на СпецАвтоПортал как на источник материала.",
             "",
-            "С уважением,",
-            "редакция СпецАвтоПортала",
-            "https://spec-avtoportal.ru/",
+            *signature_lines(config),
         ]
     ).strip()
     return subject, body
@@ -181,7 +262,7 @@ def history_slug(row: dict[str, Any]) -> str:
     if slug:
         return slug
     item_key = str(row.get("item_key") or "").strip()
-    if item_key.startswith("knowledge:"):
+    if ":" in item_key:
         return item_key.split(":", 1)[1].strip()
     return ""
 
@@ -224,6 +305,7 @@ def pick_action(
     now: datetime,
     *,
     allow_manual: bool = False,
+    pitch_config: dict[str, Any] | None = None,
 ) -> dict[str, Any] | None:
     done = used_pairs(history)
     email_blocked = blocked_email_targets(history)
@@ -241,18 +323,24 @@ def pick_action(
 
     for target in candidates:
         target_id = str(target.get("id") or "")
+        email_target = is_email_target(target)
         ranked = sorted(
-            articles,
-            key=lambda item: (-relevance(item, target), str(item.get("slug") or "")),
+            (a for a in articles if email_target or not a.get("email_only")),
+            key=lambda item: (
+                -int(item.get("priority") or 0),
+                -relevance(item, target),
+                str(item.get("slug") or ""),
+            ),
         )
         for article in ranked:
             slug = str(article.get("slug") or "")
             if not slug or (target_id, slug) in done:
                 continue
-            site_url = tracking_url(slug, target_id)
+            site_url = tracking_url(slug, target_id, article_path(article))
             automatic = target_id in AUTO_TARGETS
-            email_target = is_email_target(target)
-            email_subject, email_body = email_pitch(article, target, site_url) if email_target else ("", "")
+            email_subject, email_body = (
+                email_pitch(article, target, site_url, pitch_config) if email_target else ("", "")
+            )
             execution = "automatic" if automatic else ("email" if email_target else "manual")
             return {
                 "target_id": target_id,
@@ -262,7 +350,7 @@ def pick_action(
                 "policy": target.get("policy"),
                 "execution": execution,
                 "slug": slug,
-                "item_key": "knowledge:" + slug,
+                "item_key": f"{article.get('kind') or 'knowledge'}:{slug}",
                 "title": article.get("title"),
                 "site_url": site_url,
                 "post_text": article_body(article, site_url),
@@ -311,7 +399,8 @@ def main() -> int:
     legacy_history_data = load_json(LEGACY_HISTORY_PATH, {"entries": []})
     manual_data = load_json(MANUAL_QUEUE_PATH, {"schema": 1, "entries": []})
 
-    articles = [x for x in knowledge.get("items", []) if isinstance(x, dict)]
+    pitch_config = load_pitch_config()
+    articles = load_articles(knowledge, pitch_config)
     targets = [x for x in targets_data.get("targets", []) if isinstance(x, dict)]
     editorial_history = [x for x in history_data.get("entries", []) if isinstance(x, dict)]
     legacy_history = [x for x in legacy_history_data.get("entries", []) if isinstance(x, dict)]
@@ -332,6 +421,7 @@ def main() -> int:
         planning_history,
         now,
         allow_manual=allow_manual,
+        pitch_config=pitch_config,
     )
 
     entries = []
