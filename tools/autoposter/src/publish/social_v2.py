@@ -107,6 +107,16 @@ def _caption(path: Path) -> str:
     return path.read_text(encoding="utf-8").strip() if path.exists() else ""
 
 
+def _with_site_link(text: str) -> str:
+    site_url = os.getenv("SITE_URL", "https://spec-avtoportal.ru/").strip() or "https://spec-avtoportal.ru/"
+    clean = text.strip()
+    if site_url.rstrip("/") in clean:
+        return clean
+    if not clean:
+        return site_url
+    return clean + "\n\nПодробнее на сайте: " + site_url
+
+
 def publish_all(*, dry_run: bool = False) -> dict[str, Any]:
     manifest = _read_json(OUT_DIR / "manifest.json", {})
     board = _read_json(OUT_DIR / "scene_plan.json", {})
@@ -146,7 +156,7 @@ def publish_all(*, dry_run: bool = False) -> dict[str, Any]:
                     raise RuntimeError("YOUTUBE_TOKEN_FILE missing")
 
                 youtube_title = str(board.get("youtube_title") or title).strip()[:100]
-                description = _caption(OUT_DIR / "caption_youtube.txt")
+                description = _with_site_link(_caption(OUT_DIR / "caption_youtube.txt"))
                 hashtags = board.get("hashtags") if isinstance(board.get("hashtags"), list) else []
                 result_id = upload_video(
                     str(master),
@@ -169,11 +179,11 @@ def publish_all(*, dry_run: bool = False) -> dict[str, Any]:
 
                 if platform == "tiktok":
                     video_url = os.getenv("BUFFER_TIKTOK_VIDEO_URL", "").strip()
-                    caption = _caption(OUT_DIR / "caption_tiktok.txt")
+                    caption = _with_site_link(_caption(OUT_DIR / "caption_tiktok.txt"))
                     preferred_name = os.getenv("BUFFER_TIKTOK_CHANNEL_NAME", "specavtoportal").strip()
                 else:
                     video_url = os.getenv("BUFFER_INSTAGRAM_VIDEO_URL", "").strip()
-                    caption = _caption(OUT_DIR / "caption_instagram.txt")
+                    caption = _with_site_link(_caption(OUT_DIR / "caption_instagram.txt"))
                     preferred_name = os.getenv("BUFFER_INSTAGRAM_CHANNEL_NAME", "specavtoportal").strip()
 
                 if not video_url:
