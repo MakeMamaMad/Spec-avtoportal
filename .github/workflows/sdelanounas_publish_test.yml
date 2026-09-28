@@ -1,0 +1,57 @@
+name: Promotion — SdelanoU nas Test Publish
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/sdelanounas_publish_test.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: promotion-sdelanounas-test
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Playwright
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Publish suitable industry news
+        env:
+          PROMOTION_LIVE: "1"
+          SDELANOUNAS_LOGIN: ${{ secrets.SDELANOUNAS_LOGIN }}
+          SDELANOUNAS_PASSWORD: ${{ secrets.SDELANOUNAS_PASSWORD }}
+        run: |
+          python promotion/publish_sdelanounas.py
+
+      - name: Commit placement state
+        if: always()
+        run: |
+          git config user.name "specavto-promotion"
+          git config user.email "actions@users.noreply.github.com"
+          git add frontend/data/promotion/editorial_history.json || true
+          if git diff --cached --quiet; then
+            echo "No SdelanoU nas state changes"
+            exit 0
+          fi
+          git commit -m "promotion: record SdelanoU nas placement"
+          git pull --rebase origin main
+          git push origin main
