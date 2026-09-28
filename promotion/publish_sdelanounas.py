@@ -96,22 +96,31 @@ def select_category(page: Page) -> str:
 def fill_message(page: Page, body: str) -> None:
     textarea = page.locator("#htmlarea_mce")
     if textarea.count():
-        try:
-            textarea.fill(body)
-            page.evaluate(
-                """() => {
-                    if (window.tinymce) {
-                        const ed = window.tinymce.get('htmlarea_mce') || window.tinymce.activeEditor;
-                        if (ed) {
-                            ed.setContent(document.querySelector('#htmlarea_mce').value.replace(/\n/g, '<br>'));
-                            ed.save();
-                        }
+        ok = page.evaluate(
+            """(value) => {
+                const ta = document.querySelector('#htmlarea_mce');
+                if (!ta) return false;
+                ta.value = value;
+                ta.dispatchEvent(new Event('input', {bubbles:true}));
+                ta.dispatchEvent(new Event('change', {bubbles:true}));
+                if (window.tinymce) {
+                    const ed = window.tinymce.get('htmlarea_mce') || window.tinymce.activeEditor;
+                    if (ed) {
+                        const escaped = value
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;')
+                            .replace(/\n/g, '<br>');
+                        ed.setContent(escaped);
+                        ed.save();
                     }
-                }"""
-            )
+                }
+                return true;
+            }""",
+            body,
+        )
+        if ok:
             return
-        except Exception:
-            pass
 
     editor = page.locator('[contenteditable="true"]')
     if editor.count():
@@ -161,21 +170,23 @@ def structural_inventory(page: Page) -> list[dict[str, Any]]:
 
 
 def submit(page: Page) -> None:
-    buttons = page.get_by_role(
-        "button",
-        name=re.compile(r"добавить|опубликовать|сохранить|разместить|отправить", re.I),
-    )
+    title = page.locator("#fx-title")
+    form = title.locator("xpath=ancestor::form[1]") if title.count() else page.locator("form").first
+    buttons = form.locator('button[type="submit"], input[type="submit"]')
     if not buttons.count():
-        buttons = page.locator('button[type="submit"], input[type="submit"]')
+        buttons = form.get_by_role(
+            "button",
+            name=re.compile(r"опубликовать|добавить|сохранить|разместить|отправить", re.I),
+        )
     if not buttons.count():
         raise RuntimeError("SdelanoU nas submit button was not found")
 
-    buttons.first.click()
+    buttons.last.click()
     try:
         page.wait_for_load_state("domcontentloaded", timeout=30000)
     except Exception:
         pass
-    page.wait_for_timeout(1500)
+    page.wait_for_timeout(1800)
 
 
 def main() -> int:
@@ -277,26 +288,26 @@ def main() -> int:
             submit(page)
 
             page_text = (page.locator("body").inner_text() or "")
-            lowered = page_text.lower()
-            if "/blogs/add" in page.url and any(
-                marker in lowered for marker in ("ошибка", "обязатель", "заполните", "необходимо")
-            ):
+            current_title = ""
+            if page.locator("#fx-title").count():
+                try:
+                    current_title = page.locator("#fx-title").input_value()
+                except Exception:
+                    current_title = ""
+            if not current_title and page.locator("#editableTitle").count():
+                try:
+                    current_title = (page.locator("#editableTitle").inner_text() or "").strip()
+                except Exception:
+                    current_title = ""
+
+            still_add = page.url.rstrip("/").endswith("/blogs/add")
+            if still_add and current_title.strip() == title.strip():
                 print("SDELANOUNAS_VALIDATION=" + json.dumps(validation_messages(page), ensure_ascii=False))
                 print("SDELANOUNAS_FORM_AFTER_SUBMIT=" + json.dumps(structural_inventory(page), ensure_ascii=False))
-                headings = []
-                for selector in ("h1", "h2", "h3", "label", "legend"):
-                    loc = page.locator(selector)
-                    for i in range(min(loc.count(), 40)):
-                        try:
-                            text = (loc.nth(i).inner_text() or "").strip()
-                            if text:
-                                headings.append(text[:300])
-                        except Exception:
-                            pass
-                print("SDELANOUNAS_HEADINGS_AFTER_SUBMIT=" + json.dumps(headings[:80], ensure_ascii=False))
-                raise RuntimeError("SdelanoU nas validation failed after submit")
+                print("SDELANOUNAS_BODY_AFTER_SUBMIT=" + json.dumps(page_text[:2500], ensure_ascii=False))
+                raise RuntimeError("SdelanoU nas submission did not leave the article form")
 
-            status = "published" if "/blogs/" in page.url and not page.url.rstrip("/").endswith("/blogs/add") else "submitted"
+            status = "published" if "/blogs/" in page.url and not still_add else "submitted"
             record = {
                 "target_id": TARGET_ID,
                 "target_name": "Сделано у нас",
