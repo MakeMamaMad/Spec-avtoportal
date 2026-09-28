@@ -54,5 +54,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLOT: ${{ steps.due.outputs.slot }}
         run: |
+          ACTIVE="$(gh run list --workflow autoposter.yml --limit 20 --json status --jq '[.[] | select(.status == "queued" or .status == "in_progress" or .status == "waiting" or .status == "pending")] | length')"
+          if [ "$ACTIVE" != "0" ]; then
+            echo "Видеопубликация уже запущена или стоит в очереди; повторный recovery пропущен."
+            exit 0
+          fi
           gh workflow run autoposter.yml --ref main -f slot="$SLOT"
           echo "Запущено восстановление Shorts: $SLOT"
