@@ -44,6 +44,10 @@
       ],
       "sources": [
         {
+          "label": "Калькулятор нагрузки на ось СпецАвтоПортала",
+          "url": "/tools/nagruzka-na-os/"
+        },
+        {
           "label": "Постановление Правительства РФ №2060 — Правила движения тяжеловесного и крупногабаритного ТС",
           "url": "https://www.consultant.ru/document/cons_doc_LAW_463407/"
         },
@@ -110,6 +114,10 @@
         }
       ],
       "sources": [
+        {
+          "label": "Калькулятор нагрузки на ось СпецАвтоПортала",
+          "url": "/tools/nagruzka-na-os/"
+        },
         {
           "label": "Постановление Правительства РФ №2060",
           "url": "https://www.consultant.ru/document/cons_doc_LAW_463407/"
