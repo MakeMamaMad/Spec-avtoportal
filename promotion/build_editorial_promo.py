@@ -335,6 +335,7 @@ def main() -> int:
             "entries": entries,
         },
     )
+    print("EDITORIAL_PLANNER_MODE=email_outreach_v1")
     print(json.dumps({"planned": len(entries), "action": action}, ensure_ascii=False))
     return 0
 
