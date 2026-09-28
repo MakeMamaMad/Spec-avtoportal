@@ -73,6 +73,8 @@ jobs:
           ]
           chat = (matching[-1] if matching else channels[-1])[1]
 
+          print("CONTROL_CHAT_ID=" + str(chat["id"]))
+
           call("sendMessage", {
               "chat_id": str(chat["id"]),
               "text": "✅ SpecAvto Control подключён.\n\nЭто тестовое сообщение от GitHub Actions. Канал готов принимать отчёты автоматизации.",
