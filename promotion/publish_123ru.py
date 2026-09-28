@@ -41,17 +41,10 @@ def gmail_address() -> str:
     if not token_path.exists():
         raise RuntimeError("GMAIL_TOKEN_FILE is missing")
 
-    data = json.loads(token_path.read_text(encoding="utf-8"))
-    creds = Credentials(
-        token=data.get("token"),
-        refresh_token=data.get("refresh_token"),
-        token_uri=data.get("token_uri"),
-        client_id=data.get("client_id"),
-        client_secret=data.get("client_secret"),
-        scopes=data.get("scopes"),
-    )
+    creds = Credentials.from_authorized_user_file(str(token_path))
     if creds.expired and creds.refresh_token:
         creds.refresh(Request())
+        token_path.write_text(creds.to_json() + "\n", encoding="utf-8")
     if not creds.valid:
         raise RuntimeError("Gmail OAuth credentials are not valid")
 
