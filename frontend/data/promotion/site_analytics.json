@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_at": "2026-09-28T11:39:20+00:00",
+  "updated_at": "2026-09-28T12:25:59+00:00",
   "counter_id": "106240080",
   "metrika": {
     "status": "ok",
@@ -53,7 +53,9 @@
   "webmaster": {
     "status": "error",
     "host": "https://spec-avtoportal.ru",
-    "detail": "Вебмастер: HTTPError 403",
-    "hint": "У токена нет доступа к Вебмастеру: добавьте в OAuth-приложении право «Яндекс.Вебмастер → Получение информации о сайтах» (webmaster:hostinfo), перевыпустите токен и обновите секрет YANDEX_METRIKA_OAUTH_TOKEN."
+    "step": "summary",
+    "detail": "Вебмастер (summary): HTTPError 403 ACCESS_FORBIDDEN: Access to this resource is not allowed with scopes available for this application. Required scope: COMMON, application scopes: [ALL_SCOPES, HOST_LIST, EXTERNAL_LINKS]",
+    "hint": "Проверьте токен: в OAuth-приложении должно быть право «Яндекс.Вебмастер → Получение информации о внешних ссылках на сайт» (webmaster:hostinfo), токен выпущен после его добавления, с аккаунта, где сайт подтверждён в Вебмастере.",
+    "token_secret": "YANDEX_WEBMASTER_OAUTH_TOKEN"
   }
 }
