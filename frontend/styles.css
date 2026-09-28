@@ -2406,3 +2406,25 @@ button { color: inherit; }
 @media (max-width: 360px) {
   .main-nav .nav-link { padding: 6px 1px; font-size: 10px; white-space: normal; text-align: center; }
 }
+
+/* Homepage: new rules and tools */
+.home-guides { padding: 34px 0 6px; }
+.home-guides__grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.home-guide {
+  display: flex; flex-direction: column; gap: 8px; min-width: 0;
+  padding: 18px; border: 1px solid var(--line); border-radius: 14px;
+  background: var(--paper); color: var(--ink); text-decoration: none;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.home-guide:hover { border-color: var(--orange); transform: translateY(-1px); }
+.home-guide--tool { background: var(--dark); border-color: var(--dark); color: #fff; }
+.home-guide__eyebrow { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--orange); }
+.home-guide--tool .home-guide__eyebrow { color: #ff9a54; }
+.home-guide strong { font-size: 16px; line-height: 1.25; letter-spacing: -.01em; }
+.home-guide__text { font-size: 13px; line-height: 1.5; color: var(--muted); }
+.home-guide--tool .home-guide__text { color: #aeb6bc; }
+@media (max-width: 1100px) { .home-guides__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 760px) {
+  .home-guides__grid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 78%; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
+  .home-guide { scroll-snap-align: start; }
+}
