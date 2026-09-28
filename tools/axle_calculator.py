@@ -319,7 +319,7 @@ def render_axle_calculator_page(base_url: str, telegram_cta: str) -> str:
   <meta property="og:title" content="{html.escape(title, quote=True)}" />
   <meta property="og:description" content="{html.escape(description, quote=True)}" />
   <meta property="og:url" content="{canonical}" />
-  <link rel="stylesheet" href="/styles.css?v=23" />
+  <link rel="stylesheet" href="/styles.css?v=24" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <style>{_page_css()}</style>
@@ -335,7 +335,8 @@ def render_axle_calculator_page(base_url: str, telegram_cta: str) -> str:
       <nav class="main-nav" aria-label="Основная навигация">
         <a href="/" class="nav-link">Новости</a>
         <a href="/brands/" class="nav-link">Бренды</a>
-        <a href="/knowledge.html" class="nav-link nav-link-active">База знаний</a>
+        <a href="/knowledge.html" class="nav-link">База знаний</a>
+        <a href="/tools/nagruzka-na-os/" class="nav-link nav-link-active">Калькулятор</a>
       </nav>
       <div class="header-socials" aria-label="Социальные сети">
         <a href="https://t.me/specavtoportal" class="header-social-link header-social-link--telegram" target="_blank" rel="noopener" aria-label="Telegram"><span class="social-full">Telegram</span><span class="social-short">TG</span></a>
@@ -433,7 +434,7 @@ def render_axle_calculator_page(base_url: str, telegram_cta: str) -> str:
   <footer class="site-footer">
     <div class="container footer-grid">
       <div><a href="/" class="footer-brand">СпецАвтоПортал</a><p>Отраслевое медиа о прицепах, полуприцепах и грузовой технике.</p></div>
-      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/law.html">Нормативы</a><a href="/guides.html">Гайды</a><a href="/brands/">Бренды</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a></div>
+      <div class="footer-nav"><a href="/knowledge.html">База знаний</a><a href="/law.html">Нормативы</a><a href="/tools/nagruzka-na-os/">Калькулятор нагрузки</a><a href="/guides.html">Гайды</a><a href="/brands/">Бренды</a><a href="https://t.me/specavtoportal" target="_blank" rel="noopener">Telegram ↗</a></div>
       <div class="footer-note">© СпецАвтоПортал</div>
     </div>
   </footer>
