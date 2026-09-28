@@ -1844,6 +1844,43 @@ button { color: inherit; }
   text-align: left;
 }
 
+/* Editorial breakdown on regulation pages */
+.regulation-section > p:not(.section-kicker) + p { margin-top: 12px; }
+.regulation-section ul,
+.regulation-section ol {
+  margin: 0;
+  padding-left: 22px;
+  max-width: 760px;
+  color: #4f575d;
+  font-size: 15px;
+  line-height: 1.65;
+}
+.regulation-section p + ul,
+.regulation-section p + ol { margin-top: 12px; }
+.regulation-section li + li { margin-top: 8px; }
+.regulation-section a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.regulation-section .knowledge-facts { margin-top: 14px; }
+.regulation-section .knowledge-fact strong { font-size: 16px; line-height: 1.35; letter-spacing: -.01em; }
+.regulation-guide__lead > p:not(.section-kicker) { font-size: 17px; color: var(--ink, #1c2226); }
+.regulation-faq__item {
+  border-top: 1px solid var(--line);
+  padding: 14px 0;
+}
+.regulation-faq__item:last-child { padding-bottom: 0; }
+.regulation-faq__item summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.regulation-faq__item p {
+  margin: 10px 0 0;
+  max-width: 760px;
+  color: #4f575d;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
 @media (max-width: 900px) {
   .regulations-grid { grid-template-columns: 1fr; }
   .regulation-layout { grid-template-columns: 1fr; }

@@ -936,7 +936,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_art
   <meta name="twitter:description" content="{description}" />
   <meta name="twitter:image" content="{image}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=21" />
+  <link rel="stylesheet" href="/styles.css?v=22" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{json_ld(item)}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -1157,7 +1157,7 @@ def render_brand_page(
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=21" />
+  <link rel="stylesheet" href="/styles.css?v=22" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -1293,7 +1293,7 @@ def render_brand_directory(brand_counts: dict[str, int]) -> str:
   <meta property="og:title" content="Производители и бренды — СпецАвтоПортал" />
   <meta property="og:description" content="Архив новостей о производителях грузовой и прицепной техники." />
   <meta property="og:url" content="{BASE_URL}/brands/" />
-  <link rel="stylesheet" href="/styles.css?v=21" />
+  <link rel="stylesheet" href="/styles.css?v=22" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -1419,7 +1419,7 @@ def render_topic_page(
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=21" />
+  <link rel="stylesheet" href="/styles.css?v=22" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -1512,6 +1512,48 @@ def knowledge_url(item: dict[str, Any]) -> str:
     return f"{BASE_URL}/knowledge/{item['slug']}/"
 
 
+def render_content_blocks(section: dict[str, Any]) -> list[str]:
+    """Paragraphs, bullets, numbered steps and fact rows of one content section."""
+    blocks = []
+    for paragraph in section.get("paragraphs", []) if isinstance(section.get("paragraphs"), list) else []:
+        blocks.append(f"<p>{html.escape(str(paragraph))}</p>")
+    bullets = section.get("bullets") if isinstance(section.get("bullets"), list) else []
+    if bullets:
+        blocks.append("<ul>" + "".join(f"<li>{html.escape(str(x))}</li>" for x in bullets) + "</ul>")
+    numbered = section.get("numbered") if isinstance(section.get("numbered"), list) else []
+    if numbered:
+        blocks.append("<ol>" + "".join(f"<li>{html.escape(str(x))}</li>" for x in numbered) + "</ol>")
+    facts = section.get("facts") if isinstance(section.get("facts"), list) else []
+    if facts:
+        fact_rows = []
+        for row in facts:
+            if isinstance(row, list) and len(row) >= 2:
+                fact_rows.append(
+                    '<div class="knowledge-fact">'
+                    f'<span>{html.escape(str(row[0]))}</span>'
+                    f'<strong>{html.escape(str(row[1]))}</strong>'
+                    '</div>'
+                )
+        if fact_rows:
+            blocks.append('<div class="knowledge-facts">' + "".join(fact_rows) + '</div>')
+    return blocks
+
+
+def render_content_sections(sections: Any, css_class: str) -> list[str]:
+    rendered = []
+    for section in sections if isinstance(sections, list) else []:
+        if not isinstance(section, dict):
+            continue
+        heading = html.escape(get_field(section, "heading"))
+        rendered.append(
+            f'<section class="{css_class}">'
+            f'<h2>{heading}</h2>'
+            + "".join(render_content_blocks(section))
+            + '</section>'
+        )
+    return rendered
+
+
 def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: list[dict[str, Any]]) -> str:
     title_raw = get_field(item, "title", default="Материал базы знаний")
     title = html.escape(title_raw)
@@ -1521,39 +1563,7 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
     lead = html.escape(get_field(item, "lead"))
     canonical = knowledge_url(item)
 
-    section_html = []
-    for section in item.get("sections", []):
-        if not isinstance(section, dict):
-            continue
-        heading = html.escape(get_field(section, "heading"))
-        blocks = []
-        for paragraph in section.get("paragraphs", []) if isinstance(section.get("paragraphs"), list) else []:
-            blocks.append(f"<p>{html.escape(str(paragraph))}</p>")
-        bullets = section.get("bullets") if isinstance(section.get("bullets"), list) else []
-        if bullets:
-            blocks.append("<ul>" + "".join(f"<li>{html.escape(str(x))}</li>" for x in bullets) + "</ul>")
-        numbered = section.get("numbered") if isinstance(section.get("numbered"), list) else []
-        if numbered:
-            blocks.append("<ol>" + "".join(f"<li>{html.escape(str(x))}</li>" for x in numbered) + "</ol>")
-        facts = section.get("facts") if isinstance(section.get("facts"), list) else []
-        if facts:
-            fact_rows = []
-            for row in facts:
-                if isinstance(row, list) and len(row) >= 2:
-                    fact_rows.append(
-                        '<div class="knowledge-fact">'
-                        f'<span>{html.escape(str(row[0]))}</span>'
-                        f'<strong>{html.escape(str(row[1]))}</strong>'
-                        '</div>'
-                    )
-            if fact_rows:
-                blocks.append('<div class="knowledge-facts">' + "".join(fact_rows) + '</div>')
-        section_html.append(
-            '<section class="knowledge-article__section">'
-            f'<h2>{heading}</h2>'
-            + "".join(blocks)
-            + '</section>'
-        )
+    section_html = render_content_sections(item.get("sections", []), "knowledge-article__section")
 
     source_html = []
     for source in item.get("sources", []) if isinstance(item.get("sources"), list) else []:
@@ -1637,7 +1647,7 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
   <meta property="og:title" content="{title}" />
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
-  <link rel="stylesheet" href="/styles.css?v=21" />
+  <link rel="stylesheet" href="/styles.css?v=22" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -1726,6 +1736,58 @@ def regulation_url(item: dict[str, Any]) -> str:
     return f"{BASE_URL}/regulations/{item['slug']}/"
 
 
+def render_regulation_guide(guide: dict[str, Any]) -> tuple[str, list[tuple[str, str]]]:
+    """Optional editorial breakdown of a regulation: lead, sections, FAQ, sources.
+
+    Returns the HTML and the (question, answer) pairs for FAQPage markup.
+    """
+    if not guide:
+        return "", []
+    parts: list[str] = []
+    lead = get_field(guide, "lead")
+    if lead:
+        parts.append(
+            '<section class="regulation-section regulation-guide__lead">'
+            '<p class="section-kicker">Разбор редакции</p>'
+            f'<p>{html.escape(lead)}</p>'
+            '</section>'
+        )
+    parts.extend(render_content_sections(guide.get("sections"), "regulation-section"))
+
+    faq_items: list[tuple[str, str]] = []
+    for row in guide.get("faq", []) if isinstance(guide.get("faq"), list) else []:
+        if isinstance(row, dict) and row.get("q") and row.get("a"):
+            faq_items.append((strip_html(str(row["q"])), strip_html(str(row["a"]))))
+    if faq_items:
+        faq_html = "".join(
+            f'<details class="regulation-faq__item"><summary>{html.escape(q)}</summary><p>{html.escape(a)}</p></details>'
+            for q, a in faq_items
+        )
+        parts.append(
+            '<section class="regulation-section regulation-faq">'
+            '<p class="section-kicker">Вопросы и ответы</p>'
+            '<h2>Частые вопросы</h2>'
+            f'{faq_html}'
+            '</section>'
+        )
+
+    links = []
+    for source in guide.get("sources", []) if isinstance(guide.get("sources"), list) else []:
+        if isinstance(source, dict) and str(source.get("url") or "").startswith(("http://", "https://")):
+            label = html.escape(get_field(source, "label", default="Источник"))
+            href = html.escape(str(source["url"]), quote=True)
+            links.append(f'<li><a href="{href}" target="_blank" rel="noopener">{label}</a></li>')
+    if links:
+        parts.append(
+            '<section class="regulation-section">'
+            '<p class="section-kicker">Источники</p>'
+            '<h2>На чём основан разбор</h2>'
+            f'<ul>{"".join(links)}</ul>'
+            '</section>'
+        )
+    return "\n        ".join(parts), faq_items
+
+
 def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_articles: dict[str, Any]) -> str:
     title = html.escape(get_field(item, "title", default="Нормативный документ"))
     code = html.escape(get_field(item, "code", default="Норматив"))
@@ -1746,11 +1808,15 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
         f'<span class="tag-badge">{html.escape(str(keyword))}</span>'
         for keyword in keywords[:8]
     )
+    guide = item.get("guide") if isinstance(item.get("guide"), dict) else {}
     description_raw = clamp(
-        get_field(item, "scope", "why_it_matters", default=f"{code}: нормативный документ"),
+        get_field(guide, "description")
+        or get_field(item, "scope", "why_it_matters", default=f"{code}: нормативный документ"),
         160,
     )
     description = html.escape(description_raw, quote=True)
+    page_title = html.escape(get_field(guide, "seo_title")) or f"{code} — {title}"
+    guide_html, faq_items = render_regulation_guide(guide)
 
     meta_rows = [
         ("Статус", status),
@@ -1759,6 +1825,9 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
     ]
     if effective_until:
         meta_rows.append(("Действует до", effective_until))
+    registration = html.escape(get_field(item, "registration"))
+    if registration:
+        meta_rows.append(("Регистрация", registration))
     if verified:
         meta_rows.append(("Проверено редакцией", verified))
     meta_html = "".join(
@@ -1790,24 +1859,40 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
     }
     schema_payload = {k: v for k, v in schema_payload.items() if v is not None}
     schema = json.dumps(schema_payload, ensure_ascii=False, separators=(",", ":")).replace("</", "<\/")
+    faq_schema_tag = ""
+    if faq_items:
+        faq_schema = {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {
+                    "@type": "Question",
+                    "name": question,
+                    "acceptedAnswer": {"@type": "Answer", "text": answer},
+                }
+                for question, answer in faq_items
+            ],
+        }
+        faq_json = json.dumps(faq_schema, ensure_ascii=False, separators=(",", ":")).replace("</", "<\/")
+        faq_schema_tag = f'\n  <script type="application/ld+json">{faq_json}</script>'
 
     return f"""<!doctype html>
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{code} — {title} | СпецАвтоПортал</title>
+  <title>{page_title} | СпецАвтоПортал</title>
   <meta name="description" content="{description}" />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <link rel="canonical" href="{canonical}" />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="СпецАвтоПортал" />
-  <meta property="og:title" content="{code} — {title}" />
+  <meta property="og:title" content="{page_title}" />
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
-  <link rel="stylesheet" href="/styles.css?v=21" />
+  <link rel="stylesheet" href="/styles.css?v=22" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
-  <script type="application/ld+json">{schema}</script>
+  <script type="application/ld+json">{schema}</script>{faq_schema_tag}
 </head>
 <body class="regulation-page">
   <div class="topline"><div class="container topline-inner"><span>Профессиональное медиа о грузовой технике</span><span class="topline-dot"></span><span>Нормативная база</span></div></div>
@@ -1858,6 +1943,7 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
           <p>{why or "Практические комментарии к документу готовятся."}</p>
         </section>
 
+        {guide_html}
         <section class="regulation-section">
           <p class="section-kicker">Ключевые темы</p>
           <div class="news-card-tags">{keyword_html}</div>
@@ -1965,7 +2051,7 @@ def render_regulations_index(regulations: dict[str, Any]) -> str:
   <meta property="og:title" content="Нормативы и ГОСТы — СпецАвтоПортал" />
   <meta property="og:description" content="Действующие нормативы для прицепов, полуприцепов, крепления грузов и безопасной эксплуатации." />
   <meta property="og:url" content="{BASE_URL}/law.html" />
-  <link rel="stylesheet" href="/styles.css?v=21" />
+  <link rel="stylesheet" href="/styles.css?v=22" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
