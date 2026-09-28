@@ -1,0 +1,192 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import json
+import os
+import re
+import sys
+import urllib.request
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from playwright.sync_api import sync_playwright
+
+ROOT = Path(__file__).resolve().parents[1]
+HISTORY_PATH = ROOT / "frontend/data/promotion/editorial_history.json"
+TARGET_ID = "123ru"
+ADD_URL = "https://123ru.net/kazan/addnews/"
+
+
+def load_json(path: Path, default: Any) -> Any:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return default
+
+
+def save_json(path: Path, value: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def gmail_address() -> str:
+    token_path = Path(os.environ.get("GMAIL_TOKEN_FILE", "gmail_token.json"))
+    if not token_path.exists():
+        raise RuntimeError("GMAIL_TOKEN_FILE is missing")
+
+    data = json.loads(token_path.read_text(encoding="utf-8"))
+    creds = Credentials(
+        token=data.get("token"),
+        refresh_token=data.get("refresh_token"),
+        token_uri=data.get("token_uri"),
+        client_id=data.get("client_id"),
+        client_secret=data.get("client_secret"),
+        scopes=data.get("scopes"),
+    )
+    if creds.expired and creds.refresh_token:
+        creds.refresh(Request())
+    if not creds.valid:
+        raise RuntimeError("Gmail OAuth credentials are not valid")
+
+    req = urllib.request.Request(
+        "https://gmail.googleapis.com/gmail/v1/users/me/profile",
+        headers={"Authorization": f"Bearer {creds.token}", "Accept": "application/json"},
+    )
+    with urllib.request.urlopen(req, timeout=30) as response:
+        payload = json.loads(response.read().decode("utf-8"))
+    address = str(payload.get("emailAddress") or "").strip()
+    if "@" not in address:
+        raise RuntimeError("Could not resolve Gmail profile email")
+    return address
+
+
+def main() -> int:
+    if os.getenv("PROMOTION_LIVE") != "1":
+        raise RuntimeError("PROMOTION_LIVE=1 is required")
+
+    title = os.getenv(
+        "RU123_TITLE",
+        "На Comtrans в Казани показали новые коммунальные машины на шасси JAC",
+    ).strip()
+    source_url = os.getenv(
+        "RU123_SOURCE_URL",
+        (
+            "https://spec-avtoportal.ru/news/"
+            "dzhak-avtomobil-predstavil-na-comtrans-novye-musorovoz-i-samosval-na-sha-06501839/"
+            "?utm_source=123ru&utm_medium=editorial&utm_campaign=industry_promotion"
+            "&utm_content=jac-comtrans-kazan"
+        ),
+    ).strip()
+    body = os.getenv(
+        "RU123_BODY",
+        (
+            "На выставке Comtrans в Казани компания «Джак Автомобиль», "
+            "эксклюзивный дистрибьютор JAC Motors в России, показала две новинки "
+            "для коммунальной сферы. Среди них — мусоровоз Alfanord KGH на новом "
+            "шасси JAC N200X с третьей подъёмно-поворотной осью и новый самосвал "
+            "на шасси JAC. Техника ориентирована на коммунальные и городские работы.\n\n"
+            "Подробности о представленных машинах опубликованы на СпецАвтоПортале."
+        ),
+    ).strip()
+    item_key = os.getenv("RU123_ITEM_KEY", "news:065018397658").strip()
+
+    history = load_json(HISTORY_PATH, {"schema": 1, "entries": []})
+    if any(
+        isinstance(row, dict)
+        and row.get("target_id") == TARGET_ID
+        and row.get("item_key") == item_key
+        and str(row.get("status") or "") in {"submitted", "published", "verified"}
+        for row in history.get("entries", [])
+    ):
+        print("RU123_SKIP duplicate")
+        return 0
+
+    email = gmail_address()
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context(locale="ru-RU")
+        page = context.new_page()
+        try:
+            page.goto(ADD_URL, wait_until="domcontentloaded", timeout=60000)
+
+            if page.locator('iframe[src*="captcha" i], .g-recaptcha, [class*="captcha" i], [id*="captcha" i]').count():
+                raise RuntimeError("123ru CAPTCHA detected")
+
+            title_field = page.locator('textarea[name="title"]')
+            body_field = page.locator('textarea[name="desc"]')
+            link_field = page.locator('input[name="link"]')
+            email_field = page.locator('input[name="userEmail"]')
+            if not all(x.count() for x in (title_field, body_field, link_field, email_field)):
+                raise RuntimeError("123ru required article fields were not found")
+
+            title_field.fill(title)
+            body_field.fill(body)
+            link_field.fill(source_url)
+            email_field.fill(email)
+
+            subscribe = page.locator('input[name="subscribe"]')
+            if subscribe.count() and subscribe.is_checked():
+                subscribe.uncheck()
+            telegram = page.locator('input[name="tgPublish"]')
+            if telegram.count() and telegram.is_checked():
+                telegram.uncheck()
+
+            submit = page.get_by_role("button", name=re.compile(r"опубликовать", re.I))
+            if not submit.count():
+                submit = page.locator('input[type="submit"], button[type="submit"]')
+            if not submit.count():
+                raise RuntimeError("123ru publish button was not found")
+
+            submit.last.click()
+            try:
+                page.wait_for_load_state("domcontentloaded", timeout=30000)
+            except Exception:
+                pass
+            page.wait_for_timeout(1800)
+
+            text = (page.locator("body").inner_text() or "").strip()
+            lower = text.lower()
+            if page.url.rstrip("/") == ADD_URL.rstrip("/") and any(
+                marker in lower for marker in ("ошибка", "заполните", "неверно", "обязательно")
+            ):
+                print("RU123_RESPONSE_TEXT=" + json.dumps(text[:3500], ensure_ascii=False))
+                raise RuntimeError("123ru rejected submission")
+
+            record = {
+                "target_id": TARGET_ID,
+                "target_name": "123ru.net",
+                "item_key": item_key,
+                "title": title,
+                "source_url": source_url,
+                "result_url": page.url,
+                "submitted_at": utc_now(),
+                "status": "submitted",
+                "location": "Казань",
+            }
+
+            # A direct public article URL is stronger confirmation than a generic success page.
+            if page.url != ADD_URL and "/addnews" not in page.url:
+                record["status"] = "published"
+                record["public_url"] = page.url
+                record["published_at"] = record["submitted_at"]
+
+            history.setdefault("entries", []).append(record)
+            save_json(HISTORY_PATH, history)
+            print("RU123_RESULT=" + json.dumps(record, ensure_ascii=False))
+            print("RU123_RESPONSE_TEXT=" + json.dumps(text[:1800], ensure_ascii=False))
+            return 0
+        finally:
+            context.close()
+            browser.close()
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
