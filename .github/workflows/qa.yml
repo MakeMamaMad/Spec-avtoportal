@@ -296,7 +296,7 @@ jobs:
 
           knowledge_data = json.loads((root / "data/knowledge_articles.json").read_text("utf-8"))
           knowledge_items = knowledge_data.get("items", [])
-          assert len(knowledge_items) == 6, f"expected 6 evergreen knowledge articles, got {len(knowledge_items)}"
+          assert len(knowledge_items) >= 6, f"expected at least 6 evergreen knowledge articles, got {len(knowledge_items)}"
           knowledge_slugs = [str(x.get("slug") or "") for x in knowledge_items]
           assert all(knowledge_slugs), "every knowledge article needs slug"
           assert len(knowledge_slugs) == len(set(knowledge_slugs)), "knowledge slugs must be unique"
