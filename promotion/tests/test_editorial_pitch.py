@@ -57,10 +57,15 @@ class EditorialPitchTests(unittest.TestCase):
 
     def test_featured_pitch_is_sent_once_then_knowledge_follows(self) -> None:
         articles = load_articles(KNOWLEDGE, CONFIG)
-        history = [{"target_id": "editor", "item_key": "regulation:mintrans-212-2026", "status": "email_sent", "created_at": "2026-09-01T00:00:00+00:00"}]
+        history = [{"target_id": "editor", "item_key": "regulation:mintrans-212-2026", "status": "email_sent", "created_at": "2026-08-01T00:00:00+00:00"}]
         action = pick_action(articles, [EMAIL_TARGET], history, NOW, pitch_config=CONFIG)
         self.assertEqual(action["slug"], "gabarity-i-massy")
         self.assertIn("/knowledge/gabarity-i-massy/", action["site_url"])
+
+    def test_editor_is_not_emailed_again_within_30_days(self) -> None:
+        articles = load_articles(KNOWLEDGE, CONFIG)
+        history = [{"target_id": "editor", "item_key": "regulation:mintrans-212-2026", "status": "email_sent", "created_at": "2026-09-10T00:00:00+00:00"}]
+        self.assertIsNone(pick_action(articles, [EMAIL_TARGET], history, NOW, pitch_config=CONFIG))
 
     def test_automatic_publishers_never_get_email_only_pitch(self) -> None:
         articles = load_articles(KNOWLEDGE, CONFIG)

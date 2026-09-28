@@ -32,6 +32,9 @@ SUCCESS_STATUSES = {"submitted", "verified_in_author_cabinet", "published", "ema
 PREPARED_STATUSES = {"manual_prepared", "manual_fallback", "email_prepared"}
 EMAIL_BLOCK_STATUSES = {"email_invalid_domain", "email_bounced"}
 COOLDOWN_DAYS = 7
+# Editors who got an unsolicited pitch and did not reply should not hear from
+# us again for a month: a weekly follow-up reads as spam and hurts delivery.
+EMAIL_COOLDOWN_DAYS = 30
 PENDING_EMAIL_STATUSES = {"ready", "pending", "todo"}
 
 
@@ -72,9 +75,9 @@ def last_target_action(history: list[dict[str, Any]], target_id: str) -> datetim
     return max(values) if values else None
 
 
-def in_cooldown(history: list[dict[str, Any]], target_id: str, now: datetime) -> bool:
+def in_cooldown(history: list[dict[str, Any]], target_id: str, now: datetime, days: int = COOLDOWN_DAYS) -> bool:
     latest = last_target_action(history, target_id)
-    return bool(latest and latest > now - timedelta(days=COOLDOWN_DAYS))
+    return bool(latest and latest > now - timedelta(days=days))
 
 
 def words(text: str) -> set[str]:
@@ -317,7 +320,12 @@ def pick_action(
         and target.get("status") not in BLOCKED_TARGET_STATUSES
         and target.get("policy") != "blocked"
         and str(target.get("id") or "") not in email_blocked
-        and not in_cooldown(history, str(target.get("id") or ""), now)
+        and not in_cooldown(
+            history,
+            str(target.get("id") or ""),
+            now,
+            EMAIL_COOLDOWN_DAYS if is_email_target(target) else COOLDOWN_DAYS,
+        )
     ]
     candidates.sort(key=target_rank)
 
