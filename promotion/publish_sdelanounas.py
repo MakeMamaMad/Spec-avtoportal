@@ -110,7 +110,7 @@ def fill_message(page: Page, body: str) -> None:
                             .replace(/&/g, '&amp;')
                             .replace(/</g, '&lt;')
                             .replace(/>/g, '&gt;')
-                            .replace(/\n/g, '<br>');
+                            .replaceAll(String.fromCharCode(10), '<br>');
                         ed.setContent(escaped);
                         ed.save();
                     }
