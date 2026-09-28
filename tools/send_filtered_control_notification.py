@@ -177,6 +177,59 @@ def build_bounce_message(conclusion: str) -> str | None:
     return "\n".join(lines)
 
 
+def build_sdelanounas_message(conclusion: str) -> str | None:
+    log = source_log()
+
+    if "SDELANOUNAS_DAILY_SKIP already_posted_today" in log:
+        return None
+    if "SDELANOUNAS_DAILY_NO_TARGET" in log:
+        return (
+            "📣 Реклама — Сделано у нас\n"
+            "⚪ Сегодня подходящей новости для публикации не найдено."
+        )
+
+    published_matches = re.findall(
+        r"SDELANOUNAS_PUBLISHED\s+(\{.*?\})(?:\r?\n|$)",
+        log,
+    )
+    if published_matches:
+        try:
+            payload = json.loads(published_matches[-1])
+        except Exception:
+            payload = {}
+        title = str(payload.get("title") or "материал")
+        url = str(payload.get("public_url") or "")
+        lines = [
+            "📣 Реклама — Сделано у нас",
+            f"✅ Опубликовано: {title}",
+        ]
+        if url:
+            lines.append(url)
+        return "\n".join(lines)
+
+    result_matches = re.findall(
+        r"SDELANOUNAS_RESULT=(\{.*?\})(?:\r?\n|$)",
+        log,
+    )
+    if result_matches:
+        try:
+            payload = json.loads(result_matches[-1])
+        except Exception:
+            payload = {}
+        title = str(payload.get("title") or "материал")
+        return (
+            "📣 Реклама — Сделано у нас\n"
+            f"⏳ Материал отправлен: {title}. Публичное появление ещё проверяется."
+        )
+
+    if conclusion != "success":
+        return (
+            "📣 Реклама — Сделано у нас\n"
+            "❌ Ежедневная публикация завершилась ошибкой."
+        )
+    return None
+
+
 def build_email_message(conclusion: str) -> str | None:
     log = source_log()
     sent = parse_last_sent(log)
@@ -231,6 +284,8 @@ def build_message() -> str | None:
         return build_email_message(conclusion)
     if workflow == "Promotion — Gmail Delivery Check":
         return build_bounce_message(conclusion)
+    if workflow == "Promotion — SdelanoU nas Daily":
+        return build_sdelanounas_message(conclusion)
     return None
 
 
