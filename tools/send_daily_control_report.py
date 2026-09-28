@@ -172,11 +172,13 @@ def site_analytics_lines(summary: dict[str, Any]) -> list[str]:
                     f"{int(row.get('clicks') or 0)} кл.{pos}"
                 )
     elif w_status == "missing_token":
-        lines.append("• Нужен секрет YANDEX_WEBMASTER_OAUTH_TOKEN с правом webmaster:hostinfo")
+        lines.append("• Нет токена: нужен YANDEX_METRIKA_OAUTH_TOKEN с правом webmaster:hostinfo")
     elif w_status == "host_not_found":
         lines.append(f"• ❌ {webmaster.get('detail') or 'Сайт не найден в Вебмастере'}")
     elif w_status == "error":
         lines.append(f"• ❌ Данные Вебмастера не получены ({webmaster.get('detail') or 'ошибка'})")
+        if webmaster.get("hint"):
+            lines.append(f"• {webmaster.get('hint')}")
     else:
         lines.append("• Отчёт Вебмастера ещё не выполнялся")
     return lines

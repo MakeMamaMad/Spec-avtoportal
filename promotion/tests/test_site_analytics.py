@@ -124,6 +124,14 @@ class WebmasterTests(unittest.TestCase):
         self.assertEqual(block["index"]["searchable_pages"], 700)
         self.assertEqual(block["search"]["status"], "error")
 
+    def test_forbidden_gives_scope_hint(self) -> None:
+        err = HTTPError("u", 403, "Forbidden", {}, None)
+        block = fsa.fetch_webmaster("t", fsa.DEFAULT_HOST, date(2026, 9, 28), fake_api({"/user": err}))
+        self.assertEqual(block["status"], "error")
+        self.assertIn("webmaster:hostinfo", block["hint"])
+        text = "\n".join(site_analytics_lines({"webmaster": block}))
+        self.assertIn("перевыпустите токен", text)
+
     def test_webmaster_falls_back_to_metrika_token(self) -> None:
         seen: list[str] = []
 
