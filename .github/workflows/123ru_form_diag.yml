@@ -1,0 +1,75 @@
+name: Diagnostics — 123ru Form
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/123ru_form_diag.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Playwright
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Inspect form
+        run: |
+          python - <<'PY'
+          import json
+          from playwright.sync_api import sync_playwright
+
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True)
+              page=browser.new_page(locale="ru-RU")
+              page.goto("https://123ru.net/other/addnews/", wait_until="domcontentloaded", timeout=60000)
+
+              rows=[]
+              loc=page.locator("input,textarea,select")
+              for i in range(min(loc.count(),160)):
+                  f=loc.nth(i)
+                  try:
+                      row={
+                          "tag":f.evaluate("(el)=>el.tagName.toLowerCase()"),
+                          "type":f.get_attribute("type") or "",
+                          "name":f.get_attribute("name") or "",
+                          "id":f.get_attribute("id") or "",
+                          "placeholder":f.get_attribute("placeholder") or "",
+                          "required":f.get_attribute("required") is not None,
+                      }
+                      if row["tag"]=="select":
+                          opts=[]
+                          options=f.locator("option")
+                          for j in range(min(options.count(),120)):
+                              o=options.nth(j)
+                              opts.append({
+                                  "value":o.get_attribute("value") or "",
+                                  "text":(o.inner_text() or "").strip(),
+                              })
+                          row["options"]=opts
+                      rows.append(row)
+                  except Exception:
+                      pass
+
+              print("RU123_FIELDS="+json.dumps(rows,ensure_ascii=False))
+              body=(page.locator("body").inner_text() or "")
+              print("RU123_TEXT="+json.dumps(body[body.find("Правка новости"):body.find("Правка новости")+3500],ensure_ascii=False))
+              captcha=(
+                  page.locator('iframe[src*="captcha" i], .g-recaptcha, [class*="captcha" i], [id*="captcha" i], img[src*="captcha" i]').count()
+                  or "код с картинки" in body.lower()
+                  or "я не робот" in body.lower()
+              )
+              print("RU123_CAPTCHA="+("yes" if captcha else "no"))
+              browser.close()
+          PY
