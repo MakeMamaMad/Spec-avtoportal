@@ -2116,6 +2116,54 @@ def build_homepage(items: list[dict[str, Any]]) -> None:
     HOME_HTML.write_text(page, encoding="utf-8")
 
 
+def write_rss_feed(items: list[dict[str, Any]], limit: int = 100) -> None:
+    """Publish a compact first-party RSS feed for syndication partners."""
+    rows: list[str] = []
+    for item in items[:limit]:
+        title = xml_escape(strip_html(get_field(item, "title", "headline", "name", default="Новость")))
+        url = xml_escape(article_url(item))
+        summary = xml_escape(clamp(summary_text(item), 900))
+        source = xml_escape(source_name(item))
+        published = parse_date(get_field(item, "published_at", "date", "pub_date"))
+        pub_date = ""
+        if published:
+            if published.tzinfo is None:
+                published = published.replace(tzinfo=timezone.utc)
+            pub_date = published.astimezone(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
+
+        description = summary
+        if source:
+            description = (description + f" Источник первичной новости: {source}.").strip()
+
+        parts = [
+            "    <item>",
+            f"      <title>{title}</title>",
+            f"      <link>{url}</link>",
+            f'      <guid isPermaLink="true">{url}</guid>',
+            f"      <description>{description}</description>",
+        ]
+        if pub_date:
+            parts.append(f"      <pubDate>{pub_date}</pubDate>")
+        parts.append("    </item>")
+        rows.append("\n".join(parts))
+
+    generated = datetime.now(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
+    feed = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    feed += '<rss version="2.0">\n'
+    feed += "  <channel>\n"
+    feed += "    <title>СпецАвтоПортал — новости грузовой и специальной техники</title>\n"
+    feed += f"    <link>{BASE_URL}/</link>\n"
+    feed += "    <description>Отраслевая лента о грузовиках, прицепах, полуприцепах, спецтехнике, производстве и логистике.</description>\n"
+    feed += "    <language>ru-ru</language>\n"
+    feed += f"    <lastBuildDate>{generated}</lastBuildDate>\n"
+    feed += "\n".join(rows)
+    if rows:
+        feed += "\n"
+    feed += "  </channel>\n"
+    feed += "</rss>\n"
+    (FRONTEND / "rss.xml").write_text(feed, encoding="utf-8")
+
+
 def write_news_sitemap(items: list[dict[str, Any]]) -> None:
     cutoff = datetime.now(timezone.utc) - timedelta(days=2)
     rows: list[str] = []
@@ -2376,6 +2424,7 @@ def main() -> None:
     (BRANDS_DIR / "index.html").write_text(render_brand_directory(brand_counts), encoding="utf-8")
 
     write_sitemap(items, regulations, knowledge_articles)
+    write_rss_feed(public_items)
     metrika_pages = inject_metrika_into_pages()
     print(f"[SEO] Yandex Metrika 106240080 injected into {metrika_pages} HTML pages")
     print(f"[SEO] generated {len(items)} static article pages")
@@ -2388,6 +2437,7 @@ def main() -> None:
     print(f"[SEO] generated brand hubs: {brand_counts}")
     print(f"[SEO] sitemap: {FRONTEND / 'sitemap.xml'}")
     print(f"[SEO] news sitemap: {FRONTEND / 'news-sitemap.xml'}")
+    print(f"[SEO] rss: {FRONTEND / 'rss.xml'}")
     print(f"[SEO] robots: {FRONTEND / 'robots.txt'}")
 
 
