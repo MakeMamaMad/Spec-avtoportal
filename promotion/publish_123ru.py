@@ -55,16 +55,53 @@ def gmail_address() -> str:
     if not creds.valid:
         raise RuntimeError("Gmail OAuth credentials are not valid")
 
-    req = urllib.request.Request(
-        "https://gmail.googleapis.com/gmail/v1/users/me/profile",
-        headers={"Authorization": f"Bearer {creds.token}", "Accept": "application/json"},
+    headers = {"Authorization": f"Bearer {creds.token}", "Accept": "application/json"}
+
+    try:
+        req = urllib.request.Request(
+            "https://gmail.googleapis.com/gmail/v1/users/me/profile",
+            headers=headers,
+        )
+        with urllib.request.urlopen(req, timeout=30) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+        address = str(payload.get("emailAddress") or "").strip()
+        if "@" in address:
+            return address
+    except Exception:
+        pass
+
+    # Some Gmail tokens can read mail but the profile endpoint is unavailable.
+    # Resolve the account address from the From header of the latest sent message.
+    list_req = urllib.request.Request(
+        "https://gmail.googleapis.com/gmail/v1/users/me/messages?q=in%3Asent&maxResults=1",
+        headers=headers,
     )
-    with urllib.request.urlopen(req, timeout=30) as response:
-        payload = json.loads(response.read().decode("utf-8"))
-    address = str(payload.get("emailAddress") or "").strip()
-    if "@" not in address:
-        raise RuntimeError("Could not resolve Gmail profile email")
-    return address
+    with urllib.request.urlopen(list_req, timeout=30) as response:
+        listing = json.loads(response.read().decode("utf-8"))
+    messages = listing.get("messages") or []
+    if not messages:
+        raise RuntimeError("Could not resolve Gmail account email: no sent messages")
+
+    message_id = str(messages[0].get("id") or "")
+    msg_req = urllib.request.Request(
+        (
+            "https://gmail.googleapis.com/gmail/v1/users/me/messages/"
+            + message_id
+            + "?format=metadata&metadataHeaders=From"
+        ),
+        headers=headers,
+    )
+    with urllib.request.urlopen(msg_req, timeout=30) as response:
+        message = json.loads(response.read().decode("utf-8"))
+    from_value = ""
+    for header in ((message.get("payload") or {}).get("headers") or []):
+        if str(header.get("name") or "").lower() == "from":
+            from_value = str(header.get("value") or "")
+            break
+    match = re.search(r"[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}", from_value, flags=re.I)
+    if not match:
+        raise RuntimeError("Could not resolve Gmail account email from Sent header")
+    return match.group(0)
 
 
 def main() -> int:
