@@ -6,6 +6,7 @@ import json
 import os
 import re
 import urllib.request
+from urllib.error import HTTPError
 from datetime import datetime, timezone
 from email.message import EmailMessage
 from pathlib import Path
@@ -94,8 +95,12 @@ def send_message(creds: Credentials, recipients: list[str], subject: str, body: 
             "User-Agent": "SpecAvtoPortal-Editorial-Mailer",
         },
     )
-    with urllib.request.urlopen(request, timeout=30) as response:
-        payload = json.loads(response.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"Gmail API HTTP {exc.code}: {detail}") from exc
     message_id = str(payload.get("id") or "").strip()
     if not message_id:
         raise RuntimeError("Gmail API returned no message id")
