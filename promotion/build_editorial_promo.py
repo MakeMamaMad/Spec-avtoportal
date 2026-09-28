@@ -317,9 +317,13 @@ def main() -> int:
     legacy_history = [x for x in legacy_history_data.get("entries", []) if isinstance(x, dict)]
     planning_history = editorial_history + legacy_history
     allow_manual = os.getenv("EDITORIAL_PREPARE_MANUAL") == "1"
+    disable_email = os.getenv("EDITORIAL_DISABLE_EMAIL") == "1"
     planning_targets = targets
-    if has_pending_editorial_email(manual_data):
-        planning_targets = [target for target in targets if not is_email_target(target)]
+    if disable_email:
+        planning_targets = [target for target in planning_targets if not is_email_target(target)]
+        print("EDITORIAL_EMAIL_PLANNING_DISABLED dedicated_daily_email_runner")
+    elif has_pending_editorial_email(manual_data):
+        planning_targets = [target for target in planning_targets if not is_email_target(target)]
         print("EDITORIAL_EMAIL_QUEUE_BLOCKED pending_email_exists")
 
     action = pick_action(
