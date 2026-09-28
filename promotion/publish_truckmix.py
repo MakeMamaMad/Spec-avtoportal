@@ -346,22 +346,22 @@ def main() -> int:
                 print("FORM_INVENTORY=" + json.dumps(safe_form_inventory(page), ensure_ascii=False))
                 raise RuntimeError("TruckMix returned validation errors after submit")
 
-            published_url = page.url
+            cabinet_url = page.url
             record = {
                 "target_id": TARGET_ID,
                 "target_name": "TRUCKmix.ru",
                 "item_key": entry.get("item_key"),
                 "title": title,
                 "source_url": site_url,
-                "published_url": published_url,
-                "published_at": utc_now(),
-                "status": "published",
+                "result_url": cabinet_url,
+                "submitted_at": utc_now(),
+                "status": "verified_in_author_cabinet",
             }
             history.setdefault("entries", []).append(record)
             save_json(HISTORY_PATH, history)
             if os.getenv("PROMOTION_RECURRING") != "1":
                 save_json(DONE_PATH, record)
-            print(f"PUBLISHED: {published_url}")
+            print("SUBMITTED=" + json.dumps(record, ensure_ascii=False))
             return 0
         except Exception as exc:
             print(f"ERROR: {exc}", file=sys.stderr)
