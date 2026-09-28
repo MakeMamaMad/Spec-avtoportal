@@ -1,0 +1,52 @@
+name: Analytics — Promotion UTM Feedback
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 20:30 Moscow time (UTC+3), shortly before the daily Control summary.
+    - cron: '30 17 * * *'
+  push:
+    branches: [ main ]
+    paths:
+      - 'tools/fetch_promotion_metrika.py'
+      - '.github/workflows/promotion_analytics.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: promotion-analytics
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Fetch UTM performance from Yandex Metrica
+        env:
+          YANDEX_METRIKA_OAUTH_TOKEN: ${{ secrets.YANDEX_METRIKA_OAUTH_TOKEN }}
+        run: |
+          python tools/fetch_promotion_metrika.py
+
+      - name: Commit analytics summary
+        run: |
+          git config user.name "specavto-analytics"
+          git config user.email "actions@users.noreply.github.com"
+          git add frontend/data/promotion/traffic_summary.json
+          if git diff --cached --quiet; then
+            echo "No promotion analytics changes"
+            exit 0
+          fi
+          git commit -m "analytics: update promotion UTM feedback"
+          git pull --rebase origin main
+          git push origin main
