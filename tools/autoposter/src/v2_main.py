@@ -159,12 +159,14 @@ def generate_voice(text: str, output: Path) -> str:
 
             client = OpenAI(api_key=api_key)
             model = os.getenv("OPENAI_TTS_MODEL", "gpt-4o-mini-tts").strip()
-            voice = os.getenv("OPENAI_TTS_VOICE", "cedar").strip()
+            voice = os.getenv("OPENAI_TTS_VOICE", "marin").strip()
             instructions = os.getenv(
                 "OPENAI_TTS_INSTRUCTIONS",
-                "Speak in natural Russian with a low, restrained, authoritative male news-presenter style. "
-                "Sound calm, solid and serious rather than energetic. Keep a measured pace with clear diction. "
-                "Avoid theatrical delivery, sales intonation and exaggerated emotion. Pronounce company names carefully.",
+                "Speak natural conversational Russian like a modern automotive news presenter. "
+                "Use warm, human intonation with small natural pitch changes and short pauses at punctuation. "
+                "Keep a brisk but comfortable pace, roughly 155 to 165 words per minute, with clear diction. "
+                "Do not sound solemn, robotic, theatrical or like a commercial voice-over. "
+                "Connect phrases smoothly and pronounce company and model names carefully.",
             ).strip()
             with client.audio.speech.with_streaming_response.create(
                 model=model,
@@ -188,6 +190,72 @@ def generate_voice(text: str, output: Path) -> str:
 
         gTTS(text=text, lang="ru").save(str(output))
         return "gtts"
+
+
+def generate_scene_voice_track(board, work_dir: Path) -> tuple[Path, list[float], str]:
+    """Generate each scene separately so slide boundaries follow real speech."""
+    scene_audio_dir = work_dir / "scene_audio"
+    scene_audio_dir.mkdir(parents=True, exist_ok=True)
+
+    scene_paths: list[Path] = []
+    durations: list[float] = []
+    modes: list[str] = []
+
+    for index, scene in enumerate(board.scenes, 1):
+        path = scene_audio_dir / f"scene_{index:02d}.mp3"
+        mode = generate_voice(scene.narration, path)
+        duration = media_duration(path)
+
+        # Keep a little visual breathing room after each spoken phrase.
+        target = max(2.8, duration + 0.18)
+        if target > duration + 0.03:
+            padded = scene_audio_dir / f"scene_{index:02d}_padded.mp3"
+            proc = __import__("subprocess").run(
+                [
+                    "ffmpeg", "-y", "-loglevel", "error",
+                    "-i", str(path),
+                    "-af", f"apad=pad_dur={target - duration:.3f}",
+                    "-t", f"{target:.3f}",
+                    "-c:a", "libmp3lame", "-q:a", "2",
+                    str(padded),
+                ],
+                stdout=__import__("subprocess").PIPE,
+                stderr=__import__("subprocess").PIPE,
+            )
+            if proc.returncode == 0 and padded.exists() and padded.stat().st_size > 0:
+                padded.replace(path)
+                duration = media_duration(path)
+
+        scene_paths.append(path)
+        durations.append(max(2.8, duration))
+        modes.append(mode)
+
+    concat_file = scene_audio_dir / "concat.txt"
+    concat_file.write_text(
+        "".join(f"file '{path.resolve()}'\n" for path in scene_paths),
+        encoding="utf-8",
+    )
+    output = work_dir / "voice.mp3"
+    proc = __import__("subprocess").run(
+        [
+            "ffmpeg", "-y", "-loglevel", "error",
+            "-f", "concat", "-safe", "0", "-i", str(concat_file),
+            "-c:a", "libmp3lame", "-q:a", "2",
+            str(output),
+        ],
+        stdout=__import__("subprocess").PIPE,
+        stderr=__import__("subprocess").PIPE,
+    )
+    if proc.returncode != 0 or not output.exists() or output.stat().st_size == 0:
+        err = (proc.stderr or b"").decode("utf-8", errors="replace")
+        raise RuntimeError(f"scene voice concat failed: {err[-2000:]}")
+
+    mode = modes[0] if modes and len(set(modes)) == 1 else "+".join(dict.fromkeys(modes))
+    print(
+        "[tts] scene-synced "
+        + ", ".join(f"{index + 1}:{seconds:.2f}s" for index, seconds in enumerate(durations))
+    )
+    return output, durations, mode
 
 
 def fit_voice_to_storyboard(audio: Path, planned_seconds: float) -> float:
@@ -297,12 +365,17 @@ def main() -> int:
         visual_modes.append(generate_scene_visual(scene, path))
         visual_paths.append(path)
 
-    audio = WORK_DIR / "voice.mp3"
-    tts_mode = generate_voice(board.voiceover, audio)
-    fit_voice_to_storyboard(audio, sum(scene.seconds for scene in board.scenes))
+    audio, scene_audio_seconds, tts_mode = generate_scene_voice_track(board, WORK_DIR)
 
     video = OUT_DIR / "master.mp4"
-    render_info = render_short(board, visual_paths, audio, video, WORK_DIR / "render")
+    render_info = render_short(
+        board,
+        visual_paths,
+        audio,
+        video,
+        WORK_DIR / "render",
+        scene_audio_seconds=scene_audio_seconds,
+    )
 
     # TikTok gets the same editorial story/voice but a clean visual export
     # without superimposed brand/logo/URL.
@@ -314,6 +387,7 @@ def main() -> int:
         tiktok_video,
         WORK_DIR / "render_tiktok",
         platform="tiktok",
+        scene_audio_seconds=scene_audio_seconds,
     )
 
     thumbnail_source = Path(str(render_info["thumbnail"]))
