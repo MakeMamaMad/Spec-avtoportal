@@ -74,6 +74,7 @@ jobs:
 
       - name: Send successful run summary to private Telegram channel
         if: steps.build.outputs.skip != 'true' && github.event.workflow_run.conclusion == 'success'
+        continue-on-error: true
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           REPORT_TELEGRAM_CHAT_ID: ${{ secrets.REPORT_TELEGRAM_CHAT_ID }}
@@ -81,7 +82,7 @@ jobs:
           python tools/send_ops_report_telegram.py
 
       - name: Recover overdue news and social digests
-        if: github.event.workflow_run.conclusion == 'success'
+        if: always() && github.event.workflow_run.conclusion == 'success'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -118,7 +119,7 @@ jobs:
           fi
 
       - name: Ensure promotion recovery is running
-        if: github.event.workflow_run.conclusion == 'success'
+        if: always() && github.event.workflow_run.conclusion == 'success'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
