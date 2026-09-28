@@ -23,7 +23,7 @@ QUEUE_PATH = ROOT / "frontend/data/promotion/editorial_queue.json"
 MANUAL_QUEUE_PATH = ROOT / "frontend/data/promotion/manual_queue.json"
 
 MSK = timezone(timedelta(hours=3))
-AUTO_TARGETS = {"mexzona"}
+AUTO_TARGETS = {"mexzona", "truckmix-publishing"}
 BLOCKED_TARGET_STATUSES = {"blocked", "do_not_post", "disabled"}
 PUBLISHER_PLATFORMS = {"publisher"}
 SUCCESS_STATUSES = {"submitted", "verified_in_author_cabinet", "published", "email_sent"}
