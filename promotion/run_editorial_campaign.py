@@ -100,6 +100,7 @@ def main() -> int:
     adapters = {
         "mexzona": ROOT / "promotion/publish_mexzona.py",
         "truckmix-publishing": ROOT / "promotion/publish_truckmix.py",
+        "mashport": ROOT / "promotion/publish_mashport.py",
     }
     adapter = adapters.get(target_id)
     if adapter is None:
