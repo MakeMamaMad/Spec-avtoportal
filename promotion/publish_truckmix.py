@@ -12,8 +12,8 @@ from typing import Any
 from playwright.sync_api import Page, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-QUEUE_PATH = ROOT / "frontend/data/promotion_queue.json"
-HISTORY_PATH = ROOT / "frontend/data/promotion_history.json"
+QUEUE_PATH = Path(os.getenv("PROMOTION_QUEUE_PATH", str(ROOT / "frontend/data/promotion_queue.json")))
+HISTORY_PATH = Path(os.getenv("PROMOTION_HISTORY_PATH", str(ROOT / "frontend/data/promotion_history.json")))
 DONE_PATH = ROOT / "promotion/first_launch_done.json"
 TARGET_ID = "truckmix-publishing"
 LOGIN_URL = "https://truckmix.ru/login"
@@ -39,9 +39,9 @@ def utc_now() -> str:
 def pick_entry() -> dict[str, Any]:
     queue = load_json(QUEUE_PATH, {"entries": []})
     for entry in queue.get("entries", []):
-        if entry.get("target_id") == TARGET_ID and entry.get("status") == "ready_for_review":
+        if entry.get("target_id") == TARGET_ID and entry.get("status") in {"ready_for_review", "ready_for_publish"}:
             return entry
-    raise RuntimeError("No ready TruckMix promotion entry found in promotion_queue.json")
+    raise RuntimeError(f"No ready TruckMix promotion entry found in {QUEUE_PATH}")
 
 
 def find_first(page: Page, selectors: list[str]):
@@ -266,7 +266,7 @@ def submit(page: Page) -> None:
 
 
 def main() -> int:
-    if DONE_PATH.exists():
+    if DONE_PATH.exists() and os.getenv("PROMOTION_FORCE_RETRY") != "1":
         print("First external promotion has already completed; skipping.")
         return 0
 
@@ -359,7 +359,8 @@ def main() -> int:
             }
             history.setdefault("entries", []).append(record)
             save_json(HISTORY_PATH, history)
-            save_json(DONE_PATH, record)
+            if os.getenv("PROMOTION_RECURRING") != "1":
+                save_json(DONE_PATH, record)
             print(f"PUBLISHED: {published_url}")
             return 0
         except Exception as exc:
