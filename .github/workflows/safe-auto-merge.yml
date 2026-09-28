@@ -11,7 +11,8 @@ concurrency:
 permissions:
   contents: write
   pull-requests: write
-  actions: read
+  # write: to start the site deploy after merging (see the last step below)
+  actions: write
 
 jobs:
   merge:
@@ -166,4 +167,19 @@ jobs:
               raise SystemExit(f"Merge was not completed: {result}")
 
           print(f"PR #{pr_number} merged automatically at {result.get('sha')}.")
+
+          # A merge made with GITHUB_TOKEN does not trigger `push` workflows,
+          # so the site would stay stale until some other deploy. GitHub does
+          # allow GITHUB_TOKEN to start workflow_dispatch runs, so start the
+          # site build explicitly. A failure here must not undo the merge.
+          try:
+              request(
+                  "/actions/workflows/pages.yml/dispatches",
+                  method="POST",
+                  payload={"ref": "main"},
+              )
+              print("Site deploy (pages.yml) started after merge.")
+          except urllib.error.HTTPError as exc:
+              detail = exc.read().decode("utf-8", errors="replace")
+              print(f"::warning::Could not start site deploy: HTTP {exc.code}: {detail}")
           PY
