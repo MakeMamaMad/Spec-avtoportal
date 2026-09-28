@@ -6,6 +6,7 @@ on:
       - "News — Fetch & Publish"
       - "Video — Generate & Publish (YouTube + TikTok + Instagram)"
       - "Promotion — Editorial Placement"
+      - "Promotion — Gmail Delivery Check"
     types: [completed]
 
 permissions:
