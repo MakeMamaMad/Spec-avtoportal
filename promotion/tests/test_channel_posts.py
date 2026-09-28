@@ -29,7 +29,7 @@ class ChannelPostsTests(unittest.TestCase):
     def test_caption_limit_counts_visible_text(self) -> None:
         long_link = '<a href="https://example.org/' + "x" * 2000 + '">ссылка</a>'
         self.assertEqual(pcp.validate({"text_html": long_link}), [])
-        post = {"text_html": "я" * 1100, "document": "promotion/channel_posts/files/specavtoportal-chek-list-perevozchika-2026.pdf"}
+        post = {"text_html": "я" * 1100, "document": "frontend/files/specavtoportal-chek-list-perevozchika-2026.pdf"}
         self.assertIn("text longer than 1024 characters", pcp.validate(post))
 
     def test_main_sends_once_and_records_state(self) -> None:
