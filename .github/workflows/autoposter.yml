@@ -150,7 +150,7 @@ jobs:
           OPENAI_IMAGE_SIZE: "1024x1792"
           OPENAI_TTS: "1"
           OPENAI_TTS_MODEL: "gpt-4o-mini-tts"
-          OPENAI_TTS_VOICE: "cedar"
+          OPENAI_TTS_VOICE: "marin"
           V2_MARK_USED: "0"
           V2_MAX_AGE_HOURS: "96"
           SITE_URL: "https://spec-avtoportal.ru/"
