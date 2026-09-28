@@ -5,6 +5,7 @@ import base64
 import json
 import os
 import re
+import urllib.parse
 import urllib.request
 from urllib.error import HTTPError
 from datetime import datetime, timezone
@@ -43,6 +44,63 @@ def utc_now() -> str:
 def parse_recipients(raw: str) -> list[str]:
     values = [part.strip() for part in re.split(r"[;,]", raw or "") if part.strip()]
     return values
+
+
+def dns_lookup(name: str, record_type: str) -> dict[str, Any] | None:
+    query = urllib.parse.urlencode({"name": name, "type": record_type})
+    request = urllib.request.Request(
+        "https://dns.google/resolve?" + query,
+        headers={
+            "Accept": "application/dns-json",
+            "User-Agent": "SpecAvtoPortal-Editorial-Mailer",
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=10) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except Exception:
+        return None
+
+
+def domain_accepts_mail(domain: str) -> tuple[bool | None, str]:
+    domain = domain.strip().lower().rstrip(".")
+    if not domain:
+        return False, "empty_domain"
+
+    mx = dns_lookup(domain, "MX")
+    if mx is None:
+        return None, "dns_check_unavailable"
+
+    status = int(mx.get("Status", -1))
+    if status == 3:
+        return False, "NXDOMAIN"
+    if status != 0:
+        return None, f"dns_status_{status}"
+
+    mx_answers = [row for row in (mx.get("Answer") or []) if int(row.get("type") or 0) == 15]
+    for answer in mx_answers:
+        data = str(answer.get("data") or "").strip()
+        if data.endswith(" .") and data.startswith("0 "):
+            return False, "null_mx"
+        if data:
+            return True, "mx"
+
+    # RFC SMTP fallback: when MX is absent, the domain itself may accept mail.
+    for record_type in ("A", "AAAA"):
+        lookup = dns_lookup(domain, record_type)
+        if lookup is None:
+            continue
+        if int(lookup.get("Status", -1)) == 3:
+            return False, "NXDOMAIN"
+        answers = lookup.get("Answer") or []
+        if int(lookup.get("Status", -1)) == 0 and answers:
+            return True, record_type.lower()
+
+    return False, "no_mx_or_address"
+
+
+def recipient_domain(address: str) -> str:
+    return address.rsplit("@", 1)[-1].strip().lower() if "@" in address else ""
 
 
 def pending_email_entries(payload: dict[str, Any]) -> list[dict[str, Any]]:
@@ -105,6 +163,43 @@ def send_message(creds: Credentials, recipients: list[str], subject: str, body: 
     if not message_id:
         raise RuntimeError("Gmail API returned no message id")
     return message_id
+
+
+def mark_delivery_problem(
+    queue: dict[str, Any],
+    history: dict[str, Any],
+    summary: dict[str, Any],
+    row: dict[str, Any],
+    reason: str,
+) -> None:
+    now = utc_now()
+    row["status"] = "email_invalid_domain"
+    row["delivery_status"] = "rejected_preflight"
+    row["delivery_detail"] = reason
+    row["updated_at"] = now
+
+    target_id = str(row.get("target_id") or "")
+    action_id = str(row.get("action_id") or "")
+    slug = action_id.rsplit(":", 1)[-1] if ":" in action_id else ""
+    for item in reversed(history.get("entries", [])):
+        if not isinstance(item, dict):
+            continue
+        if str(item.get("target_id") or "") != target_id:
+            continue
+        if slug and str(item.get("slug") or "") != slug:
+            continue
+        if str(item.get("status") or "") in {"email_prepared", "email_sent"}:
+            item["status"] = "email_invalid_domain"
+            item["delivery_checked_at"] = now
+            item["delivery_detail"] = reason
+            break
+
+    summary["status"] = "email_invalid_domain"
+    summary["updated_at"] = now
+    summary["target_name"] = row.get("target_name")
+    summary["title"] = row.get("email_subject")
+    summary["detail"] = "Письмо не отправлено: домен получателя не принимает почту или не существует."
+    queue["updated_at"] = now
 
 
 def mark_sent(
@@ -183,11 +278,27 @@ def main() -> int:
     if not recipients or not subject or not body:
         raise RuntimeError("Pending editorial email is missing recipient, subject, or body")
 
-    creds = load_credentials(token_path)
-    message_id = send_message(creds, recipients, subject, body)
-
     history = load_json(HISTORY_PATH, {"schema": 1, "entries": []})
     summary = load_json(SUMMARY_PATH, {"schema": 1})
+
+    invalid = []
+    for address in recipients:
+        domain = recipient_domain(address)
+        verdict, detail = domain_accepts_mail(domain)
+        if verdict is False:
+            invalid.append({"address": address, "domain": domain, "detail": detail})
+
+    if invalid:
+        reason = json.dumps(invalid, ensure_ascii=False)
+        mark_delivery_problem(queue, history, summary, row, reason)
+        save_json(QUEUE_PATH, queue)
+        save_json(HISTORY_PATH, history)
+        save_json(SUMMARY_PATH, summary)
+        print("GMAIL_EMAIL_PREFLIGHT_REJECT " + reason)
+        return 0
+
+    creds = load_credentials(token_path)
+    message_id = send_message(creds, recipients, subject, body)
     mark_sent(queue, history, summary, row, message_id)
 
     save_json(QUEUE_PATH, queue)
