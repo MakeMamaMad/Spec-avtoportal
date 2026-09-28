@@ -64,8 +64,23 @@ def http_get_json(url: str, token: str) -> Any:
 
 
 def error_detail(exc: Exception) -> str:
+    """Short error text; for HTTP errors includes the API's own error code/message."""
     code = getattr(exc, "code", None)
-    return f"{type(exc).__name__} {code}" if code else type(exc).__name__
+    text = f"{type(exc).__name__} {code}" if code else type(exc).__name__
+    reader = getattr(exc, "read", None)
+    if code and callable(reader):
+        try:
+            body = json.loads(reader().decode("utf-8", "replace") or "{}")
+        except Exception:
+            body = {}
+        if isinstance(body, dict):
+            api_code = body.get("error_code") or body.get("code") or body.get("error")
+            message = body.get("error_message") or body.get("message") or body.get("error_description")
+            if api_code:
+                text += f" {api_code}"
+            if message:
+                text += f": {str(message)[:200]}"
+    return text
 
 
 # --------------------------------------------------------------------------
@@ -220,8 +235,10 @@ def fetch_webmaster(
             detail="Нет токена Яндекса: нужен секрет YANDEX_METRIKA_OAUTH_TOKEN с правом webmaster:hostinfo.",
         )
         return block
+    step = "user"
     try:
         user_id = fetch(f"{WEBMASTER_API}/user", token).get("user_id")
+        step = "hosts"
         hosts = fetch(f"{WEBMASTER_API}/user/{user_id}/hosts", token).get("hosts") or []
         found = pick_host(hosts, host)
         if not found:
@@ -230,6 +247,7 @@ def fetch_webmaster(
         host_id = urllib.parse.quote(str(found["host_id"]), safe="")
         base = f"{WEBMASTER_API}/user/{user_id}/hosts/{host_id}"
 
+        step = "summary"
         summary = fetch(f"{base}/summary", token)
         problems = summary.get("site_problems") or {}
         block["index"] = {
@@ -244,12 +262,12 @@ def fetch_webmaster(
             },
         }
     except Exception as exc:
-        block.update(status="error", detail=f"Вебмастер: {error_detail(exc)}")
+        block.update(status="error", step=step, detail=f"Вебмастер ({step}): {error_detail(exc)}")
         if getattr(exc, "code", None) in (401, 403):
             block["hint"] = (
-                "У токена нет доступа к Вебмастеру: добавьте в OAuth-приложении право "
-                "«Яндекс.Вебмастер → Получение информации о сайтах» (webmaster:hostinfo), "
-                "перевыпустите токен и обновите секрет YANDEX_METRIKA_OAUTH_TOKEN."
+                "Проверьте токен: в OAuth-приложении должно быть право «Яндекс.Вебмастер → "
+                "Получение информации о внешних ссылках на сайт» (webmaster:hostinfo), токен "
+                "выпущен после его добавления, с аккаунта, где сайт подтверждён в Вебмастере."
             )
         return block
 
@@ -269,14 +287,23 @@ def fetch_webmaster(
 
 def build_summary(env: dict[str, str], today: date, fetch: Fetcher = http_get_json) -> dict[str, Any]:
     metrika_token = env.get("YANDEX_METRIKA_OAUTH_TOKEN", "").strip()
-    webmaster_token = env.get("YANDEX_WEBMASTER_OAUTH_TOKEN", "").strip() or metrika_token
+    own_webmaster_token = env.get("YANDEX_WEBMASTER_OAUTH_TOKEN", "").strip()
+    webmaster_token = own_webmaster_token or metrika_token
     host = env.get("YANDEX_WEBMASTER_HOST", "").strip() or DEFAULT_HOST
+    webmaster = fetch_webmaster(webmaster_token, host, today, fetch)
+    # Which secret was used matters when debugging access errors: a separate
+    # YANDEX_WEBMASTER_OAUTH_TOKEN, if present, takes priority over the Metrika one.
+    webmaster["token_secret"] = (
+        "YANDEX_WEBMASTER_OAUTH_TOKEN" if own_webmaster_token
+        else "YANDEX_METRIKA_OAUTH_TOKEN" if metrika_token
+        else ""
+    )
     return {
         "schema": 1,
         "updated_at": utc_now(),
         "counter_id": COUNTER_ID,
         "metrika": fetch_metrika(metrika_token, fetch),
-        "webmaster": fetch_webmaster(webmaster_token, host, today, fetch),
+        "webmaster": webmaster,
     }
 
 

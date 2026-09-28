@@ -177,6 +177,8 @@ def site_analytics_lines(summary: dict[str, Any]) -> list[str]:
         lines.append(f"• ❌ {webmaster.get('detail') or 'Сайт не найден в Вебмастере'}")
     elif w_status == "error":
         lines.append(f"• ❌ Данные Вебмастера не получены ({webmaster.get('detail') or 'ошибка'})")
+        if webmaster.get("token_secret"):
+            lines.append(f"• Использован секрет {webmaster.get('token_secret')}")
         if webmaster.get("hint"):
             lines.append(f"• {webmaster.get('hint')}")
     else:
