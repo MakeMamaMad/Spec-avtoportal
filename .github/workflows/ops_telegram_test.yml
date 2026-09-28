@@ -1,4 +1,5 @@
 name: Control — Telegram Test
+# retrigger: capture control channel id
 
 on:
   workflow_dispatch:
