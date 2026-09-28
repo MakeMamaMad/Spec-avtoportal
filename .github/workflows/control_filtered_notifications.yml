@@ -1,0 +1,45 @@
+name: Control — Filtered Notifications
+
+on:
+  workflow_run:
+    workflows:
+      - "News — Fetch & Publish"
+      - "Video — Generate & Publish (YouTube + TikTok + Instagram)"
+      - "Promotion — Editorial Placement"
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: specavto-filtered-control
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Capture source workflow jobs and logs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          gh run view "$SOURCE_RUN_ID" --repo "$GITHUB_REPOSITORY" --json jobs > /tmp/control-source-jobs.json || echo '{"jobs":[]}' > /tmp/control-source-jobs.json
+          gh run view "$SOURCE_RUN_ID" --repo "$GITHUB_REPOSITORY" --log > /tmp/control-source-run.log || true
+
+      - name: Send filtered notification to SpecAvto Control
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          REPORT_TELEGRAM_CHAT_ID: ${{ secrets.REPORT_TELEGRAM_CHAT_ID }}
+          SOURCE_WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
+          SOURCE_WORKFLOW_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          SOURCE_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          python tools/send_filtered_control_notification.py
