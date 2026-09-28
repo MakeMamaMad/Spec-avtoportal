@@ -1,0 +1,110 @@
+name: Diagnostics — ManTruck Readiness
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/mantruck_readiness_diag.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Playwright
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Inspect ManTruck
+        env:
+          MANTRUCK_LOGIN: ${{ secrets.MANTRUCK_LOGIN }}
+          MANTRUCK_PASSWORD: ${{ secrets.MANTRUCK_PASSWORD }}
+        run: |
+          python - <<'PY'
+          import json, os, re
+          from urllib.parse import urljoin
+          from playwright.sync_api import sync_playwright
+
+          login = os.environ.get("MANTRUCK_LOGIN", "").strip()
+          password = os.environ.get("MANTRUCK_PASSWORD", "").strip()
+          print("MANTRUCK_CREDENTIALS=" + ("present" if login and password else "missing"))
+
+          def inventory(page):
+              rows=[]
+              for i in range(min(page.locator("input,textarea,select").count(),100)):
+                  f=page.locator("input,textarea,select").nth(i)
+                  try:
+                      rows.append({
+                          "tag":f.evaluate("(el)=>el.tagName.toLowerCase()"),
+                          "type":f.get_attribute("type") or "",
+                          "name":f.get_attribute("name") or "",
+                          "id":f.get_attribute("id") or "",
+                          "placeholder":f.get_attribute("placeholder") or "",
+                      })
+                  except Exception:
+                      pass
+              return rows
+
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True)
+              page=browser.new_page(locale="ru-RU")
+              page.goto("https://mantruck.ru/news/", wait_until="domcontentloaded", timeout=60000)
+
+              links=[]
+              a=page.locator("a")
+              for i in range(min(a.count(),500)):
+                  item=a.nth(i)
+                  try:
+                      text=(item.inner_text() or "").strip()
+                      href=item.get_attribute("href") or ""
+                      if re.search(r"добав|регист|вход|новост|стат", text, re.I):
+                          links.append({"text":text[:160],"url":urljoin(page.url,href)})
+                  except Exception:
+                      pass
+              print("MANTRUCK_LINKS="+json.dumps(links[:80],ensure_ascii=False))
+              print("MANTRUCK_FIELDS="+json.dumps(inventory(page),ensure_ascii=False))
+
+              add_url=""
+              for row in links:
+                  if re.search(r"добав.*новост", row["text"], re.I):
+                      add_url=row["url"]
+                      break
+              if add_url:
+                  print("MANTRUCK_ADD_URL="+add_url)
+                  page.goto(add_url, wait_until="domcontentloaded", timeout=60000)
+                  print("MANTRUCK_ADD_ANON_URL="+page.url)
+                  print("MANTRUCK_ADD_ANON_FIELDS="+json.dumps(inventory(page),ensure_ascii=False))
+
+              if login and password:
+                  page.goto("https://mantruck.ru/", wait_until="domcontentloaded", timeout=60000)
+                  fields=page.locator('input[type="text"],input[type="email"]')
+                  pwds=page.locator('input[type="password"]')
+                  if fields.count() and pwds.count():
+                      fields.first.fill(login)
+                      pwds.first.fill(password)
+                      submit=page.locator('input[type="submit"],button[type="submit"]')
+                      if submit.count():
+                          submit.first.click()
+                          try:
+                              page.wait_for_load_state("domcontentloaded", timeout=30000)
+                          except Exception:
+                              pass
+                          page.wait_for_timeout(700)
+                  body=(page.locator("body").inner_text() or "").lower()
+                  print("MANTRUCK_LOGIN_RESULT="+("ok" if "выход" in body else "not_confirmed"))
+                  if add_url:
+                      page.goto(add_url, wait_until="domcontentloaded", timeout=60000)
+                      print("MANTRUCK_ADD_AUTH_URL="+page.url)
+                      print("MANTRUCK_ADD_AUTH_FIELDS="+json.dumps(inventory(page),ensure_ascii=False))
+
+              browser.close()
+          PY
