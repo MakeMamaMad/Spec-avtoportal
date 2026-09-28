@@ -217,15 +217,23 @@ def fit_voice_to_storyboard(audio: Path, planned_seconds: float) -> float:
     return current
 
 
+def _caption_with_site(value: str) -> str:
+    text = str(value or "").strip()
+    site = "https://spec-avtoportal.ru/"
+    if site not in text:
+        text = (text + "\n\nСпецАвтоПортал: " + site).strip()
+    return text
+
+
 def write_outputs(board, manifest: dict[str, Any]) -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     (OUT_DIR / "scene_plan.json").write_text(
         json.dumps(board.to_dict(), ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
-    (OUT_DIR / "caption_instagram.txt").write_text(board.instagram_caption + "\n", encoding="utf-8")
-    (OUT_DIR / "caption_tiktok.txt").write_text(board.tiktok_caption + "\n", encoding="utf-8")
-    (OUT_DIR / "caption_youtube.txt").write_text(board.youtube_description + "\n", encoding="utf-8")
+    (OUT_DIR / "caption_instagram.txt").write_text(_caption_with_site(board.instagram_caption) + "\n", encoding="utf-8")
+    (OUT_DIR / "caption_tiktok.txt").write_text(_caption_with_site(board.tiktok_caption) + "\n", encoding="utf-8")
+    (OUT_DIR / "caption_youtube.txt").write_text(_caption_with_site(board.youtube_description) + "\n", encoding="utf-8")
     (OUT_DIR / "manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2),
         encoding="utf-8",
