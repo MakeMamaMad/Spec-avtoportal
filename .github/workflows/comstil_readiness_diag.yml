@@ -1,0 +1,132 @@
+name: Diagnostics — COM-STIL Readiness
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/comstil_readiness_diag.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Playwright
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Inspect COM-STIL registration and article form
+        env:
+          COMSTIL_LOGIN: ${{ secrets.COMSTIL_LOGIN }}
+          COMSTIL_PASSWORD: ${{ secrets.COMSTIL_PASSWORD }}
+        run: |
+          python - <<'PY'
+          import json, os, re
+          from urllib.parse import urljoin
+          from playwright.sync_api import sync_playwright
+
+          login=os.environ.get("COMSTIL_LOGIN","").strip()
+          password=os.environ.get("COMSTIL_PASSWORD","").strip()
+          print("COMSTIL_CREDENTIALS="+("present" if login and password else "missing"))
+
+          def inv(page):
+              out=[]
+              loc=page.locator("input,textarea,select")
+              for i in range(min(loc.count(),140)):
+                  f=loc.nth(i)
+                  try:
+                      out.append({
+                          "tag":f.evaluate("(el)=>el.tagName.toLowerCase()"),
+                          "type":f.get_attribute("type") or "",
+                          "name":f.get_attribute("name") or "",
+                          "id":f.get_attribute("id") or "",
+                          "placeholder":f.get_attribute("placeholder") or "",
+                          "required":f.get_attribute("required") is not None,
+                      })
+                  except Exception:
+                      pass
+              return out
+
+          def links(page):
+              rows=[]
+              a=page.locator("a")
+              for i in range(min(a.count(),500)):
+                  item=a.nth(i)
+                  try:
+                      text=(item.inner_text() or "").strip()
+                      href=item.get_attribute("href") or ""
+                      if re.search(r"регист|войти|вход|добав.*стат|стат", text, re.I):
+                          rows.append({"text":text[:160],"url":urljoin(page.url,href)})
+                  except Exception:
+                      pass
+              return rows
+
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True)
+              page=browser.new_page(locale="ru-RU")
+              page.goto("https://com-stil.com/articles?category=4", wait_until="domcontentloaded", timeout=60000)
+              lks=links(page)
+              print("COMSTIL_LINKS="+json.dumps(lks[:100],ensure_ascii=False))
+              print("COMSTIL_PAGE_FIELDS="+json.dumps(inv(page),ensure_ascii=False))
+
+              reg=""
+              add=""
+              for row in lks:
+                  txt=row["text"].lower()
+                  if not reg and "регист" in txt:
+                      reg=row["url"]
+                  if not add and "добав" in txt and "стат" in txt:
+                      add=row["url"]
+
+              if reg:
+                  page.goto(reg, wait_until="domcontentloaded", timeout=60000)
+                  print("COMSTIL_REGISTER_URL="+page.url)
+                  print("COMSTIL_REGISTER_FIELDS="+json.dumps(inv(page),ensure_ascii=False))
+                  labels=[]
+                  for sel in ("label","legend","h1","h2","h3"):
+                      loc=page.locator(sel)
+                      for i in range(min(loc.count(),80)):
+                          try:
+                              t=(loc.nth(i).inner_text() or "").strip()
+                              if t: labels.append(t[:240])
+                          except Exception:
+                              pass
+                  print("COMSTIL_REGISTER_LABELS="+json.dumps(labels[:100],ensure_ascii=False))
+
+              if add:
+                  page.goto(add, wait_until="domcontentloaded", timeout=60000)
+                  print("COMSTIL_ADD_URL="+page.url)
+                  print("COMSTIL_ADD_ANON_FIELDS="+json.dumps(inv(page),ensure_ascii=False))
+                  body=(page.locator("body").inner_text() or "")
+                  print("COMSTIL_ADD_ANON_TEXT="+json.dumps(body[:3000],ensure_ascii=False))
+
+              if login and password:
+                  page.goto("https://com-stil.com/", wait_until="domcontentloaded", timeout=60000)
+                  user=page.locator('input[name*="login" i],input[name*="email" i],input[type="text"]')
+                  pwd=page.locator('input[type="password"]')
+                  if user.count() and pwd.count():
+                      user.first.fill(login)
+                      pwd.first.fill(password)
+                      submit=page.locator('button[type="submit"],input[type="submit"]')
+                      if submit.count():
+                          submit.first.click()
+                          try: page.wait_for_load_state("domcontentloaded", timeout=30000)
+                          except Exception: pass
+                          page.wait_for_timeout(800)
+                  body=(page.locator("body").inner_text() or "").lower()
+                  print("COMSTIL_LOGIN_RESULT="+("ok" if "выход" in body else "not_confirmed"))
+                  if add:
+                      page.goto(add, wait_until="domcontentloaded", timeout=60000)
+                      print("COMSTIL_ADD_AUTH_URL="+page.url)
+                      print("COMSTIL_ADD_AUTH_FIELDS="+json.dumps(inv(page),ensure_ascii=False))
+              browser.close()
+          PY
