@@ -1,4 +1,5 @@
 name: Promotion — Editorial Placement
+# retrigger after Gmail API enable
 
 on:
   workflow_dispatch:
