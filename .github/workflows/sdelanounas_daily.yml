@@ -2,6 +2,10 @@ name: Promotion — SdelanoU nas Daily
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/sdelanounas_daily.yml'
   schedule:
     # 12:20 Moscow time (UTC+3), shortly after the 12:00 news ingest.
     - cron: '20 9 * * *'
