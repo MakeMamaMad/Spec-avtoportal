@@ -12,6 +12,7 @@ on:
       - 'promotion/site_targets.json'
       - 'promotion/core/placements.py'
       - 'promotion/jobs/verify_placements.py'
+      - 'promotion/verify_sdelanounas_public.py'
       - '.github/workflows/placement_verification.yml'
 
 permissions:
@@ -46,6 +47,10 @@ jobs:
       - name: Verify TruckMix editorial publication
         run: |
           python promotion/verify_truckmix_public.py
+
+      - name: Verify SdelanoU nas editorial publication
+        run: |
+          python promotion/verify_sdelanounas_public.py
 
       - name: Commit placement state
         run: |
