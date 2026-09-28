@@ -97,6 +97,17 @@
       "public_status": "published",
       "public_url": "https://sdelanounas.ru/blogs/178541/",
       "published_at": "2026-09-28T08:46:58+00:00"
+    },
+    {
+      "target_id": "123ru",
+      "target_name": "123ru.net",
+      "item_key": "news:065018397658",
+      "title": "На Comtrans в Казани показали новые коммунальные машины на шасси JAC",
+      "source_url": "https://spec-avtoportal.ru/news/dzhak-avtomobil-predstavil-na-comtrans-novye-musorovoz-i-samosval-na-sha-06501839/?utm_source=123ru&utm_medium=editorial&utm_campaign=industry_promotion&utm_content=jac-comtrans-kazan",
+      "result_url": "https://123ru.net/kazan/addnews/?m=moderation",
+      "submitted_at": "2026-09-28T10:54:59+00:00",
+      "status": "submitted",
+      "location": "Казань"
     }
   ]
 }
