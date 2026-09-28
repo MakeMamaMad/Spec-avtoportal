@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_at": "2026-09-28T12:25:59+00:00",
+  "updated_at": "2026-09-28T12:30:34+00:00",
   "counter_id": "106240080",
   "metrika": {
     "status": "ok",
@@ -51,11 +51,87 @@
     ]
   },
   "webmaster": {
-    "status": "error",
+    "status": "ok",
     "host": "https://spec-avtoportal.ru",
-    "step": "summary",
-    "detail": "Вебмастер (summary): HTTPError 403 ACCESS_FORBIDDEN: Access to this resource is not allowed with scopes available for this application. Required scope: COMMON, application scopes: [ALL_SCOPES, HOST_LIST, EXTERNAL_LINKS]",
-    "hint": "Проверьте токен: в OAuth-приложении должно быть право «Яндекс.Вебмастер → Получение информации о внешних ссылках на сайт» (webmaster:hostinfo), токен выпущен после его добавления, с аккаунта, где сайт подтверждён в Вебмастере.",
+    "index": {
+      "searchable_pages": 20,
+      "excluded_pages": 6,
+      "sqi": 0,
+      "problems": {
+        "fatal": 0,
+        "critical": 0,
+        "possible": 3,
+        "recommendation": 2
+      }
+    },
+    "search": {
+      "date_from": "2026-09-19",
+      "date_to": "2026-09-25",
+      "shows": 28,
+      "clicks": 0,
+      "top_queries": [
+        {
+          "query": "когель тотал ру",
+          "shows": 2,
+          "clicks": 0,
+          "position": 12.0
+        },
+        {
+          "query": "крона mvideo ru",
+          "shows": 2,
+          "clicks": 0,
+          "position": 8.5
+        },
+        {
+          "query": "приказ минтранса 212 от 12.05.2026",
+          "shows": 2,
+          "clicks": 0,
+          "position": 13.0
+        },
+        {
+          "query": "приказ минтранса россии от 12 мая 2026 года № 212",
+          "shows": 2,
+          "clicks": 0,
+          "position": 13.5
+        },
+        {
+          "query": "приказ минтранса № 212 от 12.05.2026г скачать бесплатно в ворд",
+          "shows": 2,
+          "clicks": 0,
+          "position": 17.5
+        },
+        {
+          "query": "12.05.2026 №212",
+          "shows": 1,
+          "clicks": 0,
+          "position": 12.0
+        },
+        {
+          "query": "приказ минтранса россии от 12.05.2026 no 212 «об утверждении правил обеспечения безопасности перевозок автомобильным транспортом и городским наземным электрическим транспортом» основные изменения",
+          "shows": 1,
+          "clicks": 0,
+          "position": 10.0
+        },
+        {
+          "query": "приказ минтранса россии от 12.05.2026 № 212 скачать",
+          "shows": 1,
+          "clicks": 0,
+          "position": 9.0
+        },
+        {
+          "query": "приказ от 12 мая 2026 г. n 212",
+          "shows": 1,
+          "clicks": 0,
+          "position": 6.0
+        },
+        {
+          "query": "статус документа •• приказ министерства транспорта российской федерации от 12.05.2026 № 212",
+          "shows": 1,
+          "clicks": 0,
+          "position": 11.0
+        }
+      ]
+    },
     "token_secret": "YANDEX_WEBMASTER_OAUTH_TOKEN"
   }
 }
