@@ -72,15 +72,6 @@ jobs:
         run: |
           gh issue comment 77 --repo "${{ github.repository }}" --body-file /tmp/specavto-report.md
 
-      - name: Send successful run summary to private Telegram channel
-        if: steps.build.outputs.skip != 'true' && github.event.workflow_run.conclusion == 'success'
-        continue-on-error: true
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          REPORT_TELEGRAM_CHAT_ID: ${{ secrets.REPORT_TELEGRAM_CHAT_ID }}
-        run: |
-          python tools/send_ops_report_telegram.py
-
       - name: Recover overdue news and social digests
         if: always() && github.event.workflow_run.conclusion == 'success'
         env:
