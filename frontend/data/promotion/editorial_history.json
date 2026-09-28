@@ -82,6 +82,17 @@
       "submitted_at": "2026-09-28T08:21:08+00:00",
       "last_public_check_at": "2026-09-28T08:23:53+00:00",
       "public_status": "pending"
+    },
+    {
+      "target_id": "sdelanounas",
+      "target_name": "Сделано у нас",
+      "item_key": "news:umg-sdm-innoprom-belarus",
+      "title": "Брянские предприятия UMG «СДМ» на выставке «Иннопром. Беларусь»",
+      "source_url": "https://spec-avtoportal.ru/news/umg-sdm-predstavit-produktsiyu-bryanskih-predpriyatiy-gruppy-na-vystavke-9cc7bd13/?utm_source=sdelanounas&utm_medium=editorial&utm_campaign=industry_promotion&utm_content=umg-sdm-innoprom-belarus",
+      "result_url": "https://sdelanounas.ru/yandexmaps/addPoint/?id=178541",
+      "category_id": "149",
+      "submitted_at": "2026-09-28T08:45:33+00:00",
+      "status": "submitted"
     }
   ]
 }
