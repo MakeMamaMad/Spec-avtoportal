@@ -3,15 +3,6 @@ name: Promotion — Editorial Placement
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]
-    paths:
-      - 'promotion/targets.json'
-      - 'promotion/build_editorial_promo.py'
-      - 'promotion/run_editorial_campaign.py'
-      - 'promotion/send_editorial_email.py'
-      - 'promotion/run_daily_editorial_email.py'
-      - '.github/workflows/editorial_promotion.yml'
   schedule:
     # 12:30 Moscow time (UTC+3), before the daily manual-action digest.
     - cron: '30 9 * * *'
@@ -31,6 +22,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Sync latest main
+        run: |
+          git fetch origin main
+          git checkout -B main origin/main
 
       - name: Setup Python
         uses: actions/setup-python@v5
