@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One-time local OAuth flow for Gmail send-only access.
+"""One-time local OAuth flow for Gmail send + bounce detection access.
 
 Usage from repository root:
     python -m pip install google-auth google-auth-oauthlib
@@ -16,7 +16,10 @@ from pathlib import Path
 
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
+SCOPES = [
+    "https://www.googleapis.com/auth/gmail.send",
+    "https://www.googleapis.com/auth/gmail.readonly",
+]
 
 
 def main() -> int:
@@ -37,7 +40,7 @@ def main() -> int:
         "scopes": creds.scopes,
     }
     output_path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Gmail send-only token saved to {output_path}")
+    print(f"Gmail send + readonly token saved to {output_path}")
     return 0
 
 
