@@ -58,6 +58,7 @@ jobs:
           python3 tools/build_seo.py
           test -f frontend/sitemap.xml || (echo "sitemap.xml not generated" && exit 1)
           test -f frontend/news-sitemap.xml || (echo "news-sitemap.xml not generated" && exit 1)
+          test -f frontend/rss.xml || (echo "rss.xml not generated" && exit 1)
           test -f frontend/robots.txt || (echo "robots.txt not generated" && exit 1)
           test -f frontend/data/news-index.json || (echo "news-index.json not generated" && exit 1)
           test -f frontend/about.html || (echo "about.html not found" && exit 1)
