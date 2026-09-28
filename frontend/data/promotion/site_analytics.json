@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "updated_at": "2026-09-28T11:30:50+00:00",
+  "counter_id": "106240080",
+  "metrika": {
+    "status": "ok",
+    "period_days": 7,
+    "visits": 106,
+    "users": 88,
+    "sources": [
+      {
+        "id": "direct",
+        "name": "Прямые заходы",
+        "visits": 93,
+        "users": 78,
+        "bounce_rate": 62.4,
+        "page_depth": 1.28
+      },
+      {
+        "id": "organic",
+        "name": "Переходы из поисковых систем",
+        "visits": 5,
+        "users": 5,
+        "bounce_rate": 40.0,
+        "page_depth": 1.0
+      },
+      {
+        "id": "internal",
+        "name": "Внутренние переходы",
+        "visits": 4,
+        "users": 3,
+        "bounce_rate": 25.0,
+        "page_depth": 5.75
+      },
+      {
+        "id": "social",
+        "name": "Переходы из социальных сетей",
+        "visits": 2,
+        "users": 2,
+        "bounce_rate": 0.0,
+        "page_depth": 1.0
+      },
+      {
+        "id": "referral",
+        "name": "Переходы по ссылкам на сайтах",
+        "visits": 2,
+        "users": 2,
+        "bounce_rate": 100.0,
+        "page_depth": 1.0
+      }
+    ]
+  },
+  "webmaster": {
+    "status": "error",
+    "host": "https://spec-avtoportal.ru",
+    "detail": "Вебмастер: HTTPError 403"
+  }
+}

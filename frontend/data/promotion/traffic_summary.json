@@ -1,13 +1,24 @@
 {
   "schema": 1,
-  "updated_at": "2026-09-28T09:25:30+00:00",
+  "updated_at": "2026-09-28T11:30:49+00:00",
   "counter_id": "106240080",
   "period": "7daysAgo..today",
   "status": "ok",
-  "sources": [],
+  "sources": [
+    {
+      "source": "sdelanounas",
+      "medium": "editorial",
+      "campaign": "industry_promotion",
+      "visits": 1,
+      "users": 1,
+      "bounce_rate": 100.0,
+      "page_depth": 1.0,
+      "avg_visit_duration_seconds": 0
+    }
+  ],
   "totals": {
-    "visits": 0,
-    "users": 0
+    "visits": 1,
+    "users": 1
   },
   "sampled": false,
   "sample_share": 1.0
