@@ -2,6 +2,11 @@ name: Promotion — Gmail Delivery Check
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'promotion/check_gmail_bounces.py'
+      - '.github/workflows/gmail_delivery_check.yml'
   schedule:
     # Check hourly; delivery failures often arrive after the send workflow has finished.
     - cron: '43 * * * *'
