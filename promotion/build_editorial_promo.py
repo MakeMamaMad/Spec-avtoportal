@@ -26,7 +26,8 @@ MSK = timezone(timedelta(hours=3))
 AUTO_TARGETS = {"mexzona"}
 BLOCKED_TARGET_STATUSES = {"blocked", "do_not_post", "disabled"}
 PUBLISHER_PLATFORMS = {"publisher"}
-SUCCESS_STATUSES = {"submitted", "verified_in_author_cabinet", "published"}
+SUCCESS_STATUSES = {"submitted", "verified_in_author_cabinet", "published", "email_sent"}
+PREPARED_STATUSES = {"manual_prepared", "manual_fallback", "email_prepared"}
 COOLDOWN_DAYS = 7
 
 
@@ -102,6 +103,37 @@ def tracking_url(slug: str, target_id: str) -> str:
     )
 
 
+def is_email_target(target: dict[str, Any]) -> bool:
+    contact = str(target.get("contact") or "").strip()
+    return target.get("automation") == "email_submission" and "@" in contact
+
+
+def email_pitch(article: dict[str, Any], target: dict[str, Any], site_url: str) -> tuple[str, str]:
+    title = str(article.get("title") or "Практический материал СпецАвтоПортала").strip()
+    lead = str(article.get("lead") or article.get("description") or "").strip()
+    target_name = str(target.get("name") or "редакция").strip()
+    subject = f"Материал для {target_name}: {title}"
+    body = "\n".join(
+        [
+            "Здравствуйте!",
+            "",
+            "Мы развиваем СпецАвтоПортал — отраслевое медиа о грузовой и прицепной технике, эксплуатации, рынке и нормативных требованиях.",
+            "",
+            f"Предлагаем редакции «{target_name}» рассмотреть оригинальный практический материал: «{title}».",
+            lead,
+            "",
+            f"Материал: {site_url}",
+            "",
+            "Если тема подходит вашей аудитории, готовы предоставить текст целиком и адаптировать его под требования редакции. Просим сохранить ссылку на СпецАвтоПортал как на источник материала.",
+            "",
+            "С уважением,",
+            "редакция СпецАвтоПортала",
+            "https://spec-avtoportal.ru/",
+        ]
+    ).strip()
+    return subject, body
+
+
 def article_body(article: dict[str, Any], site_url: str) -> str:
     lines = [
         str(article.get("title") or "Материал СпецАвтоПортала").strip(),
@@ -133,11 +165,22 @@ def article_body(article: dict[str, Any], site_url: str) -> str:
     return "\n".join(x for x in lines if x is not None).strip()
 
 
+def history_slug(row: dict[str, Any]) -> str:
+    slug = str(row.get("slug") or "").strip()
+    if slug:
+        return slug
+    item_key = str(row.get("item_key") or "").strip()
+    if item_key.startswith("knowledge:"):
+        return item_key.split(":", 1)[1].strip()
+    return ""
+
+
 def used_pairs(history: list[dict[str, Any]]) -> set[tuple[str, str]]:
     return {
-        (str(row.get("target_id") or ""), str(row.get("slug") or ""))
+        (str(row.get("target_id") or ""), history_slug(row))
         for row in history
-        if row.get("status") in SUCCESS_STATUSES | {"manual_prepared", "manual_fallback"}
+        if row.get("status") in SUCCESS_STATUSES | PREPARED_STATUSES
+        and history_slug(row)
     }
 
 
@@ -145,9 +188,13 @@ def target_rank(target: dict[str, Any]) -> tuple[int, str]:
     target_id = str(target.get("id") or "")
     if target_id in AUTO_TARGETS:
         return (0, target_id)
-    if target.get("status") == "priority_candidate":
+    if is_email_target(target) and target.get("status") == "priority_candidate":
         return (1, target_id)
-    return (2, target_id)
+    if target.get("status") == "priority_candidate":
+        return (2, target_id)
+    if is_email_target(target):
+        return (3, target_id)
+    return (4, target_id)
 
 
 def pick_action(
@@ -163,7 +210,7 @@ def pick_action(
         target
         for target in targets
         if target.get("platform") in PUBLISHER_PLATFORMS
-        and (str(target.get("id") or "") in AUTO_TARGETS or allow_manual)
+        and (str(target.get("id") or "") in AUTO_TARGETS or is_email_target(target) or allow_manual)
         and target.get("status") not in BLOCKED_TARGET_STATUSES
         and target.get("policy") != "blocked"
         and not in_cooldown(history, str(target.get("id") or ""), now)
@@ -182,19 +229,24 @@ def pick_action(
                 continue
             site_url = tracking_url(slug, target_id)
             automatic = target_id in AUTO_TARGETS
+            email_target = is_email_target(target)
+            email_subject, email_body = email_pitch(article, target, site_url) if email_target else ("", "")
+            execution = "automatic" if automatic else ("email" if email_target else "manual")
             return {
                 "target_id": target_id,
                 "target_name": target.get("name"),
                 "target_url": target.get("url"),
                 "contact": target.get("contact"),
                 "policy": target.get("policy"),
-                "execution": "automatic" if automatic else "manual",
+                "execution": execution,
                 "slug": slug,
                 "item_key": "knowledge:" + slug,
                 "title": article.get("title"),
                 "site_url": site_url,
                 "post_text": article_body(article, site_url),
-                "status": "ready_for_publish" if automatic else "ready_for_manual",
+                "email_subject": email_subject or None,
+                "email_body": email_body or None,
+                "status": "ready_for_publish" if automatic else ("ready_for_email" if email_target else "ready_for_manual"),
             }
     return None
 
@@ -202,18 +254,25 @@ def pick_action(
 def manual_action(entry: dict[str, Any], now: str) -> dict[str, Any]:
     target_name = str(entry.get("target_name") or entry.get("target_id") or "Площадка")
     contact = str(entry.get("contact") or entry.get("target_url") or "").strip()
+    is_email = entry.get("execution") == "email"
     return {
         "action_id": f"editorial:{entry.get('target_id')}:{entry.get('slug')}",
-        "channel": "publisher",
+        "channel": "email" if is_email else "publisher",
         "target_id": entry.get("target_id"),
         "target_name": target_name,
-        "action": "publish_editorial_material",
+        "action": "send_editorial_email" if is_email else "publish_editorial_material",
         "contact": contact,
         "status": "ready",
-        "reason": "Для этой площадки пока нет подтверждённого автоматического входа или адаптера публикации.",
+        "reason": (
+            "Нужно отправить подготовленное редакционное предложение по email."
+            if is_email
+            else "Для этой площадки пока нет подтверждённого автоматического входа или адаптера публикации."
+        ),
+        "email_subject": entry.get("email_subject") if is_email else None,
         "message": (
-            f"Материал для размещения на «{target_name}»:"
-            f"\n\n{entry.get('post_text') or ''}"
+            entry.get("email_body")
+            if is_email
+            else f"Материал для размещения на «{target_name}»:\n\n{entry.get('post_text') or ''}"
         ),
         "tracking_url": entry.get("site_url"),
         "created_at": now,
@@ -247,7 +306,7 @@ def main() -> int:
     entries = []
     if action:
         entries.append(action)
-        if action["execution"] == "manual":
+        if action["execution"] in {"manual", "email"}:
             upsert_manual_action(manual_data.setdefault("entries", []), manual_action(action, now_text))
             editorial_history.append(
                 {
@@ -256,8 +315,10 @@ def main() -> int:
                     "slug": action.get("slug"),
                     "title": action.get("title"),
                     "site_url": action.get("site_url"),
+                    "contact": action.get("contact"),
+                    "item_key": action.get("item_key"),
                     "created_at": now_text,
-                    "status": "manual_prepared",
+                    "status": "email_prepared" if action["execution"] == "email" else "manual_prepared",
                 }
             )
             history_data["entries"] = editorial_history

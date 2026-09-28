@@ -83,6 +83,13 @@ def main() -> int:
     summary["title"] = entry.get("title")
 
     if entry.get("execution") != "automatic":
+        if entry.get("execution") == "email":
+            summary["status"] = "email_prepared"
+            summary["detail"] = "Редакционное письмо подготовлено с отдельной UTM-ссылкой и поставлено в очередь отправки."
+            save_json(SUMMARY_PATH, summary)
+            print("EDITORIAL_EMAIL_PREPARED")
+            return 0
+
         summary["status"] = "manual_prepared"
         summary["detail"] = "Материал подготовлен и добавлен в ежедневный список ручных действий."
         save_json(SUMMARY_PATH, summary)

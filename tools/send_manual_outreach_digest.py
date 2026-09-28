@@ -80,11 +80,17 @@ def task_text(row: dict[str, Any], index: int) -> str:
     contact = str(row.get("contact") or "").strip() or "контакт не указан"
     reason = str(row.get("reason") or "").strip()
     message = str(row.get("message") or "").strip()
+    subject = str(row.get("email_subject") or "").strip()
+    channel = str(row.get("channel") or "").strip()
 
     lines = [
         f"{index}. {name}",
         f"Кому написать: {contact}",
     ]
+    if channel == "email":
+        lines.append("Канал: email")
+    if subject:
+        lines.append(f"Тема письма: {subject}")
     if reason:
         lines.append(f"Почему вручную: {reason}")
     if message:
