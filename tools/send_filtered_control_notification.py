@@ -148,6 +148,35 @@ def parse_last_sent(log: str) -> dict[str, Any] | None:
     return None
 
 
+def build_bounce_message(conclusion: str) -> str | None:
+    log = source_log()
+    matches = re.findall(r"GMAIL_BOUNCE_CHECK_OK\s+(\{.*?\})(?:\r?\n|$)", log)
+    if not matches:
+        if conclusion != "success":
+            return (
+                "✉️ Реклама — Gmail\n"
+                "❌ Проверка доставки Gmail завершилась ошибкой."
+            )
+        return None
+
+    try:
+        payload = json.loads(matches[-1])
+    except Exception:
+        return None
+
+    changes = payload.get("changes") or []
+    if not changes:
+        return None
+
+    lines = ["✉️ Реклама — Gmail", "❌ Обнаружены недоставленные письма:"]
+    for row in changes[:8]:
+        name = str(row.get("target_name") or row.get("target_id") or "редакция")
+        recipients = ", ".join(str(x) for x in (row.get("bounced_recipients") or []))
+        lines.append(f"• {name}: {recipients or 'адрес вернул письмо'}")
+    lines.append("Плохие адреса автоматически исключены из дальнейшей рассылки.")
+    return "\n".join(lines)
+
+
 def build_email_message(conclusion: str) -> str | None:
     log = source_log()
     sent = parse_last_sent(log)
@@ -200,6 +229,8 @@ def build_message() -> str | None:
         return build_video_message(conclusion)
     if workflow == "Promotion — Editorial Placement":
         return build_email_message(conclusion)
+    if workflow == "Promotion — Gmail Delivery Check":
+        return build_bounce_message(conclusion)
     return None
 
 
