@@ -135,6 +135,7 @@ def main() -> int:
     catalog_summary = load_json(ROOT / "frontend/data/daily_catalog_target.json", {})
     placement_summary = load_json(ROOT / "frontend/data/promotion/placement_verification_summary.json", {})
     editorial_summary = load_json(ROOT / "frontend/data/promotion/editorial_summary.json", {})
+    editorial_history = load_json(ROOT / "frontend/data/promotion/editorial_history.json", {"entries": []})
     telegram_outreach = load_json(ROOT / "frontend/data/promotion/telegram_outreach_summary.json", {})
     manual_queue = load_json(ROOT / "frontend/data/promotion/manual_queue.json", {"entries": []})
     video_schedule = load_json(ROOT / "tools/autoposter/state/video_schedule.json", {"days": {}})
@@ -241,6 +242,9 @@ def main() -> int:
     editorial_status = str(editorial_summary.get("status") or "")
     if editorial_status == "nothing_planned":
         lines.append("• Отраслевые площадки: новых публикаций нет — подходящего автоматического действия сегодня не было")
+    elif editorial_status == "email_prepared":
+        target = str(editorial_summary.get("target_name") or "редакция")
+        lines.append(f"• Отраслевые площадки: ✉️ подготовлено письмо для {target}")
     elif editorial_status:
         lines.append(f"• Отраслевые площадки: {editorial_status}")
     else:
@@ -254,10 +258,22 @@ def main() -> int:
     else:
         lines.append("• Telegram-реклама: данных за сегодня нет")
 
-    pending_manual = [
+    pending_rows = [
         row for row in (manual_queue.get("entries") or [])
         if str(row.get("status") or "").lower() in {"ready", "pending", "todo"}
     ]
+    pending_email = [row for row in pending_rows if row.get("channel") == "email"]
+    pending_manual = [row for row in pending_rows if row.get("channel") != "email"]
+
+    sent_email_today = [
+        row for row in (editorial_history.get("entries") or [])
+        if row.get("status") == "email_sent"
+        and is_today(str(row.get("sent_at") or row.get("created_at") or ""))
+    ]
+    lines.append(
+        f"• Редакционные email: отправлено сегодня — {len(sent_email_today)}, в очереди — {len(pending_email)}"
+    )
+
     if pending_manual:
         lines.append(f"• Ручные задачи: {len(pending_manual)} — требуется ваше действие")
     else:
@@ -268,6 +284,7 @@ def main() -> int:
         and editorial_status == "nothing_planned"
         and outreach_status == "no_bot_target"
         and not pending_manual
+        and not pending_email
     ):
         lines.append("• Итог: новых рекламных размещений за день — 0")
         lines.append("• Причина: текущий автоматический пул площадок исчерпан или временно недоступен; это не считается успешным продвижением.")
