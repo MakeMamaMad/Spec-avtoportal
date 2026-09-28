@@ -182,6 +182,29 @@ def submit(page: Page) -> None:
         raise RuntimeError("SdelanoU nas submit button was not found")
 
     buttons.last.click()
+    page.wait_for_timeout(700)
+
+    body = (page.locator("body").inner_text() or "")
+    if "Я подтверждаю, что в заголовке НЕТ будущего времени" in body:
+        yes = page.get_by_text("Да", exact=True)
+        clicked = False
+        for i in range(yes.count()):
+            try:
+                if yes.nth(i).is_visible():
+                    yes.nth(i).click()
+                    clicked = True
+                    break
+            except Exception:
+                pass
+        if not clicked:
+            raise RuntimeError("SdelanoU nas future-tense confirmation could not be accepted")
+        page.wait_for_timeout(300)
+
+        form = page.locator("#fx-title").locator("xpath=ancestor::form[1]")
+        submit_again = form.locator('button[type="submit"], input[type="submit"]')
+        if submit_again.count():
+            submit_again.last.click()
+
     try:
         page.wait_for_load_state("domcontentloaded", timeout=30000)
     except Exception:
@@ -200,7 +223,7 @@ def main() -> int:
 
     title = os.getenv(
         "SDELANOUNAS_TITLE",
-        "UMG «СДМ» представит продукцию брянских предприятий на выставке «Иннопром. Беларусь»",
+        "Брянские предприятия UMG «СДМ» на выставке «Иннопром. Беларусь»",
     ).strip()
 
     source_url = os.getenv(
