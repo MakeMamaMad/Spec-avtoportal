@@ -1,4 +1,5 @@
 name: Analytics — Promotion UTM Feedback
+# token verification trigger
 
 on:
   workflow_dispatch:
