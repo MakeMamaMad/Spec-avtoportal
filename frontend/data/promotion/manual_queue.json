@@ -15,7 +15,22 @@
       "created_at": "2026-09-24T18:36:58+00:00",
       "updated_at": "2026-09-24T18:36:58+00:00",
       "completion_note": "Владелец сообщил, что сообщение @All_Admino отправлено вручную."
+    },
+    {
+      "action_id": "editorial:com-stil-editorial:gabarity-i-massy",
+      "channel": "email",
+      "target_id": "com-stil-editorial",
+      "target_name": "COM-STIL",
+      "action": "send_editorial_email",
+      "contact": "info@com-stil.com",
+      "status": "ready",
+      "reason": "Нужно отправить подготовленное редакционное предложение по email.",
+      "email_subject": "Материал для COM-STIL: Габариты и массы автопоезда: основные пределы",
+      "message": "Здравствуйте!\n\nМы развиваем СпецАвтоПортал — отраслевое медиа о грузовой и прицепной технике, эксплуатации, рынке и нормативных требованиях.\n\nПредлагаем редакции «COM-STIL» рассмотреть оригинальный практический материал: «Габариты и массы автопоезда: основные пределы».\nПеред загрузкой важно проверять четыре параметра: длину, ширину, высоту и массу. Для перевозчика они определяют, проходит ли автопоезд как обычный или уже требует специальных условий движения.\n\nМатериал: https://spec-avtoportal.ru/knowledge/gabarity-i-massy/?utm_source=com-stil-editorial&utm_medium=editorial&utm_campaign=industry_editorial&utm_content=gabarity-i-massy\n\nЕсли тема подходит вашей аудитории, готовы предоставить текст целиком и адаптировать его под требования редакции. Просим сохранить ссылку на СпецАвтоПортал как на источник материала.\n\nС уважением,\nредакция СпецАвтоПортала\nhttps://spec-avtoportal.ru/",
+      "tracking_url": "https://spec-avtoportal.ru/knowledge/gabarity-i-massy/?utm_source=com-stil-editorial&utm_medium=editorial&utm_campaign=industry_editorial&utm_content=gabarity-i-massy",
+      "created_at": "2026-09-28T05:47:04+00:00",
+      "updated_at": "2026-09-28T05:47:04+00:00"
     }
   ],
-  "updated_at": "2026-09-27T15:09:59+00:00"
+  "updated_at": "2026-09-28T05:47:04+00:00"
 }
