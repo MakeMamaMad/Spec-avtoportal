@@ -3,9 +3,14 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from promotion.build_editorial_promo import (
     KNOWLEDGE_PATH,
@@ -30,7 +35,6 @@ from promotion.send_editorial_email import (
     send_message,
 )
 
-ROOT = Path(__file__).resolve().parents[1]
 SUMMARY_PATH = ROOT / "frontend/data/promotion/editorial_summary.json"
 MSK = timezone(timedelta(hours=3))
 MAX_CANDIDATES_PER_RUN = 12
