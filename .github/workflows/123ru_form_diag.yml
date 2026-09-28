@@ -72,6 +72,21 @@ jobs:
               )
               print("RU123_CAPTCHA="+("yes" if captcha else "no"))
 
+              page.goto("https://123ru.net/kazan/", wait_until="domcontentloaded", timeout=60000)
+              add_links=[]
+              anchors=page.locator("a")
+              for i in range(min(anchors.count(),500)):
+                  a=anchors.nth(i)
+                  try:
+                      txt=(a.inner_text() or "").strip()
+                      href=a.get_attribute("href") or ""
+                      if "добав" in txt.lower() and "новост" in txt.lower():
+                          add_links.append({"text":txt,"href":href})
+                  except Exception:
+                      pass
+              print("RU123_KAZAN_ADD_LINKS="+json.dumps(add_links,ensure_ascii=False))
+
+              page.goto("https://123ru.net/other/addnews/", wait_until="domcontentloaded", timeout=60000)
               country=page.locator('select[name="countryid"]')
               region=page.locator('select[name="regionid"]')
               city=page.locator('select[name="cityid"]')
