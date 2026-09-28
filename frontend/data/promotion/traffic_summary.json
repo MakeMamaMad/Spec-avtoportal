@@ -1,12 +1,13 @@
 {
   "schema": 1,
-  "updated_at": null,
+  "updated_at": "2026-09-28T06:19:22+00:00",
   "counter_id": "106240080",
   "period": "7daysAgo..today",
-  "status": "not_run",
+  "status": "missing_token",
   "sources": [],
   "totals": {
     "visits": 0,
     "users": 0
-  }
+  },
+  "detail": "Для автоматического отчёта по рекламным UTM нужен секрет YANDEX_METRIKA_OAUTH_TOKEN с доступом metrika:read."
 }
