@@ -1,0 +1,65 @@
+name: Promotion — 123ru Test Publish
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/123ru_publish_test.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: promotion-123ru-test
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install google-auth requests playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Restore Gmail credentials
+        env:
+          GMAIL_TOKEN_B64: ${{ secrets.GMAIL_TOKEN_B64 }}
+        run: |
+          test -n "$GMAIL_TOKEN_B64"
+          printf '%s' "$GMAIL_TOKEN_B64" | base64 -d > gmail_token.json
+          test -s gmail_token.json
+
+      - name: Publish one Kazan industry news item
+        env:
+          PROMOTION_LIVE: "1"
+          GMAIL_TOKEN_FILE: gmail_token.json
+        run: |
+          python promotion/publish_123ru.py
+
+      - name: Commit placement state
+        if: always()
+        run: |
+          git config user.name "specavto-promotion"
+          git config user.email "actions@users.noreply.github.com"
+          git add frontend/data/promotion/editorial_history.json || true
+          if git diff --cached --quiet; then
+            echo "No 123ru state changes"
+            exit 0
+          fi
+          git commit -m "promotion: record 123ru placement"
+          git pull --rebase origin main
+          git push origin main
