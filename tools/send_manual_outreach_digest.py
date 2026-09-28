@@ -166,13 +166,16 @@ def main() -> int:
 
     messages = build_messages(payload)
 
-    token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
-    if not token:
-        raise SystemExit("TELEGRAM_BOT_TOKEN is not configured")
-    chat_id = resolve_control_chat_id(token)
-
-    for message in messages:
-        telegram_send(token, chat_id, message)
+    enabled = os.environ.get("CONTROL_TELEGRAM_ENABLED", "1").strip() != "0"
+    if enabled:
+        token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+        if not token:
+            raise SystemExit("TELEGRAM_BOT_TOKEN is not configured")
+        chat_id = resolve_control_chat_id(token)
+        for message in messages:
+            telegram_send(token, chat_id, message)
+    else:
+        print("MANUAL_OUTREACH_TELEGRAM_DISABLED")
 
     tasks = len(pending_entries(payload))
     state = {
