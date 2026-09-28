@@ -71,5 +71,30 @@ jobs:
                   or "я не робот" in body.lower()
               )
               print("RU123_CAPTCHA="+("yes" if captcha else "no"))
+
+              country=page.locator('select[name="countryid"]')
+              region=page.locator('select[name="regionid"]')
+              city=page.locator('select[name="cityid"]')
+              country.select_option("1")
+              page.wait_for_timeout(1200)
+              regions=[]
+              for i in range(region.locator("option").count()):
+                  o=region.locator("option").nth(i)
+                  regions.append({"value":o.get_attribute("value") or "","text":(o.inner_text() or "").strip()})
+              print("RU123_RUSSIA_REGIONS="+json.dumps(regions,ensure_ascii=False))
+
+              tat=None
+              for row in regions:
+                  if "татар" in row["text"].lower():
+                      tat=row["value"]
+                      break
+              if tat:
+                  region.select_option(tat)
+                  page.wait_for_timeout(1200)
+                  cities=[]
+                  for i in range(city.locator("option").count()):
+                      o=city.locator("option").nth(i)
+                      cities.append({"value":o.get_attribute("value") or "","text":(o.inner_text() or "").strip()})
+                  print("RU123_TATARSTAN_CITIES="+json.dumps(cities,ensure_ascii=False))
               browser.close()
           PY
