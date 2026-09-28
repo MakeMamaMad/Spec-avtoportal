@@ -139,6 +139,7 @@ def main() -> int:
     telegram_outreach = load_json(ROOT / "frontend/data/promotion/telegram_outreach_summary.json", {})
     manual_queue = load_json(ROOT / "frontend/data/promotion/manual_queue.json", {"entries": []})
     video_schedule = load_json(ROOT / "tools/autoposter/state/video_schedule.json", {"days": {}})
+    traffic_summary = load_json(ROOT / "frontend/data/promotion/traffic_summary.json", {})
 
     runs_data = github_get("actions/runs?per_page=100") or {}
     runs = runs_data.get("workflow_runs") or []
@@ -288,6 +289,35 @@ def main() -> int:
     ):
         lines.append("• Итог: новых рекламных размещений за день — 0")
         lines.append("• Причина: текущий автоматический пул площадок исчерпан или временно недоступен; это не считается успешным продвижением.")
+
+    lines += ["", "📈 Отдача рекламы — последние 7 дней"]
+    traffic_status = str(traffic_summary.get("status") or "")
+    traffic_sources = traffic_summary.get("sources") or []
+    if traffic_status == "ok":
+        totals = traffic_summary.get("totals") or {}
+        lines.append(
+            f"• UTM-трафик: визитов — {int(totals.get('visits') or 0)}, пользователей — {int(totals.get('users') or 0)}"
+        )
+        if traffic_sources:
+            for row in traffic_sources[:5]:
+                duration = int(row.get("avg_visit_duration_seconds") or 0)
+                lines.append(
+                    "• "
+                    f"{row.get('source')}: {int(row.get('visits') or 0)} виз., "
+                    f"{int(row.get('users') or 0)} чел., "
+                    f"отказы {float(row.get('bounce_rate') or 0):.1f}%, "
+                    f"глубина {float(row.get('page_depth') or 0):.1f}, "
+                    f"время {duration} сек."
+                )
+        else:
+            lines.append("• По рекламным UTM за период переходов пока не зафиксировано")
+    elif traffic_status == "missing_token":
+        lines.append("• Метрика считает посещения на сайте, но автоматическая выгрузка UTM ещё не подключена")
+        lines.append("• Нужен один раз OAuth-токен Яндекс Метрики с правом metrika:read")
+    elif traffic_status == "error":
+        lines.append("• ❌ Не удалось получить рекламную статистику из Метрики")
+    else:
+        lines.append("• Автоматический UTM-отчёт ещё не выполнялся")
 
     lines += ["", "💰 Telegram Ads"]
     if ads.get("landing_url"):

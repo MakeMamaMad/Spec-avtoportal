@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "updated_at": null,
+  "counter_id": "106240080",
+  "period": "7daysAgo..today",
+  "status": "not_run",
+  "sources": [],
+  "totals": {
+    "visits": 0,
+    "users": 0
+  }
+}
