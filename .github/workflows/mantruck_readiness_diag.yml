@@ -73,6 +73,21 @@ jobs:
               print("MANTRUCK_LINKS="+json.dumps(links[:80],ensure_ascii=False))
               print("MANTRUCK_FIELDS="+json.dumps(inventory(page),ensure_ascii=False))
 
+              page.goto("https://mantruck.ru/register/", wait_until="domcontentloaded", timeout=60000)
+              print("MANTRUCK_REGISTER_URL="+page.url)
+              print("MANTRUCK_REGISTER_FIELDS="+json.dumps(inventory(page),ensure_ascii=False))
+              labels=[]
+              for sel in ("label","legend","h1","h2","h3"):
+                  loc=page.locator(sel)
+                  for i in range(min(loc.count(),60)):
+                      try:
+                          value=(loc.nth(i).inner_text() or "").strip()
+                          if value: labels.append(value[:250])
+                      except Exception:
+                          pass
+              print("MANTRUCK_REGISTER_LABELS="+json.dumps(labels[:80],ensure_ascii=False))
+
+              page.goto("https://mantruck.ru/news/", wait_until="domcontentloaded", timeout=60000)
               add_url=""
               for row in links:
                   if re.search(r"добав.*новост", row["text"], re.I):
