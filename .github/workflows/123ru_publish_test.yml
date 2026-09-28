@@ -6,6 +6,7 @@ on:
     branches: [ main ]
     paths:
       - '.github/workflows/123ru_publish_test.yml'
+      - 'promotion/publish_123ru.py'
 
 permissions:
   contents: write
