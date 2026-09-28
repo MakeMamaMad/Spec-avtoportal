@@ -28,6 +28,7 @@ BLOCKED_TARGET_STATUSES = {"blocked", "do_not_post", "disabled"}
 PUBLISHER_PLATFORMS = {"publisher"}
 SUCCESS_STATUSES = {"submitted", "verified_in_author_cabinet", "published", "email_sent"}
 PREPARED_STATUSES = {"manual_prepared", "manual_fallback", "email_prepared"}
+EMAIL_BLOCK_STATUSES = {"email_invalid_domain", "email_bounced"}
 COOLDOWN_DAYS = 7
 PENDING_EMAIL_STATUSES = {"ready", "pending", "todo"}
 
@@ -194,6 +195,15 @@ def used_pairs(history: list[dict[str, Any]]) -> set[tuple[str, str]]:
     }
 
 
+def blocked_email_targets(history: list[dict[str, Any]]) -> set[str]:
+    return {
+        str(row.get("target_id") or "")
+        for row in history
+        if str(row.get("status") or "") in EMAIL_BLOCK_STATUSES
+        and str(row.get("target_id") or "")
+    }
+
+
 def target_rank(target: dict[str, Any]) -> tuple[int, str]:
     target_id = str(target.get("id") or "")
     if target_id in AUTO_TARGETS:
@@ -216,6 +226,7 @@ def pick_action(
     allow_manual: bool = False,
 ) -> dict[str, Any] | None:
     done = used_pairs(history)
+    email_blocked = blocked_email_targets(history)
     candidates = [
         target
         for target in targets
@@ -223,6 +234,7 @@ def pick_action(
         and (str(target.get("id") or "") in AUTO_TARGETS or is_email_target(target) or allow_manual)
         and target.get("status") not in BLOCKED_TARGET_STATUSES
         and target.get("policy") != "blocked"
+        and str(target.get("id") or "") not in email_blocked
         and not in_cooldown(history, str(target.get("id") or ""), now)
     ]
     candidates.sort(key=target_rank)
