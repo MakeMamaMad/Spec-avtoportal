@@ -55,6 +55,28 @@ class ManualOutreachDigestTests(unittest.TestCase):
         self.assertIn("никому писать не нужно", messages[0].lower())
         self.assertNotIn("@admin", messages[0])
 
+
+    def test_email_task_contains_subject(self) -> None:
+        payload = {
+            "entries": [
+                {
+                    "action_id": "editorial:test:article",
+                    "target_name": "Редакция",
+                    "contact": "editor@example.com",
+                    "channel": "email",
+                    "email_subject": "Материал для редакции",
+                    "status": "ready",
+                    "message": "Здравствуйте! Предлагаем материал.",
+                }
+            ]
+        }
+
+        joined = "\n".join(MODULE.build_messages(payload))
+        self.assertIn("Канал: email", joined)
+        self.assertIn("Тема письма: Материал для редакции", joined)
+        self.assertIn("editor@example.com", joined)
+
+
     def test_new_manual_task_is_sent_immediately(self) -> None:
         payload = {
             "entries": [
