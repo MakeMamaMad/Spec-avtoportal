@@ -6,6 +6,8 @@ import urllib.parse
 import urllib.request
 from typing import Any
 
+DEFAULT_CONTROL_CHAT_ID = "-1003957515494"
+
 
 def telegram_call(token: str, method: str, payload: dict[str, Any] | None = None) -> Any:
     data = urllib.parse.urlencode(payload or {}).encode("utf-8")
@@ -64,4 +66,7 @@ def resolve_control_chat_id(token: str) -> str:
     explicit = os.environ.get("REPORT_TELEGRAM_CHAT_ID", "").strip()
     if explicit:
         return explicit
-    return discover_control_channel(token)
+    try:
+        return discover_control_channel(token)
+    except RuntimeError:
+        return DEFAULT_CONTROL_CHAT_ID
