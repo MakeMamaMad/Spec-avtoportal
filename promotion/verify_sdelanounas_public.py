@@ -99,6 +99,13 @@ def main() -> int:
             row["public_url"] = public_url
             row["published_at"] = utc_now()
             published += 1
+            print(
+                "SDELANOUNAS_PUBLISHED "
+                + json.dumps(
+                    {"title": row.get("title"), "public_url": public_url},
+                    ensure_ascii=False,
+                )
+            )
         else:
             row["public_status"] = "pending"
 
