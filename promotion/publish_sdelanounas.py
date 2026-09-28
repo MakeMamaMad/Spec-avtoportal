@@ -221,42 +221,25 @@ def main() -> int:
     if not username or not password:
         raise RuntimeError("SDELANOUNAS_LOGIN/SDELANOUNAS_PASSWORD are missing")
 
-    title = os.getenv(
-        "SDELANOUNAS_TITLE",
-        "Брянские предприятия UMG «СДМ» на выставке «Иннопром. Беларусь»",
-    ).strip()
+    title = os.getenv("SDELANOUNAS_TITLE", "").strip()
+    source_url = os.getenv("SDELANOUNAS_SOURCE_URL", "").strip()
+    body = os.getenv("SDELANOUNAS_BODY", "").strip()
+    tags = os.getenv("SDELANOUNAS_TAGS", "").strip()
+    item_key = os.getenv("SDELANOUNAS_ITEM_KEY", "").strip()
 
-    source_url = os.getenv(
-        "SDELANOUNAS_SOURCE_URL",
-        "https://spec-avtoportal.ru/news/umg-sdm-predstavit-produktsiyu-bryanskih-predpriyatiy-gruppy-na-vystavke-9cc7bd13/?utm_source=sdelanounas&utm_medium=editorial&utm_campaign=industry_promotion&utm_content=umg-sdm-innoprom-belarus",
-    ).strip()
-
-    body = os.getenv(
-        "SDELANOUNAS_BODY",
-        (
-            "Группа компаний UMG «СДМ» представит продукцию брянских предприятий "
-            "на международной промышленной выставке «Иннопром. Беларусь», которая пройдёт "
-            "с 30 сентября по 2 октября в Минске.\n\n"
-            "Техника будет представлена в составе коллективного стенда Брянской области. "
-            "Центральное место в экспозиции займут решения предприятий «Брянский арсенал» "
-            "и «Брянский тракторный завод». Посетителям покажут направления дорожно-строительной "
-            "и сельскохозяйственной техники, а также производственные и инженерные компетенции предприятий.\n\n"
-            "UMG объединяет российские машиностроительные предприятия и выпускает экскаваторы, "
-            "автогрейдеры, погрузчики, коммунальные машины, автокраны и другую специальную технику.\n\n"
-            f"Подробнее: {source_url}"
-        ),
-    ).strip()
-
-    tags = os.getenv(
-        "SDELANOUNAS_TAGS",
-        "UMG, спецтехника, Брянск, машиностроение, производство, Иннопром, Беларусь",
-    ).strip()
+    if not title or not source_url or not body or not tags or not item_key:
+        raise RuntimeError(
+            "SDELANOUNAS_TITLE/SOURCE_URL/BODY/TAGS/ITEM_KEY are required"
+        )
 
     history = load_json(HISTORY_PATH, {"schema": 1, "entries": []})
     if any(
         isinstance(row, dict)
         and row.get("target_id") == TARGET_ID
-        and row.get("source_url") == source_url
+        and (
+            row.get("item_key") == item_key
+            or row.get("source_url") == source_url
+        )
         and row.get("status") in {"submitted", "published", "verified_in_author_cabinet"}
         for row in history.get("entries", [])
     ):
@@ -334,7 +317,7 @@ def main() -> int:
             record = {
                 "target_id": TARGET_ID,
                 "target_name": "Сделано у нас",
-                "item_key": "news:umg-sdm-innoprom-belarus",
+                "item_key": item_key,
                 "title": title,
                 "source_url": source_url,
                 "result_url": page.url,
