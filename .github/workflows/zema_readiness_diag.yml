@@ -1,0 +1,135 @@
+name: Diagnostics — Zema Readiness
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/zema_readiness_diag.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Playwright
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Inspect Zema
+        env:
+          ZEMA_LOGIN: ${{ secrets.ZEMA_LOGIN }}
+          ZEMA_PASSWORD: ${{ secrets.ZEMA_PASSWORD }}
+        run: |
+          python - <<'PY'
+          import json, os, re
+          from urllib.parse import urljoin
+          from playwright.sync_api import sync_playwright
+
+          login=os.environ.get("ZEMA_LOGIN","").strip()
+          password=os.environ.get("ZEMA_PASSWORD","").strip()
+          print("ZEMA_CREDENTIALS="+("present" if login and password else "missing"))
+
+          def inv(page):
+              out=[]
+              loc=page.locator("input,textarea,select")
+              for i in range(min(loc.count(),140)):
+                  f=loc.nth(i)
+                  try:
+                      out.append({
+                          "tag":f.evaluate("(el)=>el.tagName.toLowerCase()"),
+                          "type":f.get_attribute("type") or "",
+                          "name":f.get_attribute("name") or "",
+                          "id":f.get_attribute("id") or "",
+                          "placeholder":f.get_attribute("placeholder") or "",
+                          "required":f.get_attribute("required") is not None,
+                      })
+                  except Exception:
+                      pass
+              return out
+
+          def link_rows(page):
+              out=[]
+              loc=page.locator("a")
+              for i in range(min(loc.count(),500)):
+                  a=loc.nth(i)
+                  try:
+                      text=(a.inner_text() or "").strip()
+                      href=a.get_attribute("href") or ""
+                      if re.search(r"регист|вход|добав.*мат|создать.*аккаунт", text, re.I):
+                          out.append({"text":text[:180],"url":urljoin(page.url,href)})
+                  except Exception:
+                      pass
+              return out
+
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True)
+              page=browser.new_page(locale="ru-RU")
+
+              page.goto("https://zema.su/", wait_until="domcontentloaded", timeout=60000)
+              links=link_rows(page)
+              print("ZEMA_LINKS="+json.dumps(links[:100],ensure_ascii=False))
+
+              add_url=""
+              reg_url=""
+              for row in links:
+                  low=row["text"].lower()
+                  if not add_url and "добав" in low and "мат" in low:
+                      add_url=row["url"]
+                  if not reg_url and "регист" in low:
+                      reg_url=row["url"]
+
+              if add_url:
+                  page.goto(add_url, wait_until="domcontentloaded", timeout=60000)
+                  print("ZEMA_ADD_ANON_URL="+page.url)
+                  print("ZEMA_ADD_ANON_FIELDS="+json.dumps(inv(page),ensure_ascii=False))
+                  print("ZEMA_ADD_ANON_TEXT="+json.dumps((page.locator("body").inner_text() or "")[:2800],ensure_ascii=False))
+                  for row in link_rows(page):
+                      if not reg_url and "регист" in row["text"].lower():
+                          reg_url=row["url"]
+
+              if reg_url:
+                  page.goto(reg_url, wait_until="domcontentloaded", timeout=60000)
+                  print("ZEMA_REGISTER_URL="+page.url)
+                  print("ZEMA_REGISTER_FIELDS="+json.dumps(inv(page),ensure_ascii=False))
+                  body=page.locator("body").inner_text() or ""
+                  print("ZEMA_REGISTER_TEXT="+json.dumps(body[:3000],ensure_ascii=False))
+                  captcha=(
+                      page.locator('iframe[src*="captcha" i], .g-recaptcha, [class*="captcha" i], [id*="captcha" i]').count()
+                      or "капча" in body.lower()
+                      or "я не робот" in body.lower()
+                      or "код с картинки" in body.lower()
+                  )
+                  print("ZEMA_REGISTER_CAPTCHA="+("yes" if captcha else "no"))
+
+              if login and password:
+                  for login_url in ("https://zema.su/user/login","https://zema.su/user"):
+                      page.goto(login_url, wait_until="domcontentloaded", timeout=60000)
+                      user=page.locator('input[name="name"],input[name*="login" i],input[type="email"],input[type="text"]')
+                      pwd=page.locator('input[type="password"]')
+                      if user.count() and pwd.count():
+                          user.first.fill(login)
+                          pwd.first.fill(password)
+                          submit=page.locator('button[type="submit"],input[type="submit"]')
+                          if submit.count():
+                              submit.first.click()
+                              try: page.wait_for_load_state("domcontentloaded", timeout=30000)
+                              except Exception: pass
+                              page.wait_for_timeout(700)
+                              break
+                  body=(page.locator("body").inner_text() or "").lower()
+                  print("ZEMA_LOGIN_RESULT="+("ok" if "выход" in body else "not_confirmed"))
+                  if add_url:
+                      page.goto(add_url, wait_until="domcontentloaded", timeout=60000)
+                      print("ZEMA_ADD_AUTH_URL="+page.url)
+                      print("ZEMA_ADD_AUTH_FIELDS="+json.dumps(inv(page),ensure_ascii=False))
+              browser.close()
+          PY
