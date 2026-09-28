@@ -61,7 +61,7 @@ class TelegramControlTests(unittest.TestCase):
         self.assertEqual(chat_id, "-100222")
         self.assertEqual(calls, ["getWebhookInfo", "getUpdates"])
 
-    def test_missing_channel_is_error_not_silent_success(self) -> None:
+    def test_missing_channel_uses_persisted_control_fallback(self) -> None:
         def fake_call(token: str, method: str, payload=None):
             if method == "getWebhookInfo":
                 return {"url": ""}
@@ -71,8 +71,9 @@ class TelegramControlTests(unittest.TestCase):
 
         with patch.dict(os.environ, {"REPORT_TELEGRAM_CHAT_ID": ""}, clear=False):
             with patch.object(telegram_control, "telegram_call", side_effect=fake_call):
-                with self.assertRaises(RuntimeError):
-                    telegram_control.resolve_control_chat_id("token")
+                chat_id = telegram_control.resolve_control_chat_id("token")
+
+        self.assertEqual(chat_id, telegram_control.DEFAULT_CONTROL_CHAT_ID)
 
 
 if __name__ == "__main__":
