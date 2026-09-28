@@ -1,0 +1,60 @@
+name: Promotion — SdelanoU nas Daily
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 12:20 Moscow time (UTC+3), shortly after the 12:00 news ingest.
+    - cron: '20 9 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: promotion-sdelanounas-daily
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Playwright
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Publish one suitable item
+        env:
+          SDELANOUNAS_LOGIN: ${{ secrets.SDELANOUNAS_LOGIN }}
+          SDELANOUNAS_PASSWORD: ${{ secrets.SDELANOUNAS_PASSWORD }}
+        run: |
+          python promotion/run_daily_sdelanounas.py
+
+      - name: Verify public publication
+        run: |
+          python promotion/verify_sdelanounas_public.py
+
+      - name: Commit promotion state
+        if: always()
+        run: |
+          git config user.name "specavto-promotion"
+          git config user.email "actions@users.noreply.github.com"
+          git add frontend/data/promotion/editorial_history.json || true
+          if git diff --cached --quiet; then
+            echo "No SdelanoU nas state changes"
+            exit 0
+          fi
+          git commit -m "promotion: run SdelanoU nas daily placement"
+          git pull --rebase origin main
+          git push origin main
