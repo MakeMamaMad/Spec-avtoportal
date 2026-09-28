@@ -2,11 +2,6 @@ name: Promotion — SdelanoU nas Test Publish
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]
-    paths:
-      - '.github/workflows/sdelanounas_publish_test.yml'
-      - 'promotion/publish_sdelanounas.py'
 
 permissions:
   contents: write
