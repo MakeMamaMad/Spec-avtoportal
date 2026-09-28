@@ -29,6 +29,7 @@ PUBLISHER_PLATFORMS = {"publisher"}
 SUCCESS_STATUSES = {"submitted", "verified_in_author_cabinet", "published", "email_sent"}
 PREPARED_STATUSES = {"manual_prepared", "manual_fallback", "email_prepared"}
 COOLDOWN_DAYS = 7
+PENDING_EMAIL_STATUSES = {"ready", "pending", "todo"}
 
 
 def load_json(path: Path, default: Any) -> Any:
@@ -106,6 +107,15 @@ def tracking_url(slug: str, target_id: str) -> str:
 def is_email_target(target: dict[str, Any]) -> bool:
     contact = str(target.get("contact") or "").strip()
     return target.get("automation") == "email_submission" and "@" in contact
+
+
+def has_pending_editorial_email(manual_data: dict[str, Any]) -> bool:
+    return any(
+        isinstance(row, dict)
+        and str(row.get("channel") or "").lower() == "email"
+        and str(row.get("status") or "").lower() in PENDING_EMAIL_STATUSES
+        for row in manual_data.get("entries", [])
+    )
 
 
 def email_pitch(article: dict[str, Any], target: dict[str, Any], site_url: str) -> tuple[str, str]:
@@ -295,9 +305,14 @@ def main() -> int:
     legacy_history = [x for x in legacy_history_data.get("entries", []) if isinstance(x, dict)]
     planning_history = editorial_history + legacy_history
     allow_manual = os.getenv("EDITORIAL_PREPARE_MANUAL") == "1"
+    planning_targets = targets
+    if has_pending_editorial_email(manual_data):
+        planning_targets = [target for target in targets if not is_email_target(target)]
+        print("EDITORIAL_EMAIL_QUEUE_BLOCKED pending_email_exists")
+
     action = pick_action(
         articles,
-        targets,
+        planning_targets,
         planning_history,
         now,
         allow_manual=allow_manual,
