@@ -201,9 +201,24 @@ def main() -> int:
             category = select_category(page)
 
             title_input = page.locator("#fx-title")
-            if not title_input.count():
+            title_editor = page.locator("#editableTitle")
+            if not title_input.count() and not title_editor.count():
                 raise RuntimeError("SdelanoU nas title field was not found")
-            title_input.fill(title)
+
+            if title_editor.count():
+                try:
+                    title_editor.fill(title)
+                except Exception:
+                    title_editor.evaluate(
+                        "(el, value) => { el.textContent = value; el.dispatchEvent(new Event('input', {bubbles:true})); }",
+                        title,
+                    )
+
+            if title_input.count():
+                title_input.evaluate(
+                    "(el, value) => { el.value = value; el.dispatchEvent(new Event('input', {bubbles:true})); el.dispatchEvent(new Event('change', {bubbles:true})); }",
+                    title,
+                )
 
             fill_message(page, body)
 
