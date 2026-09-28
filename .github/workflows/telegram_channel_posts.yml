@@ -1,0 +1,48 @@
+name: Telegram — Publish approved channel posts
+
+# Manual only: approved posts from promotion/channel_posts/ are published when
+# the owner (or Claude, with the owner's permission) starts this workflow.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: telegram-channel-posts
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Publish approved posts
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python promotion/publish_channel_posts.py
+
+      - name: Commit publication state
+        if: always()
+        run: |
+          git config user.name "specavto-promotion"
+          git config user.email "actions@users.noreply.github.com"
+          git add frontend/data/promotion/channel_posts_state.json || true
+          if git diff --cached --quiet; then
+            echo "No channel post state changes"
+            exit 0
+          fi
+          git commit -m "promotion: record published channel posts"
+          git pull --rebase origin main
+          git push origin main
