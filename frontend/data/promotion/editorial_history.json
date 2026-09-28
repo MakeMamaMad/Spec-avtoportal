@@ -11,6 +11,17 @@
       "contact": "info@com-stil.com",
       "created_at": "2026-09-28T05:47:04+00:00",
       "status": "email_prepared"
+    },
+    {
+      "target_id": "gruz-info-editorial",
+      "target_name": "GRUZ-info",
+      "slug": "gabarity-i-massy",
+      "title": "Габариты и массы автопоезда: основные пределы",
+      "site_url": "https://spec-avtoportal.ru/knowledge/gabarity-i-massy/?utm_source=gruz-info-editorial&utm_medium=editorial&utm_campaign=industry_editorial&utm_content=gabarity-i-massy",
+      "contact": "admin@gruz-info.su",
+      "item_key": "knowledge:gabarity-i-massy",
+      "created_at": "2026-09-28T06:57:23+00:00",
+      "status": "email_prepared"
     }
   ]
 }
