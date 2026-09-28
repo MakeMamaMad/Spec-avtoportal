@@ -8,6 +8,7 @@ on:
       - '.github/workflows/video_schedule_watchdog.yml'
       - 'tools/video_schedule_watchdog.py'
       - '.github/workflows/autoposter.yml'
+      - 'tools/autoposter/src/publish/social_v2.py'
   schedule:
     # Redundant lightweight checks around both publication windows.
     # Odd minutes reduce collisions with GitHub's busiest top-of-hour cron traffic.
