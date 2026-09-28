@@ -14,9 +14,9 @@ recorded in its own ``status`` and never breaks the other or the workflow.
 
 Secrets:
   YANDEX_METRIKA_OAUTH_TOKEN   — scope metrika:read (already used for UTM report)
-  YANDEX_WEBMASTER_OAUTH_TOKEN — scope webmaster:hostinfo; if not set, the
-                                 Metrika token is tried (works when one OAuth
-                                 app was granted both scopes).
+  YANDEX_WEBMASTER_OAUTH_TOKEN — optional. By default the Metrika token is
+                                 used for Webmaster too; it needs the extra
+                                 scope webmaster:hostinfo in the same OAuth app.
   YANDEX_WEBMASTER_HOST        — optional, defaults to https://spec-avtoportal.ru
 """
 from __future__ import annotations
@@ -217,7 +217,7 @@ def fetch_webmaster(
     if not token:
         block.update(
             status="missing_token",
-            detail="Нужен секрет YANDEX_WEBMASTER_OAUTH_TOKEN (webmaster:hostinfo).",
+            detail="Нет токена Яндекса: нужен секрет YANDEX_METRIKA_OAUTH_TOKEN с правом webmaster:hostinfo.",
         )
         return block
     try:
@@ -245,6 +245,12 @@ def fetch_webmaster(
         }
     except Exception as exc:
         block.update(status="error", detail=f"Вебмастер: {error_detail(exc)}")
+        if getattr(exc, "code", None) in (401, 403):
+            block["hint"] = (
+                "У токена нет доступа к Вебмастеру: добавьте в OAuth-приложении право "
+                "«Яндекс.Вебмастер → Получение информации о сайтах» (webmaster:hostinfo), "
+                "перевыпустите токен и обновите секрет YANDEX_METRIKA_OAUTH_TOKEN."
+            )
         return block
 
     date_from, date_to = search_window(today)
