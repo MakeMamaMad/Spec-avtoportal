@@ -197,6 +197,34 @@
       "policy": "blocked",
       "status": "do_not_post",
       "notes": "Правила форума прямо запрещают рекламу в любом виде; автоматизация должна исключать площадку."
+    },
+    {
+      "id": "spetstehnika-novosti-editorial",
+      "platform": "publisher",
+      "name": "Вестник Спецтехники",
+      "url": "https://spetstehnika-novosti.ru/",
+      "contact": "redakciya@spetstehnika-novosti.ru",
+      "audience_hint": "спецтехника строительная техника эксплуатация рынок обзоры грузовая техника",
+      "policy": "editorial_email",
+      "status": "candidate",
+      "login_required": false,
+      "automation": "email_submission",
+      "content_filter": "Практические экспертные материалы и отраслевые обзоры по спецтехнике; без прямой рекламной подачи.",
+      "notes": "Актуальный профильный сайт с публикациями в сентябре 2026 года; на сайте указан редакционный адрес redakciya@spetstehnika-novosti.ru. Использовать только редакционное предложение полезного материала."
+    },
+    {
+      "id": "spec-technika-editorial",
+      "platform": "publisher",
+      "name": "СпецТехника",
+      "url": "https://spec-technika.ru/",
+      "contact": "lider@media-l.ru",
+      "audience_hint": "спецтехника коммерческий транспорт полуприцепы сервис рынок эксплуатация",
+      "policy": "editorial_email",
+      "status": "candidate",
+      "login_required": false,
+      "automation": "email_submission",
+      "content_filter": "Профильные отраслевые новости и экспертные статьи о спецтехнике и коммерческом транспорте; предлагать материал редакции без агрессивной рекламы.",
+      "notes": "Действующий профильный журнал/портал; на сайте и в свежих выпусках указан редакционный контакт lider@media-l.ru. Использовать для редакционного предложения материала."
     }
   ]
 }
