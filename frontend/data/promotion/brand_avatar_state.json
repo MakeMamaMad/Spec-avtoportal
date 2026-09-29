@@ -1,0 +1,10 @@
+{
+  "at": "2026-09-29T08:06:08+00:00",
+  "telegram": {
+    "status": "ok"
+  },
+  "vk": {
+    "status": "error",
+    "detail": "photos.getOwnerPhotoUploadServer: 27 Group authorization failed: method is unavailable with group auth."
+  }
+}
