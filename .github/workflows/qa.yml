@@ -239,6 +239,7 @@ jobs:
           seo_spec = importlib.util.spec_from_file_location("seo_builder", "tools/build_seo.py")
           seo_builder = importlib.util.module_from_spec(seo_spec)
           seo_spec.loader.exec_module(seo_builder)
+          seo_builder.mark_duplicate_news(items)  # same step as the build: older duplicates are noindex
           # Two gates: "public" = shown on the site, hubs and RSS;
           # "indexable" = public AND has text of our own (translation, partner or editorial).
           public_items = [item for item in items if seo_builder.is_public_news(item)]
