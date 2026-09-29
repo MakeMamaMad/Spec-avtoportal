@@ -52,6 +52,8 @@ class TelegramControlTests(unittest.TestCase):
                         },
                     },
                 ]
+            if method == "getChat":
+                return {"id": payload["chat_id"], "title": "SpecAvto Control"}
             raise AssertionError(method)
 
         with patch.dict(os.environ, {"REPORT_TELEGRAM_CHAT_ID": ""}, clear=False):
@@ -59,7 +61,7 @@ class TelegramControlTests(unittest.TestCase):
                 chat_id = telegram_control.resolve_control_chat_id("token")
 
         self.assertEqual(chat_id, "-100222")
-        self.assertEqual(calls, ["getWebhookInfo", "getUpdates"])
+        self.assertEqual(calls, ["getWebhookInfo", "getUpdates", "getChat"])
 
     def test_missing_channel_uses_persisted_control_fallback(self) -> None:
         def fake_call(token: str, method: str, payload=None):
@@ -67,6 +69,8 @@ class TelegramControlTests(unittest.TestCase):
                 return {"url": ""}
             if method == "getUpdates":
                 return []
+            if method == "getChat":
+                return {"id": payload["chat_id"], "title": "SpecAvtoPortal ControlPanell"}
             raise AssertionError(method)
 
         with patch.dict(os.environ, {"REPORT_TELEGRAM_CHAT_ID": ""}, clear=False):
@@ -74,6 +78,37 @@ class TelegramControlTests(unittest.TestCase):
                 chat_id = telegram_control.resolve_control_chat_id("token")
 
         self.assertEqual(chat_id, telegram_control.DEFAULT_CONTROL_CHAT_ID)
+
+
+class PublicChannelNeverUsedTest(unittest.TestCase):
+    def test_latest_public_channel_is_not_used_for_reports(self) -> None:
+        updates = [
+            {"update_id": 5, "channel_post": {"chat": {"id": -100111, "type": "channel", "title": "Spec-avtoportal.ru"}}},
+        ]
+
+        def fake_call(token, method, payload=None):
+            if method == "getChat":
+                return {"id": payload["chat_id"], "title": "SpecAvtoPortal ControlPanell"}
+            return {} if method == "getWebhookInfo" else updates
+
+        with patch.object(telegram_control, "telegram_call", side_effect=fake_call), patch.dict(
+            os.environ, {"REPORT_TELEGRAM_CHAT_ID": ""}, clear=False
+        ):
+            chat_id = telegram_control.resolve_control_chat_id("token")
+        self.assertEqual(chat_id, telegram_control.DEFAULT_CONTROL_CHAT_ID)
+
+
+    def test_non_control_fallback_is_refused(self) -> None:
+        def fake_call(token, method, payload=None):
+            if method == "getChat":
+                return {"id": payload["chat_id"], "title": "Spec-avtoportal.ru"}
+            return {} if method == "getWebhookInfo" else []
+
+        with patch.object(telegram_control, "telegram_call", side_effect=fake_call), patch.dict(
+            os.environ, {"REPORT_TELEGRAM_CHAT_ID": ""}, clear=False
+        ):
+            with self.assertRaises(RuntimeError):
+                telegram_control.resolve_control_chat_id("token")
 
 
 if __name__ == "__main__":
