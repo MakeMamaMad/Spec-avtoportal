@@ -42,7 +42,9 @@ def gmail_address() -> str:
         raise RuntimeError("GMAIL_TOKEN_FILE is missing")
 
     creds = Credentials.from_authorized_user_file(str(token_path))
-    if creds.expired and creds.refresh_token:
+    # The stored access token lives one hour and the file carries no expiry,
+    # so creds.expired is always False: refresh whenever we can.
+    if creds.refresh_token:
         creds.refresh(Request())
         token_path.write_text(creds.to_json() + "\n", encoding="utf-8")
     if not creds.valid:

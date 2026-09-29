@@ -53,6 +53,35 @@ class MainTest(unittest.TestCase):
             self.assertEqual(saved["last_error"]["streak"], 2)
 
 
+class RefreshTest(unittest.TestCase):
+    def test_token_is_refreshed_even_without_expiry(self):
+        calls = []
+
+        class FakeCreds:
+            def __init__(self, **kwargs):
+                self.token = kwargs["token"]
+                self.refresh_token = kwargs["refresh_token"]
+                self.scopes = kwargs["scopes"]
+                self.expired = False  # no expiry in the file, as in production
+                self.expiry = None
+
+            def refresh(self, request):
+                calls.append(request)
+                self.token = "fresh"
+
+            @property
+            def valid(self):
+                return self.token == "fresh"
+
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "token.json"
+            path.write_text(json.dumps({"token": "stale", "refresh_token": "r", "client_id": "c"}))
+            with mock.patch.object(check, "Credentials", FakeCreds), mock.patch.object(check, "Request", lambda: "req"):
+                creds = check.load_credentials(path)
+            self.assertEqual(creds.token, "fresh")
+            self.assertEqual(len(calls), 1)
+
+
 class NotificationTest(unittest.TestCase):
     def message(self, streak):
         payload = {"code": "token_expired_or_revoked", "hint": "Токен Gmail истёк", "streak": streak}

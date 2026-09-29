@@ -74,7 +74,9 @@ def load_credentials(path: Path) -> Credentials:
         client_secret=data.get("client_secret"),
         scopes=scopes,
     )
-    if creds.expired and creds.refresh_token:
+    # The stored access token lives one hour and the file carries no expiry,
+    # so creds.expired is always False: refresh whenever we can.
+    if creds.refresh_token:
         creds.refresh(Request())
         data["token"] = creds.token
         if getattr(creds, "expiry", None):
