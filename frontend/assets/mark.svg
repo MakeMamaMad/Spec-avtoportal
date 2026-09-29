@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#111417"/>
+  <g transform="translate(-6 8)">
+    <!-- motion -->
+    <rect x="40" y="196" width="40" height="14" rx="7" fill="#ff6b00" opacity=".55"/>
+    <rect x="24" y="232" width="56" height="14" rx="7" fill="#ff6b00" opacity=".8"/>
+    <rect x="48" y="268" width="32" height="14" rx="7" fill="#ff6b00" opacity=".55"/>
+    <!-- trailer -->
+    <path d="M104 172 H352 a10 10 0 0 1 10 10 V300 H96 V180 a8 8 0 0 1 8 -8 Z" fill="#ff6b00"/>
+    <path d="M140 300 V172 M188 300 V172 M236 300 V172 M284 300 V172 M332 300 V172" stroke="#111417" stroke-opacity=".18" stroke-width="6"/>
+    <!-- cab -->
+    <path d="M374 300 V214 a10 10 0 0 1 10 -10 H420 L452 252 V300 Z" fill="#ffffff"/>
+    <path d="M396 222 H418 L440 250 H396 Z" fill="#111417"/>
+    <!-- chassis -->
+    <rect x="96" y="306" width="356" height="12" rx="6" fill="#ffffff"/>
+    <!-- wheels -->
+    <g fill="#111417" stroke="#ffffff" stroke-width="12">
+      <circle cx="154" cy="336" r="24"/>
+      <circle cx="214" cy="336" r="24"/>
+      <circle cx="410" cy="336" r="24"/>
+    </g>
+    <g fill="#ff6b00"><circle cx="154" cy="336" r="7"/><circle cx="214" cy="336" r="7"/><circle cx="410" cy="336" r="7"/></g>
+  </g>
+</svg>

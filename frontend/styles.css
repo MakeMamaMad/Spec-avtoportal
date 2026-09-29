@@ -68,11 +68,14 @@ button { color: inherit; }
 }
 .brand { display: flex; align-items: center; gap: 12px; flex: 0 0 auto; }
 .brand-mark {
-  width: 42px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   position: relative;
   display: inline-block;
+  flex: 0 0 auto;
+  background: url("/assets/mark.svg") center / contain no-repeat;
 }
+.brand-mark span { display: none !important; }
 .brand-mark span {
   position: absolute;
   left: 0;
