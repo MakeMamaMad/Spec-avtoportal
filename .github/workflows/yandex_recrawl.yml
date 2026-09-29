@@ -1,0 +1,52 @@
+name: SEO — Yandex Recrawl
+
+# Sends pages from promotion/config/recrawl_urls.txt to Yandex Webmaster
+# "Переобход страниц" within the daily quota. Each URL is sent once.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'promotion/config/recrawl_urls.txt'
+  schedule:
+    - cron: '17 6 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: seo-yandex-recrawl
+  cancel-in-progress: false
+
+jobs:
+  recrawl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Send pages to Yandex recrawl
+        env:
+          YANDEX_WEBMASTER_OAUTH_TOKEN: ${{ secrets.YANDEX_WEBMASTER_OAUTH_TOKEN }}
+          YANDEX_METRIKA_OAUTH_TOKEN: ${{ secrets.YANDEX_METRIKA_OAUTH_TOKEN }}
+        run: python promotion/yandex_recrawl.py
+
+      - name: Commit recrawl state
+        if: always()
+        run: |
+          git config user.name "specavto-seo"
+          git config user.email "actions@users.noreply.github.com"
+          git add frontend/data/promotion/yandex_recrawl_state.json || true
+          if git diff --cached --quiet; then
+            echo "No recrawl state changes"
+            exit 0
+          fi
+          git commit -m "seo: record Yandex recrawl submissions"
+          git pull --rebase origin main
+          git push origin main
