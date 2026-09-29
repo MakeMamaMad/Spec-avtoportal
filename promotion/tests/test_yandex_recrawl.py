@@ -29,6 +29,8 @@ class FakeApi:
                 self.sitemaps.append(body["url"])
                 return {"sitemap_id": "x"}
             return {"sitemaps": [{"sitemap_url": u} for u in self.sitemaps]}
+        if url.endswith("/sitemaps"):
+            return {"sitemaps": [{"sitemap_url": "https://spec-avtoportal.ru/sitemap.xml", "errors_count": 0, "urls_count": 845}]}
         if url.endswith("/recrawl/queue"):
             self.posted.append(body["url"])
             return {"task_id": f"t{len(self.posted)}"}
