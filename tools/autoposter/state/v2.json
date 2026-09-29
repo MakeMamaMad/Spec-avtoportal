@@ -10,7 +10,8 @@
     "21b04a437347",
     "599978ff07d5",
     "0d099836f07d",
-    "f4d58e1f1dc6"
+    "f4d58e1f1dc6",
+    "8634108ab97e"
   ],
   "renders": [
     {
@@ -81,6 +82,13 @@
       "slug": "eek-predlozhila-vvesti-antidempingovye-poshliny-na-gruzovye-shiny-iz-tai-f4d58e1f",
       "title": "ЕЭК предложила пошлины на грузовые шины из Таиланда и Вьетнама",
       "created_at": "2026-09-28T21:26:51.565083+00:00",
+      "format": "social-v2"
+    },
+    {
+      "content_key": "8634108ab97e",
+      "slug": "michelin-vyigrala-kontrakt-na-shiny-dhl-ev-8634108a",
+      "title": "Michelin получила контракт на обслуживание шин 11 000 электромобилей DHL",
+      "created_at": "2026-09-29T14:29:40.186254+00:00",
       "format": "social-v2"
     }
   ]
