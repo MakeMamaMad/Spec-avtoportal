@@ -54,12 +54,29 @@ def discover_control_channel(token: str) -> str:
         )
 
     channels.sort(key=lambda item: item[0])
+    public_id = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
     preferred = [
         item
         for item in channels
         if "control" in str(item[1].get("title") or "").lower()
+        and str(item[1].get("id")) != public_id
     ]
-    return str((preferred[-1] if preferred else channels[-1])[1]["id"])
+    if not preferred:
+        # Never fall back to "the latest channel": that is often the public
+        # channel (e.g. after a photo change), and reports must not go there.
+        raise RuntimeError("Канал отчётности (с «Control» в названии) не найден среди последних событий бота.")
+    return str(preferred[-1][1]["id"])
+
+
+def is_control_chat(token: str, chat_id: str) -> bool:
+    """True only for a chat whose title says it is the control channel."""
+    if chat_id == os.environ.get("TELEGRAM_CHAT_ID", "").strip():
+        return False
+    try:
+        chat = telegram_call(token, "getChat", {"chat_id": chat_id}) or {}
+    except Exception:
+        return False
+    return "control" in str(chat.get("title") or "").lower()
 
 
 def resolve_control_chat_id(token: str) -> str:
@@ -67,6 +84,12 @@ def resolve_control_chat_id(token: str) -> str:
     if explicit:
         return explicit
     try:
-        return discover_control_channel(token)
+        candidate = discover_control_channel(token)
     except RuntimeError:
-        return DEFAULT_CONTROL_CHAT_ID
+        candidate = DEFAULT_CONTROL_CHAT_ID
+    if not is_control_chat(token, candidate):
+        raise RuntimeError(
+            "Контрольный чат не найден: задайте секрет REPORT_TELEGRAM_CHAT_ID. "
+            "Отчёт не отправлен, чтобы не попасть в публичный канал."
+        )
+    return candidate
