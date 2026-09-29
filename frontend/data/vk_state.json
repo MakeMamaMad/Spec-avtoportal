@@ -167,9 +167,9 @@
       "slug": "dzhak-avtomobil-predstavil-na-comtrans-novye-musorovoz-i-samosval-na-sha-06501839"
     },
     "https://www.globaltrailermag.com/tip-expands-tht-new-cool-partnership/": {
-      "digest_id": "2026-09-28:pm",
-      "post_id": 19,
-      "sent_at": "2026-09-28T14:24:23+00:00",
+      "digest_id": "2026-09-29:pm",
+      "post_id": 24,
+      "sent_at": "2026-09-29T13:17:00+00:00",
       "title": "TIP расширяет партнерство THT New Cool",
       "slug": "tip-rasshiryaet-partnerstvo-tht-new-cool-f18141ed"
     },
@@ -188,9 +188,9 @@
       "slug": "v-samarskoy-oblasti-nachalis-priemochnye-ispytaniya-modernizirovannogo-t-a8cdb6cd"
     },
     "http://gruzovoy.ru/news/industry/3382_eek_predlojila_vvesti_antidempingovie_poshlini_na_gryzovie_shini_iz_tailanda_i_vetnama.html": {
-      "digest_id": "2026-09-29:am",
-      "post_id": 21,
-      "sent_at": "2026-09-29T06:48:12+00:00",
+      "digest_id": "2026-09-29:pm",
+      "post_id": 24,
+      "sent_at": "2026-09-29T13:17:00+00:00",
       "title": "ЕЭК предложила ввести антидемпинговые пошлины на грузовые шины из Таиланда и Вьетнама",
       "slug": "eek-predlozhila-vvesti-antidempingovye-poshliny-na-gruzovye-shiny-iz-tai-f4d58e1f"
     },
@@ -200,6 +200,13 @@
       "sent_at": "2026-09-29T06:48:12+00:00",
       "title": "Michelin выиграла контракт на шины DHL EV",
       "slug": "michelin-vyigrala-kontrakt-na-shiny-dhl-ev-8634108a"
+    },
+    "https://truckmix.ru/news/sintec-group-obladatel-prestijnoi-premii-sdelano-v-rossii": {
+      "digest_id": "2026-09-29:pm",
+      "post_id": 24,
+      "sent_at": "2026-09-29T13:17:00+00:00",
+      "title": "SINTEC Group – обладатель престижной премии «Сделано в России»",
+      "slug": "sintec-group-obladatel-prestizhnoy-premii-sdelano-v-rossii-988703e4"
     }
   },
   "digests": {
@@ -274,6 +281,17 @@
         "https://www.globaltrailermag.com/michelin-wins-dhl-ev-fleet-tyre-contract/",
         "http://gruzovoy.ru/news/industry/3382_eek_predlojila_vvesti_antidempingovie_poshlini_na_gryzovie_shini_iz_tailanda_i_vetnama.html",
         "https://truckmix.ru/news/v-samarskoi-oblasti-nachalis-priemochnie-ispitaniya-modernizirovannogo-traktora-btz-254k-20"
+      ]
+    },
+    "2026-09-29:pm": {
+      "post_id": 24,
+      "sent_at": "2026-09-29T13:17:00+00:00",
+      "slot": "pm",
+      "visual": "link_preview",
+      "items": [
+        "https://truckmix.ru/news/sintec-group-obladatel-prestijnoi-premii-sdelano-v-rossii",
+        "http://gruzovoy.ru/news/industry/3382_eek_predlojila_vvesti_antidempingovie_poshlini_na_gryzovie_shini_iz_tailanda_i_vetnama.html",
+        "https://www.globaltrailermag.com/tip-expands-tht-new-cool-partnership/"
       ]
     }
   }
