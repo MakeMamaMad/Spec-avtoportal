@@ -24,6 +24,7 @@ URLS_PATH = ROOT / "promotion/config/recrawl_urls.txt"
 STATE_PATH = ROOT / "frontend/data/promotion/yandex_recrawl_state.json"
 API = "https://api.webmaster.yandex.net/v4"
 HOST = "https://spec-avtoportal.ru"
+SITEMAPS = [f"{HOST}/sitemap.xml", f"{HOST}/news-sitemap.xml"]
 
 Request = Callable[[str, str, str, dict[str, Any] | None], Any]
 
@@ -78,21 +79,41 @@ def pending(urls: list[str], state: dict[str, Any]) -> list[str]:
     return [u for u in urls if u not in done]
 
 
-def run(token: str, request: Request = http) -> dict[str, Any]:
-    state = json.loads(STATE_PATH.read_text("utf-8")) if STATE_PATH.exists() else {"schema": 1, "submitted": {}}
-    state.setdefault("submitted", {})
-    queue = pending(load_urls(), state)
-    result: dict[str, Any] = {"sent": [], "failed": [], "left": 0, "quota": None}
-    if not queue:
-        state["last_run"] = {"at": utc_now(), **result}
-        return state
-
+def host_base(token: str, request: Request) -> str:
     user_id = request("GET", f"{API}/user", token, None).get("user_id")
     hosts = request("GET", f"{API}/user/{user_id}/hosts", token, None).get("hosts") or []
     host = next((h for h in hosts if str(h.get("ascii_host_url") or "").rstrip("/") == HOST), None)
     if not host:
         raise RuntimeError("host_not_found")
-    base = f"{API}/user/{user_id}/hosts/{urllib.parse.quote(str(host['host_id']), safe='')}"
+    return f"{API}/user/{user_id}/hosts/{urllib.parse.quote(str(host['host_id']), safe='')}"
+
+
+def ensure_sitemaps(base: str, token: str, request: Request) -> list[str]:
+    """Add our sitemaps to Webmaster if they are not there yet (NO_SITEMAPS)."""
+    listed = request("GET", f"{base}/user-added-sitemaps", token, None).get("sitemaps") or []
+    known = {str(row.get("sitemap_url") or "").rstrip("/") for row in listed}
+    added = []
+    for url in SITEMAPS:
+        if url not in known:
+            request("POST", f"{base}/user-added-sitemaps", token, {"url": url})
+            added.append(url)
+    return added
+
+
+def run(token: str, request: Request = http) -> dict[str, Any]:
+    state = json.loads(STATE_PATH.read_text("utf-8")) if STATE_PATH.exists() else {"schema": 1, "submitted": {}}
+    state.setdefault("submitted", {})
+    queue = pending(load_urls(), state)
+    result: dict[str, Any] = {"sent": [], "failed": [], "left": 0, "quota": None}
+    base = host_base(token, request)
+    try:
+        result["sitemaps_added"] = ensure_sitemaps(base, token, request)
+    except urllib.error.HTTPError as exc:
+        result["sitemaps_error"] = api_error(exc)
+    if not queue:
+        state["last_run"] = {"at": utc_now(), **result}
+        return state
+
     quota = request("GET", f"{base}/recrawl/quota", token, None)
     remainder = int(quota.get("quota_remainder") or 0)
     result["quota"] = {"daily": quota.get("daily_quota"), "remainder_before": remainder}

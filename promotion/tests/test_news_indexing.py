@@ -62,5 +62,21 @@ class NewsIndexingTests(unittest.TestCase):
         self.assertEqual(set(translate_news.DOMAIN_LANG), set(build_seo.FOREIGN_SOURCE_DOMAINS))
 
 
+
+class DuplicateNewsTest(unittest.TestCase):
+    def test_older_copy_with_same_title_or_lead_is_noindex(self) -> None:
+        newest = item("trailer-magazine.eu", slug="a", published_at="2026-09-20T10:00:00Z")
+        same_title = item("trailer-magazine.eu", slug="b", published_at="2026-09-19T10:00:00Z",
+                          summary=LEAD + " Дополнительная фраза для отличия лида.")
+        same_lead = item("trailer-magazine.eu", slug="c", published_at="2026-09-18T10:00:00Z",
+                         title="Совершенно другой заголовок о водородной технике")
+        self.assertTrue(build_seo.is_public_news(newest))
+        items = [same_lead, newest, same_title]
+        self.assertEqual(build_seo.mark_duplicate_news(items), 2)
+        self.assertNotIn("_duplicate_of", newest)
+        self.assertEqual(same_title["_duplicate_of"], "a")
+        self.assertIn("duplicate_title", build_seo.news_index_issues(same_lead))
+
+
 if __name__ == "__main__":
     unittest.main()
