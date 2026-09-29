@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated_at": "2026-09-29T06:57:24+00:00",
+  "updated_at": "2026-09-29T07:08:19+00:00",
   "counter_id": "106240080",
   "metrika": {
     "status": "ok",
@@ -132,6 +132,33 @@
         }
       ]
     },
+    "diagnostics": [
+      {
+        "code": "DOCUMENTS_MISSING_DESCRIPTION",
+        "severity": "POSSIBLE_PROBLEM",
+        "since": "2026-09-29T05:38:16.962+03:00"
+      },
+      {
+        "code": "DUPLICATE_PAGES",
+        "severity": "POSSIBLE_PROBLEM",
+        "since": "2026-09-29T05:38:16.962+03:00"
+      },
+      {
+        "code": "NO_SITEMAPS",
+        "severity": "POSSIBLE_PROBLEM",
+        "since": "2026-09-29T05:24:04.269+03:00"
+      },
+      {
+        "code": "NOT_IN_SPRAV",
+        "severity": "RECOMMENDATION",
+        "since": "2026-09-29T05:38:16.962+03:00"
+      },
+      {
+        "code": "NO_REGIONS",
+        "severity": "RECOMMENDATION",
+        "since": "2026-09-29T05:38:16.962+03:00"
+      }
+    ],
     "token_secret": "YANDEX_WEBMASTER_OAUTH_TOKEN"
   }
 }
