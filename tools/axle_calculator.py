@@ -411,6 +411,8 @@ def render_axle_calculator_page(base_url: str, telegram_cta: str) -> str:
           <ul>
             <li><a href="/knowledge/nagruzka-na-os/">Нагрузка на ось: как проверить автопоезд перед рейсом</a></li>
             <li><a href="/knowledge/gabarity-i-massy/">Габариты и массы автопоезда: основные пределы</a></li>
+            <li><a href="/knowledge/shtraf-za-peregruz/">Штраф за перегруз в 2026 году: суммы по статье 12.21.1 КоАП</a></li>
+            <li><a href="/knowledge/specrazreshenie-tyazhelovesnoe-ts/">Спецразрешение на тяжеловесный транспорт</a></li>
             <li><a href="/regulations/mintrans-212-2026/">Новые правила безопасности перевозок с 1 сентября 2026</a></li>
           </ul>
         </section>
