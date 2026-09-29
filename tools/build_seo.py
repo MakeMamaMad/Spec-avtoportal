@@ -548,6 +548,7 @@ KNOWLEDGE_LINK_RULES = {
     "tehnicheskoe-obsluzhivanie-polupricepa": ("обслужив", "техническ", "ремонт", "тормоз", "подвеск", "шина", "ступиц", "неисправ", "осмотр", "диагност"),
     "kak-vybrat-polupricep": ("полуприцеп", "прицеп", "зерновоз", "самосвал", "рефриж", "тент", "низкорам", "цистерн", "кузов", "грузопод"),
     "specrazreshenie-tyazhelovesnoe-ts": ("спецразрешен", "специальн разрешен", "специального разрешения", "крупногабарит", "негабарит", "тяжеловес"),
+    "shtraf-za-peregruz": ("перегруз", "штраф", "12.21.1", "весогабарит", "весовой контроль", "апвгк", "тяжеловес"),
 }
 
 
@@ -626,7 +627,7 @@ def regulation_knowledge_matches(regulation: dict[str, Any], knowledge_articles:
         "gost-r-70473-2022": ["kreplenie-gruzov"],
         "gost-r-70474-2023": ["kreplenie-gruzov"],
         "gost-r-70477-2022": ["kreplenie-gruzov"],
-        "mintrans-212-2026": ["tehnicheskoe-obsluzhivanie-polupricepa", "nagruzka-na-os"],
+        "mintrans-212-2026": ["tehnicheskoe-obsluzhivanie-polupricepa", "nagruzka-na-os", "shtraf-za-peregruz"],
         "elektronnye-perevozochnye-dokumenty-2026": ["nagruzka-na-os", "kreplenie-gruzov"],
         "mezhdunarodnye-avtoperevozki-2026": ["gabarity-i-massy", "nagruzka-na-os"],
     }
