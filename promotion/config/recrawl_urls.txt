@@ -13,5 +13,6 @@ https://spec-avtoportal.ru/regulations/gost-r-70472-2023/
 https://spec-avtoportal.ru/regulations/gost-r-70473-2022/
 https://spec-avtoportal.ru/regulations/gost-r-70474-2023/
 https://spec-avtoportal.ru/regulations/gost-r-70477-2022/
-https://spec-avtoportal.ru/knowledge/
+https://spec-avtoportal.ru/knowledge.html
 https://spec-avtoportal.ru/
+https://spec-avtoportal.ru/law.html
