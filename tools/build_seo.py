@@ -549,6 +549,7 @@ KNOWLEDGE_LINK_RULES = {
     "kak-vybrat-polupricep": ("полуприцеп", "прицеп", "зерновоз", "самосвал", "рефриж", "тент", "низкорам", "цистерн", "кузов", "грузопод"),
     "specrazreshenie-tyazhelovesnoe-ts": ("спецразрешен", "специальн разрешен", "специального разрешения", "крупногабарит", "негабарит", "тяжеловес"),
     "rezhim-truda-i-otdyha-voditelya": ("режим труда", "отдых водител", "тахограф", "время управлени", "рабочего времени", "предрейсов"),
+    "registraciya-polupricepa": ("регистрац", "на учет", "на учёт", "эптс"),
     "shtraf-za-peregruz": ("перегруз", "штраф", "12.21.1", "весогабарит", "весовой контроль", "апвгк", "тяжеловес"),
 }
 
@@ -621,7 +622,7 @@ def news_matches_for_knowledge(knowledge_item: dict[str, Any], items: list[dict[
 
 def regulation_knowledge_matches(regulation: dict[str, Any], knowledge_articles: dict[str, Any]) -> list[dict[str, Any]]:
     mapping = {
-        "tr-ts-018-2011": ["tr-ts-018-2011", "kak-vybrat-polupricep"],
+        "tr-ts-018-2011": ["tr-ts-018-2011", "registraciya-polupricepa", "kak-vybrat-polupricep"],
         "gost-3163-2020": ["tehnicheskoe-obsluzhivanie-polupricepa", "kak-vybrat-polupricep"],
         "gost-34598-2019": ["kak-vybrat-polupricep"],
         "gost-r-70472-2023": ["kreplenie-gruzov"],
