@@ -15,6 +15,7 @@ class FakeApi:
     def __init__(self, remainder):
         self.remainder = remainder
         self.posted = []
+        self.sitemaps = []
 
     def __call__(self, method, url, token, body):
         if url.endswith("/user"):
@@ -23,6 +24,11 @@ class FakeApi:
             return {"hosts": [{"host_id": "https:spec-avtoportal.ru:443", "ascii_host_url": "https://spec-avtoportal.ru/"}]}
         if url.endswith("/recrawl/quota"):
             return {"daily_quota": 20, "quota_remainder": self.remainder}
+        if url.endswith("/user-added-sitemaps"):
+            if method == "POST":
+                self.sitemaps.append(body["url"])
+                return {"sitemap_id": "x"}
+            return {"sitemaps": [{"sitemap_url": u} for u in self.sitemaps]}
         if url.endswith("/recrawl/queue"):
             self.posted.append(body["url"])
             return {"task_id": f"t{len(self.posted)}"}
@@ -59,11 +65,18 @@ class RecrawlTest(unittest.TestCase):
         self.assertEqual(api2.posted, ["https://spec-avtoportal.ru/b/"])
         self.assertEqual(state["last_run"]["left"], 0)
 
-    def test_nothing_pending_makes_no_api_calls(self):
+    def test_nothing_pending_sends_no_urls(self):
         self.state.write_text(json.dumps({"schema": 1, "submitted": {u: {} for u in rc.load_urls(self.urls)}}))
         api = FakeApi(remainder=5)
         rc.run("t", api)
         self.assertEqual(api.posted, [])
+
+    def test_sitemaps_added_once(self):
+        api = FakeApi(remainder=0)
+        state = rc.run("t", api)
+        self.assertEqual(state["last_run"]["sitemaps_added"], rc.SITEMAPS)
+        state = rc.run("t", api)
+        self.assertEqual(state["last_run"]["sitemaps_added"], [])
 
 
 if __name__ == "__main__":

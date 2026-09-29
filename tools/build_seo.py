@@ -393,12 +393,40 @@ def news_index_issues(item: dict[str, Any]) -> list[str]:
     issues = news_quality_issues(item)
     if issues:
         return issues
+    if item.get("_duplicate_of"):
+        return ["duplicate_title"]
     domain = normalized_domain(item)
     if domain in OWN_DOMAINS or item.get("partner") or has_editorial_text(item):
         return []
     if domain not in FOREIGN_SOURCE_DOMAINS:
         return ["russian_source_copy"]
     return []
+
+
+def mark_duplicate_news(items: list[dict[str, Any]]) -> int:
+    """Keep only the newest of several news items with the same title or lead indexable.
+
+    Yandex Webmaster reports such pages as duplicates; the older copies stay on
+    the site but get noindex.
+    """
+    seen: dict[str, str] = {}
+    marked = 0
+    for item in sorted(items, key=news_sort_key, reverse=True):
+        if not is_public_news(item):
+            continue
+        keys = [
+            "t:" + re.sub(r"\W+", " ", strip_html(get_field(item, "title", "headline", "name")).lower()).strip(),
+            "d:" + re.sub(r"\W+", " ", clamp(summary_text(item), 160).lower()).strip(),
+        ]
+        keys = [key for key in keys if len(key) > 12]
+        original = next((seen[key] for key in keys if key in seen), None)
+        if original:
+            item["_duplicate_of"] = original
+            marked += 1
+            continue
+        for key in keys:
+            seen[key] = str(item.get("slug") or "")
+    return marked
 
 
 def is_public_news(item: dict[str, Any]) -> bool:
@@ -1073,9 +1101,10 @@ def render_brand_page(
     page_size: int = HUB_PAGE_SIZE,
 ) -> str:
     name = html.escape(brand["name"])
-    description = html.escape(brand["description"], quote=True)
     total_pages = max(1, (len(brand_items) + page_size - 1) // page_size)
     page = max(1, min(page, total_pages))
+    description_raw = brand["description"] if page == 1 else f"{brand['description'].rstrip('.')}. Архив, страница {page} из {total_pages}."
+    description = html.escape(description_raw, quote=True)
     start = (page - 1) * page_size
     page_items = brand_items[start:start + page_size]
     canonical = brand_url(brand) if page == 1 else f"{brand_url(brand)}page/{page}/"
@@ -1370,9 +1399,10 @@ def render_topic_page(
     page_size: int = HUB_PAGE_SIZE,
 ) -> str:
     name = html.escape(topic["name"])
-    description = html.escape(topic["description"], quote=True)
     total_pages = max(1, (len(topic_items) + page_size - 1) // page_size)
     page = max(1, min(page, total_pages))
+    description_raw = topic["description"] if page == 1 else f"{topic['description'].rstrip('.')}. Архив, страница {page} из {total_pages}."
+    description = html.escape(description_raw, quote=True)
     start = (page - 1) * page_size
     page_items = topic_items[start:start + page_size]
     canonical = topic_url(topic) if page == 1 else f"{topic_url(topic)}page/{page}/"
@@ -2612,6 +2642,7 @@ def main() -> None:
         encoding="utf-8",
     )
 
+    mark_duplicate_news(items)
     public_items = write_news_index(items)
     build_homepage(public_items)
     quality_blocked = len(items) - len(public_items)
