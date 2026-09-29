@@ -184,5 +184,15 @@ class ReportLinesTests(unittest.TestCase):
         self.assertIn("ещё не выполнялся", text)
 
 
+class DiagnosticsTest(unittest.TestCase):
+    def test_only_present_problems_sorted_by_severity(self) -> None:
+        rows = fsa.normalize_diagnostics({"problems": {
+            "NO_SITEMAP_MODIFICATIONS": {"severity": "RECOMMENDATION", "state": "PRESENT"},
+            "DOCUMENTS_MISSING_TITLE": {"severity": "POSSIBLE_PROBLEM", "state": "PRESENT", "last_state_update": "2026-09-20"},
+            "DNS_ERROR": {"severity": "FATAL", "state": "ABSENT"},
+        }})
+        self.assertEqual([r["code"] for r in rows], ["DOCUMENTS_MISSING_TITLE", "NO_SITEMAP_MODIFICATIONS"])
+
+
 if __name__ == "__main__":
     unittest.main()
