@@ -35,6 +35,7 @@ if str(TOOLS) not in sys.path:
 
 from telegram_visual import render_social_card
 from axle_calculator import PAGE_PATH as AXLE_CALC_PATH, render_axle_calculator_page
+from rto_calculator import PAGE_PATH as RTO_CALC_PATH, render_rto_calculator_page
 
 FRONTEND = ROOT / "frontend"
 NEWS_JSON = FRONTEND / "data" / "news.json"
@@ -2460,6 +2461,7 @@ def write_sitemap(
         (f"{BASE_URL}/guides.html", ""),
         (f"{BASE_URL}/about.html", ""),
         (f"{BASE_URL}{AXLE_CALC_PATH}", ""),
+        (f"{BASE_URL}{RTO_CALC_PATH}", ""),
     ]
     rows = []
     for url, lastmod in static_pages:
@@ -2640,6 +2642,18 @@ def main() -> None:
             telegram_cta_html(
                 "Разборы норм для перевозчиков",
                 "Нагрузки, габариты, новые правила 2026 года — коротко и со ссылкой на первоисточник в нашем Telegram-канале.",
+            ),
+        ),
+        encoding="utf-8",
+    )
+    rto_dir = FRONTEND / RTO_CALC_PATH.strip("/")
+    rto_dir.mkdir(parents=True, exist_ok=True)
+    (rto_dir / "index.html").write_text(
+        render_rto_calculator_page(
+            BASE_URL,
+            telegram_cta_html(
+                "Нормы для водителей и перевозчиков",
+                "Режим труда и отдыха, тахографы, штрафы и новые правила 2026 года — коротко в нашем Telegram-канале.",
             ),
         ),
         encoding="utf-8",
