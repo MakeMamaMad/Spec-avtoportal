@@ -100,6 +100,13 @@ def ensure_sitemaps(base: str, token: str, request: Request) -> list[str]:
     return added
 
 
+def sitemap_status(base: str, token: str, request: Request) -> list[dict[str, Any]]:
+    """How Yandex sees our sitemaps: last access, URL count, errors."""
+    rows = request("GET", f"{base}/sitemaps", token, None).get("sitemaps") or []
+    keep = ("sitemap_url", "last_access_date", "errors_count", "urls_count", "children_count", "sources", "sitemap_type")
+    return [{k: row.get(k) for k in keep} for row in rows]
+
+
 def run(token: str, request: Request = http) -> dict[str, Any]:
     state = json.loads(STATE_PATH.read_text("utf-8")) if STATE_PATH.exists() else {"schema": 1, "submitted": {}}
     state.setdefault("submitted", {})
@@ -108,6 +115,7 @@ def run(token: str, request: Request = http) -> dict[str, Any]:
     base = host_base(token, request)
     try:
         result["sitemaps_added"] = ensure_sitemaps(base, token, request)
+        result["sitemaps"] = sitemap_status(base, token, request)
     except urllib.error.HTTPError as exc:
         result["sitemaps_error"] = api_error(exc)
     if not queue:
