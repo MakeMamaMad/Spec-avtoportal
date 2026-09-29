@@ -1,20 +1,28 @@
 {
   "schema": 1,
-  "updated_at": "2026-09-29T07:08:19+00:00",
+  "updated_at": "2026-09-29T21:28:34+00:00",
   "counter_id": "106240080",
   "metrika": {
     "status": "ok",
     "period_days": 7,
-    "visits": 115,
-    "users": 95,
+    "visits": 133,
+    "users": 114,
     "sources": [
       {
         "id": "direct",
         "name": "Прямые заходы",
-        "visits": 99,
-        "users": 84,
-        "bounce_rate": 62.6,
+        "visits": 114,
+        "users": 100,
+        "bounce_rate": 64.9,
         "page_depth": 1.27
+      },
+      {
+        "id": "organic",
+        "name": "Переходы из поисковых систем",
+        "visits": 8,
+        "users": 8,
+        "bounce_rate": 50.0,
+        "page_depth": 1.0
       },
       {
         "id": "internal",
@@ -25,19 +33,11 @@
         "page_depth": 8.0
       },
       {
-        "id": "organic",
-        "name": "Переходы из поисковых систем",
-        "visits": 6,
-        "users": 6,
-        "bounce_rate": 50.0,
-        "page_depth": 1.0
-      },
-      {
         "id": "social",
         "name": "Переходы из социальных сетей",
-        "visits": 2,
-        "users": 2,
-        "bounce_rate": 0.0,
+        "visits": 3,
+        "users": 3,
+        "bounce_rate": 33.3,
         "page_depth": 1.0
       },
       {
@@ -65,11 +65,17 @@
       }
     },
     "search": {
-      "date_from": "2026-09-20",
-      "date_to": "2026-09-26",
-      "shows": 28,
-      "clicks": 0,
+      "date_from": "2026-09-21",
+      "date_to": "2026-09-27",
+      "shows": 35,
+      "clicks": 1,
       "top_queries": [
+        {
+          "query": "приказ минтранса 212 от 12.05.2026",
+          "shows": 3,
+          "clicks": 0,
+          "position": 12.7
+        },
         {
           "query": "когель тотал ру",
           "shows": 2,
@@ -81,12 +87,6 @@
           "shows": 2,
           "clicks": 0,
           "position": 8.5
-        },
-        {
-          "query": "приказ минтранса 212 от 12.05.2026",
-          "shows": 2,
-          "clicks": 0,
-          "position": 13.0
         },
         {
           "query": "приказ минтранса россии от 12 мая 2026 года № 212",
@@ -101,16 +101,10 @@
           "position": 17.5
         },
         {
-          "query": "12.05.2026 №212",
+          "query": "приказ минтранса 212 от 12.05.2026 в пдф",
           "shows": 1,
-          "clicks": 0,
-          "position": 12.0
-        },
-        {
-          "query": "приказ минтранса россии от 12.05.2026 no 212 «об утверждении правил обеспечения безопасности перевозок автомобильным транспортом и городским наземным электрическим транспортом» основные изменения",
-          "shows": 1,
-          "clicks": 0,
-          "position": 10.0
+          "clicks": 1,
+          "position": 8.0
         },
         {
           "query": "приказ минтранса россии от 12.05.2026 № 212 скачать",
@@ -125,6 +119,12 @@
           "position": 6.0
         },
         {
+          "query": "приказ от 12.05.2026 № 212 «об утверждении правил обеспечения безопасности перевозок автомобильным транспортом и городским наземным электрическим транспортом». он утвердил новые правила безопасности для перевозчиков. действует с 1 сентября 2026 года до 1 сентября 2032 года.  garant.ru",
+          "shows": 1,
+          "clicks": 0,
+          "position": 9.0
+        },
+        {
           "query": "статус документа •• приказ министерства транспорта российской федерации от 12.05.2026 № 212",
           "shows": 1,
           "clicks": 0,
@@ -136,27 +136,27 @@
       {
         "code": "DOCUMENTS_MISSING_DESCRIPTION",
         "severity": "POSSIBLE_PROBLEM",
-        "since": "2026-09-29T05:38:16.962+03:00"
+        "since": "2026-09-29T20:27:33.643+03:00"
       },
       {
         "code": "DUPLICATE_PAGES",
         "severity": "POSSIBLE_PROBLEM",
-        "since": "2026-09-29T05:38:16.962+03:00"
+        "since": "2026-09-29T20:27:33.643+03:00"
       },
       {
         "code": "NO_SITEMAPS",
         "severity": "POSSIBLE_PROBLEM",
-        "since": "2026-09-29T05:24:04.269+03:00"
+        "since": "2026-09-29T11:04:15.007+03:00"
       },
       {
         "code": "NOT_IN_SPRAV",
         "severity": "RECOMMENDATION",
-        "since": "2026-09-29T05:38:16.962+03:00"
+        "since": "2026-09-29T20:27:33.643+03:00"
       },
       {
         "code": "NO_REGIONS",
         "severity": "RECOMMENDATION",
-        "since": "2026-09-29T05:38:16.962+03:00"
+        "since": "2026-09-29T20:27:33.643+03:00"
       }
     ],
     "token_secret": "YANDEX_WEBMASTER_OAUTH_TOKEN"
