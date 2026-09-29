@@ -1,0 +1,17 @@
+# Pages to send to Yandex Webmaster "Переобход страниц", one per line.
+# Each URL is submitted once; results are kept in
+# frontend/data/promotion/yandex_recrawl_state.json.
+https://spec-avtoportal.ru/knowledge/registraciya-polupricepa/
+https://spec-avtoportal.ru/knowledge/rezhim-truda-i-otdyha-voditelya/
+https://spec-avtoportal.ru/knowledge/shtraf-za-peregruz/
+https://spec-avtoportal.ru/knowledge/specrazreshenie-tyazhelovesnoe-ts/
+https://spec-avtoportal.ru/tools/nagruzka-na-os/
+https://spec-avtoportal.ru/regulations/elektronnye-perevozochnye-dokumenty-2026/
+https://spec-avtoportal.ru/regulations/mezhdunarodnye-avtoperevozki-2026/
+https://spec-avtoportal.ru/regulations/tr-ts-018-2011/
+https://spec-avtoportal.ru/regulations/gost-r-70472-2023/
+https://spec-avtoportal.ru/regulations/gost-r-70473-2022/
+https://spec-avtoportal.ru/regulations/gost-r-70474-2023/
+https://spec-avtoportal.ru/regulations/gost-r-70477-2022/
+https://spec-avtoportal.ru/knowledge/
+https://spec-avtoportal.ru/
