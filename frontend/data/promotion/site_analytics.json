@@ -1,20 +1,20 @@
 {
   "schema": 1,
-  "updated_at": "2026-09-28T22:35:31+00:00",
+  "updated_at": "2026-09-29T06:57:24+00:00",
   "counter_id": "106240080",
   "metrika": {
     "status": "ok",
     "period_days": 7,
-    "visits": 111,
-    "users": 91,
+    "visits": 115,
+    "users": 95,
     "sources": [
       {
         "id": "direct",
         "name": "Прямые заходы",
-        "visits": 95,
-        "users": 80,
-        "bounce_rate": 62.1,
-        "page_depth": 1.28
+        "visits": 99,
+        "users": 84,
+        "bounce_rate": 62.6,
+        "page_depth": 1.27
       },
       {
         "id": "internal",
