@@ -150,6 +150,23 @@ def parse_last_sent(log: str) -> dict[str, Any] | None:
 
 def build_bounce_message(conclusion: str) -> str | None:
     log = source_log()
+    errors = re.findall(r"GMAIL_BOUNCE_CHECK_ERROR\s+(\{.*?\})(?:\r?\n|$)", log)
+    if errors:
+        try:
+            error = json.loads(errors[-1])
+        except Exception:
+            error = {}
+        streak = int(error.get("streak") or 1)
+        # First failure, then once a day while the same problem persists.
+        if streak != 1 and streak % 24 != 0:
+            return None
+        lines = ["✉️ Реклама — Gmail", "❌ Проверка доставки Gmail завершилась ошибкой."]
+        if error.get("hint"):
+            lines.append(str(error["hint"]))
+        if error.get("code"):
+            lines.append(f"Код: {error['code']}" + (f" (подряд: {streak})" if streak > 1 else ""))
+        return "\n".join(lines)
+
     matches = re.findall(r"GMAIL_BOUNCE_CHECK_OK\s+(\{.*?\})(?:\r?\n|$)", log)
     if not matches:
         if conclusion != "success":
