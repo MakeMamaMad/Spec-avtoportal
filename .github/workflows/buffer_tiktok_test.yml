@@ -28,7 +28,7 @@ jobs:
         with:
           name: first-youtube-short-v2-retry
           path: /tmp/shorts
-          repository: MakeMamaMad/Spec-avtoportal
+          repository: ${{ github.repository }}
           run-id: 35961342632
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -53,7 +53,7 @@ jobs:
 
       - name: Wait until public video URL is reachable
         run: |
-          URL="https://raw.githubusercontent.com/MakeMamaMad/Spec-avtoportal/main/buffer-media/tiktok-test-35961342632.mp4"
+          URL="https://raw.githubusercontent.com/${{ github.repository }}/main/buffer-media/tiktok-test-35961342632.mp4"
           for i in 1 2 3 4 5 6; do
             code="$(curl -L -s -o /dev/null -w '%{http_code}' "$URL")"
             echo "attempt=$i http=$code"
@@ -71,6 +71,6 @@ jobs:
         run: |
           cd tools/autoposter
           python -m src.publish.buffer \
-            --video-url "https://raw.githubusercontent.com/MakeMamaMad/Spec-avtoportal/main/buffer-media/tiktok-test-35961342632.mp4" \
+            --video-url "https://raw.githubusercontent.com/${{ github.repository }}/main/buffer-media/tiktok-test-35961342632.mp4" \
             --text-file "/tmp/shorts/caption_tiktok.txt" \
             --share-now

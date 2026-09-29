@@ -56,7 +56,9 @@ SOCIAL_URLS = [
     "https://www.youtube.com/@Specavtoportal",
     "https://www.instagram.com/specavtoportal",
     "https://vk.ru/specavtoportal",
+    "https://dzen.ru/specavtoportal",
 ]
+BRAND_ALTERNATE_NAMES = ["SpecAvtoPortal", "Spec Avto Portal", "СпецАвто Портал"]
 METRIKA_ID = 106240080
 METRIKA_SCRIPT_TAG = '<script defer src="/metrika.js"></script>'
 METRIKA_NOSCRIPT = (
@@ -837,6 +839,7 @@ def json_ld(item: dict[str, Any]) -> str:
         "publisher": {
             "@type": "Organization",
             "name": "СпецАвтоПортал",
+            "alternateName": BRAND_ALTERNATE_NAMES,
             "url": BASE_URL,
             "logo": {"@type": "ImageObject", "url": f"{BASE_URL}/assets/logo.png"},
             "sameAs": SOCIAL_URLS,
