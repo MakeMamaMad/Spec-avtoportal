@@ -83,8 +83,17 @@ class EditorialPitchTests(unittest.TestCase):
         config = json.loads(PITCH_CONFIG_PATH.read_text("utf-8"))
         featured = featured_article(config)
         if featured:
-            self.assertTrue(featured["pitch"]["pdf_url"].startswith("https://spec-avtoportal.ru/files/"))
-            self.assertTrue(featured["path"].startswith("/regulations/"))
+            pdf_url = featured["pitch"].get("pdf_url")
+            if pdf_url:
+                self.assertTrue(pdf_url.startswith("https://spec-avtoportal.ru/files/"))
+            path = featured["path"]
+            self.assertTrue(path.startswith(("/regulations/", "/knowledge/")))
+            # The pitched page must exist in the site data.
+            root = PITCH_CONFIG_PATH.parents[2] / "frontend/data"
+            section, slug = path.strip("/").split("/")
+            catalog = "regulations.json" if section == "regulations" else "knowledge_articles.json"
+            slugs = {x.get("slug") for x in json.loads((root / catalog).read_text("utf-8"))["items"]}
+            self.assertIn(slug, slugs)
 
 
 if __name__ == "__main__":
