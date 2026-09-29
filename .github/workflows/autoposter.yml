@@ -178,8 +178,8 @@ jobs:
           cp tools/autoposter/out_v2/master.mp4 "/tmp/$INSTAGRAM_ASSET"
           gh release upload "$RELEASE_TAG" "/tmp/$TIKTOK_ASSET#$TIKTOK_ASSET" "/tmp/$INSTAGRAM_ASSET#$INSTAGRAM_ASSET" --clobber
 
-          echo "BUFFER_TIKTOK_VIDEO_URL=https://github.com/MakeMamaMad/Spec-avtoportal/releases/download/$RELEASE_TAG/$TIKTOK_ASSET" >> "$GITHUB_ENV"
-          echo "BUFFER_INSTAGRAM_VIDEO_URL=https://github.com/MakeMamaMad/Spec-avtoportal/releases/download/$RELEASE_TAG/$INSTAGRAM_ASSET" >> "$GITHUB_ENV"
+          echo "BUFFER_TIKTOK_VIDEO_URL=https://github.com/${{ github.repository }}/releases/download/$RELEASE_TAG/$TIKTOK_ASSET" >> "$GITHUB_ENV"
+          echo "BUFFER_INSTAGRAM_VIDEO_URL=https://github.com/${{ github.repository }}/releases/download/$RELEASE_TAG/$INSTAGRAM_ASSET" >> "$GITHUB_ENV"
 
       - name: Publish YouTube TikTok Instagram
         env:
