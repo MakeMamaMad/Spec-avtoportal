@@ -123,6 +123,19 @@
       "status": "email_sent",
       "sent_at": "2026-09-29T10:25:06+00:00",
       "gmail_message_id": "1a0ecb258e03baa0"
+    },
+    {
+      "target_id": "sdelanounas",
+      "target_name": "Сделано у нас",
+      "item_key": "news:065018397658",
+      "title": "«Джак Автомобиль» представил на Comtrans новые мусоровоз и самосвал на шасси JAC",
+      "source_url": "https://spec-avtoportal.ru/news/dzhak-avtomobil-predstavil-na-comtrans-novye-musorovoz-i-samosval-na-sha-06501839/?utm_source=sdelanounas&utm_medium=editorial&utm_campaign=industry_promotion&utm_content=dzhak-avtomobil-predstavil-na-comtrans-novye-musorovoz-i-samosval-na-sha-06501839",
+      "result_url": "https://sdelanounas.ru/blogs/add/?BlogAdd=3577689132",
+      "category_id": "149",
+      "submitted_at": "2026-09-29T15:55:50+00:00",
+      "status": "published",
+      "public_url": "https://sdelanounas.ru/blogs/add/?BlogAdd=3577689132",
+      "published_at": "2026-09-29T15:55:50+00:00"
     }
   ]
 }
