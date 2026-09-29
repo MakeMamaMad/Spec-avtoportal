@@ -227,16 +227,16 @@
       "slug": "dzhak-avtomobil-predstavil-na-comtrans-novye-musorovoz-i-samosval-na-sha-06501839"
     },
     "https://truckmix.ru/news/v-samarskoi-oblasti-nachalis-priemochnie-ispitaniya-modernizirovannogo-traktora-btz-254k-20": {
-      "digest_id": "2026-09-28:pm",
-      "message_id": 1501,
-      "sent_at": "2026-09-28T14:16:27+00:00",
+      "digest_id": "2026-09-29:am",
+      "message_id": 1506,
+      "sent_at": "2026-09-29T06:45:17+00:00",
       "title": "В Самарской области начались приемочные испытания модернизированного трактора БТЗ 254К.20",
       "slug": "v-samarskoy-oblasti-nachalis-priemochnye-ispytaniya-modernizirovannogo-t-a8cdb6cd"
     },
     "https://www.globaltrailermag.com/krone-and-aerodyne-to-commercialise-aerodynamic-trailer-system/": {
-      "digest_id": "2026-09-28:pm",
-      "message_id": 1501,
-      "sent_at": "2026-09-28T14:16:27+00:00",
+      "digest_id": "2026-09-29:am",
+      "message_id": 1506,
+      "sent_at": "2026-09-29T06:45:17+00:00",
       "title": "KRONE и Aerodyne коммерциализируют систему аэродинамических прицепов",
       "slug": "krone-i-aerodyne-kommertsializiruyut-sistemu-aerodinamicheskih-pritsepov-0d099836"
     },
@@ -253,6 +253,13 @@
       "sent_at": "2026-09-28T14:16:27+00:00",
       "title": "ЕЭК предложила ввести антидемпинговые пошлины на грузовые шины из Таиланда и Вьетнама",
       "slug": "eek-predlozhila-vvesti-antidempingovye-poshliny-na-gruzovye-shiny-iz-tai-f4d58e1f"
+    },
+    "https://www.globaltrailermag.com/michelin-wins-dhl-ev-fleet-tyre-contract/": {
+      "digest_id": "2026-09-29:am",
+      "message_id": 1506,
+      "sent_at": "2026-09-29T06:45:17+00:00",
+      "title": "Michelin выиграла контракт на шины DHL EV",
+      "slug": "michelin-vyigrala-kontrakt-na-shiny-dhl-ev-8634108a"
     }
   },
   "digests": {
@@ -315,6 +322,17 @@
         "http://gruzovoy.ru/news/industry/3382_eek_predlojila_vvesti_antidempingovie_poshlini_na_gryzovie_shini_iz_tailanda_i_vetnama.html",
         "https://truckmix.ru/news/v-samarskoi-oblasti-nachalis-priemochnie-ispitaniya-modernizirovannogo-traktora-btz-254k-20",
         "https://www.globaltrailermag.com/krone-and-aerodyne-to-commercialise-aerodynamic-trailer-system/"
+      ],
+      "visual": "visual"
+    },
+    "2026-09-29:am": {
+      "message_id": 1506,
+      "sent_at": "2026-09-29T06:45:17+00:00",
+      "slot": "am",
+      "items": [
+        "https://www.globaltrailermag.com/michelin-wins-dhl-ev-fleet-tyre-contract/",
+        "https://www.globaltrailermag.com/krone-and-aerodyne-to-commercialise-aerodynamic-trailer-system/",
+        "https://truckmix.ru/news/v-samarskoi-oblasti-nachalis-priemochnie-ispitaniya-modernizirovannogo-traktora-btz-254k-20"
       ],
       "visual": "visual"
     }
