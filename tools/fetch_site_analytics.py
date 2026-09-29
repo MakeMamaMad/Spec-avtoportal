@@ -282,7 +282,28 @@ def fetch_webmaster(
         # Index data is still useful even if search statistics are unavailable.
         block["search"]["status"] = "error"
         block["search"]["detail"] = f"Поисковые запросы: {error_detail(exc)}"
+    try:
+        block["diagnostics"] = normalize_diagnostics(fetch(f"{base}/diagnostics", token))
+    except Exception as exc:
+        block["diagnostics_error"] = f"Диагностика: {error_detail(exc)}"
     return block
+
+
+def normalize_diagnostics(payload: Any) -> list[dict[str, str]]:
+    """Problems Webmaster currently reports as present, most severe first."""
+    order = {"FATAL": 0, "CRITICAL": 1, "POSSIBLE_PROBLEM": 2, "RECOMMENDATION": 3}
+    rows = []
+    problems = (payload or {}).get("problems") or {}
+    for code, info in problems.items():
+        if not isinstance(info, dict) or info.get("state") != "PRESENT":
+            continue
+        rows.append({
+            "code": str(code),
+            "severity": str(info.get("severity") or ""),
+            "since": str(info.get("last_state_update") or ""),
+        })
+    rows.sort(key=lambda r: (order.get(r["severity"], 9), r["code"]))
+    return rows
 
 
 def build_summary(env: dict[str, str], today: date, fetch: Fetcher = http_get_json) -> dict[str, Any]:
