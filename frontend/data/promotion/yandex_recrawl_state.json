@@ -64,19 +64,22 @@
     "https://spec-avtoportal.ru/law.html": {
       "at": "2026-09-29T07:22:06+00:00",
       "task_id": "79a2e4b0-bbd6-11f1-a81a-df27cbeb2a3a"
+    },
+    "https://spec-avtoportal.ru/tools/rezhim-truda-i-otdyha/": {
+      "at": "2026-09-29T08:38:46+00:00",
+      "task_id": "2f902e90-bbe1-11f1-9163-711f15d42d16"
     }
   },
   "last_run": {
-    "at": "2026-09-29T07:22:06+00:00",
+    "at": "2026-09-29T08:38:46+00:00",
     "sent": [
-      "https://spec-avtoportal.ru/knowledge.html",
-      "https://spec-avtoportal.ru/law.html"
+      "https://spec-avtoportal.ru/tools/rezhim-truda-i-otdyha/"
     ],
     "failed": [],
     "left": 0,
     "quota": {
       "daily": 150,
-      "remainder_before": 130
+      "remainder_before": 128
     },
     "sitemaps_added": [],
     "sitemaps": []
