@@ -5,6 +5,7 @@ import base64
 import json
 import os
 import re
+import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
@@ -233,7 +234,56 @@ def apply_bounce(
     return changed
 
 
+def classify_error(exc: BaseException) -> dict[str, str]:
+    """Reason code for the owner, without any secret values."""
+    text = str(exc)
+    name = type(exc).__name__
+    code = name
+    hint = "Нужна проверка workflow «Promotion — Gmail Delivery Check»."
+    if "invalid_grant" in text:
+        code = "token_expired_or_revoked"
+        hint = (
+            "Токен Gmail истёк или отозван. Нужно заново выпустить токен Gmail "
+            "и обновить секрет GMAIL_TOKEN_B64."
+        )
+    elif "invalid_client" in text or "unauthorized_client" in text:
+        code = "oauth_client_invalid"
+        hint = "OAuth-клиент Google не принят. Проверьте client_id/client_secret в токене Gmail."
+    elif isinstance(exc, urllib.error.HTTPError):
+        code = f"gmail_http_{exc.code}"
+        if exc.code in (401, 403):
+            hint = "Gmail отклонил доступ. Вероятно, нужно заново выпустить токен Gmail."
+        elif exc.code >= 500 or exc.code == 429:
+            hint = "Временный сбой Gmail. Следующая проверка через час повторит попытку."
+    elif isinstance(exc, (urllib.error.URLError, TimeoutError, ConnectionError)):
+        code = "network_error"
+        hint = "Временная сетевая ошибка. Следующая проверка через час повторит попытку."
+    elif isinstance(exc, (ValueError, KeyError)) and "token" in text.lower():
+        code = "token_file_invalid"
+        hint = "Секрет GMAIL_TOKEN_B64 повреждён. Нужно заново выпустить токен Gmail."
+    detail = re.sub(r"(ya29\.|1//)[A-Za-z0-9._-]+", "***", text)[:300]
+    return {"code": code, "error_type": name, "detail": detail, "hint": hint}
+
+
+def record_error(error: dict[str, str]) -> dict[str, Any]:
+    state = load_json(STATE_PATH, {"schema": 1, "processed_message_ids": []})
+    previous = state.get("last_error") or {}
+    streak = int(previous.get("streak") or 0) + 1 if previous.get("code") == error["code"] else 1
+    state["last_error"] = {**error, "streak": streak, "at": utc_now()}
+    save_json(STATE_PATH, state)
+    return state["last_error"]
+
+
 def main() -> int:
+    try:
+        return run()
+    except Exception as exc:  # report a readable reason instead of a bare traceback
+        error = record_error(classify_error(exc))
+        print("GMAIL_BOUNCE_CHECK_ERROR " + json.dumps(error, ensure_ascii=False))
+        return 1
+
+
+def run() -> int:
     token_path = Path(os.environ.get("GMAIL_TOKEN_FILE", "gmail_token.json"))
     if not token_path.exists():
         print("GMAIL_BOUNCE_CHECK_SKIP token_not_configured")
@@ -289,6 +339,9 @@ def main() -> int:
     save_json(QUEUE_PATH, queue)
     save_json(TARGETS_PATH, targets)
     save_json(SUMMARY_PATH, summary)
+    if state.get("last_error"):
+        state["recovered_at"] = utc_now()
+        state.pop("last_error", None)
     save_json(STATE_PATH, state)
 
     print(
