@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "submitted": {
+    "https://spec-avtoportal.ru/knowledge/registraciya-polupricepa/": {
+      "at": "2026-09-29T07:03:15+00:00",
+      "task_id": "d7bfc980-bbd3-11f1-b518-8103174f3502"
+    },
+    "https://spec-avtoportal.ru/knowledge/rezhim-truda-i-otdyha-voditelya/": {
+      "at": "2026-09-29T07:03:16+00:00",
+      "task_id": "d8410770-bbd3-11f1-9163-711f15d42d16"
+    },
+    "https://spec-avtoportal.ru/knowledge/shtraf-za-peregruz/": {
+      "at": "2026-09-29T07:03:17+00:00",
+      "task_id": "d8ceef90-bbd3-11f1-9163-711f15d42d16"
+    },
+    "https://spec-avtoportal.ru/knowledge/specrazreshenie-tyazhelovesnoe-ts/": {
+      "at": "2026-09-29T07:03:18+00:00",
+      "task_id": "d95313b0-bbd3-11f1-b4d6-87c8463f27c2"
+    },
+    "https://spec-avtoportal.ru/tools/nagruzka-na-os/": {
+      "at": "2026-09-29T07:03:19+00:00",
+      "task_id": "d9ddee90-bbd3-11f1-b518-8103174f3502"
+    },
+    "https://spec-avtoportal.ru/regulations/elektronnye-perevozochnye-dokumenty-2026/": {
+      "at": "2026-09-29T07:03:20+00:00",
+      "task_id": "da6742d0-bbd3-11f1-9163-711f15d42d16"
+    },
+    "https://spec-avtoportal.ru/regulations/mezhdunarodnye-avtoperevozki-2026/": {
+      "at": "2026-09-29T07:03:21+00:00",
+      "task_id": "daf0be20-bbd3-11f1-9163-711f15d42d16"
+    },
+    "https://spec-avtoportal.ru/regulations/tr-ts-018-2011/": {
+      "at": "2026-09-29T07:03:22+00:00",
+      "task_id": "db794f10-bbd3-11f1-b4d6-87c8463f27c2"
+    },
+    "https://spec-avtoportal.ru/regulations/gost-r-70472-2023/": {
+      "at": "2026-09-29T07:03:23+00:00",
+      "task_id": "dc056270-bbd3-11f1-b518-8103174f3502"
+    },
+    "https://spec-avtoportal.ru/regulations/gost-r-70473-2022/": {
+      "at": "2026-09-29T07:03:23+00:00",
+      "task_id": "dc92d560-bbd3-11f1-a81a-df27cbeb2a3a"
+    },
+    "https://spec-avtoportal.ru/regulations/gost-r-70474-2023/": {
+      "at": "2026-09-29T07:03:24+00:00",
+      "task_id": "dd199190-bbd3-11f1-a81a-df27cbeb2a3a"
+    },
+    "https://spec-avtoportal.ru/regulations/gost-r-70477-2022/": {
+      "at": "2026-09-29T07:03:25+00:00",
+      "task_id": "dda9eab0-bbd3-11f1-a81a-df27cbeb2a3a"
+    },
+    "https://spec-avtoportal.ru/knowledge/": {
+      "at": "2026-09-29T07:03:26+00:00",
+      "task_id": "de37abc0-bbd3-11f1-9163-711f15d42d16"
+    },
+    "https://spec-avtoportal.ru/": {
+      "at": "2026-09-29T07:03:27+00:00",
+      "task_id": "dec43450-bbd3-11f1-9163-711f15d42d16"
+    }
+  },
+  "last_run": {
+    "at": "2026-09-29T07:03:27+00:00",
+    "sent": [
+      "https://spec-avtoportal.ru/knowledge/registraciya-polupricepa/",
+      "https://spec-avtoportal.ru/knowledge/rezhim-truda-i-otdyha-voditelya/",
+      "https://spec-avtoportal.ru/knowledge/shtraf-za-peregruz/",
+      "https://spec-avtoportal.ru/knowledge/specrazreshenie-tyazhelovesnoe-ts/",
+      "https://spec-avtoportal.ru/tools/nagruzka-na-os/",
+      "https://spec-avtoportal.ru/regulations/elektronnye-perevozochnye-dokumenty-2026/",
+      "https://spec-avtoportal.ru/regulations/mezhdunarodnye-avtoperevozki-2026/",
+      "https://spec-avtoportal.ru/regulations/tr-ts-018-2011/",
+      "https://spec-avtoportal.ru/regulations/gost-r-70472-2023/",
+      "https://spec-avtoportal.ru/regulations/gost-r-70473-2022/",
+      "https://spec-avtoportal.ru/regulations/gost-r-70474-2023/",
+      "https://spec-avtoportal.ru/regulations/gost-r-70477-2022/",
+      "https://spec-avtoportal.ru/knowledge/",
+      "https://spec-avtoportal.ru/"
+    ],
+    "failed": [],
+    "left": 0,
+    "quota": {
+      "daily": 150,
+      "remainder_before": 144
+    }
+  }
+}
