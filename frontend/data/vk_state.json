@@ -173,18 +173,25 @@
       "slug": "krone-i-aerodyne-kommertsializiruyut-sistemu-aerodinamicheskih-pritsepov-0d099836"
     },
     "https://truckmix.ru/news/v-samarskoi-oblasti-nachalis-priemochnie-ispitaniya-modernizirovannogo-traktora-btz-254k-20": {
-      "digest_id": "2026-09-28:pm",
-      "post_id": 19,
-      "sent_at": "2026-09-28T14:24:23+00:00",
+      "digest_id": "2026-09-29:am",
+      "post_id": 21,
+      "sent_at": "2026-09-29T06:48:12+00:00",
       "title": "В Самарской области начались приемочные испытания модернизированного трактора БТЗ 254К.20",
       "slug": "v-samarskoy-oblasti-nachalis-priemochnye-ispytaniya-modernizirovannogo-t-a8cdb6cd"
     },
     "http://gruzovoy.ru/news/industry/3382_eek_predlojila_vvesti_antidempingovie_poshlini_na_gryzovie_shini_iz_tailanda_i_vetnama.html": {
-      "digest_id": "2026-09-28:pm",
-      "post_id": 19,
-      "sent_at": "2026-09-28T14:24:23+00:00",
+      "digest_id": "2026-09-29:am",
+      "post_id": 21,
+      "sent_at": "2026-09-29T06:48:12+00:00",
       "title": "ЕЭК предложила ввести антидемпинговые пошлины на грузовые шины из Таиланда и Вьетнама",
       "slug": "eek-predlozhila-vvesti-antidempingovye-poshliny-na-gruzovye-shiny-iz-tai-f4d58e1f"
+    },
+    "https://www.globaltrailermag.com/michelin-wins-dhl-ev-fleet-tyre-contract/": {
+      "digest_id": "2026-09-29:am",
+      "post_id": 21,
+      "sent_at": "2026-09-29T06:48:12+00:00",
+      "title": "Michelin выиграла контракт на шины DHL EV",
+      "slug": "michelin-vyigrala-kontrakt-na-shiny-dhl-ev-8634108a"
     }
   },
   "digests": {
@@ -248,6 +255,17 @@
         "http://gruzovoy.ru/news/industry/3382_eek_predlojila_vvesti_antidempingovie_poshlini_na_gryzovie_shini_iz_tailanda_i_vetnama.html",
         "https://truckmix.ru/news/v-samarskoi-oblasti-nachalis-priemochnie-ispitaniya-modernizirovannogo-traktora-btz-254k-20",
         "https://www.globaltrailermag.com/tip-expands-tht-new-cool-partnership/"
+      ]
+    },
+    "2026-09-29:am": {
+      "post_id": 21,
+      "sent_at": "2026-09-29T06:48:12+00:00",
+      "slot": "am",
+      "visual": "link_preview",
+      "items": [
+        "https://www.globaltrailermag.com/michelin-wins-dhl-ev-fleet-tyre-contract/",
+        "http://gruzovoy.ru/news/industry/3382_eek_predlojila_vvesti_antidempingovie_poshlini_na_gryzovie_shini_iz_tailanda_i_vetnama.html",
+        "https://truckmix.ru/news/v-samarskoi-oblasti-nachalis-priemochnie-ispitaniya-modernizirovannogo-traktora-btz-254k-20"
       ]
     }
   }
