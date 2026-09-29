@@ -59,28 +59,11 @@
     }
   },
   "last_run": {
-    "at": "2026-09-29T07:03:27+00:00",
-    "sent": [
-      "https://spec-avtoportal.ru/knowledge/registraciya-polupricepa/",
-      "https://spec-avtoportal.ru/knowledge/rezhim-truda-i-otdyha-voditelya/",
-      "https://spec-avtoportal.ru/knowledge/shtraf-za-peregruz/",
-      "https://spec-avtoportal.ru/knowledge/specrazreshenie-tyazhelovesnoe-ts/",
-      "https://spec-avtoportal.ru/tools/nagruzka-na-os/",
-      "https://spec-avtoportal.ru/regulations/elektronnye-perevozochnye-dokumenty-2026/",
-      "https://spec-avtoportal.ru/regulations/mezhdunarodnye-avtoperevozki-2026/",
-      "https://spec-avtoportal.ru/regulations/tr-ts-018-2011/",
-      "https://spec-avtoportal.ru/regulations/gost-r-70472-2023/",
-      "https://spec-avtoportal.ru/regulations/gost-r-70473-2022/",
-      "https://spec-avtoportal.ru/regulations/gost-r-70474-2023/",
-      "https://spec-avtoportal.ru/regulations/gost-r-70477-2022/",
-      "https://spec-avtoportal.ru/knowledge/",
-      "https://spec-avtoportal.ru/"
-    ],
+    "at": "2026-09-29T07:17:07+00:00",
+    "sent": [],
     "failed": [],
     "left": 0,
-    "quota": {
-      "daily": 150,
-      "remainder_before": 144
-    }
+    "quota": null,
+    "sitemaps_added": []
   }
 }
