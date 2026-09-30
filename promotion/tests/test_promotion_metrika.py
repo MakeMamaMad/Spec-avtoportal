@@ -34,6 +34,14 @@ class PromotionMetrikaTests(unittest.TestCase):
         self.assertEqual(rows[0]["users"], 5)
         self.assertEqual(rows[0]["campaign"], "industry_editorial")
 
+    def test_normalize_keeps_own_social_posts(self) -> None:
+        payload = {"data": [
+            {"dimensions": [{"name": "telegram"}, {"name": "social"}, {"name": "axle_calculator"}], "metrics": [4, 3, 25, 2, 60]},
+            {"dimensions": [{"name": "dzen"}, {"name": "social"}, {"name": "dzen_articles"}], "metrics": [2, 2, 50, 1.5, 30]},
+        ]}
+        rows = normalize(payload)
+        self.assertEqual([r["source"] for r in rows], ["telegram", "dzen"])
+
     def test_normalize_sorts_by_visits(self) -> None:
         payload = {
             "data": [
