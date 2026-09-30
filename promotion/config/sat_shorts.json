@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "about": "Weekly partner shorts about SAT semi-trailers (satpricep.by). One episode per week, Thursday 18:30 MSK slot. Facts come from the manufacturer's catalog pages; claims marked as the manufacturer's data are said so in narration.",
+  "partner_domain": "satpricep.by",
+  "utm": "utm_source=specavtoportal&utm_medium=video&utm_campaign=sat_shorts",
+  "default_photo": "https://spec-avtoportal.ru/assets/partners/sat545.jpg",
+  "hashtags": ["#SAT", "#полуприцеп", "#самосвал", "#грузоперевозки", "#СпецАвтоПортал"],
+  "episodes": [
+    {
+      "id": "sat545-overview",
+      "title": "SAT545: алюминиевый самосвал на 4 оси",
+      "url": "https://satpricep.by/catalog/polupritsepy/polupritsepy-samosvalnye/polupritsep-samosvalnyy-alyuminievyy-sat545/",
+      "scenes": [
+        {"overlay": "SAT545: ОТ 49 ТОНН ГРУЗА", "narration": "Полуприцеп, который берёт от 49 тонн груза. Это SAT545 — алюминиевый самосвал белорусского производства."},
+        {"overlay": "ДО 55 М³ КУЗОВ", "narration": "Кузов до 55 кубометров. Подходит для песка, щебня, зерна и других сыпучих грузов."},
+        {"overlay": "4 ОСИ, ПНЕВМОПОДВЕСКА", "narration": "Четыре оси на пневмоподвеске, одну или две можно поднимать, когда едете порожняком."},
+        {"overlay": "ОТ 1 499 000 РУБ.", "narration": "Цена — от 1 499 000 рублей, напрямую от завода."}
+      ]
+    },
+    {
+      "id": "aluminum-vs-steel",
+      "title": "Алюминиевый кузов или стальной: что выгоднее",
+      "url": "https://satpricep.by/catalog/polupritsepy/polupritsepy-samosvalnye/",
+      "scenes": [
+        {"overlay": "АЛЮМИНИЙ ИЛИ СТАЛЬ?", "narration": "Алюминиевый кузов самосвала или стальной — что выгоднее перевозчику?"},
+        {"overlay": "КУЗОВ ЛЕГЧЕ НА 30–40 %", "narration": "По данным производителя SAT, алюминиевый кузов легче стального на 30–40 %."},
+        {"overlay": "БОЛЬШЕ ГРУЗА ЗА РЕЙС", "narration": "Каждая сэкономленная тонна собственной массы — это тонна полезного груза в пределах допустимой массы автопоезда."},
+        {"overlay": "НЕ РЖАВЕЕТ", "narration": "Алюминий не боится коррозии, а на лёгком прицепе меньше расход топлива — производитель оценивает экономию в 10–15 %."}
+      ]
+    },
+    {
+      "id": "sat500-extended-axle",
+      "title": "Зачем полуприцепу вынесенная ось",
+      "url": "https://satpricep.by/catalog/polupritsepy/polupritsepy-zernovozy/polupritsep-samosvalnyy-alyuminievyy-s-vynesennoy-osyu-cat500/",
+      "scenes": [
+        {"overlay": "ЗАЧЕМ ВЫНЕСЕННАЯ ОСЬ?", "narration": "Зачем полуприцепу вынесенная вперёд ось? Разберём на примере SAT500."},
+        {"overlay": "2 520 ММ ДО ЗАДНЕЙ ОСИ", "narration": "Передняя ось отнесена от задней тележки на 2,5 метра и забирает на себя часть веса."},
+        {"overlay": "МЕНЬШЕ НАГРУЗКА НА ТЯГАЧ", "narration": "Нагрузка на седло тягача падает, поэтому такой прицеп можно возить и лёгким двухосным тягачом."},
+        {"overlay": "ДО 55 М³, ОТ 7,9 Т", "narration": "Сам SAT500 — алюминиевый кузов от 49 до 55 кубов и собственная масса от 7,9 тонны."}
+      ]
+    },
+    {
+      "id": "sat118-grain",
+      "title": "SAT118: стальной зерновоз на 50 кубов",
+      "url": "https://satpricep.by/catalog/polupritsepy/polupritsepy-zernovozy/polupritsep-samosvalnyy-sat118-zernovoz/",
+      "scenes": [
+        {"overlay": "ЗЕРНОВОЗ НА 50 КУБОВ", "narration": "Зерновоз на 50 кубов со стальным кузовом — SAT118."},
+        {"overlay": "СТАЛЬ 09Г2С", "narration": "Кузов из низколегированной стали 09Г2С, рама из двойного швеллера с усиленными поперечинами."},
+        {"overlay": "ТОРМОЗА С EBS WABCO", "narration": "Пневмоподвеска, оси Osman Koc и тормозная система с EBS от Wabco."},
+        {"overlay": "ЗЕРНО, СЫПУЧКА, ИНЕРТНЫЕ", "narration": "Задняя разгрузка с шибером — для зерна, сельхозпродукции и инертных грузов."}
+      ]
+    },
+    {
+      "id": "sat545-3-axles",
+      "title": "Трёхосный SAT545: 45 кубов и до 42 тонн",
+      "url": "https://satpricep.by/catalog/polupritsepy/polupritsepy-samosvalnye/polupritsep-samosvalnyy-alyuminievyy-sat545-3-osi/",
+      "scenes": [
+        {"overlay": "3 ОСИ ВМЕСТО 4", "narration": "Нужен самосвал попроще? У SAT545 есть трёхосная версия."},
+        {"overlay": "45 М³ И ДО 42,3 Т", "narration": "Алюминиевый кузов на 45 кубов и грузоподъёмность до 42,3 тонны."},
+        {"overlay": "СОБСТВЕННАЯ МАССА ≈ 8 Т", "narration": "Собственная масса — около 8 тонн, одна ось подъёмная."},
+        {"overlay": "ОСИ BPW, SAF ИЛИ OSMAN KOC", "narration": "Оси можно выбрать: BPW, SAF или Osman Koc. Кузов завод дорабатывает под задачу."}
+      ]
+    },
+    {
+      "id": "lift-axle",
+      "title": "Подъёмная ось: зачем она самосвалу",
+      "url": "https://satpricep.by/catalog/polupritsepy/polupritsepy-samosvalnye/polupritsep-samosvalnyy-alyuminievyy-sat545/",
+      "scenes": [
+        {"overlay": "ЗАЧЕМ ПОДНИМАТЬ ОСЬ?", "narration": "Зачем самосвальному полуприцепу подъёмная ось?"},
+        {"overlay": "ПОРОЖНЯК — НА МЕНЬШЕМ ЧИСЛЕ КОЛЁС", "narration": "Обратно самосвал часто едет пустым. Поднятая ось не касается дороги — шины на ней не изнашиваются."},
+        {"overlay": "ЛЕГЧЕ МАНЕВРИРОВАТЬ", "narration": "Меньше колёс на земле — проще разворачиваться на карьере и стройплощадке."},
+        {"overlay": "1 ИЛИ 2 ОСИ НА ВЫБОР", "narration": "На четырёхосных SAT500 и SAT545 можно поднимать одну или две оси, вручную или автоматически."}
+      ]
+    },
+    {
+      "id": "sat500-options",
+      "title": "Контроль загрузки прицепа прямо с телефона",
+      "url": "https://satpricep.by/catalog/polupritsepy/polupritsepy-zernovozy/polupritsep-samosvalnyy-alyuminievyy-sat500/",
+      "scenes": [
+        {"overlay": "ВЕС ГРУЗА — НА ТЕЛЕФОНЕ", "narration": "Как узнать нагрузку на оси, не заезжая на весы?"},
+        {"overlay": "WABCO OPTILINK", "narration": "На SAT500 можно заказать Wabco Optilink: нагрузка на оси и состояние прицепа видны в приложении на телефоне."},
+        {"overlay": "SMART BOARD", "narration": "Ещё одна опция — Smart Board, панель контроля загрузки прямо на борту."},
+        {"overlay": "МЕНЬШЕ РИСК ПЕРЕГРУЗА", "narration": "Это защита от штрафа: перегруз оси больше чем на 10 % стоит собственнику от 300 000 рублей."}
+      ]
+    },
+    {
+      "id": "sat-factory",
+      "title": "SAT: полуприцепы напрямую от белорусского завода",
+      "url": "https://satpricep.by/",
+      "scenes": [
+        {"overlay": "ПРИЦЕП НАПРЯМУЮ С ЗАВОДА", "narration": "Самосвалы и зерновозы SAT делают в Беларуси и продают напрямую, без посредников."},
+        {"overlay": "ГАРАНТИЯ 24 МЕСЯЦА", "narration": "На технику — гарантия 24 месяца и сервис после гарантии."},
+        {"overlay": "ЛИЗИНГ И КРЕДИТ", "narration": "Купить можно в лизинг или по банковской программе."},
+        {"overlay": "ПОД ВАШУ ЗАДАЧУ", "narration": "Завод дорабатывает кузов под задачу: усиленные борта, другая геометрия, выбор осей и гидравлики."}
+      ]
+    }
+  ]
+}

@@ -102,8 +102,10 @@ def _gradient_overlay(width: int, height: int) -> Image.Image:
 SITE_DOMAIN = "spec-avtoportal.ru"
 
 
-def _draw_cta(draw: ImageDraw.ImageDraw) -> None:
-    """Big ending card: where to read the full story and a subscribe nudge."""
+def _draw_cta(draw: ImageDraw.ImageDraw, *, partner_domain: str = "") -> None:
+    """Big ending card: where to read the full story and a subscribe nudge.
+
+    Partner episodes (SAT) point to the partner site instead of ours."""
     panel = (48, 560, WIDTH - 48, 1340)
     draw.rounded_rectangle(panel, radius=36, fill=(10, 13, 17, 228), outline=ORANGE + (255,), width=4)
     cx = WIDTH // 2
@@ -114,13 +116,15 @@ def _draw_cta(draw: ImageDraw.ImageDraw) -> None:
         return y + int(getattr(font, "size", 40) * 1.25)
 
     y = 640
-    y = centered("ПОЛНАЯ НОВОСТЬ", y, _font(46, True), MUTED + (255,))
-    y = centered("И РАЗБОР — НА САЙТЕ", y, _font(46, True), MUTED + (255,))
+    domain = partner_domain or SITE_DOMAIN
+    lead = ("ЦЕНЫ И КОМПЛЕКТАЦИИ", "— У ПРОИЗВОДИТЕЛЯ") if partner_domain else ("ПОЛНАЯ НОВОСТЬ", "И РАЗБОР — НА САЙТЕ")
+    y = centered(lead[0], y, _font(46, True), MUTED + (255,))
+    y = centered(lead[1], y, _font(46, True), MUTED + (255,))
     y += 40
     domain_font = _font(86, True)
-    while draw.textbbox((0, 0), SITE_DOMAIN, font=domain_font)[2] > WIDTH - 160 and domain_font.size > 50:
+    while draw.textbbox((0, 0), domain, font=domain_font)[2] > WIDTH - 160 and domain_font.size > 50:
         domain_font = _font(domain_font.size - 4, True)
-    y = centered(SITE_DOMAIN, y, domain_font, ORANGE + (255,))
+    y = centered(domain, y, domain_font, ORANGE + (255,))
     y += 30
     y = centered("ссылка — в описании", y, _font(40, False), WHITE + (255,))
     draw.line((cx - 180, y + 30, cx + 180, y + 30), fill=(60, 66, 74, 255), width=3)
@@ -174,7 +178,7 @@ def render_scene_frame(
         draw.text((WIDTH - 56 - counter_w, 72), counter, font=label_font, fill=MUTED + (255,))
 
     # Format / section marker.
-    format_label = "НОВОСТЬ" if format_name.lower() in {"breaking", "news"} else "РАЗБОР"
+    format_label = {"breaking": "НОВОСТЬ", "news": "НОВОСТЬ", "partner": "ПАРТНЁР · РЕКЛАМА"}.get(format_name.lower(), "РАЗБОР")
     badge_w = draw.textbbox((0, 0), format_label, font=label_font)[2] + 44
     badge_y = 132 if not is_tiktok else 72
     draw.rounded_rectangle((56, badge_y, 56 + badge_w, badge_y + 50), radius=22, fill=(15, 18, 22, 200), outline=ORANGE + (220,), width=2)
@@ -183,7 +187,7 @@ def render_scene_frame(
     # Final scene on YouTube/Instagram: a large call to action with the site
     # address — the small footer line alone brought almost no visits.
     if not is_tiktok and index == total:
-        _draw_cta(draw)
+        _draw_cta(draw, partner_domain=scene.overlay if scene.id == "cta-partner" else "")
         image.convert("RGB").save(output, "PNG", optimize=True)
         return output
 

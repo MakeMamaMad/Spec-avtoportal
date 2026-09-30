@@ -354,8 +354,23 @@ def main() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     state = load_state()
-    item = pick_item(load_news(), state)
-    board = generate_storyboard(item)
+    item, board = None, None
+    if os.getenv("V2_CONTENT", "news").strip().lower() == "sat":
+        from .content import sat
+
+        config = sat.load_config()
+        episode = sat.pick_episode(config, [str(x) for x in state.get("used", [])])
+        if episode is None:
+            print("[sat] all SAT episodes are published — add new ones to promotion/config/sat_shorts.json; making a news short")
+        else:
+            item = {"id": sat.episode_key(episode), "slug": "", "title": episode["title"]}
+            board = sat.build_storyboard(config, episode)
+            # Real product photos only: AI images would invent a trailer that doesn't exist.
+            os.environ["AI_IMAGES"] = "0"
+            print(f"[sat] episode {episode['id']}: {episode['title']}")
+    if board is None:
+        item = pick_item(load_news(), state)
+        board = generate_storyboard(item)
 
     visuals_dir = WORK_DIR / "visuals"
     visual_paths: list[Path] = []
