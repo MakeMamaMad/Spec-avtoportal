@@ -2443,3 +2443,18 @@ button { color: inherit; }
 .regulation-section a.reg-download strong{color:var(--ink)}
 .regulation-section a.reg-download--primary strong{color:#fff}
 @media (max-width:760px){.reg-downloads__grid{grid-template-columns:1fr}}
+
+.sat-banner{background:var(--paper);border:1px solid var(--line)}
+.sat-banner__label{margin:0 0 10px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.sat-banner__photo{display:block;border-radius:12px;overflow:hidden;background:var(--bg);aspect-ratio:940/640}
+.sat-banner__photo img{display:block;width:100%;height:100%;object-fit:cover}
+.sat-banner h3{margin:12px 0 10px;font-size:18px;line-height:1.25}
+.sat-banner h3 span{color:var(--orange)}
+.sat-banner__specs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.sat-banner__specs div{padding:8px 10px;border-radius:10px;background:var(--bg)}
+.sat-banner__specs span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.sat-banner__specs strong{display:block;font-size:14px;margin-top:2px}
+.sat-banner__price{margin:12px 0 0;font-size:14px;color:var(--muted)}
+.sat-banner__price strong{color:var(--ink)}
+.sat-banner__button{display:flex;justify-content:center;margin-top:12px;padding:12px 14px;border-radius:10px;background:var(--orange);color:#fff;font-weight:800;text-decoration:none;font-size:14px}
+.sat-banner__button:hover{background:var(--orange-dark)}
