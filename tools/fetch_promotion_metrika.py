@@ -20,6 +20,9 @@ TRACKED_CAMPAIGNS = {
     "community_promotion",
     "telegram_ads",
 }
+# Our own posts (Telegram channel, Dzen, VK) are tagged utm_medium=social with a
+# per-post campaign (axle_calculator, dzen_articles, ...): count them too.
+OWN_MEDIUMS = {"social", "editorial", "email"}
 
 
 def save_json(value: Any) -> None:
@@ -70,7 +73,7 @@ def normalize(payload: dict[str, Any]) -> list[dict[str, Any]]:
         source = str((dims[0] or {}).get("name") or "").strip() if len(dims) > 0 else ""
         medium = str((dims[1] or {}).get("name") or "").strip() if len(dims) > 1 else ""
         campaign = str((dims[2] or {}).get("name") or "").strip() if len(dims) > 2 else ""
-        if not source or campaign not in TRACKED_CAMPAIGNS:
+        if not source or not (campaign in TRACKED_CAMPAIGNS or (campaign and medium in OWN_MEDIUMS)):
             continue
         rows.append(
             {
