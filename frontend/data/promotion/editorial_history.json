@@ -136,6 +136,19 @@
       "status": "published",
       "public_url": "https://sdelanounas.ru/blogs/add/?BlogAdd=3577689132",
       "published_at": "2026-09-29T15:55:50+00:00"
+    },
+    {
+      "target_id": "logirus-editorial",
+      "target_name": "Logirus — новости логистики",
+      "slug": "rezhim-truda-i-otdyha-voditelya",
+      "title": "Режим труда и отдыха водителя в 2026 году: нормы приказа Минтранса № 160 и тахограф",
+      "site_url": "https://spec-avtoportal.ru/knowledge/rezhim-truda-i-otdyha-voditelya/?utm_source=logirus-editorial&utm_medium=editorial&utm_campaign=industry_editorial&utm_content=rezhim-truda-i-otdyha-voditelya",
+      "contact": "news@logirus.ru",
+      "item_key": "knowledge:rezhim-truda-i-otdyha-voditelya",
+      "created_at": "2026-09-30T09:37:55+00:00",
+      "status": "email_sent",
+      "sent_at": "2026-09-30T09:37:55+00:00",
+      "gmail_message_id": "1a0f1ad844cf6d39"
     }
   ]
 }
