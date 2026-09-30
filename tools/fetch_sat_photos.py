@@ -25,14 +25,11 @@ PER_PAGE = 5
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"}
 
 GALLERY_RE = re.compile(r"""["'(]([^"'()\s]*/upload/[^"'()\s]*?/940_640_\d/[^"'()\s]+\.(?:webp|jpe?g|png))""", re.I)
-OG_RE = re.compile(r"""<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)""", re.I)
 
 
 def page_images(html: str, base: str) -> list[str]:
-    found = [urljoin(base, m) for m in GALLERY_RE.findall(html)]
-    if not found:
-        found = [urljoin(base, m) for m in OG_RE.findall(html)]
-    return list(dict.fromkeys(found))
+    # Gallery photos only: the og:image of category/home pages is the SAT logo.
+    return list(dict.fromkeys(urljoin(base, m) for m in GALLERY_RE.findall(html)))
 
 
 def page_name(url: str) -> str:
