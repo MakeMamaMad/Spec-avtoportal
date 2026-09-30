@@ -291,9 +291,9 @@
       "slug": "eek-predlozhila-vvesti-antidempingovye-poshliny-na-gruzovye-shiny-iz-tai-f4d58e1f"
     },
     "https://www.globaltrailermag.com/michelin-wins-dhl-ev-fleet-tyre-contract/": {
-      "digest_id": "2026-09-29:am",
-      "message_id": 1506,
-      "sent_at": "2026-09-29T06:45:17+00:00",
+      "digest_id": "2026-09-30:am",
+      "message_id": 1519,
+      "sent_at": "2026-09-30T09:31:11+00:00",
       "title": "Michelin выиграла контракт на шины DHL EV",
       "slug": "michelin-vyigrala-kontrakt-na-shiny-dhl-ev-8634108a"
     },
@@ -303,6 +303,20 @@
       "sent_at": "2026-09-29T13:11:19+00:00",
       "title": "SINTEC Group – обладатель престижной премии «Сделано в России»",
       "slug": "sintec-group-obladatel-prestizhnoy-premii-sdelano-v-rossii-988703e4"
+    },
+    "https://www.globaltrailermag.com/stoughton-unveils-reefer-container/": {
+      "digest_id": "2026-09-30:am",
+      "message_id": 1519,
+      "sent_at": "2026-09-30T09:31:11+00:00",
+      "title": "Stoughton представляет рефрижераторный контейнер",
+      "slug": "stoughton-predstavlyaet-refrizheratornyy-konteyner-f94cd2a5"
+    },
+    "https://www.globaltrailermag.com/romac-logistics-bolsters-fleet-with-100-reefers/": {
+      "digest_id": "2026-09-30:am",
+      "message_id": 1519,
+      "sent_at": "2026-09-30T09:31:11+00:00",
+      "title": "Romac Logistics пополнит флот 100 рефрижераторами",
+      "slug": "romac-logistics-popolnit-flot-100-refrizheratorami-23de233c"
     }
   },
   "digests": {
@@ -387,6 +401,17 @@
         "https://truckmix.ru/news/sintec-group-obladatel-prestijnoi-premii-sdelano-v-rossii",
         "https://truckmix.ru/news/v-samarskoi-oblasti-nachalis-priemochnie-ispitaniya-modernizirovannogo-traktora-btz-254k-20",
         "http://gruzovoy.ru/news/industry/3382_eek_predlojila_vvesti_antidempingovie_poshlini_na_gryzovie_shini_iz_tailanda_i_vetnama.html"
+      ],
+      "visual": "visual"
+    },
+    "2026-09-30:am": {
+      "message_id": 1519,
+      "sent_at": "2026-09-30T09:31:11+00:00",
+      "slot": "am",
+      "items": [
+        "https://www.globaltrailermag.com/stoughton-unveils-reefer-container/",
+        "https://www.globaltrailermag.com/romac-logistics-bolsters-fleet-with-100-reefers/",
+        "https://www.globaltrailermag.com/michelin-wins-dhl-ev-fleet-tyre-contract/"
       ],
       "visual": "visual"
     }
