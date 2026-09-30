@@ -49,9 +49,38 @@ def _summary(item: dict[str, Any]) -> str:
     return _clean(item.get("summary") or item.get("description") or item.get("excerpt"))
 
 
+SITE_BASE = "https://spec-avtoportal.ru"
+
+
 def _url(item: dict[str, Any]) -> str:
-    value = _clean(item.get("site_url") or item.get("canonical_url") or item.get("url") or item.get("link"))
-    return value if value.startswith("http") else ""
+    """Our own article page for the news item — never the original source.
+
+    Videos get ~1k views each; the "details" link must bring viewers to
+    spec-avtoportal.ru, not to the source site.
+    """
+    explicit = _clean(item.get("site_url"))
+    if explicit.startswith(SITE_BASE):
+        return explicit
+    slug = _clean(item.get("slug"))
+    if slug and _has_site_page(item):
+        return f"{SITE_BASE}/news/{slug}/"
+    return f"{SITE_BASE}/"
+
+
+def _has_site_page(item: dict[str, Any]) -> bool:
+    """Only news that pass the site's quality gate get a /news/<slug>/ page."""
+    try:
+        import sys
+        from pathlib import Path
+
+        tools_dir = str(Path(__file__).resolve().parents[3])
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        import build_seo  # type: ignore
+
+        return build_seo.is_public_news(item)
+    except Exception:
+        return True
 
 
 def _image(item: dict[str, Any]) -> str:
