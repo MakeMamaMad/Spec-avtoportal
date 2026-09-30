@@ -979,7 +979,7 @@ def render_page(item: dict[str, Any], items: list[dict[str, Any]], knowledge_art
   <meta name="twitter:description" content="{description}" />
   <meta name="twitter:image" content="{image}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=26" />
+  <link rel="stylesheet" href="/styles.css?v=27" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{json_ld(item)}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -1202,7 +1202,7 @@ def render_brand_page(
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=26" />
+  <link rel="stylesheet" href="/styles.css?v=27" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -1339,7 +1339,7 @@ def render_brand_directory(brand_counts: dict[str, int]) -> str:
   <meta property="og:title" content="Производители и бренды — СпецАвтоПортал" />
   <meta property="og:description" content="Архив новостей о производителях грузовой и прицепной техники." />
   <meta property="og:url" content="{BASE_URL}/brands/" />
-  <link rel="stylesheet" href="/styles.css?v=26" />
+  <link rel="stylesheet" href="/styles.css?v=27" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -1467,7 +1467,7 @@ def render_topic_page(
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
   <meta name="theme-color" content="#111417" />
-  <link rel="stylesheet" href="/styles.css?v=26" />
+  <link rel="stylesheet" href="/styles.css?v=27" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
   <script data-goatcounter="https://specavtoportal.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
@@ -1696,7 +1696,7 @@ def render_knowledge_article(item: dict[str, Any], updated_at: str, news_items: 
   <meta property="og:title" content="{title}" />
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
-  <link rel="stylesheet" href="/styles.css?v=26" />
+  <link rel="stylesheet" href="/styles.css?v=27" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
@@ -1856,6 +1856,29 @@ def render_regulation_guide(guide: dict[str, Any]) -> tuple[str, list[tuple[str,
     return "\n        ".join(parts), faq_items
 
 
+def regulation_downloads_html(item: dict[str, Any], source_url_escaped: str) -> str:
+    """Prominent 'text of the document' block: people search for the PDF/Word text."""
+    buttons = [
+        f'<a class="reg-download reg-download--primary" href="{source_url_escaped}" target="_blank" rel="noopener">'
+        '<strong>Официальный текст документа</strong><span>Портал правовой информации — там же скачивание в PDF ↗</span></a>'
+    ]
+    for row in item.get("downloads") or []:
+        url = html.escape(str(row.get("url") or ""), quote=True)
+        if not url:
+            continue
+        buttons.append(
+            f'<a class="reg-download" href="{url}" download>'
+            f'<strong>{html.escape(str(row.get("label") or "Файл"))}</strong><span>{html.escape(str(row.get("note") or ""))}</span></a>'
+        )
+    return (
+        '<section class="regulation-section reg-downloads" id="text">'
+        '<p class="section-kicker">Текст и файлы</p>'
+        '<h2>Скачать</h2>'
+        f'<div class="reg-downloads__grid">{"".join(buttons)}</div>'
+        '</section>'
+    )
+
+
 def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_articles: dict[str, Any]) -> str:
     title = html.escape(get_field(item, "title", default="Нормативный документ"))
     code = html.escape(get_field(item, "code", default="Норматив"))
@@ -1958,7 +1981,7 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
   <meta property="og:title" content="{page_title}" />
   <meta property="og:description" content="{description}" />
   <meta property="og:url" content="{canonical}" />
-  <link rel="stylesheet" href="/styles.css?v=26" />
+  <link rel="stylesheet" href="/styles.css?v=27" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>{faq_schema_tag}
 </head>
@@ -1999,6 +2022,7 @@ def render_regulation_page(item: dict[str, Any], verified_at: str, knowledge_art
     <section class="container regulation-layout">
       <article class="regulation-main">
         <div class="regulation-meta-grid">{meta_html}</div>
+        {regulation_downloads_html(item, source_url_escaped)}
 
         <section class="regulation-section">
           <p class="section-kicker">Область применения</p>
@@ -2121,7 +2145,7 @@ def render_regulations_index(regulations: dict[str, Any]) -> str:
   <meta property="og:title" content="Нормативы и ГОСТы — СпецАвтоПортал" />
   <meta property="og:description" content="Действующие нормативы для прицепов, полуприцепов, крепления грузов и безопасной эксплуатации." />
   <meta property="og:url" content="{BASE_URL}/law.html" />
-  <link rel="stylesheet" href="/styles.css?v=26" />
+  <link rel="stylesheet" href="/styles.css?v=27" />
   <link rel="icon" href="/spec_avtoportal_favicon.ico" type="image/x-icon" />
   <script type="application/ld+json">{schema}</script>
 </head>
