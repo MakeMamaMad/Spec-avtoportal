@@ -9,6 +9,7 @@ for _name, _attrs in {
     "googleapiclient": {}, "googleapiclient.discovery": {"build": None}, "googleapiclient.http": {"MediaFileUpload": None},
     "google": {}, "google.oauth2": {}, "google.oauth2.credentials": {"Credentials": None},
     "google.auth": {}, "google.auth.transport": {}, "google.auth.transport.requests": {"Request": None},
+    "dotenv": {"load_dotenv": lambda *a, **k: None},
 }.items():
     try:
         __import__(_name)
