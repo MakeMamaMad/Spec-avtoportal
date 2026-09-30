@@ -2431,3 +2431,15 @@ button { color: inherit; }
   .home-guides__grid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 78%; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
   .home-guide { scroll-snap-align: start; }
 }
+
+.reg-downloads__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.reg-download{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:var(--paper);text-decoration:none;color:var(--ink)}
+.reg-download:hover{border-color:var(--orange)}
+.reg-download strong{font-size:16px}
+.reg-download span{font-size:13px;color:var(--muted)}
+.reg-download--primary{background:var(--dark);border-color:var(--dark);color:#fff}
+.reg-download--primary span{color:#c9d0d5}
+.regulation-section a.reg-download,.regulation-section a.reg-download *{text-decoration:none}
+.regulation-section a.reg-download strong{color:var(--ink)}
+.regulation-section a.reg-download--primary strong{color:#fff}
+@media (max-width:760px){.reg-downloads__grid{grid-template-columns:1fr}}
