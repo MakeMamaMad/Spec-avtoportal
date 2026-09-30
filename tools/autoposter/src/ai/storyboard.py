@@ -154,7 +154,7 @@ def fallback_storyboard(item: dict[str, Any]) -> Storyboard:
             id="cta",
             seconds=4.2,
             overlay="ПОДРОБНЕЕ НА САЙТЕ",
-            narration="Подробности — на СпецАвтоПортале.",
+            narration="Полная новость — на сайте СпецАвтоПортал. Подписывайтесь, чтобы не пропустить главное.",
             visual_prompt=_scene_prompt(title, "clean closing hero shot with dark negative space"),
             highlight_words=["СпецАвтоПортале"],
             source_image_url=image,
@@ -229,6 +229,16 @@ def _validate_ai_storyboard(data: dict[str, Any], item: dict[str, Any]) -> Story
         factor = 30.0 / max(total, 1.0)
         for scene in scenes:
             scene.seconds = max(3.0, min(8.0, scene.seconds * factor))
+
+    # Every short ends with our own call-to-action scene (big site address and
+    # subscribe prompt are drawn by the renderer on the last frame). An AI
+    # closing line about "the site" is replaced; real content is kept.
+    cta = next(x for x in fallback.scenes if x.id == "cta")
+    last = scenes[-1]
+    if last.id.lower() == "cta" or re.search(r"сайт|подпис|подробн", last.narration.lower()):
+        scenes[-1] = cta
+    else:
+        scenes.append(cta)
 
     hashtags = data.get("hashtags") if isinstance(data.get("hashtags"), list) else fallback.hashtags
     hashtags = [str(x).strip() for x in hashtags if str(x).strip()][:8]
