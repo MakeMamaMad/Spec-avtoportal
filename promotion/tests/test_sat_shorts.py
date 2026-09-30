@@ -44,3 +44,19 @@ class SatShortsTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SatPhotosTest(unittest.TestCase):
+    def test_photo_choice(self):
+        config = {"default_photo": "D", "episodes": []}
+        manifest = {"u1": ["a1", "a2"], "u2": ["b1"]}
+        self.assertEqual(sat.episode_photos(config, {"url": "u1"}, manifest), ["a1", "a2"])
+        self.assertEqual(sat.episode_photos(config, {"url": "home"}, manifest), ["a1", "b1"])
+        self.assertEqual(sat.episode_photos(config, {"url": "u1", "photos": ["x"]}, manifest), ["x"])
+        self.assertEqual(sat.episode_photos(config, {"url": "u1"}, {}), ["D"])
+
+    def test_gallery_parser(self):
+        sys.path.insert(0, str(ROOT / "tools"))
+        import fetch_sat_photos as f
+        html = '<a href="/upload/x/resize_cache/iblock/fb9/940_640_0/abc.webp"><img src="/upload/x/resize_cache/iblock/fb9/220_150_0/abc.webp">'
+        self.assertEqual(f.page_images(html, "https://satpricep.by/p/"), ["https://satpricep.by/upload/x/resize_cache/iblock/fb9/940_640_0/abc.webp"])

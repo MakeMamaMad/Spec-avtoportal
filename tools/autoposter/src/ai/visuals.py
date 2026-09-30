@@ -17,6 +17,14 @@ ORANGE = (255, 107, 0)
 def _download_source(url: str, output: Path) -> bool:
     if not url:
         return False
+    local = Path(url)
+    if not url.startswith("http") and local.is_file():
+        try:
+            output.write_bytes(local.read_bytes())
+            return True
+        except Exception as exc:
+            print(f"[visual] local image failed: {exc}")
+            return False
     try:
         response = requests.get(url, timeout=25, headers={"User-Agent": "SpecAvtoPortal/2.0"})
         response.raise_for_status()
