@@ -99,6 +99,42 @@ def _gradient_overlay(width: int, height: int) -> Image.Image:
     return overlay
 
 
+SITE_DOMAIN = "spec-avtoportal.ru"
+
+
+def _draw_cta(draw: ImageDraw.ImageDraw) -> None:
+    """Big ending card: where to read the full story and a subscribe nudge."""
+    panel = (48, 560, WIDTH - 48, 1340)
+    draw.rounded_rectangle(panel, radius=36, fill=(10, 13, 17, 228), outline=ORANGE + (255,), width=4)
+    cx = WIDTH // 2
+
+    def centered(text: str, y: int, font: ImageFont.ImageFont, fill: tuple) -> int:
+        w = draw.textbbox((0, 0), text, font=font)[2]
+        draw.text((cx - w // 2, y), text, font=font, fill=fill)
+        return y + int(getattr(font, "size", 40) * 1.25)
+
+    y = 640
+    y = centered("ПОЛНАЯ НОВОСТЬ", y, _font(46, True), MUTED + (255,))
+    y = centered("И РАЗБОР — НА САЙТЕ", y, _font(46, True), MUTED + (255,))
+    y += 40
+    domain_font = _font(86, True)
+    while draw.textbbox((0, 0), SITE_DOMAIN, font=domain_font)[2] > WIDTH - 160 and domain_font.size > 50:
+        domain_font = _font(domain_font.size - 4, True)
+    y = centered(SITE_DOMAIN, y, domain_font, ORANGE + (255,))
+    y += 30
+    y = centered("ссылка — в описании", y, _font(40, False), WHITE + (255,))
+    draw.line((cx - 180, y + 30, cx + 180, y + 30), fill=(60, 66, 74, 255), width=3)
+    y += 80
+    button = (cx - 330, y, cx + 330, y + 110)
+    draw.rounded_rectangle(button, radius=55, fill=ORANGE + (255,))
+    sub_font = _font(46, True)
+    label = "ПОДПИСЫВАЙТЕСЬ"
+    w = draw.textbbox((0, 0), label, font=sub_font)[2]
+    draw.text((cx - w // 2, y + 28), label, font=sub_font, fill=(255, 255, 255, 255))
+    y += 150
+    centered("новости грузовой техники каждый день", y, _font(34, False), MUTED + (255,))
+
+
 def render_scene_frame(
     scene: Scene,
     visual_path: Path,
@@ -143,6 +179,13 @@ def render_scene_frame(
     badge_y = 132 if not is_tiktok else 72
     draw.rounded_rectangle((56, badge_y, 56 + badge_w, badge_y + 50), radius=22, fill=(15, 18, 22, 200), outline=ORANGE + (220,), width=2)
     draw.text((78, badge_y + 11), format_label, font=label_font, fill=ORANGE + (255,))
+
+    # Final scene on YouTube/Instagram: a large call to action with the site
+    # address — the small footer line alone brought almost no visits.
+    if not is_tiktok and index == total:
+        _draw_cta(draw)
+        image.convert("RGB").save(output, "PNG", optimize=True)
+        return output
 
     # Headline block. Safe zone leaves room for native social UI at bottom.
     x = 64
