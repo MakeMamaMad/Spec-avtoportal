@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -107,14 +108,23 @@ def _caption(path: Path) -> str:
     return path.read_text(encoding="utf-8").strip() if path.exists() else ""
 
 
-def _with_site_link(text: str) -> str:
+def _tag_site_links(text: str, platform: str) -> str:
+    """Add UTM tags to our own links so Metrika shows visits from each platform."""
+    def tag(match: "re.Match[str]") -> str:
+        url = match.group(0)
+        if "utm_source=" in url:
+            return url
+        sep = "&" if "?" in url else "?"
+        return f"{url}{sep}utm_source={platform}&utm_medium=video&utm_campaign=shorts"
+    return re.sub(r"https://spec-avtoportal\.ru/[^\s)\]]*", tag, text)
+
+
+def _with_site_link(text: str, platform: str = "youtube") -> str:
     site_url = os.getenv("SITE_URL", "https://spec-avtoportal.ru/").strip() or "https://spec-avtoportal.ru/"
     clean = text.strip()
-    if site_url.rstrip("/") in clean:
-        return clean
-    if not clean:
-        return site_url
-    return clean + "\n\nПодробнее на сайте: " + site_url
+    if site_url.rstrip("/") not in clean:
+        clean = (clean + "\n\nПодробнее на сайте: " + site_url) if clean else site_url
+    return _tag_site_links(clean, platform)
 
 
 def publish_all(*, dry_run: bool = False) -> dict[str, Any]:
@@ -156,7 +166,7 @@ def publish_all(*, dry_run: bool = False) -> dict[str, Any]:
                     raise RuntimeError("YOUTUBE_TOKEN_FILE missing")
 
                 youtube_title = str(board.get("youtube_title") or title).strip()[:100]
-                description = _with_site_link(_caption(OUT_DIR / "caption_youtube.txt"))
+                description = _with_site_link(_caption(OUT_DIR / "caption_youtube.txt"), "youtube")
                 hashtags = board.get("hashtags") if isinstance(board.get("hashtags"), list) else []
                 result_id = upload_video(
                     str(master),
@@ -179,11 +189,11 @@ def publish_all(*, dry_run: bool = False) -> dict[str, Any]:
 
                 if platform == "tiktok":
                     video_url = os.getenv("BUFFER_TIKTOK_VIDEO_URL", "").strip()
-                    caption = _with_site_link(_caption(OUT_DIR / "caption_tiktok.txt"))
+                    caption = _with_site_link(_caption(OUT_DIR / "caption_tiktok.txt"), "tiktok")
                     preferred_name = os.getenv("BUFFER_TIKTOK_CHANNEL_NAME", "specavtoportal").strip()
                 else:
                     video_url = os.getenv("BUFFER_INSTAGRAM_VIDEO_URL", "").strip()
-                    caption = _with_site_link(_caption(OUT_DIR / "caption_instagram.txt"))
+                    caption = _with_site_link(_caption(OUT_DIR / "caption_instagram.txt"), "instagram")
                     preferred_name = os.getenv("BUFFER_INSTAGRAM_CHANNEL_NAME", "specavtoportal").strip()
 
                 if not video_url:
