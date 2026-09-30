@@ -314,6 +314,36 @@
         }
       },
       "updated_at": "2026-09-29T14:29:40.185460+00:00"
+    },
+    "94802e112ece": {
+      "title": "«Стеллар Мотор Рус» представил на Comtrans новый Foton R 6x2, созданный вместе с российскими ритейлерами",
+      "created_at": "2026-09-30T09:39:43.655058+00:00",
+      "platforms": {
+        "youtube": {
+          "platform": "youtube",
+          "status": "published",
+          "video_id": "0ug67wg-_jg",
+          "url": "https://www.youtube.com/shorts/0ug67wg-_jg",
+          "updated_at": "2026-09-30T09:39:43.655078+00:00"
+        },
+        "tiktok": {
+          "platform": "tiktok",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6abcd8e1db84e4657b2a7d4c",
+          "buffer_status": "sent",
+          "updated_at": "2026-09-30T09:41:33.280760+00:00"
+        },
+        "instagram": {
+          "platform": "instagram",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6abcd94e1fcf017298eb729e",
+          "buffer_status": "sent",
+          "updated_at": "2026-09-30T09:42:41.419782+00:00"
+        }
+      },
+      "updated_at": "2026-09-30T09:42:41.419780+00:00"
     }
   }
 }
