@@ -12,7 +12,8 @@
     "0d099836f07d",
     "f4d58e1f1dc6",
     "8634108ab97e",
-    "94802e112ece"
+    "94802e112ece",
+    "8a0ffe7ce449"
   ],
   "renders": [
     {
@@ -97,6 +98,13 @@
       "slug": "stellar-motor-rus-predstavil-na-comtrans-novyy-foton-r-6x2-sozdannyy-vme-94802e11",
       "title": "«Стеллар Мотор Рус» представил на Comtrans новый Foton R 6x2, созданный вместе с российскими ритейлерами",
       "created_at": "2026-09-30T09:42:41.420568+00:00",
+      "format": "social-v2"
+    },
+    {
+      "content_key": "8a0ffe7ce449",
+      "slug": "ot-prodazh-k-lokalizatsii-chto-zhdet-kitayskie-gruzoviki-na-rossiyskom-r-8a0ffe7c",
+      "title": "От продаж к локализации: что ждёт китайские грузовики в России",
+      "created_at": "2026-09-30T18:06:30.406044+00:00",
       "format": "social-v2"
     }
   ]
