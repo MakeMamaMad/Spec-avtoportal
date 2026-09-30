@@ -1,0 +1,40 @@
+name: SAT — Fetch model photos
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - promotion/config/sat_shorts.json
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sat-photos
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests Pillow
+      - run: python tools/fetch_sat_photos.py
+      - name: Commit photos
+        run: |
+          git config user.name "specavto-autoposter"
+          git config user.email "actions@users.noreply.github.com"
+          git add frontend/assets/partners/sat promotion/config/sat_photos.json
+          if git diff --cached --quiet; then
+            echo "No photo changes"
+            exit 0
+          fi
+          git commit -m "sat: update model photos"
+          git pull --rebase origin main
+          git push origin main

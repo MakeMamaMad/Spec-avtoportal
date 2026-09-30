@@ -14,6 +14,7 @@ from ..ai.storyboard import Scene, Storyboard
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 CONFIG_PATH = REPO_ROOT / "promotion" / "config" / "sat_shorts.json"
+PHOTOS_PATH = REPO_ROOT / "promotion" / "config" / "sat_photos.json"
 KEY_PREFIX = "sat:"
 
 
@@ -38,6 +39,26 @@ def pick_episode(config: dict[str, Any], used: list[str]) -> dict[str, Any] | No
     return None
 
 
+def _photo_manifest(path: Path | None = None) -> dict[str, list[str]]:
+    try:
+        data = json.loads((path or PHOTOS_PATH).read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    return {k: [str(REPO_ROOT / p) for p in v if (REPO_ROOT / p).is_file()] for k, v in data.items() if isinstance(v, list)}
+
+
+def episode_photos(config: dict[str, Any], episode: dict[str, Any], manifest: dict[str, list[str]] | None = None) -> list[str]:
+    """Explicit photos, else the model's catalog photos, else one photo of each model."""
+    if episode.get("photos"):
+        return [str(x) for x in episode["photos"]]
+    manifest = _photo_manifest() if manifest is None else manifest
+    own = manifest.get(str(episode.get("url") or ""))
+    if own:
+        return own
+    mixed = [photos[0] for photos in manifest.values() if photos]
+    return mixed or [str(config.get("default_photo", ""))]
+
+
 def _tagged(url: str, utm: str) -> str:
     return url + ("&" if "?" in url else "?") + utm if utm else url
 
@@ -46,7 +67,7 @@ def build_storyboard(config: dict[str, Any], episode: dict[str, Any]) -> Storybo
     utm = str(config.get("utm") or "")
     url = _tagged(str(episode.get("url") or "https://satpricep.by/"), utm)
     domain = str(config.get("partner_domain") or "satpricep.by")
-    photos = episode.get("photos") or [config.get("default_photo", "")]
+    photos = episode_photos(config, episode)
     title = str(episode["title"]).strip()
     hashtags = [str(x) for x in config.get("hashtags", [])][:8]
 
