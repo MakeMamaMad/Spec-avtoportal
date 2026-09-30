@@ -1,10 +1,20 @@
 {
   "schema": 1,
-  "updated_at": "2026-09-29T21:28:27+00:00",
+  "updated_at": "2026-09-30T06:17:14+00:00",
   "counter_id": "106240080",
   "period": "7daysAgo..today",
   "status": "ok",
   "sources": [
+    {
+      "source": "dzen",
+      "medium": "social",
+      "campaign": "dzen_articles",
+      "visits": 1,
+      "users": 1,
+      "bounce_rate": 100.0,
+      "page_depth": 1.0,
+      "avg_visit_duration_seconds": 0
+    },
     {
       "source": "sdelanounas",
       "medium": "editorial",
@@ -14,11 +24,21 @@
       "bounce_rate": 100.0,
       "page_depth": 1.0,
       "avg_visit_duration_seconds": 0
+    },
+    {
+      "source": "vk",
+      "medium": "social",
+      "campaign": "pm_digest",
+      "visits": 1,
+      "users": 1,
+      "bounce_rate": 0.0,
+      "page_depth": 1.0,
+      "avg_visit_duration_seconds": 16
     }
   ],
   "totals": {
-    "visits": 1,
-    "users": 1
+    "visits": 3,
+    "users": 3
   },
   "sampled": false,
   "sample_share": 1.0
