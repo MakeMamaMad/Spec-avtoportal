@@ -62,6 +62,21 @@ def _cover(image: Image.Image, width: int, height: int) -> Image.Image:
     return resized.crop((left, top, left + width, top + height))
 
 
+def _showcase(image: Image.Image, width: int, height: int, top: int = 230) -> Image.Image:
+    """Whole landscape product photo on a blurred copy of itself.
+
+    Cover-cropping a side shot of a trailer to 9:16 leaves only a patch of the
+    body; partner episodes must show the whole machine."""
+    image = image.convert("RGB")
+    if image.width <= image.height:
+        return _cover(image, width, height)
+    back = _cover(image, width, height).filter(ImageFilter.GaussianBlur(radius=28))
+    back = Image.blend(back, Image.new("RGB", (width, height), DARK), 0.45)
+    fg_h = round(image.height * width / image.width)
+    back.paste(image.resize((width, fg_h), Image.LANCZOS), (0, top))
+    return back
+
+
 def _wrap(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.ImageFont, max_width: int, max_lines: int) -> list[str]:
     words = str(text or "").split()
     lines: list[str] = []
@@ -152,7 +167,8 @@ def render_scene_frame(
     output.parent.mkdir(parents=True, exist_ok=True)
     try:
         with Image.open(visual_path) as source:
-            base = _cover(source, WIDTH, HEIGHT)
+            fit = _showcase if format_name.lower() == "partner" else _cover
+            base = fit(source, WIDTH, HEIGHT)
     except Exception:
         base = Image.new("RGB", (WIDTH, HEIGHT), DARK)
 
