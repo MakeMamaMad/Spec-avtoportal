@@ -218,11 +218,25 @@
       "slug": "michelin-vyigrala-kontrakt-na-shiny-dhl-ev-8634108a"
     },
     "https://truckmix.ru/news/sintec-group-obladatel-prestijnoi-premii-sdelano-v-rossii": {
-      "digest_id": "2026-09-29:pm",
-      "post_id": 24,
-      "sent_at": "2026-09-29T13:17:00+00:00",
+      "digest_id": "2026-09-30:am",
+      "post_id": 27,
+      "sent_at": "2026-09-30T09:29:30+00:00",
       "title": "SINTEC Group – обладатель престижной премии «Сделано в России»",
       "slug": "sintec-group-obladatel-prestizhnoy-premii-sdelano-v-rossii-988703e4"
+    },
+    "https://www.globaltrailermag.com/romac-logistics-bolsters-fleet-with-100-reefers/": {
+      "digest_id": "2026-09-30:am",
+      "post_id": 27,
+      "sent_at": "2026-09-30T09:29:30+00:00",
+      "title": "Romac Logistics пополнит флот 100 рефрижераторами",
+      "slug": "romac-logistics-popolnit-flot-100-refrizheratorami-23de233c"
+    },
+    "https://www.globaltrailermag.com/stoughton-unveils-reefer-container/": {
+      "digest_id": "2026-09-30:am",
+      "post_id": 27,
+      "sent_at": "2026-09-30T09:29:30+00:00",
+      "title": "Stoughton представляет рефрижераторный контейнер",
+      "slug": "stoughton-predstavlyaet-refrizheratornyy-konteyner-f94cd2a5"
     }
   },
   "digests": {
@@ -308,6 +322,17 @@
         "https://truckmix.ru/news/sintec-group-obladatel-prestijnoi-premii-sdelano-v-rossii",
         "http://gruzovoy.ru/news/industry/3382_eek_predlojila_vvesti_antidempingovie_poshlini_na_gryzovie_shini_iz_tailanda_i_vetnama.html",
         "https://www.globaltrailermag.com/tip-expands-tht-new-cool-partnership/"
+      ]
+    },
+    "2026-09-30:am": {
+      "post_id": 27,
+      "sent_at": "2026-09-30T09:29:30+00:00",
+      "slot": "am",
+      "visual": "link_preview",
+      "items": [
+        "https://www.globaltrailermag.com/romac-logistics-bolsters-fleet-with-100-reefers/",
+        "https://www.globaltrailermag.com/stoughton-unveils-reefer-container/",
+        "https://truckmix.ru/news/sintec-group-obladatel-prestijnoi-premii-sdelano-v-rossii"
       ]
     }
   }
