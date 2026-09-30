@@ -68,18 +68,22 @@
     "https://spec-avtoportal.ru/tools/rezhim-truda-i-otdyha/": {
       "at": "2026-09-29T08:38:46+00:00",
       "task_id": "2f902e90-bbe1-11f1-9163-711f15d42d16"
+    },
+    "https://spec-avtoportal.ru/knowledge/karta-voditelya-dlya-tahografa/": {
+      "at": "2026-09-30T09:30:25+00:00",
+      "task_id": "90e8b880-bcb1-11f1-b4d6-87c8463f27c2"
     }
   },
   "last_run": {
-    "at": "2026-09-29T08:38:46+00:00",
+    "at": "2026-09-30T09:30:25+00:00",
     "sent": [
-      "https://spec-avtoportal.ru/tools/rezhim-truda-i-otdyha/"
+      "https://spec-avtoportal.ru/knowledge/karta-voditelya-dlya-tahografa/"
     ],
     "failed": [],
     "left": 0,
     "quota": {
       "daily": 150,
-      "remainder_before": 128
+      "remainder_before": 150
     },
     "sitemaps_added": [],
     "sitemaps": []
