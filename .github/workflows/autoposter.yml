@@ -7,6 +7,10 @@ on:
         description: "Какой слот запустить: manual, am или pm"
         required: false
         default: "manual"
+      content:
+        description: "Что снимать: news или sat (партнёрский ролик SAT)"
+        required: false
+        default: "news"
   schedule:
     # Primary schedule, UTC. Moscow time is UTC+3 year-round.
     - cron: "30 7 * * *"   # 10:30 MSK
@@ -158,7 +162,13 @@ jobs:
           V2_MAX_AGE_HOURS: "96"
           SITE_URL: "https://spec-avtoportal.ru/"
           CONTENT_JSON_PATH: ${{ github.workspace }}/frontend/data/news.json
+          VIDEO_SLOT: ${{ needs.gate.outputs.slot }}
+          REQUESTED_CONTENT: ${{ github.event.inputs.content }}
         run: |
+          # Weekly partner short about SAT trailers: Thursday evening slot.
+          if [ "$REQUESTED_CONTENT" = "sat" ] || { [ "$VIDEO_SLOT" = "pm" ] && [ "$(TZ=Europe/Moscow date +%u)" = "4" ]; }; then
+            export V2_CONTENT=sat
+          fi
           cd tools/autoposter
           python -m src.v2_main
 
