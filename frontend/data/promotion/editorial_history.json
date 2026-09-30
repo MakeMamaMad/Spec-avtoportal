@@ -149,6 +149,19 @@
       "status": "email_sent",
       "sent_at": "2026-09-30T09:37:55+00:00",
       "gmail_message_id": "1a0f1ad844cf6d39"
+    },
+    {
+      "target_id": "sdelanounas",
+      "target_name": "Сделано у нас",
+      "item_key": "news:94802e112ece",
+      "title": "«Стеллар Мотор Рус» представил на Comtrans новый Foton R 6x2, созданный вместе с российскими ритейлерами",
+      "source_url": "https://spec-avtoportal.ru/news/stellar-motor-rus-predstavil-na-comtrans-novyy-foton-r-6x2-sozdannyy-vme-94802e11/?utm_source=sdelanounas&utm_medium=editorial&utm_campaign=industry_promotion&utm_content=stellar-motor-rus-predstavil-na-comtrans-novyy-foton-r-6x2-sozdannyy-vme-94802e11",
+      "result_url": "https://sdelanounas.ru/blogs/add/?BlogAdd=2173036976",
+      "category_id": "149",
+      "submitted_at": "2026-09-30T15:57:06+00:00",
+      "status": "published",
+      "public_url": "https://sdelanounas.ru/blogs/add/?BlogAdd=2173036976",
+      "published_at": "2026-09-30T15:57:06+00:00"
     }
   ]
 }
