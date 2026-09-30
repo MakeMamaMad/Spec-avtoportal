@@ -219,9 +219,9 @@
       "slug": "eek-predlozhila-vvesti-antidempingovye-poshliny-na-gruzovye-shiny-iz-tai-f4d58e1f"
     },
     "https://www.globaltrailermag.com/michelin-wins-dhl-ev-fleet-tyre-contract/": {
-      "digest_id": "2026-09-29:am",
-      "post_id": 21,
-      "sent_at": "2026-09-29T06:48:12+00:00",
+      "digest_id": "2026-09-30:pm",
+      "post_id": 29,
+      "sent_at": "2026-09-30T12:57:25+00:00",
       "title": "Michelin выиграла контракт на шины DHL EV",
       "slug": "michelin-vyigrala-kontrakt-na-shiny-dhl-ev-8634108a"
     },
@@ -240,11 +240,18 @@
       "slug": "romac-logistics-popolnit-flot-100-refrizheratorami-23de233c"
     },
     "https://www.globaltrailermag.com/stoughton-unveils-reefer-container/": {
-      "digest_id": "2026-09-30:am",
-      "post_id": 27,
-      "sent_at": "2026-09-30T09:29:30+00:00",
+      "digest_id": "2026-09-30:pm",
+      "post_id": 29,
+      "sent_at": "2026-09-30T12:57:25+00:00",
       "title": "Stoughton представляет рефрижераторный контейнер",
       "slug": "stoughton-predstavlyaet-refrizheratornyy-konteyner-f94cd2a5"
+    },
+    "https://truckmix.ru/news/stellar-motor-rys-predstavil-na-comtrans-novii-foton-r-6x2-sozdannii-vmeste-s-rossiiskimi-riteilerami": {
+      "digest_id": "2026-09-30:pm",
+      "post_id": 29,
+      "sent_at": "2026-09-30T12:57:25+00:00",
+      "title": "«Стеллар Мотор Рус» представил на Comtrans новый Foton R 6x2, созданный вместе с российскими ритейлерами",
+      "slug": "stellar-motor-rus-predstavil-na-comtrans-novyy-foton-r-6x2-sozdannyy-vme-94802e11"
     }
   },
   "digests": {
@@ -341,6 +348,17 @@
         "https://www.globaltrailermag.com/romac-logistics-bolsters-fleet-with-100-reefers/",
         "https://www.globaltrailermag.com/stoughton-unveils-reefer-container/",
         "https://truckmix.ru/news/sintec-group-obladatel-prestijnoi-premii-sdelano-v-rossii"
+      ]
+    },
+    "2026-09-30:pm": {
+      "post_id": 29,
+      "sent_at": "2026-09-30T12:57:25+00:00",
+      "slot": "pm",
+      "visual": "link_preview",
+      "items": [
+        "https://truckmix.ru/news/stellar-motor-rys-predstavil-na-comtrans-novii-foton-r-6x2-sozdannii-vmeste-s-rossiiskimi-riteilerami",
+        "https://www.globaltrailermag.com/michelin-wins-dhl-ev-fleet-tyre-contract/",
+        "https://www.globaltrailermag.com/stoughton-unveils-reefer-container/"
       ]
     }
   }
