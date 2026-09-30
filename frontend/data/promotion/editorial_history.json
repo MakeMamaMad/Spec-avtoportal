@@ -162,6 +162,15 @@
       "status": "published",
       "public_url": "https://sdelanounas.ru/blogs/add/?BlogAdd=2173036976",
       "published_at": "2026-09-30T15:57:06+00:00"
+    },
+    {
+      "target_id": "mexzona",
+      "target_name": "MEXZONA.RU",
+      "slug": "tehnicheskoe-obsluzhivanie-polupricepa",
+      "title": "Техническое обслуживание полуприцепа: рабочий чек-лист",
+      "site_url": "https://spec-avtoportal.ru/knowledge/tehnicheskoe-obsluzhivanie-polupricepa/?utm_source=mexzona&utm_medium=editorial&utm_campaign=industry_editorial&utm_content=tehnicheskoe-obsluzhivanie-polupricepa",
+      "created_at": "2026-09-30T16:03:17+00:00",
+      "status": "manual_fallback"
     }
   ]
 }
