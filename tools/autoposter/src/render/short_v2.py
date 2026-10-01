@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -77,8 +78,13 @@ def _showcase(image: Image.Image, width: int, height: int, top: int = 230) -> Im
     return back
 
 
+_KEEP_TOGETHER = re.compile(r"(?<=\d) (?=\d{3}\b)|(?<=\d) (?=(?:₽|%|т|м|ч|км|кг|руб)\b)|(?<=\d) (?=[₽%])", re.I)
+
+
 def _wrap(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.ImageFont, max_width: int, max_lines: int) -> list[str]:
-    words = str(text or "").split()
+    # Never break "300 000 ₽" or "5 т" across lines.
+    glued = _KEEP_TOGETHER.sub("\u00a0", str(text or ""))
+    words = [w.replace("\u00a0", " ") for w in re.split(r"[ \t\r\n]+", glued.strip()) if w]
     lines: list[str] = []
     current = ""
     for word in words:
@@ -117,7 +123,7 @@ def _gradient_overlay(width: int, height: int) -> Image.Image:
 SITE_DOMAIN = "spec-avtoportal.ru"
 
 
-def _draw_cta(draw: ImageDraw.ImageDraw, *, partner_domain: str = "") -> None:
+def _draw_cta(draw: ImageDraw.ImageDraw, *, partner_domain: str = "", explainer: bool = False) -> None:
     """Big ending card: where to read the full story and a subscribe nudge.
 
     Partner episodes (SAT) point to the partner site instead of ours."""
@@ -132,7 +138,12 @@ def _draw_cta(draw: ImageDraw.ImageDraw, *, partner_domain: str = "") -> None:
 
     y = 640
     domain = partner_domain or SITE_DOMAIN
-    lead = ("ЦЕНЫ И КОМПЛЕКТАЦИИ", "— У ПРОИЗВОДИТЕЛЯ") if partner_domain else ("ПОЛНАЯ НОВОСТЬ", "И РАЗБОР — НА САЙТЕ")
+    if partner_domain:
+        lead = ("ЦЕНЫ И КОМПЛЕКТАЦИИ", "— У ПРОИЗВОДИТЕЛЯ")
+    elif explainer:
+        lead = ("ПОЛНЫЙ РАЗБОР", "— НА САЙТЕ")
+    else:
+        lead = ("ПОЛНАЯ НОВОСТЬ", "И РАЗБОР — НА САЙТЕ")
     y = centered(lead[0], y, _font(46, True), MUTED + (255,))
     y = centered(lead[1], y, _font(46, True), MUTED + (255,))
     y += 40
@@ -203,7 +214,11 @@ def render_scene_frame(
     # Final scene on YouTube/Instagram: a large call to action with the site
     # address — the small footer line alone brought almost no visits.
     if not is_tiktok and index == total:
-        _draw_cta(draw, partner_domain=scene.overlay if scene.id == "cta-partner" else "")
+        _draw_cta(
+            draw,
+            partner_domain=scene.overlay if scene.id == "cta-partner" else "",
+            explainer=format_name.lower() == "explainer",
+        )
         image.convert("RGB").save(output, "PNG", optimize=True)
         return output
 
