@@ -396,6 +396,27 @@
       "sent_at": "2026-09-30T12:51:45+00:00",
       "title": "«Стеллар Мотор Рус» представил на Comtrans новый Foton R 6x2, созданный вместе с российскими ритейлерами",
       "slug": "stellar-motor-rus-predstavil-na-comtrans-novyy-foton-r-6x2-sozdannyy-vme-94802e11"
+    },
+    "https://www.globaltrailermag.com/double-deck-innovation-to-maximise-capacity-and-flexibility/": {
+      "digest_id": "2026-10-01:pm",
+      "message_id": 1529,
+      "sent_at": "2026-10-01T12:59:46+00:00",
+      "title": "Инновации Double Deck для максимальной производительности и гибкости",
+      "slug": "innovatsii-double-deck-dlya-maksimalnoy-proizvoditelnosti-i-gibkosti-fa6380a6"
+    },
+    "https://trailertechnician.com/2026/09/bendix-bowling-green-plant-earns-safety-award/?utm_source=rss&utm_medium=rss&utm_campaign=bendix-bowling-green-plant-earns-safety-award": {
+      "digest_id": "2026-10-01:pm",
+      "message_id": 1529,
+      "sent_at": "2026-10-01T12:59:46+00:00",
+      "title": "Bendix Bowling Green Plant получил награду за безопасность",
+      "slug": "bendix-bowling-green-plant-poluchil-nagradu-za-bezopasnost-4a6c47ad"
+    },
+    "https://www.globaltrailermag.com/schmitz-cargobull-delivers-e2-25b-revenue-growth/": {
+      "digest_id": "2026-10-01:pm",
+      "message_id": 1529,
+      "sent_at": "2026-10-01T12:59:46+00:00",
+      "title": "Schmitz Cargobull увеличил выручку на 2,25 млрд евро",
+      "slug": "schmitz-cargobull-uvelichil-vyruchku-na-2-25-mlrd-evro-aa68f956"
     }
   },
   "digests": {
@@ -502,6 +523,17 @@
         "https://truckmix.ru/news/stellar-motor-rys-predstavil-na-comtrans-novii-foton-r-6x2-sozdannii-vmeste-s-rossiiskimi-riteilerami",
         "https://www.globaltrailermag.com/michelin-wins-dhl-ev-fleet-tyre-contract/",
         "https://www.globaltrailermag.com/romac-logistics-bolsters-fleet-with-100-reefers/"
+      ],
+      "visual": "visual"
+    },
+    "2026-10-01:pm": {
+      "message_id": 1529,
+      "sent_at": "2026-10-01T12:59:46+00:00",
+      "slot": "pm",
+      "items": [
+        "https://www.globaltrailermag.com/double-deck-innovation-to-maximise-capacity-and-flexibility/",
+        "https://trailertechnician.com/2026/09/bendix-bowling-green-plant-earns-safety-award/?utm_source=rss&utm_medium=rss&utm_campaign=bendix-bowling-green-plant-earns-safety-award",
+        "https://www.globaltrailermag.com/schmitz-cargobull-delivers-e2-25b-revenue-growth/"
       ],
       "visual": "visual"
     }
