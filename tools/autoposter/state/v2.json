@@ -13,7 +13,8 @@
     "f4d58e1f1dc6",
     "8634108ab97e",
     "94802e112ece",
-    "8a0ffe7ce449"
+    "8a0ffe7ce449",
+    "aa68f956f2d1"
   ],
   "renders": [
     {
@@ -105,6 +106,13 @@
       "slug": "ot-prodazh-k-lokalizatsii-chto-zhdet-kitayskie-gruzoviki-na-rossiyskom-r-8a0ffe7c",
       "title": "От продаж к локализации: что ждёт китайские грузовики в России",
       "created_at": "2026-09-30T18:06:30.406044+00:00",
+      "format": "social-v2"
+    },
+    {
+      "content_key": "aa68f956f2d1",
+      "slug": "schmitz-cargobull-uvelichil-vyruchku-na-2-25-mlrd-evro-aa68f956",
+      "title": "Schmitz Cargobull увеличила оборот до 2,25 млрд евро",
+      "created_at": "2026-10-01T12:12:43.321387+00:00",
       "format": "social-v2"
     }
   ]

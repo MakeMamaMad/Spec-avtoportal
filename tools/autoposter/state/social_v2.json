@@ -374,6 +374,36 @@
         }
       },
       "updated_at": "2026-09-30T18:06:30.405100+00:00"
+    },
+    "aa68f956f2d1": {
+      "title": "Schmitz Cargobull увеличила оборот до 2,25 млрд евро",
+      "created_at": "2026-10-01T12:08:11.790983+00:00",
+      "platforms": {
+        "youtube": {
+          "platform": "youtube",
+          "status": "published",
+          "video_id": "N8OiaTyLluE",
+          "url": "https://www.youtube.com/shorts/N8OiaTyLluE",
+          "updated_at": "2026-10-01T12:08:11.791002+00:00"
+        },
+        "tiktok": {
+          "platform": "tiktok",
+          "status": "submitted",
+          "provider": "buffer",
+          "post_id": "6abe4d2dd48cccfccc7a6f26",
+          "buffer_status": "sending",
+          "updated_at": "2026-10-01T12:10:27.949359+00:00"
+        },
+        "instagram": {
+          "platform": "instagram",
+          "status": "submitted",
+          "provider": "buffer",
+          "post_id": "6abe4db4c079a1777509999f",
+          "buffer_status": "sending",
+          "updated_at": "2026-10-01T12:12:43.320551+00:00"
+        }
+      },
+      "updated_at": "2026-10-01T12:12:43.320548+00:00"
     }
   }
 }
