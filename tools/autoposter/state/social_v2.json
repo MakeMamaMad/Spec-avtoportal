@@ -404,6 +404,36 @@
         }
       },
       "updated_at": "2026-10-01T12:12:43.320548+00:00"
+    },
+    "sat:sat545-overview": {
+      "title": "SAT545: алюминиевый самосвал на 4 оси",
+      "created_at": "2026-10-01T17:28:04.565378+00:00",
+      "platforms": {
+        "youtube": {
+          "platform": "youtube",
+          "status": "published",
+          "video_id": "QPj1JMNz-js",
+          "url": "https://www.youtube.com/shorts/QPj1JMNz-js",
+          "updated_at": "2026-10-01T17:28:04.565398+00:00"
+        },
+        "tiktok": {
+          "platform": "tiktok",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6abe9825c8c5aa56d9d3641d",
+          "buffer_status": "sent",
+          "updated_at": "2026-10-01T17:29:52.537700+00:00"
+        },
+        "instagram": {
+          "platform": "instagram",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6abe98918266773d75791799",
+          "buffer_status": "sent",
+          "updated_at": "2026-10-01T17:31:15.228406+00:00"
+        }
+      },
+      "updated_at": "2026-10-01T17:31:15.228404+00:00"
     }
   }
 }
