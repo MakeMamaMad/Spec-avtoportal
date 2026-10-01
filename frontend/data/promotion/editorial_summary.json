@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "updated_at": "2026-10-01T16:37:01+00:00",
-  "status": "nothing_planned",
-  "target_name": null,
+  "updated_at": "2026-10-01T16:40:52+00:00",
+  "status": "email_bounce_detected",
+  "target_name": "Газета «Транспорт России»",
   "title": null,
-  "detail": "Сегодня подходящего нового действия по отраслевым площадкам нет."
+  "detail": "Автоматически обнаружено возвратов Gmail: 1."
 }

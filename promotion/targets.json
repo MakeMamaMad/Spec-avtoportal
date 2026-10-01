@@ -289,14 +289,14 @@
       "platform": "publisher",
       "name": "Газета «Транспорт России»",
       "url": "https://transportrussia.ru/",
-      "contact": "gazetatr@yandex.ru; rustransport@mail.ru",
+      "contact": "",
       "audience_hint": "транспорт перевозки нормативы минтранс безопасность автомобильный транспорт",
-      "policy": "editorial_email",
-      "status": "priority_candidate",
+      "policy": "editorial_manual_contact",
+      "status": "paused",
       "login_required": false,
-      "automation": "email_submission",
+      "automation": "manual_verify_contact",
       "content_filter": "Всероссийская транспортная газета; новости и аналитика отрасли.",
-      "notes": "Адрес опубликован в списке отраслевых СМИ Минтранса России: https://mintrans.gov.ru/press-center/industry-media (проверено 28.09.2026)."
+      "notes": "Адрес опубликован в списке отраслевых СМИ Минтранса России: https://mintrans.gov.ru/press-center/industry-media (проверено 28.09.2026). Все известные email вернулись как недоставляемые: gazetatr@yandex.ru, rustransport@mail.ru. Автоматические письма приостановлены."
     },
     {
       "id": "asmap-map-editorial",
