@@ -8,7 +8,7 @@ on:
         required: false
         default: "manual"
       content:
-        description: "Что снимать: news или sat (партнёрский ролик SAT)"
+        description: "Что снимать: news, sat (партнёрский ролик SAT) или guide (полезный ролик по статье)"
         required: false
         default: "news"
   schedule:
@@ -165,9 +165,15 @@ jobs:
           VIDEO_SLOT: ${{ needs.gate.outputs.slot }}
           REQUESTED_CONTENT: ${{ github.event.inputs.content }}
         run: |
-          # Weekly partner short about SAT trailers: Thursday evening slot.
-          if [ "$REQUESTED_CONTENT" = "sat" ] || { [ "$VIDEO_SLOT" = "pm" ] && [ "$(TZ=Europe/Moscow date +%u)" = "4" ]; }; then
+          # Weekly series on the evening slot: Monday — a useful short from our
+          # articles/calculators, Thursday — partner short about SAT trailers.
+          WEEKDAY="$(TZ=Europe/Moscow date +%u)"
+          if [ "$REQUESTED_CONTENT" = "sat" ] || [ "$REQUESTED_CONTENT" = "guide" ]; then
+            export V2_CONTENT="$REQUESTED_CONTENT"
+          elif [ "$VIDEO_SLOT" = "pm" ] && [ "$WEEKDAY" = "4" ]; then
             export V2_CONTENT=sat
+          elif [ "$VIDEO_SLOT" = "pm" ] && [ "$WEEKDAY" = "1" ]; then
+            export V2_CONTENT=guide
           fi
           cd tools/autoposter
           python -m src.v2_main

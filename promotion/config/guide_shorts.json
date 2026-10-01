@@ -1,0 +1,115 @@
+{
+  "schema": 1,
+  "about": "Weekly evergreen shorts based on our own knowledge articles and calculators. Monday 18:30 MSK slot. Facts come from the articles on spec-avtoportal.ru; each short links to its page.",
+  "hashtags": ["#СпецАвтоПортал", "#грузоперевозки", "#дальнобой", "#логистика", "#водитель"],
+  "episodes": [
+    {
+      "id": "shtraf-za-peregruz",
+      "title": "Перегруз 5 тонн — штраф 300 000 рублей",
+      "url": "https://spec-avtoportal.ru/knowledge/shtraf-za-peregruz/",
+      "visual": "heavy truck with semi-trailer on a roadside weigh station scale, inspector silhouette",
+      "scenes": [
+        {"overlay": "5 Т ПЕРЕГРУЗА = 300 000 ₽", "narration": "Шестиосный автопоезд, предел 44 тонны, на весах — 49. Перегруз 11 %, и это 300 000 рублей штрафа."},
+        {"overlay": "ПЛАТИТ СОБСТВЕННИК", "narration": "С июля 2025 года штраф за перегруз выписывают собственнику машины, и суммы фиксированные."},
+        {"overlay": "10–20 % → 300 000 ₽", "narration": "Перегруз от 10 до 20 % — 300 000 рублей. От 20 до 50 % — 450 000. Больше 50 % — 600 000."},
+        {"overlay": "ПЕРЕГРУЗИТЬ МОЖНО ОДНУ ОСЬ", "narration": "Штраф можно получить и при нормальной общей массе: достаточно перегрузить одну ось."}
+      ]
+    },
+    {
+      "id": "nagruzka-na-os-calculator",
+      "title": "Как проверить нагрузку на оси до весов",
+      "url": "https://spec-avtoportal.ru/tools/nagruzka-na-os/",
+      "visual": "semi-trailer axles and wheels close-up, cargo being loaded, logistics yard",
+      "scenes": [
+        {"overlay": "МАССА В НОРМЕ, А ШТРАФ ЕСТЬ", "narration": "Общая масса автопоезда в норме, а штраф за перегруз всё равно пришёл. Почему?"},
+        {"overlay": "ПЕРЕГРУЖЕНА ОДНА ОСЬ", "narration": "Потому что перегружена не машина, а ось или тележка. Груз сдвинули вперёд — и седельная ось получила лишнюю тонну."},
+        {"overlay": "6, 10 ИЛИ 11,5 Т НА ОСЬ", "narration": "Норма зависит от дороги: 6, 10 или 11,5 тонны на ось. Для сдвоенных и строенных осей — свои пределы."},
+        {"overlay": "БЕСПЛАТНЫЙ КАЛЬКУЛЯТОР", "narration": "Мы сделали бесплатный калькулятор: выбираете схему осей и нагрузки — он покажет запас или перегруз по каждой оси."}
+      ]
+    },
+    {
+      "id": "rezhim-truda-i-otdyha",
+      "title": "Приказ 424 больше не действует: новые нормы для водителей",
+      "url": "https://spec-avtoportal.ru/knowledge/rezhim-truda-i-otdyha-voditelya/",
+      "visual": "truck driver cabin at dusk, tachograph on the dashboard, highway ahead",
+      "scenes": [
+        {"overlay": "ПРИКАЗ № 424 ОТМЕНЁН", "narration": "С 1 сентября 2026 года приказ Минтранса № 424 о режиме водителей не действует. Теперь работает приказ № 160."},
+        {"overlay": "9 ЧАСОВ ЗА РУЛЁМ В СУТКИ", "narration": "За рулём — не больше 9 часов в сутки. До 10 часов — не чаще двух раз в неделю."},
+        {"overlay": "56 Ч В НЕДЕЛЮ, 90 Ч ЗА ДВЕ", "narration": "В неделю — не больше 56 часов, а за любые две недели подряд — не больше 90."},
+        {"overlay": "4,5 Ч → ПЕРЕРЫВ 45 МИНУТ", "narration": "После 4 с половиной часов за рулём — перерыв минимум 45 минут. Ежедневный отдых — не меньше 11 часов."}
+      ]
+    },
+    {
+      "id": "rto-calculator",
+      "title": "Сколько ехать с перерывами и отдыхом: калькулятор",
+      "url": "https://spec-avtoportal.ru/tools/rezhim-truda-i-otdyha/",
+      "visual": "long-haul truck on an empty highway at sunrise, roadside rest area",
+      "scenes": [
+        {"overlay": "1500 КМ — СКОЛЬКО ЕХАТЬ?", "narration": "Рейс 1500 километров. Когда водитель приедет, если соблюдать все перерывы и отдых?"},
+        {"overlay": "ПЕРЕРЫВЫ И ОТДЫХ — ПО НОРМАМ", "narration": "Нужно учесть перерыв 45 минут каждые 4 с половиной часа, 9 часов за рулём в сутки и ежедневный отдых."},
+        {"overlay": "КАЛЬКУЛЯТОР ПОСЧИТАЕТ САМ", "narration": "Вводите расстояние, среднюю скорость и время выезда — калькулятор расставит перерывы и отдых по приказу № 160."},
+        {"overlay": "ГРАФИК РЕЙСА ЗА МИНУТУ", "narration": "Получаете график рейса и время прибытия. Бесплатно и без регистрации."}
+      ]
+    },
+    {
+      "id": "karta-voditelya",
+      "title": "Карта водителя для тахографа: какая нужна и что будет без неё",
+      "url": "https://spec-avtoportal.ru/knowledge/karta-voditelya-dlya-tahografa/",
+      "visual": "close-up of a tachograph unit in a truck dashboard with a driver card slot",
+      "scenes": [
+        {"overlay": "БЕЗ КАРТЫ — ДО 5 000 ₽", "narration": "Ехать с тахографом без карты водителя запрещено. Штраф водителю — от 3 000 до 5 000 рублей."},
+        {"overlay": "СКЗИ ИЛИ ЕСТР?", "narration": "Карта СКЗИ — для рейсов по России, карта ЕСТР — для международных. Друг с другом они не работают."},
+        {"overlay": "СРОК — 3 ГОДА", "narration": "Карта действует 3 года. Замену лучше заказывать за 1–2 месяца до окончания срока."},
+        {"overlay": "ВЫГРУЗКА — ЗАБОТА ВЛАДЕЛЬЦА", "narration": "Выгружать данные с карты и тахографа обязан владелец машины, а не водитель."}
+      ]
+    },
+    {
+      "id": "tehosmotr-polupricepa",
+      "title": "Техосмотр полуприцепа: когда проходить",
+      "url": "https://spec-avtoportal.ru/knowledge/tehosmotr-polupricepa/",
+      "visual": "semi-trailer in an inspection workshop bay, technician checking brakes and tires",
+      "scenes": [
+        {"overlay": "ПЕРВЫЕ 4 ГОДА — БЕЗ ТО", "narration": "Новому полуприцепу техосмотр не нужен первые 4 года, включая год выпуска."},
+        {"overlay": "4–10 ЛЕТ: РАЗ В 2 ГОДА", "narration": "От 4 до 10 лет — техосмотр раз в 24 месяца. Старше 10 лет — каждый год."},
+        {"overlay": "ОПАСНЫЕ ГРУЗЫ — РАЗ В ПОЛГОДА", "narration": "Прицепы для опасных грузов проходят техосмотр раз в 6 месяцев."},
+        {"overlay": "ВЫПУСК БЕЗ ТО — 50 000 ₽", "narration": "Выпуск на линию без техосмотра обойдётся организации в 50 000 рублей."}
+      ]
+    },
+    {
+      "id": "registraciya-polupricepa",
+      "title": "Купили полуприцеп: 10 дней на регистрацию",
+      "url": "https://spec-avtoportal.ru/knowledge/registraciya-polupricepa/",
+      "visual": "new semi-trailer parked at a registration inspection site, documents folder",
+      "scenes": [
+        {"overlay": "10 ДНЕЙ НА РЕГИСТРАЦИЮ", "narration": "Купили полуприцеп — у вас 10 дней, чтобы подать заявление на регистрацию в Госавтоинспекции."},
+        {"overlay": "ЭПТС — «ДЕЙСТВУЮЩИЙ»", "narration": "Проверьте электронный паспорт: статус должен быть «действующий», а VIN — совпадать с табличкой."},
+        {"overlay": "ОСМОТР И НОМЕРА", "narration": "Заявление — через Госуслуги, затем осмотр на площадке и получение номеров и свидетельства о регистрации."},
+        {"overlay": "БЕЗ РЕГИСТРАЦИИ — ШТРАФ", "narration": "Ехать с незарегистрированным прицепом — штраф 500–800 рублей, повторно — 5 000 или лишение прав."}
+      ]
+    },
+    {
+      "id": "gabarity-i-massy",
+      "title": "Габариты и масса автопоезда: главные пределы",
+      "url": "https://spec-avtoportal.ru/knowledge/gabarity-i-massy/",
+      "visual": "long articulated truck on a highway viewed from the side, measuring perspective",
+      "scenes": [
+        {"overlay": "20 М × 2,6 М × 4 М", "narration": "Автопоезд без спецразрешения: длина до 20 метров, ширина до 2,6, высота до 4 метров."},
+        {"overlay": "44 Т — ДЛЯ 6 ОСЕЙ", "narration": "Допустимая масса зависит от числа осей: 28 тонн для трёх, 36 — для четырёх, 40 — для пяти, 44 — для шести и более."},
+        {"overlay": "ГРУЗ ЗА ГАБАРИТОМ — ДО 2 М", "narration": "Груз может выступать за заднюю точку габарита не больше чем на 2 метра."},
+        {"overlay": "ВЫШЛИ ЗА ПРЕДЕЛЫ?", "narration": "Если хоть один параметр больше — нужно спецразрешение, иначе перевозка незаконна."}
+      ]
+    },
+    {
+      "id": "specrazreshenie",
+      "title": "Спецразрешение на тяжеловес: когда нужно и как получить",
+      "url": "https://spec-avtoportal.ru/knowledge/specrazreshenie-tyazhelovesnoe-ts/",
+      "visual": "oversized heavy cargo on a low-loader trailer on a highway",
+      "scenes": [
+        {"overlay": "КОГДА НУЖНО СПЕЦРАЗРЕШЕНИЕ", "narration": "Если масса, нагрузка на ось или габариты с грузом больше допустимых, ехать можно только со спецразрешением."},
+        {"overlay": "ЗАЯВКА — ЧЕРЕЗ ГОСУСЛУГИ", "narration": "Заявление подают в электронном виде: через личный кабинет перевозчика или Госуслуги."},
+        {"overlay": "ВЫДАЧА — ЗА 3 ЧАСА", "narration": "Маршрут определяют за 1 день, а после согласования разрешение выдают в течение 3 часов."},
+        {"overlay": "ДЕЙСТВУЕТ ДО 135 ДНЕЙ", "narration": "Разрешение действует до 135 дней. Делимый груз — частая причина отказа: его можно разделить."}
+      ]
+    }
+  ]
+}
