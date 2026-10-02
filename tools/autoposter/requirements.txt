@@ -3,7 +3,7 @@ python-dateutil==2.9.0.post0
 python-dotenv>=1.0.1,<2
 Pillow==10.4.0
 
-edge-tts==6.1.12
+edge-tts  # unpinned: older versions stopped working with Microsoft voices
 gTTS==2.5.3
 
 google-api-python-client==2.141.0

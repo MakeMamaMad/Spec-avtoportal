@@ -29,8 +29,8 @@ SITE_URL = os.getenv("SITE_URL", "https://spec-avtoportal.ru/").rstrip("/")
 CONTENT_JSON_PATH = Path(
     os.getenv("CONTENT_JSON_PATH", str(REPO_ROOT / "frontend" / "data" / "news.json"))
 )
-VOICE = os.getenv("VOICE", "ru-RU-DmitryNeural").strip()
-TTS_RATE = os.getenv("TTS_RATE", "+8%").strip()
+VOICE = os.getenv("VOICE", "ru-RU-SvetlanaNeural").strip()
+TTS_RATE = os.getenv("TTS_RATE", "+5%").strip()
 
 
 IMPORTANT_WORDS = (
@@ -149,47 +149,58 @@ async def _edge_tts(text: str, output: Path) -> None:
     await communication.save(str(output))
 
 
-def generate_voice(text: str, output: Path) -> str:
-    output.parent.mkdir(parents=True, exist_ok=True)
+def _voice_edge(text: str, output: Path) -> str:
+    asyncio.run(_edge_tts(text, output))
+    if not output.exists() or output.stat().st_size < 1000:
+        raise RuntimeError("edge-tts returned no audio")
+    print(f"[tts] edge-tts {VOICE} {TTS_RATE}")
+    return f"edge-tts:{VOICE}"
 
+
+def _voice_openai(text: str, output: Path) -> str:
     api_key = os.getenv("OPENAI_API_KEY", "").strip()
-    if api_key and os.getenv("OPENAI_TTS", "1").strip() == "1":
+    if not api_key or os.getenv("OPENAI_TTS", "1").strip() != "1":
+        raise RuntimeError("OpenAI TTS is not configured")
+    from openai import OpenAI
+
+    client = OpenAI(api_key=api_key)
+    model = os.getenv("OPENAI_TTS_MODEL", "gpt-4o-mini-tts").strip()
+    voice = os.getenv("OPENAI_TTS_VOICE", "coral").strip()
+    instructions = os.getenv(
+        "OPENAI_TTS_INSTRUCTIONS",
+        "Speak natural conversational Russian like a modern female automotive news presenter. "
+        "Use warm, human intonation with small natural pitch changes and short pauses at punctuation. "
+        "Keep a brisk but comfortable pace, roughly 155 to 165 words per minute, with clear diction. "
+        "Do not sound solemn, robotic, theatrical or like a commercial voice-over. "
+        "Connect phrases smoothly and pronounce company and model names carefully.",
+    ).strip()
+    with client.audio.speech.with_streaming_response.create(
+        model=model, voice=voice, input=text, instructions=instructions,
+    ) as response:
+        response.stream_to_file(output)
+    print(f"[tts] OpenAI {model}/{voice}")
+    return f"openai:{model}:{voice}"
+
+
+def generate_voice(text: str, output: Path) -> str:
+    """Narrate with the chosen engine; fall back to the other one, gTTS last.
+
+    TTS_ENGINE=edge (default, Microsoft "Svetlana" voice chosen by the owner)
+    or openai."""
+    output.parent.mkdir(parents=True, exist_ok=True)
+    engines = [_voice_edge, _voice_openai]
+    if os.getenv("TTS_ENGINE", "edge").strip().lower() == "openai":
+        engines.reverse()
+    for engine in engines:
         try:
-            from openai import OpenAI
-
-            client = OpenAI(api_key=api_key)
-            model = os.getenv("OPENAI_TTS_MODEL", "gpt-4o-mini-tts").strip()
-            voice = os.getenv("OPENAI_TTS_VOICE", "marin").strip()
-            instructions = os.getenv(
-                "OPENAI_TTS_INSTRUCTIONS",
-                "Speak natural conversational Russian like a modern automotive news presenter. "
-                "Use warm, human intonation with small natural pitch changes and short pauses at punctuation. "
-                "Keep a brisk but comfortable pace, roughly 155 to 165 words per minute, with clear diction. "
-                "Do not sound solemn, robotic, theatrical or like a commercial voice-over. "
-                "Connect phrases smoothly and pronounce company and model names carefully.",
-            ).strip()
-            with client.audio.speech.with_streaming_response.create(
-                model=model,
-                voice=voice,
-                input=text,
-                instructions=instructions,
-            ) as response:
-                response.stream_to_file(output)
-            print(f"[tts] OpenAI {model}/{voice}")
-            return f"openai:{model}:{voice}"
+            return engine(text, output)
         except Exception as exc:
-            print(f"[tts] OpenAI failed, trying edge-tts: {exc}")
+            print(f"[tts] {engine.__name__} failed: {exc}")
+    from gtts import gTTS
 
-    try:
-        asyncio.run(_edge_tts(text, output))
-        print(f"[tts] edge-tts {VOICE} {TTS_RATE}")
-        return "edge-tts"
-    except Exception as exc:
-        print(f"[tts] edge-tts failed, using gTTS: {exc}")
-        from gtts import gTTS
-
-        gTTS(text=text, lang="ru").save(str(output))
-        return "gtts"
+    gTTS(text=text, lang="ru").save(str(output))
+    print("[tts] gTTS fallback")
+    return "gtts"
 
 
 def generate_scene_voice_track(board, work_dir: Path) -> tuple[Path, list[float], str]:
