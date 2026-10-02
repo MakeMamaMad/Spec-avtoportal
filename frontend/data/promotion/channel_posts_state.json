@@ -36,6 +36,18 @@
       "url": "https://t.me/specavtoportal/1510",
       "published_at": "2026-09-29T08:47:02+00:00",
       "pinned": false
+    },
+    "2026-10-evrofura-raspredelenie": {
+      "message_id": 1532,
+      "url": "https://t.me/specavtoportal/1532",
+      "published_at": "2026-10-02T07:26:00+00:00",
+      "pinned": false
+    },
+    "2026-10-pereregistraciya": {
+      "message_id": 1533,
+      "url": "https://t.me/specavtoportal/1533",
+      "published_at": "2026-10-02T07:26:00+00:00",
+      "pinned": false
     }
   }
 }
