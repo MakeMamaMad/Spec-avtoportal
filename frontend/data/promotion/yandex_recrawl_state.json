@@ -91,18 +91,11 @@
     }
   },
   "last_run": {
-    "at": "2026-10-02T07:14:58+00:00",
-    "sent": [
-      "https://spec-avtoportal.ru/tools/raspredelenie-gruza-po-osyam/",
-      "https://spec-avtoportal.ru/knowledge/nagruzka-na-osi-evrofury/",
-      "https://spec-avtoportal.ru/knowledge/pereregistraciya-polupricepa/"
-    ],
+    "at": "2026-10-02T12:46:23+00:00",
+    "sent": [],
     "failed": [],
     "left": 0,
-    "quota": {
-      "daily": 150,
-      "remainder_before": 150
-    },
+    "quota": null,
     "sitemaps_added": [],
     "sitemaps": []
   }
