@@ -426,6 +426,27 @@
       "sent_at": "2026-10-01T12:59:46+00:00",
       "title": "Schmitz Cargobull увеличил выручку на 2,25 млрд евро",
       "slug": "schmitz-cargobull-uvelichil-vyruchku-na-2-25-mlrd-evro-aa68f956"
+    },
+    "http://gruzovoy.ru/news/industry/3384_stavka_na_servis_effektivnost_i_ludei_chto_obsyjdali_na_konferencii_realnii_komtrans_2026.html": {
+      "digest_id": "2026-10-02:am",
+      "message_id": 1531,
+      "sent_at": "2026-10-02T07:15:35+00:00",
+      "title": "Ставка на сервис, эффективность и людей: что обсуждали на конференции «Реальный комтранс 2026»",
+      "slug": "stavka-na-servis-effektivnost-i-lyudey-chto-obsuzhdali-na-konferentsii-r-02fab2c4"
+    },
+    "https://www.globaltrailermag.com/wielton-revenue-jumps-19-per-cent-across-europe/": {
+      "digest_id": "2026-10-02:am",
+      "message_id": 1531,
+      "sent_at": "2026-10-02T07:15:35+00:00",
+      "title": "Доходы Wielton выросли на 19% по всей Европе",
+      "slug": "dohody-wielton-vyrosli-na-19-po-vsey-evrope-37a67f56"
+    },
+    "http://gruzovoy.ru/news/industry/3381_ot_prodaj_k_lokalizacii_chto_jdyot_kitaiskie_gryzoviki_na_rossiiskom_rinke.html": {
+      "digest_id": "2026-10-02:am",
+      "message_id": 1531,
+      "sent_at": "2026-10-02T07:15:35+00:00",
+      "title": "От продаж к локализации: что ждёт китайские грузовики на российском рынке",
+      "slug": "ot-prodazh-k-lokalizatsii-chto-zhdet-kitayskie-gruzoviki-na-rossiyskom-r-8a0ffe7c"
     }
   },
   "digests": {
@@ -543,6 +564,17 @@
         "https://www.globaltrailermag.com/double-deck-innovation-to-maximise-capacity-and-flexibility/",
         "https://trailertechnician.com/2026/09/bendix-bowling-green-plant-earns-safety-award/?utm_source=rss&utm_medium=rss&utm_campaign=bendix-bowling-green-plant-earns-safety-award",
         "https://www.globaltrailermag.com/schmitz-cargobull-delivers-e2-25b-revenue-growth/"
+      ],
+      "visual": "visual"
+    },
+    "2026-10-02:am": {
+      "message_id": 1531,
+      "sent_at": "2026-10-02T07:15:35+00:00",
+      "slot": "am",
+      "items": [
+        "http://gruzovoy.ru/news/industry/3384_stavka_na_servis_effektivnost_i_ludei_chto_obsyjdali_na_konferencii_realnii_komtrans_2026.html",
+        "https://www.globaltrailermag.com/wielton-revenue-jumps-19-per-cent-across-europe/",
+        "http://gruzovoy.ru/news/industry/3381_ot_prodaj_k_lokalizacii_chto_jdyot_kitaiskie_gryzoviki_na_rossiiskom_rinke.html"
       ],
       "visual": "visual"
     }
