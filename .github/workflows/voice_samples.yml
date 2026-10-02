@@ -1,0 +1,34 @@
+name: Video — Voice samples
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  samples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r tools/autoposter/requirements.txt
+      - name: Render samples
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          cd tools/autoposter
+          python voice_samples.py ../../voice_samples
+      - name: Push to voice-samples branch
+        run: |
+          git config user.name "specavto-autoposter"
+          git config user.email "actions@users.noreply.github.com"
+          git checkout --orphan voice-samples
+          git rm -rq --cached .
+          git add voice_samples
+          git commit -qm "voice samples"
+          git push -f origin voice-samples
