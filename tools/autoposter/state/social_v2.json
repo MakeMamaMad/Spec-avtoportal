@@ -434,6 +434,36 @@
         }
       },
       "updated_at": "2026-10-01T17:31:15.228404+00:00"
+    },
+    "37a67f56e81c": {
+      "title": "Выручка Wielton выросла на 19,4% в Европе",
+      "created_at": "2026-10-02T09:43:41.370077+00:00",
+      "platforms": {
+        "youtube": {
+          "platform": "youtube",
+          "status": "published",
+          "video_id": "6K0nYi8Yfq8",
+          "url": "https://www.youtube.com/shorts/6K0nYi8Yfq8",
+          "updated_at": "2026-10-02T09:43:41.370098+00:00"
+        },
+        "tiktok": {
+          "platform": "tiktok",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6abf7ccef781c1ecf15eb8da",
+          "buffer_status": "sent",
+          "updated_at": "2026-10-02T09:45:30.429275+00:00"
+        },
+        "instagram": {
+          "platform": "instagram",
+          "status": "published",
+          "provider": "buffer",
+          "post_id": "6abf7d3b79e44b20b3276c23",
+          "buffer_status": "sent",
+          "updated_at": "2026-10-02T09:46:33.199785+00:00"
+        }
+      },
+      "updated_at": "2026-10-02T09:46:33.199783+00:00"
     }
   }
 }

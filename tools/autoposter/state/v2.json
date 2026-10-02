@@ -15,7 +15,8 @@
     "94802e112ece",
     "8a0ffe7ce449",
     "aa68f956f2d1",
-    "sat:sat545-overview"
+    "sat:sat545-overview",
+    "37a67f56e81c"
   ],
   "renders": [
     {
@@ -121,6 +122,13 @@
       "slug": "",
       "title": "SAT545: алюминиевый самосвал на 4 оси",
       "created_at": "2026-10-01T17:31:15.229366+00:00",
+      "format": "social-v2"
+    },
+    {
+      "content_key": "37a67f56e81c",
+      "slug": "dohody-wielton-vyrosli-na-19-po-vsey-evrope-37a67f56",
+      "title": "Выручка Wielton выросла на 19,4% в Европе",
+      "created_at": "2026-10-02T09:46:33.200802+00:00",
       "format": "social-v2"
     }
   ]
