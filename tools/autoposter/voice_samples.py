@@ -22,6 +22,7 @@ INSTRUCTIONS = (
     "Brisk but comfortable pace, clear diction. Not solemn, not robotic, not like a commercial voice-over."
 )
 OPENAI_VOICES = ["cedar", "onyx", "ash", "echo", "verse", "ballad"]
+FEMALE_VOICES = ["marin", "coral", "nova", "shimmer", "sage"]
 EDGE_VOICES = ["ru-RU-DmitryNeural"]
 
 
@@ -33,12 +34,14 @@ def main() -> int:
         from openai import OpenAI
 
         client = OpenAI(api_key=key)
-        for voice in OPENAI_VOICES:
+        for voice in OPENAI_VOICES + FEMALE_VOICES:
+            instructions = INSTRUCTIONS.replace("male", "female") if voice in FEMALE_VOICES else INSTRUCTIONS
             try:
                 with client.audio.speech.with_streaming_response.create(
-                    model=os.getenv("OPENAI_TTS_MODEL", "gpt-4o-mini-tts"), voice=voice, input=TEXT, instructions=INSTRUCTIONS,
+                    model=os.getenv("OPENAI_TTS_MODEL", "gpt-4o-mini-tts"), voice=voice, input=TEXT, instructions=instructions,
                 ) as response:
-                    response.stream_to_file(out / f"openai-{voice}.mp3")
+                    prefix = "female" if voice in FEMALE_VOICES else "male"
+                    response.stream_to_file(out / f"{prefix}-openai-{voice}.mp3")
                 print("ok", voice)
             except Exception as exc:
                 print("fail", voice, exc)
