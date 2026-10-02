@@ -76,14 +76,33 @@
     "https://spec-avtoportal.ru/knowledge/tehosmotr-polupricepa/": {
       "at": "2026-09-30T09:45:34+00:00",
       "task_id": "af12aa80-bcb3-11f1-b518-8103174f3502"
+    },
+    "https://spec-avtoportal.ru/tools/raspredelenie-gruza-po-osyam/": {
+      "at": "2026-10-02T07:14:56+00:00",
+      "task_id": "f8cd7c80-be30-11f1-a81a-df27cbeb2a3a"
+    },
+    "https://spec-avtoportal.ru/knowledge/nagruzka-na-osi-evrofury/": {
+      "at": "2026-10-02T07:14:57+00:00",
+      "task_id": "f931bc90-be30-11f1-83a3-db32b2b0e403"
+    },
+    "https://spec-avtoportal.ru/knowledge/pereregistraciya-polupricepa/": {
+      "at": "2026-10-02T07:14:58+00:00",
+      "task_id": "f98bc370-be30-11f1-b4d6-87c8463f27c2"
     }
   },
   "last_run": {
-    "at": "2026-10-01T13:28:04+00:00",
-    "sent": [],
+    "at": "2026-10-02T07:14:58+00:00",
+    "sent": [
+      "https://spec-avtoportal.ru/tools/raspredelenie-gruza-po-osyam/",
+      "https://spec-avtoportal.ru/knowledge/nagruzka-na-osi-evrofury/",
+      "https://spec-avtoportal.ru/knowledge/pereregistraciya-polupricepa/"
+    ],
     "failed": [],
     "left": 0,
-    "quota": null,
+    "quota": {
+      "daily": 150,
+      "remainder_before": 150
+    },
     "sitemaps_added": [],
     "sitemaps": []
   }
