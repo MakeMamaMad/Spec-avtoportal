@@ -447,6 +447,27 @@
       "sent_at": "2026-10-02T07:15:35+00:00",
       "title": "От продаж к локализации: что ждёт китайские грузовики на российском рынке",
       "slug": "ot-prodazh-k-lokalizatsii-chto-zhdet-kitayskie-gruzoviki-na-rossiyskom-r-8a0ffe7c"
+    },
+    "https://www.globaltrailermag.com/dhl-express-names-hong-kong-macau-chief/": {
+      "digest_id": "2026-10-02:pm",
+      "message_id": 1534,
+      "sent_at": "2026-10-02T12:57:15+00:00",
+      "title": "DHL Express назвал Гонконг главой Макао",
+      "slug": "dhl-express-nazval-gonkong-glavoy-makao-1ee98491"
+    },
+    "https://www.globaltrailermag.com/kogel-reflects-on-e-trailer-innovation-award-win/": {
+      "digest_id": "2026-10-02:pm",
+      "message_id": 1534,
+      "sent_at": "2026-10-02T12:57:15+00:00",
+      "title": "Kögel размышляет о победе в номинации «Электронный трейлер»",
+      "slug": "kgel-razmyshlyaet-o-pobede-v-nominatsii-elektronnyy-treyler-5c7c9aa8"
+    },
+    "https://truckmix.ru/news/zavod-tverskoi-ekskavator-prazdnyet-83-letie": {
+      "digest_id": "2026-10-02:pm",
+      "message_id": 1534,
+      "sent_at": "2026-10-02T12:57:15+00:00",
+      "title": "Завод «Тверской экскаватор» празднует 83-летие",
+      "slug": "zavod-tverskoy-ekskavator-prazdnuet-83-letie-e8c4ba27"
     }
   },
   "digests": {
@@ -575,6 +596,17 @@
         "http://gruzovoy.ru/news/industry/3384_stavka_na_servis_effektivnost_i_ludei_chto_obsyjdali_na_konferencii_realnii_komtrans_2026.html",
         "https://www.globaltrailermag.com/wielton-revenue-jumps-19-per-cent-across-europe/",
         "http://gruzovoy.ru/news/industry/3381_ot_prodaj_k_lokalizacii_chto_jdyot_kitaiskie_gryzoviki_na_rossiiskom_rinke.html"
+      ],
+      "visual": "visual"
+    },
+    "2026-10-02:pm": {
+      "message_id": 1534,
+      "sent_at": "2026-10-02T12:57:15+00:00",
+      "slot": "pm",
+      "items": [
+        "https://www.globaltrailermag.com/dhl-express-names-hong-kong-macau-chief/",
+        "https://www.globaltrailermag.com/kogel-reflects-on-e-trailer-innovation-award-win/",
+        "https://truckmix.ru/news/zavod-tverskoi-ekskavator-prazdnyet-83-letie"
       ],
       "visual": "visual"
     }
