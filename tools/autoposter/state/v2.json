@@ -16,7 +16,8 @@
     "8a0ffe7ce449",
     "aa68f956f2d1",
     "sat:sat545-overview",
-    "37a67f56e81c"
+    "37a67f56e81c",
+    "2612fbfa4b06"
   ],
   "renders": [
     {
@@ -129,6 +130,13 @@
       "slug": "dohody-wielton-vyrosli-na-19-po-vsey-evrope-37a67f56",
       "title": "Выручка Wielton выросла на 19,4% в Европе",
       "created_at": "2026-10-02T09:46:33.200802+00:00",
+      "format": "social-v2"
+    },
+    {
+      "content_key": "2612fbfa4b06",
+      "slug": "kak-sdelat-servis-effektivnym-glavnoe-s-konferentsii-realnyy-servis-2026-2612fbfa",
+      "title": "Как сделать сервис грузового парка эффективнее",
+      "created_at": "2026-10-02T16:15:15.787308+00:00",
       "format": "social-v2"
     }
   ]
