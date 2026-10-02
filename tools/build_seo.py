@@ -36,6 +36,7 @@ if str(TOOLS) not in sys.path:
 from telegram_visual import render_social_card
 from axle_calculator import PAGE_PATH as AXLE_CALC_PATH, render_axle_calculator_page
 from rto_calculator import PAGE_PATH as RTO_CALC_PATH, render_rto_calculator_page
+from load_distribution_calculator import PAGE_PATH as DIST_CALC_PATH, render_distribution_calculator_page
 
 FRONTEND = ROOT / "frontend"
 NEWS_JSON = FRONTEND / "data" / "news.json"
@@ -583,6 +584,8 @@ KNOWLEDGE_LINK_RULES = {
     "tehosmotr-polupricepa": ("техосмотр", "технический осмотр", "диагностическ", "еаисто"),
     "karta-voditelya-dlya-tahografa": ("карт водител", "карта водител", "тахограф", "скзи", "естр"),
     "registraciya-polupricepa": ("регистрац", "на учет", "на учёт", "эптс"),
+    "pereregistraciya-polupricepa": ("перерегистрац", "смена собственник", "купли-продажи", "б/у", "подержанн"),
+    "nagruzka-na-osi-evrofury": ("еврофур", "нагрузк", "перегруз", "тентован", "седельн", "автопоезд"),
     "shtraf-za-peregruz": ("перегруз", "штраф", "12.21.1", "весогабарит", "весовой контроль", "апвгк", "тяжеловес"),
 }
 
@@ -2518,6 +2521,7 @@ def write_sitemap(
         (f"{BASE_URL}/about.html", ""),
         (f"{BASE_URL}{AXLE_CALC_PATH}", ""),
         (f"{BASE_URL}{RTO_CALC_PATH}", ""),
+        (f"{BASE_URL}{DIST_CALC_PATH}", ""),
     ]
     rows = []
     for url, lastmod in static_pages:
@@ -2710,6 +2714,19 @@ def main() -> None:
             telegram_cta_html(
                 "Нормы для водителей и перевозчиков",
                 "Режим труда и отдыха, тахографы, штрафы и новые правила 2026 года — коротко в нашем Telegram-канале.",
+            ),
+        ),
+        encoding="utf-8",
+    )
+
+    dist_dir = FRONTEND / DIST_CALC_PATH.strip("/")
+    dist_dir.mkdir(parents=True, exist_ok=True)
+    (dist_dir / "index.html").write_text(
+        render_distribution_calculator_page(
+            BASE_URL,
+            telegram_cta_html(
+                "Разборы норм для перевозчиков",
+                "Нагрузки на оси, габариты, штрафы и новые правила 2026 года — коротко в нашем Telegram-канале.",
             ),
         ),
         encoding="utf-8",

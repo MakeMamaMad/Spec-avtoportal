@@ -377,6 +377,7 @@ def render_axle_calculator_page(base_url: str, telegram_cta: str) -> str:
             <div><span>Допустимая масса</span><strong id="sum-limit">—</strong></div>
           </div>
           <div class="calc-verdict" id="calc-verdict" aria-live="polite">Заполните данные.</div>
+          <p class="calc-note">Не знаете нагрузки по осям? Посчитайте их по массе и положению груза в <a href="/tools/raspredelenie-gruza-po-osyam/">калькуляторе распределения груза</a>.</p>
           <p class="calc-note">Для сдвоенных и строенных осей вводите нагрузку на всю группу, для группы из 4+ осей — тоже на всю группу. Если на дороге стоит знак ограничения массы или нагрузки, действует значение на знаке. Весной на региональных дорогах вводятся временные ограничения.</p>
         </section>
 
@@ -413,6 +414,8 @@ def render_axle_calculator_page(base_url: str, telegram_cta: str) -> str:
             <li><a href="/knowledge/gabarity-i-massy/">Габариты и массы автопоезда: основные пределы</a></li>
             <li><a href="/knowledge/shtraf-za-peregruz/">Штраф за перегруз в 2026 году: суммы по статье 12.21.1 КоАП</a></li>
             <li><a href="/knowledge/specrazreshenie-tyazhelovesnoe-ts/">Спецразрешение на тяжеловесный транспорт</a></li>
+            <li><a href="/tools/raspredelenie-gruza-po-osyam/">Калькулятор распределения груза по осям тягача и полуприцепа</a></li>
+            <li><a href="/knowledge/nagruzka-na-osi-evrofury/">Нагрузка на оси еврофуры и семиосного автопоезда</a></li>
             <li><a href="/tools/rezhim-truda-i-otdyha/">Калькулятор режима труда и отдыха водителя</a></li>
             <li><a href="/regulations/mintrans-212-2026/">Новые правила безопасности перевозок с 1 сентября 2026</a></li>
           </ul>
