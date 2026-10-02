@@ -366,6 +366,27 @@
       "sent_at": "2026-10-02T07:12:26+00:00",
       "title": "Завод «Тверской экскаватор» празднует 83-летие",
       "slug": "zavod-tverskoy-ekskavator-prazdnuet-83-letie-e8c4ba27"
+    },
+    "https://www.globaltrailermag.com/schmitz-cargobull-delivers-e2-25b-revenue-growth/": {
+      "digest_id": "2026-10-02:pm",
+      "post_id": 41,
+      "sent_at": "2026-10-02T13:05:48+00:00",
+      "title": "Schmitz Cargobull увеличил выручку на 2,25 млрд евро",
+      "slug": "schmitz-cargobull-uvelichil-vyruchku-na-2-25-mlrd-evro-aa68f956"
+    },
+    "https://www.globaltrailermag.com/double-deck-innovation-to-maximise-capacity-and-flexibility/": {
+      "digest_id": "2026-10-02:pm",
+      "post_id": 41,
+      "sent_at": "2026-10-02T13:05:48+00:00",
+      "title": "Инновации Double Deck для максимальной производительности и гибкости",
+      "slug": "innovatsii-double-deck-dlya-maksimalnoy-proizvoditelnosti-i-gibkosti-fa6380a6"
+    },
+    "http://gruzovoy.ru/news/industry/3385_kak_sdelat_servis_effektivnim_glavnoe_s_konferencii_realnii_servis_2026.html": {
+      "digest_id": "2026-10-02:pm",
+      "post_id": 41,
+      "sent_at": "2026-10-02T13:05:48+00:00",
+      "title": "Как сделать сервис эффективным: главное с конференции «Реальный сервис 2026»",
+      "slug": "kak-sdelat-servis-effektivnym-glavnoe-s-konferentsii-realnyy-servis-2026-2612fbfa"
     }
   },
   "digests": {
@@ -495,6 +516,17 @@
         "http://gruzovoy.ru/news/industry/3381_ot_prodaj_k_lokalizacii_chto_jdyot_kitaiskie_gryzoviki_na_rossiiskom_rinke.html",
         "https://www.globaltrailermag.com/wielton-revenue-jumps-19-per-cent-across-europe/",
         "https://truckmix.ru/news/zavod-tverskoi-ekskavator-prazdnyet-83-letie"
+      ]
+    },
+    "2026-10-02:pm": {
+      "post_id": 41,
+      "sent_at": "2026-10-02T13:05:48+00:00",
+      "slot": "pm",
+      "visual": "link_preview",
+      "items": [
+        "https://www.globaltrailermag.com/schmitz-cargobull-delivers-e2-25b-revenue-growth/",
+        "https://www.globaltrailermag.com/double-deck-innovation-to-maximise-capacity-and-flexibility/",
+        "http://gruzovoy.ru/news/industry/3385_kak_sdelat_servis_effektivnim_glavnoe_s_konferencii_realnii_servis_2026.html"
       ]
     }
   }
