@@ -16,13 +16,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install -r tools/autoposter/requirements.txt
+      - run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          pip install -r tools/autoposter/requirements.txt
+          pip install -U edge-tts piper-tts soundfile omegaconf
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
       - name: Render samples
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           cd tools/autoposter
           python voice_samples.py ../../voice_samples
+          python free_voice_samples.py ../../voice_samples
       - name: Push to voice-samples branch
         run: |
           git config user.name "specavto-autoposter"
