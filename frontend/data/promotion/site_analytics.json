@@ -1,35 +1,35 @@
 {
   "schema": 1,
-  "updated_at": "2026-10-01T21:53:20+00:00",
+  "updated_at": "2026-10-02T21:22:59+00:00",
   "counter_id": "106240080",
   "metrika": {
     "status": "ok",
     "period_days": 7,
-    "visits": 135,
-    "users": 130,
+    "visits": 152,
+    "users": 147,
     "sources": [
       {
         "id": "direct",
         "name": "Прямые заходы",
-        "visits": 97,
-        "users": 95,
-        "bounce_rate": 66.0,
-        "page_depth": 1.23
+        "visits": 101,
+        "users": 99,
+        "bounce_rate": 69.3,
+        "page_depth": 1.25
       },
       {
         "id": "organic",
         "name": "Переходы из поисковых систем",
-        "visits": 15,
-        "users": 15,
-        "bounce_rate": 53.3,
-        "page_depth": 1.07
+        "visits": 24,
+        "users": 24,
+        "bounce_rate": 37.5,
+        "page_depth": 1.08
       },
       {
         "id": "social",
         "name": "Переходы из социальных сетей",
-        "visits": 10,
-        "users": 10,
-        "bounce_rate": 90.0,
+        "visits": 14,
+        "users": 14,
+        "bounce_rate": 92.9,
         "page_depth": 1.0
       },
       {
@@ -63,20 +63,20 @@
     "host": "https://spec-avtoportal.ru",
     "index": {
       "searchable_pages": 55,
-      "excluded_pages": 33,
+      "excluded_pages": 59,
       "sqi": 0,
       "problems": {
         "fatal": 0,
         "critical": 0,
         "possible": 3,
-        "recommendation": 2
+        "recommendation": 3
       }
     },
     "search": {
-      "date_from": "2026-09-23",
-      "date_to": "2026-09-29",
-      "shows": 88,
-      "clicks": 4,
+      "date_from": "2026-09-24",
+      "date_to": "2026-09-30",
+      "shows": 122,
+      "clicks": 6,
       "top_queries": [
         {
           "query": "приказ минтранса 212 от 12.05.2026",
@@ -115,10 +115,10 @@
           "position": 8.5
         },
         {
-          "query": "приказ минтранса россии от 12 мая 2026 года № 212 скачать",
+          "query": "нагрузка на ось тягача киров - ярославль федеральная трасса",
           "shows": 2,
           "clicks": 0,
-          "position": 8.5
+          "position": 12.0
         },
         {
           "query": "приказ минтранса россии от 12.05.2026 №212",
@@ -133,10 +133,10 @@
           "position": 17.5
         },
         {
-          "query": "приказ от 12.05.2026 № 212 «об утверждении правил обеспечения безопасности перевозок автомобильным транспортом и городским наземным электрическим транспортом». он утвердил новые правила безопасности для перевозчиков. действует с 1 сентября 2026 года до 1 сентября 2032 года.  garant.ru",
-          "shows": 1,
+          "query": "сколько раз можно делать паузу по 9 часов подряд по естр",
+          "shows": 2,
           "clicks": 0,
-          "position": 9.0
+          "position": 10.0
         }
       ]
     },
@@ -154,7 +154,12 @@
       {
         "code": "NO_SITEMAPS",
         "severity": "POSSIBLE_PROBLEM",
-        "since": "2026-10-01T19:18:04.683+03:00"
+        "since": "2026-10-02T20:15:15.458+03:00"
+      },
+      {
+        "code": "BIG_FAVICON_ABSENT",
+        "severity": "RECOMMENDATION",
+        "since": "2026-10-02T21:29:26.075+03:00"
       },
       {
         "code": "NOT_IN_SPRAV",
