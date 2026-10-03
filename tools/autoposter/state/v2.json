@@ -18,7 +18,8 @@
     "sat:sat545-overview",
     "37a67f56e81c",
     "2612fbfa4b06",
-    "5c7c9aa83ff0"
+    "5c7c9aa83ff0",
+    "4a6c47ad4af7"
   ],
   "renders": [
     {
@@ -145,6 +146,13 @@
       "slug": "kgel-razmyshlyaet-o-pobede-v-nominatsii-elektronnyy-treyler-5c7c9aa8",
       "title": "Kögel претендует на премию за электрический трейлер",
       "created_at": "2026-10-03T08:14:06.024088+00:00",
+      "format": "social-v2"
+    },
+    {
+      "content_key": "4a6c47ad4af7",
+      "slug": "bendix-bowling-green-plant-poluchil-nagradu-za-bezopasnost-4a6c47ad",
+      "title": "Завод Bendix в Кентукки получил награду за безопасность труда",
+      "created_at": "2026-10-03T16:14:32.819732+00:00",
       "format": "social-v2"
     }
   ]
