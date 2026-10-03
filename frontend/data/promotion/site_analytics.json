@@ -1,28 +1,28 @@
 {
   "schema": 1,
-  "updated_at": "2026-10-02T21:22:59+00:00",
+  "updated_at": "2026-10-03T20:01:24+00:00",
   "counter_id": "106240080",
   "metrika": {
     "status": "ok",
     "period_days": 7,
-    "visits": 152,
-    "users": 147,
+    "visits": 164,
+    "users": 158,
     "sources": [
       {
         "id": "direct",
         "name": "Прямые заходы",
-        "visits": 101,
-        "users": 99,
-        "bounce_rate": 69.3,
+        "visits": 109,
+        "users": 106,
+        "bounce_rate": 69.7,
         "page_depth": 1.25
       },
       {
         "id": "organic",
         "name": "Переходы из поисковых систем",
-        "visits": 24,
-        "users": 24,
-        "bounce_rate": 37.5,
-        "page_depth": 1.08
+        "visits": 28,
+        "users": 28,
+        "bounce_rate": 35.7,
+        "page_depth": 1.11
       },
       {
         "id": "social",
@@ -80,9 +80,9 @@
       "top_queries": [
         {
           "query": "приказ минтранса 212 от 12.05.2026",
-          "shows": 7,
+          "shows": 8,
           "clicks": 0,
-          "position": 12.4
+          "position": 12.5
         },
         {
           "query": "приказ минтранса россии от 12 мая 2026 года № 212",
@@ -91,16 +91,16 @@
           "position": 12.8
         },
         {
+          "query": "как рассчитать нагрузку на ось грузового автомобиля с полуприцепом калькулятор",
+          "shows": 3,
+          "clicks": 0,
+          "position": 7.0
+        },
+        {
           "query": "приказ минтранса 212 от 12 мая 2026 года",
           "shows": 3,
           "clicks": 0,
           "position": 13.3
-        },
-        {
-          "query": "(приказ министерства транспорта рф 12 мая 2026 года № 212).",
-          "shows": 2,
-          "clicks": 0,
-          "position": 11.5
         },
         {
           "query": "когель тотал ру",
@@ -109,16 +109,16 @@
           "position": 12.0
         },
         {
-          "query": "крона mvideo ru",
-          "shows": 2,
-          "clicks": 0,
-          "position": 8.5
-        },
-        {
           "query": "нагрузка на ось тягача киров - ярославль федеральная трасса",
           "shows": 2,
           "clicks": 0,
           "position": 12.0
+        },
+        {
+          "query": "нужно ли проходить техосмотр на полуприцеп",
+          "shows": 2,
+          "clicks": 0,
+          "position": 3.5
         },
         {
           "query": "приказ минтранса россии от 12.05.2026 №212",
@@ -154,12 +154,12 @@
       {
         "code": "NO_SITEMAPS",
         "severity": "POSSIBLE_PROBLEM",
-        "since": "2026-10-02T20:15:15.458+03:00"
+        "since": "2026-10-03T20:01:04.123+03:00"
       },
       {
         "code": "BIG_FAVICON_ABSENT",
         "severity": "RECOMMENDATION",
-        "since": "2026-10-02T21:29:26.075+03:00"
+        "since": "2026-10-03T20:25:39.445+03:00"
       },
       {
         "code": "NOT_IN_SPRAV",
