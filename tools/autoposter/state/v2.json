@@ -17,7 +17,8 @@
     "aa68f956f2d1",
     "sat:sat545-overview",
     "37a67f56e81c",
-    "2612fbfa4b06"
+    "2612fbfa4b06",
+    "5c7c9aa83ff0"
   ],
   "renders": [
     {
@@ -137,6 +138,13 @@
       "slug": "kak-sdelat-servis-effektivnym-glavnoe-s-konferentsii-realnyy-servis-2026-2612fbfa",
       "title": "Как сделать сервис грузового парка эффективнее",
       "created_at": "2026-10-02T16:15:15.787308+00:00",
+      "format": "social-v2"
+    },
+    {
+      "content_key": "5c7c9aa83ff0",
+      "slug": "kgel-razmyshlyaet-o-pobede-v-nominatsii-elektronnyy-treyler-5c7c9aa8",
+      "title": "Kögel претендует на премию за электрический трейлер",
+      "created_at": "2026-10-03T08:14:06.024088+00:00",
       "format": "social-v2"
     }
   ]
